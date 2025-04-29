@@ -1,0 +1,17 @@
+Curso_disennos_experimentales/
+├── R/
+│   ├── global.R
+│   ├── ui.R
+│   ├── server.R
+│   └── modules/
+│       ├── session1.R
+│       ├── session2.R
+│       ├── session3.R
+│       └── … session8.R
+├── www/
+│   └── images/          # Aquí se almacenarán todas las imágenes (png, jpg, etc.)
+├── data/                # Carpeta para datos de ejemplo o datasets
+├── DESCRIPTION          # Metadatos del paquete (opcional si se empaqueta)
+├── NAMESPACE            # Exportaciones de funciones (opcional)
+├── README.md
+└── app.R
