@@ -22,10 +22,10 @@ session2UI <- function(id) {
     
     # Usar navset_tab con nav_panel de bslib
     navset_tab(
-      # ——————————————
-      # PESTAÑA: TEMARIO
-      # ——————————————
-      nav_panel(title = "Temario",
+    # ——————————————
+    # PESTAÑA: TEMARIO
+    # ——————————————
+    nav_panel(title = "Temario",
       h4(class = "section-header", "Temario"),
       
       # Tabla de actividades
@@ -127,10 +127,10 @@ datos %>%
       )
     ),
 
-        # ——————————————
-        # PESTAÑA: 1 Medidas básicas
-        # ——————————————
-        nav_panel(
+    # ——————————————
+    # PESTAÑA: 1 Medidas básicas
+    # ——————————————
+    nav_panel(
           title = "1 Medidas básicas",
           h4(class = "section-header", "Medidas básicas"),
 
@@ -308,79 +308,79 @@ boxplot(rend_trigo,
                     tags$li("Calcula el coeficiente de variación para evaluar la estabilidad de rendimientos.")
                   )
                 )
-            ),
+    ),
 
-            # ——————————————
-            # PESTAÑA: 2 Curtosis/Asimetría
-            # ——————————————
+    # ——————————————
+    # PESTAÑA: 2 Curtosis/Asimetría
+    # ——————————————
 
-            # --- UI: pestaña 2 Curtosis/Asimetría ---
-            nav_panel(
-              title = "2 Curtosis/Asimetría",
-              h4(class = "section-header", "Curtosis y Asimetría"),
-              
-              # ---- Texto teórico ----
-              tags$br(),
-              h5(class = "section-header", "Explicación teorica"),
-              tags$div(class = "theory-text",
-                tags$p("La curtosis y la asimetría describen la forma de la distribución de los datos. Según Joanes y Gill (1998), la asimetría mide la simetría, con valores negativos indicando distribución sesgada a la izquierda y positivos a la derecha, mientras que la curtosis mide la “colitud” de las colas, con valores positivos indicando colas pesadas (leptocúrtica) y negativos colas ligeras (platicúrtica). En R, estas medidas se calculan con el paquete ", tags$i("moments"), "."),
-                
-                # Ecuaciones con MathJax
-                tags$p(
-                  "Se definen matemáticamente como:",
-                  withMathJax(helpText("$$\\gamma_1 = \\frac{E\\bigl[(X-\\mu)^3\\bigr]}{\\sigma^3}, \\quad \\text{(Asimetría)}$$")),
-                  withMathJax(helpText("$$\\gamma_2 = \\frac{E\\bigl[(X-\\mu)^4\\bigr]}{\\sigma^4} - 3, \\quad \\text{(Exceso de Curtosis)}$$"))
-                ),
+    # --- UI: pestaña 2 Curtosis/Asimetría ---
+    nav_panel(
+      title = "2 Curtosis/Asimetría",
+      h4(class = "section-header", "Curtosis y Asimetría"),
+      
+      # ---- Texto teórico ----
+      tags$br(),
+      h5(class = "section-header", "Explicación teorica"),
+      tags$div(class = "theory-text",
+        tags$p("La curtosis y la asimetría describen la forma de la distribución de los datos. Según Joanes y Gill (1998), la asimetría mide la simetría, con valores negativos indicando distribución sesgada a la izquierda y positivos a la derecha, mientras que la curtosis mide la “colitud” de las colas, con valores positivos indicando colas pesadas (leptocúrtica) y negativos colas ligeras (platicúrtica). En R, estas medidas se calculan con el paquete ", tags$i("moments"), "."),
+        
+        # Ecuaciones con MathJax
+        tags$p(
+          "Se definen matemáticamente como:",
+          withMathJax(helpText("$$\\gamma_1 = \\frac{E\\bigl[(X-\\mu)^3\\bigr]}{\\sigma^3}, \\quad \\text{(Asimetría)}$$")),
+          withMathJax(helpText("$$\\gamma_2 = \\frac{E\\bigl[(X-\\mu)^4\\bigr]}{\\sigma^4} - 3, \\quad \\text{(Exceso de Curtosis)}$$"))
+        ),
 
-                tags$p("Donde \\(\\mu\\) es la media, \\(\\sigma\\) la desviación estándar, \\(E[\\cdot]\\) esperanza matemática. Un \\(\\gamma_1 > 0\\) indica sesgo a la derecha; \\(\\gamma_1 < 0\\), sesgo a la izquierda. Un \\(\\gamma_2 > 0\\) es leptocúrtico; \\(\\gamma_2 < 0\\), platicúrtico; y \\(\\gamma_2 = 0\\) mesocúrtico, igual a la normal."),
+        tags$p("Donde \\(\\mu\\) es la media, \\(\\sigma\\) la desviación estándar, \\(E[\\cdot]\\) esperanza matemática. Un \\(\\gamma_1 > 0\\) indica sesgo a la derecha; \\(\\gamma_1 < 0\\), sesgo a la izquierda. Un \\(\\gamma_2 > 0\\) es leptocúrtico; \\(\\gamma_2 < 0\\), platicúrtico; y \\(\\gamma_2 = 0\\) mesocúrtico, igual a la normal."),
 
-                # Rangos recomendados
-                tags$p(
-                  "Para aproximarse a una distribución normal y aplicar tests paramétricos, se recomienda que la asimetría se mantenga entre −1 y +1 (excelente) o como máximo ±2 (aceptable), y que el exceso de curtosis esté dentro de ±2 (estricto) o, en contextos más flexibles, dentro de −7 a +7 (Byrne, 2010; Hair et al., 2010)."
-                ), 
+        # Rangos recomendados
+        tags$p(
+          "Para aproximarse a una distribución normal y aplicar tests paramétricos, se recomienda que la asimetría se mantenga entre −1 y +1 (excelente) o como máximo ±2 (aceptable), y que el exceso de curtosis esté dentro de ±2 (estricto) o, en contextos más flexibles, dentro de −7 a +7 (Byrne, 2010; Hair et al., 2010)."
+        ), 
 
-                # Utilidad en agronomía
-                tags$p("En agronomía, estos estadísticos permiten:"),
-                tags$ul(
-                  tags$li(
-                    "  - Detectar sesgos en los rendimientos para ajustar manejo: valores de asimetría próximos a cero garantizan la validez de ANOVA y regresión lineal en ensayos de campo (George & Mallery, 2010)."
-                  ),
+        # Utilidad en agronomía
+        tags$p("En agronomía, estos estadísticos permiten:"),
+        tags$ul(
+          tags$li(
+            "  - Detectar sesgos en los rendimientos para ajustar manejo: valores de asimetría próximos a cero garantizan la validez de ANOVA y regresión lineal en ensayos de campo (George & Mallery, 2010)."
+          ),
 
-                  tags$li(
-                    "Cuantificar riesgo de eventos extremos: un exceso de curtosis positivo indica colas pesadas y mayor probabilidad de rendimientos muy bajos o muy altos, afectando planificación de cosecha y control de calidad (SPC for Excel, 2007)."
-                  ),
+          tags$li(
+            "Cuantificar riesgo de eventos extremos: un exceso de curtosis positivo indica colas pesadas y mayor probabilidad de rendimientos muy bajos o muy altos, afectando planificación de cosecha y control de calidad (SPC for Excel, 2007)."
+          ),
 
-                  tags$li(
-                    "Identificar homogeneidad en parcelas: exceso de curtosis negativo señala colas ligeras, propio de datos más uniformes, deseable en ensayos comparativos de variedades (Ramirez, 2001)."
-                  ),
+          tags$li(
+            "Identificar homogeneidad en parcelas: exceso de curtosis negativo señala colas ligeras, propio de datos más uniformes, deseable en ensayos comparativos de variedades (Ramirez, 2001)."
+          ),
 
-                  tags$li(
-                    "Diseñar prácticas resilientes: un sesgo bajo (|γ₁| < 0.5) y exceso de curtosis cercano a cero (|γ₂| < 0.5) son óptimos para modelos de estabilidad interanual y pronósticos de rendimiento (Tabachnick & Fidell, 2013)."
-                  ), 
-                ),
+          tags$li(
+            "Diseñar prácticas resilientes: un sesgo bajo (|γ₁| < 0.5) y exceso de curtosis cercano a cero (|γ₂| < 0.5) son óptimos para modelos de estabilidad interanual y pronósticos de rendimiento (Tabachnick & Fidell, 2013)."
+          ), 
+        ),
 
-                # Ejemplo de datos y figura
-                tags$p(
-                  "Ejemplo de datos (t/ha): ",
-                  tags$code("c(4.8, 5.5, 5.0, 6.1, 4.9, 5.3, 5.8, 4.7, 5.0, 5.4, 4.6, 5.2)")
-                ),
+        # Ejemplo de datos y figura
+        tags$p(
+          "Ejemplo de datos (t/ha): ",
+          tags$code("c(4.8, 5.5, 5.0, 6.1, 4.9, 5.3, 5.8, 4.7, 5.0, 5.4, 4.6, 5.2)")
+        ),
 
-                tags$p(
-                  "Calculamos en R:",
-                  tags$code("skewness(datos)  ≈ -0.15"),
-                  ", ",
-                  tags$code("kurtosis(datos) ≈ -0.42"),
-                  "—ambos cercanos a cero, indicando una distribución casi normal."
-                ),
+        tags$p(
+          "Calculamos en R:",
+          tags$code("skewness(datos)  ≈ -0.15"),
+          ", ",
+          tags$code("kurtosis(datos) ≈ -0.42"),
+          "—ambos cercanos a cero, indicando una distribución casi normal."
+        ),
 
-                tags$p("A continuación, la distribución de estos datos con líneas punteadas que señalan la media (rojo), la dirección del sesgo (morado) y la curtosis (marrón):"),
-                plotOutput(ns("skewKurtIllustration"), height = "300px")
+        tags$p("A continuación, la distribución de estos datos con líneas punteadas que señalan la media (rojo), la dirección del sesgo (morado) y la curtosis (marrón):"),
+        plotOutput(ns("skewKurtIllustration"), height = "300px")
 
-              ),
+      ),
 
-              # ---- Ejemplo práctico en R ----
-              h5(class = "section-header", "Ejemplo práctico en R"),
-              tags$pre("
+      # ---- Ejemplo práctico en R ----
+      h5(class = "section-header", "Ejemplo práctico en R"),
+      tags$pre("
 # Instalar y cargar paquete
 # install.packages('moments')
 library(moments)
@@ -523,26 +523,24 @@ print(paste('Exceso de Curtosis =', round(curtosis, 3)))
               tags$li("Interpreta si tu variable presenta sesgo o colas pesadas/ligeras."),
               tags$li("Compara los resultados entre dos grupos de tratamiento usando ", tags$code("group_by()"), " + ", tags$code("summarise()"), ".")
             ),
+    ),
 
 
-          ),
-
-
-          # ——————————————
-          # PESTAÑA: Referencias 
-          # ——————————————
-          nav_panel(
-            title = "Referencias",
-            tags$ul(
-              tags$li("Byrne, B. M. (2010). _Structural Equation Modeling with AMOS: Basic Concepts, Applications, and Programming_ (2nd ed.). Routledge."),
-              tags$li("George, D., & Mallery, P. (2010). _SPSS for Windows Step by Step: A Simple Guide and Reference_ (10th ed.). Pearson."),
-              tags$li("Hair, J. F., Black, W. C., Babin, B. J., & Anderson, R. E. (2010). _Multivariate Data Analysis_ (7th ed.). Prentice Hall."),
-              tags$li("Joanes, D. N., & Gill, C. A. (1998). Comparing measures of sample skewness and kurtosis. _Journal of the Royal Statistical Society: Series D (The Statistician)_, 47(1), 183–189."),
-              tags$li("Ramirez, O. A. (2001). Are crop yields normally distributed? Paper presented at the American Agricultural Economics Association Annual Meeting, Chicago, IL."),
-              tags$li("SPC for Excel. (2007). Are skewness and kurtosis useful statistics? Retrieved from https://www.spcforexcel.com/knowledge/basic-statistics/are-skewness-and-kurtosis-useful-statistics"),
-              tags$li("Tabachnick, B. G., & Fidell, L. S. (2013). _Using Multivariate Statistics_ (6th ed.). Pearson.")
-            )
-          )
+    # ——————————————
+    # PESTAÑA: Referencias 
+    # ——————————————
+    nav_panel(
+      title = "Referencias",
+      tags$ul(
+        tags$li("Byrne, B. M. (2010). _Structural Equation Modeling with AMOS: Basic Concepts, Applications, and Programming_ (2nd ed.). Routledge."),
+        tags$li("George, D., & Mallery, P. (2010). _SPSS for Windows Step by Step: A Simple Guide and Reference_ (10th ed.). Pearson."),
+        tags$li("Hair, J. F., Black, W. C., Babin, B. J., & Anderson, R. E. (2010). _Multivariate Data Analysis_ (7th ed.). Prentice Hall."),
+        tags$li("Joanes, D. N., & Gill, C. A. (1998). Comparing measures of sample skewness and kurtosis. _Journal of the Royal Statistical Society: Series D (The Statistician)_, 47(1), 183–189."),
+        tags$li("Ramirez, O. A. (2001). Are crop yields normally distributed? Paper presented at the American Agricultural Economics Association Annual Meeting, Chicago, IL."),
+        tags$li("SPC for Excel. (2007). Are skewness and kurtosis useful statistics? Retrieved from https://www.spcforexcel.com/knowledge/basic-statistics/are-skewness-and-kurtosis-useful-statistics"),
+        tags$li("Tabachnick, B. G., & Fidell, L. S. (2013). _Using Multivariate Statistics_ (6th ed.). Pearson.")
+      )
+    )
 
 
     )
