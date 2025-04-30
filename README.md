@@ -127,7 +127,7 @@ Cada sesión incluye:
 
 ## Contacto
 
-Para comentarios, sugerencias o reportes de errores, abre un issue o escribe a tu_email@dominio.com.
+Para comentarios, sugerencias o reportes de errores, abre un issue o escribe a alexprieto1997@gmail.com.
 
 
 Desarrollado por Alex Prieto, Magíster en Big Data y Data Science
