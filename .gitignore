@@ -4,5 +4,12 @@
 .RData/
 .Ruserdata/
 
+# RStudio project files
+*.Rproj
+*.Rproj.user
+*.Rhistory
+*.RData
+*.Ruserdata
+
 # Archive files rsconnect
 rsconnect/
