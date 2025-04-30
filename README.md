@@ -6,23 +6,23 @@ Este repositorio contiene una aplicación Shiny desarrollada en R para servir co
 
 La aplicación está diseñada para:
 
-Presentar el contenido de cada sesión de forma clara y estructurada.
+- **Presentar** el contenido de cada sesión de forma clara y estructurada.
 
-Proporcionar ejemplos de código reproducibles y plantillas para cada concepto.
+- **Proporcionar** ejemplos de código reproducibles y plantillas para cada concepto.
 
-Permitir la escalabilidad futura mediante una arquitectura modular basada en módulos de Shiny por sesión.
+- **Permitir** la escalabilidad futura mediante una arquitectura modular basada en módulos de Shiny por sesión.
 
-Soportar la incorporación de recursos multimedia (imágenes, gráficos) en la carpeta www/images/.
+- **Soportar** la incorporación de recursos multimedia (imágenes, gráficos) en la carpeta www/images/.
 
 ## Objetivos
 
-Facilitar el aprendizaje de R aplicado a datos agronómicos.
+1. Facilitar el aprendizaje de R aplicado a datos agronómicos.
 
-Enseñar conceptos estadísticos desde lo descriptivo hasta diseños experimentales avanzados.
+2. Enseñar conceptos estadísticos desde lo descriptivo hasta diseños experimentales avanzados.
 
-Ofrecer un entorno interactivo para que los estudiantes practiquen y reproduzcan análisis en R.
+3. Ofrecer un entorno interactivo para que los estudiantes practiquen y reproduzcan análisis en R.
 
-Estructura del Repositorio
+## Estructura del Repositorio
 
 ```plaintext
 my_shiny_app/
