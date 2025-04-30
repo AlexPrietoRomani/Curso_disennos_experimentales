@@ -3,6 +3,7 @@
 .Rhistory/
 .RData/
 .Ruserdata/
+.Rprofile/
 
 # RStudio project files
 *.Rproj
@@ -10,6 +11,11 @@
 *.Rhistory
 *.RData
 *.Ruserdata
+*.Rprofile
+
+# File credentials
+# Note: This file is not tracked by git, but it is included here for reference.
+credentials.sqlite
 
 # Archive files rsconnect
 rsconnect/
