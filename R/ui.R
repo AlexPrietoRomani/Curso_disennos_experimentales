@@ -3,6 +3,7 @@ library(shiny)
 library(shinythemes)
 
 ui <- fluidPage(
+  withMathJax(),
   theme = bs_theme(bootswatch = "flatly"),
   tags$head(
     tags$style(HTML("
