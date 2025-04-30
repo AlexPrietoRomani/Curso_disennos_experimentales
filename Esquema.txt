@@ -11,7 +11,5 @@ Curso_disennos_experimentales/
 ├── www/
 │   └── images/          # Aquí se almacenarán todas las imágenes (png, jpg, etc.)
 ├── data/                # Carpeta para datos de ejemplo o datasets
-├── DESCRIPTION          # Metadatos del paquete (opcional si se empaqueta)
-├── NAMESPACE            # Exportaciones de funciones (opcional)
 ├── README.md
 └── app.R
