@@ -318,9 +318,9 @@ boxplot(rend_trigo,
             nav_panel(
               title = "2 Curtosis/Asimetría",
               h4(class = "section-header", "Curtosis y Asimetría"),
-              tags$br(),
-              # ---- Texto teórico ----
               
+              # ---- Texto teórico ----
+              tags$br(),
               h5(class = "section-header", "Explicación teorica"),
               tags$div(class = "theory-text",
                 tags$p("La curtosis y la asimetría describen la forma de la distribución de los datos. Según Joanes y Gill (1998), la asimetría mide la simetría, con valores negativos indicando distribución sesgada a la izquierda y positivos a la derecha, mientras que la curtosis mide la “colitud” de las colas, con valores positivos indicando colas pesadas (leptocúrtica) y negativos colas ligeras (platicúrtica). En R, estas medidas se calculan con el paquete ", tags$i("moments"), "."),
@@ -332,7 +332,49 @@ boxplot(rend_trigo,
                   withMathJax(helpText("$$\\gamma_2 = \\frac{E\\bigl[(X-\\mu)^4\\bigr]}{\\sigma^4} - 3, \\quad \\text{(Exceso de Curtosis)}$$"))
                 ),
 
-                tags$p("Donde \\(\\mu\\) es la media, \\(\\sigma\\) la desviación estándar, \\(E[\\cdot]\\) esperanza matemática. Un \\(\\gamma_1 > 0\\) indica sesgo a la derecha; \\(\\gamma_1 < 0\\), sesgo a la izquierda. Un \\(\\gamma_2 > 0\\) es leptocúrtico; \\(\\gamma_2 < 0\\), platicúrtico; y \\(\\gamma_2 = 0\\) mesocúrtico, igual a la normal.")
+                tags$p("Donde \\(\\mu\\) es la media, \\(\\sigma\\) la desviación estándar, \\(E[\\cdot]\\) esperanza matemática. Un \\(\\gamma_1 > 0\\) indica sesgo a la derecha; \\(\\gamma_1 < 0\\), sesgo a la izquierda. Un \\(\\gamma_2 > 0\\) es leptocúrtico; \\(\\gamma_2 < 0\\), platicúrtico; y \\(\\gamma_2 = 0\\) mesocúrtico, igual a la normal."),
+
+                # Rangos recomendados
+                tags$p(
+                  "Para aproximarse a una distribución normal y aplicar tests paramétricos, se recomienda que la asimetría se mantenga entre −1 y +1 (excelente) o como máximo ±2 (aceptable), y que el exceso de curtosis esté dentro de ±2 (estricto) o, en contextos más flexibles, dentro de −7 a +7 (Byrne, 2010; Hair et al., 2010)."
+                ), 
+
+                # Utilidad en agronomía
+                tags$p("En agronomía, estos estadísticos permiten:"),
+                tags$ul(
+                  tags$li(
+                    "  - Detectar sesgos en los rendimientos para ajustar manejo: valores de asimetría próximos a cero garantizan la validez de ANOVA y regresión lineal en ensayos de campo (George & Mallery, 2010)."
+                  ),
+
+                  tags$li(
+                    "Cuantificar riesgo de eventos extremos: un exceso de curtosis positivo indica colas pesadas y mayor probabilidad de rendimientos muy bajos o muy altos, afectando planificación de cosecha y control de calidad (SPC for Excel, 2007)."
+                  ),
+
+                  tags$li(
+                    "Identificar homogeneidad en parcelas: exceso de curtosis negativo señala colas ligeras, propio de datos más uniformes, deseable en ensayos comparativos de variedades (Ramirez, 2001)."
+                  ),
+
+                  tags$li(
+                    "Diseñar prácticas resilientes: un sesgo bajo (|γ₁| < 0.5) y exceso de curtosis cercano a cero (|γ₂| < 0.5) son óptimos para modelos de estabilidad interanual y pronósticos de rendimiento (Tabachnick & Fidell, 2013)."
+                  ), 
+                ),
+
+                # Ejemplo de datos y figura
+                tags$p(
+                  "Ejemplo de datos (t/ha): ",
+                  tags$code("c(4.8, 5.5, 5.0, 6.1, 4.9, 5.3, 5.8, 4.7, 5.0, 5.4, 4.6, 5.2)")
+                ),
+
+                tags$p(
+                  "Calculamos en R:",
+                  tags$code("skewness(datos)  ≈ -0.15"),
+                  ", ",
+                  tags$code("kurtosis(datos) ≈ -0.42"),
+                  "—ambos cercanos a cero, indicando una distribución casi normal."
+                ),
+
+                tags$p("A continuación, la distribución de estos datos con líneas punteadas que señalan la media (rojo), la dirección del sesgo (morado) y la curtosis (marrón):"),
+                plotOutput(ns("skewKurtIllustration"), height = "300px")
 
               ),
 
@@ -369,44 +411,67 @@ print(paste('Exceso de Curtosis =', round(curtosis, 3)))
             plotlyOutput(ns("kurtosisPlot"), height = "300px"),
             tags$div(class = "plot-explanation",
               tags$p(
-                "En este gráfico presentamos tres distribuciones con distinto nivel de curtosis, evaluadas sobre un rango simétrico de ",
+                "La curtosis mide el peso relativo de las colas de la distribución frente a su parte central. Aunque se pensó inicialmente que cuantificaba el \"pico\" de la curva, en realidad refleja la probabilidad de obtener valores extremos."
+              ),
+              tags$p(
+                "Una distribución normal tiene curtosis = 3. Muchos paquetes reportan el ",
+                tags$b("exceso de curtosis"),
+                " (kurtosis – 3), de modo que para la normal el exceso es 0."
+              ),
+              tags$ul(
+                tags$li(
+                  tags$b("Mesocúrtica (Exceso = 0):"),
+                  " igual a la normal; función ",
+                  tags$code("dnorm(x, 0, 1)")
+                ),
+                tags$li(
+                  tags$b("Leptocúrtica (Exceso > 0):"),
+                  " colas pesadas, mayor probabilidad de valores extremos; ejemplo con ",
+                  tags$code("dt(x, df = 2)")
+                ),
+                tags$li(
+                  tags$b("Platicúrtica (Exceso < 0):"),
+                  " colas ligeras, menor probabilidad de valores extremos; ejemplo con ",
+                  tags$code("dunif(x, -3, 3)")
+                )
+              ),
+              tags$p(
+                "En este gráfico usamos un rango simétrico de ",
                 tags$code("x = -5"),
                 " a ",
                 tags$code("x = 5"),
-                ". Esto permite comparar la \"pesadez\" de las colas:",
-              ),
-              tags$ul(
-                tags$li(tags$b("Mesocúrtica (Normal):"), tags$p(" curtosis = 0 (exceso), reproducida con "),
-                        tags$code("dnorm(x, 0, 1)"), "."),
-                tags$li(tags$b("Leptocúrtica (t, df = 2):"), tags$p(" colas pesadas, generada con "),
-                        tags$code("dt(x, df = 2)"), "."),
-                tags$li(tags$b("Platicúrtica (Uniforme):"), tags$p(" colas ligeras, con "),
-                        tags$code("dunif(x, -3, 3)"), ".")
-              ),
-              tags$p("El eje X va de -5 a 5 para cubrir simétricamente las colas y apreciar mejor las diferencias en densidad.")
+                " para comparar claramente la extensión y el peso de las colas en cada caso."
+              )
             ),
+
 
             # Asimetría
             tags$h5("Visualización interactiva de Asimetría"),
-            plotlyOutput(ns("skewnessPlot"), height = "300px"),
+            tags$br(),
+            plotlyOutput(ns("skewnessPlot"), height = "400px"),
             tags$div(class = "plot-explanation",
-              tags$p(
-                "Aquí contrastamos tres distribuciones con distinto sesgo, graficadas en un dominio simétrico de ",
-                tags$code("x = -5"),
-                " a ",
-                tags$code("x = 5"),
-                " para la normal, extendiendo luego hacia un solo lado para la exponencial:"
-              ),
+              tags$p("Este gráfico interactivo muestra tres paneles con distribuciones de distinto sesgo:"),
               tags$ul(
-                tags$li(tags$b("Simétrica (Normal):"), tags$p(" sin sesgo, con "),
-                        tags$code("dnorm(x, 0, 1)")),
-                tags$li(tags$b("Sesgo a la derecha (Exponencial):"), tags$p(" cola larga hacia valores positivos, usando "),
-                        tags$code("dexp(x, rate = 1)")),
-                tags$li(tags$b("Sesgo a la izquierda (Exp invertida):"), tags$p(" cola larga hacia valores negativos, con "),
-                        tags$code("dexp(-x, rate = 1)")),
+                tags$li(tags$b("Sesgo Positivo (Gamma):"),
+                        " una distribución Gamma (shape = 2, scale = 2) con cola larga a la derecha;"),
+                tags$li(tags$b("Distribución Simétrica (Normal):"),
+                        " una curva normal estándar sin sesgo;"),
+                tags$li(tags$b("Sesgo Negativo (Gamma invertida):"),
+                        " el espejo de la Gamma, con cola larga a la izquierda.")
               ),
-              tags$p("En el eje X usamos -5 a 5 (o más allá) según cada distribución, para que el alumnado vea cómo la densidad se extiende más hacia un lado cuando hay sesgo.")
-            ),
+              tags$p("En cada panel se han añadido líneas verticales que señalan:"),
+              tags$ul(
+                tags$li(tags$span(style = "color:blue;", "Moda"), "(línea sólida azul)"),
+                tags$li(tags$span(style = "color:green;", "Mediana"), "(línea punteada verde)"),
+                tags$li(tags$span(style = "color:red;", "Media"), "(línea punteada roja)")
+              ),
+              tags$p("Los rangos en el eje X son:"),
+              tags$ul(
+                tags$li("0 a 14 para Sesgo Positivo,"),
+                tags$li("-6 a 6 para la Distribución Simétrica,"),
+                tags$li("-14 a 0 para Sesgo Negativo.")
+              ),
+            ),    
 
             # ---- Tabla resumen ----
             tags$br(),
@@ -463,6 +528,21 @@ print(paste('Exceso de Curtosis =', round(curtosis, 3)))
           ),
 
 
+          # ——————————————
+          # PESTAÑA: Referencias 
+          # ——————————————
+          nav_panel(
+            title = "Referencias",
+            tags$ul(
+              tags$li("Byrne, B. M. (2010). _Structural Equation Modeling with AMOS: Basic Concepts, Applications, and Programming_ (2nd ed.). Routledge."),
+              tags$li("George, D., & Mallery, P. (2010). _SPSS for Windows Step by Step: A Simple Guide and Reference_ (10th ed.). Pearson."),
+              tags$li("Hair, J. F., Black, W. C., Babin, B. J., & Anderson, R. E. (2010). _Multivariate Data Analysis_ (7th ed.). Prentice Hall."),
+              tags$li("Joanes, D. N., & Gill, C. A. (1998). Comparing measures of sample skewness and kurtosis. _Journal of the Royal Statistical Society: Series D (The Statistician)_, 47(1), 183–189."),
+              tags$li("Ramirez, O. A. (2001). Are crop yields normally distributed? Paper presented at the American Agricultural Economics Association Annual Meeting, Chicago, IL."),
+              tags$li("SPC for Excel. (2007). Are skewness and kurtosis useful statistics? Retrieved from https://www.spcforexcel.com/knowledge/basic-statistics/are-skewness-and-kurtosis-useful-statistics"),
+              tags$li("Tabachnick, B. G., & Fidell, L. S. (2013). _Using Multivariate Statistics_ (6th ed.). Pearson.")
+            )
+          )
 
 
     )
@@ -591,6 +671,57 @@ session2Server <- function(input, output, session) {
 
   #-- PESTAÑA: 2 Curtosis/Asimetría
 
+  # Gráfico de ilustración de sesgo y curtosis
+  output$skewKurtIllustration <- renderPlot({
+    library(ggplot2)
+    library(moments)
+
+    # Datos de ejemplo
+    datos <- c(4.8, 5.5, 5.0, 6.1, 4.9, 5.3, 5.8, 4.7, 5.0, 5.4, 4.6, 5.2)
+    m      <- mean(datos)
+    s      <- sd(datos)
+    gamma1 <- skewness(datos)
+    gamma2 <- kurtosis(datos)
+
+    df <- data.frame(x = datos)
+
+    ggplot(df, aes(x)) +
+      geom_histogram(aes(y = ..density..),
+                     bins = 6,
+                     fill = "lightgreen",
+                     color = "darkgreen") +
+      geom_density(color = "darkblue", size = 1) +
+      # Media
+      geom_vline(xintercept = m, linetype = "dashed", color = "red") +
+      annotate("text", x = m, y = 0.4,
+               label = "Media", color = "red", vjust = -0.5) +
+      # Sesgo
+      annotate("segment",
+               x = m + gamma1 * s, xend = m + gamma1 * s,
+               y = 0, yend = 0.3,
+               arrow = arrow(length = unit(0.1, "inches")),
+               color = "purple") +
+      annotate("text", x = m + gamma1 * s, y = 0.32,
+               label = paste0("Sesgo = ", round(gamma1, 2)),
+               color = "purple", hjust = 0) +
+      # Curtosis
+      annotate("segment",
+               x = m, xend = m,
+               y = 0, yend = 0.25,
+               arrow = arrow(length = unit(0.1, "inches")),
+               color = "brown") +
+      annotate("text", x = m, y = 0.27,
+               label = paste0("Curtosis = ", round(gamma2, 2)),
+               color = "brown", hjust = 1) +
+      labs(
+        title    = "Distribución de rendimientos de trigo",
+        subtitle = "Media (rojo), Sesgo (morado), Curtosis (marrón)",
+        x        = "Rendimiento (t/ha)",
+        y        = "Densidad"
+      ) +
+      theme_minimal()
+  })
+
   # Gráfico de distribución de curtosis
   # Curtosis: comparativa de mesocúrtica (normal), leptocúrtica (t df=2) y platicúrtica (uniforme)
   output$kurtosisPlot <- renderPlotly({
@@ -614,26 +745,65 @@ session2Server <- function(input, output, session) {
   })
 
   # Asimetría: simétrica (normal), sesgo a la derecha (exponencial) y a la izquierda (mirrored exp)
-  output$skewnessPlot <- renderPlotly({
-    library(plotly)
-    # simétrica
-    x1 <- seq(-5, 5, length.out = 400)
-    y1 <- dnorm(x1, mean = 0, sd = 1)
-    # sesgo derecha
-    x2 <- seq(0, 10, length.out = 400)
-    y2 <- dexp(x2, rate = 1)
-    # sesgo izquierda
-    x3 <- seq(-10, 0, length.out = 400)
-    y3 <- dexp(-x3, rate = 1)
+  library(plotly)
 
-    plot_ly(x = ~x1, y = ~y1, name = "Simétrica (Normal)",
-            type = "scatter", mode = "lines") %>%
-      add_trace(x = ~x2, y = ~y2, name = "Sesgo derecha (Exponencial)") %>%
-      add_trace(x = ~x3, y = ~y3, name = "Sesgo izquierda (Exp invertida)") %>%
+  output$skewnessPlot <- renderPlotly({
+    # Parámetros Gamma para sesgo positivo
+    shape <- 2; scale <- 2
+    x_pos   <- seq(0, 14, length.out = 400)
+    dens_pos <- dgamma(x_pos, shape = shape, scale = scale)
+
+    # Normal estándar (simétrica)
+    x_sym   <- seq(-6, 6, length.out = 400)
+    dens_sym <- dnorm(x_sym, 0, 1)
+
+    # Espejo Gamma para sesgo negativo
+    x_neg   <- seq(-14, 0, length.out = 400)
+    dens_neg <- dgamma(-x_neg, shape = shape, scale = scale)
+
+    # Máximo global de densidad
+    y_max_global <- max(dens_pos, dens_sym, dens_neg) * 1.1
+
+    # Función auxiliar que fija range = y_max_global
+    make_panel <- function(x, y, mn, md, mo, title) {
+      plot_ly(x = ~x, y = ~y, type = 'scatter', mode = 'lines', name = title, hoverinfo = 'none') %>%
+        add_lines(name = "Densidad") %>%
+        add_lines(x = c(mo, mo), y = c(0, y_max_global),
+                  line = list(color = 'blue', width = 2),
+                  name = 'Moda') %>%
+        add_lines(x = c(md, md), y = c(0, y_max_global),
+                  line = list(color = 'green', dash = 'dash', width = 2),
+                  name = 'Mediana') %>%
+        add_lines(x = c(mn, mn), y = c(0, y_max_global),
+                  line = list(color = 'red', dash = 'dash', width = 2),
+                  name = 'Media') %>%
+        layout(
+          title  = title,
+          xaxis  = list(title = 'x'),
+          yaxis  = list(title = 'Densidad', range = c(0, y_max_global)),
+          showlegend = FALSE
+        )
+    }
+
+    # Cálculo de media, mediana y moda para cada distribución
+    mean_pos <- shape * scale
+    mode_pos <- if(shape > 1) (shape - 1) * scale else NA
+    med_pos  <- qgamma(0.5, shape = shape, scale = scale)
+
+    mean_sym <- 0; med_sym <- 0; mode_sym <- 0
+    mean_neg <- -mean_pos; mode_neg <- -mode_pos; med_neg <- -med_pos
+
+    # Generación de los tres paneles
+    p_pos <- make_panel(x_pos,   dens_pos, mean_pos,  med_pos,  mode_pos,  "Sesgo Positivo")
+    p_sym <- make_panel(x_sym,   dens_sym, mean_sym,  med_sym,  mode_sym,  "Distribución Simétrica")
+    p_neg <- make_panel(x_neg,   dens_neg, mean_neg,  med_neg,  mode_neg,  "Sesgo Negativo")
+
+    # Combinar manteniendo la misma escala Y
+    subplot(p_pos, p_sym, p_neg,
+            nrows = 1, shareY = TRUE, margin = 0.05) %>%
       layout(
-        title = "Distribuciones según asimetría",
-        xaxis = list(title = "x"),
-        yaxis = list(title = "Densidad")
+        title = "Comparación de Sesgos: Positivo, Simétrico & Negativo",
+        legend = list(x = 0.1, y = -0.2, orientation = 'h')
       )
   })
 
