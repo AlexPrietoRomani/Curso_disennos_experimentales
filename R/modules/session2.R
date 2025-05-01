@@ -3,6 +3,7 @@ library(dplyr)
 library(ggplot2)
 library(moments)
 library(patchwork)
+library(grid)
 
 session2UI <- function(id) {
   ns <- NS(id)
@@ -158,9 +159,25 @@ datos %>%
                 tags$li(tags$b("Varianza:"), " la media de las desviaciones al cuadrado de cada observación respecto a la media del conjunto. Sirve como base teórica, aunque en unidades al cuadrado."),
                 tags$li(tags$b("Desviación estándar:"), " la raíz cuadrada de la varianza. Expresada en las mismas unidades que los datos originales, facilita la interpretación. Una desviación estándar alta indica que los datos están muy dispersos alrededor de la media, mientras que una baja significa que los datos están más concentrados cerca de la media (Montgomery & Runger, 2018)."),
                 tags$li(tags$b("Coeficiente de variación (CV):"), " la razón entre la desviación estándar y la media (a menudo expresada en porcentaje). Es útil para comparar variabilidad relativa entre conjuntos de datos de magnitudes muy distintas. En agricultura, el CV se usa para evaluar la estabilidad de rendimientos: por ejemplo, un cultivo con CV alto en rendimiento presenta mucha variabilidad entre parcelas, lo que puede implicar inconsistencias en manejo o en condiciones.")
-              ),
-              tags$p("Por ejemplo, un rendimiento medio de 5.0 t/ha con desviación estándar 0.8 t/ha sugiere dispersión moderada; si la desviación fuera 2.0 t/ha, habría gran heterogeneidad entre parcelas, quizá por variaciones en suelo o manejo."),
+              )
             ),
+            # Slider para sigma con animación
+            sliderInput(
+              inputId = ns("sigma"),
+              label   = "Desviación estándar \\(\\sigma\\):",
+              min     = 1,
+              max     = 5,
+              value   = 1,
+              step    = 0.1,
+              animate = animationOptions(interval = 500, loop = TRUE)
+            ),
+            # Punto de dibujo
+            plotOutput(ns("densPlot"), height = "400px"),
+
+            tags$br(),
+            tags$p("Por ejemplo, un rendimiento medio de 5.0 t/ha con desviación estándar 0.8 t/ha sugiere dispersión moderada; si la desviación fuera 2.0 t/ha, habría gran heterogeneidad entre parcelas, quizá por variaciones en suelo o manejo."),
+
+            tags$br(),
             h5(class = "section-header", "Ejemplo práctico"),
             
             tags$div(class = "ejemplo-practico",
@@ -1032,6 +1049,65 @@ session2Server <- function(input, output, session) {
   library(ggplot2)
   library(dplyr)
   
+  output$densPlot <- renderPlot({
+    mu    <- 10
+    sigma <- input$sigma
+
+    # Cálculo de varianza y CV
+    varianza <- sigma^2                                # Varianza = σ²
+    cv_pct    <- (sigma / mu) * 100                    # CV en porcentaje
+
+    # Generar datos
+    x <- seq(mu - 4*sigma, mu + 4*sigma, length.out = 500)
+    y <- dnorm(x, mean = mu, sd = sigma)
+    df <- data.frame(x = x, dens = y)
+
+    validate(
+      need(nrow(df) > 0, "No hay datos para graficar")
+    )
+
+    ggplot(df, aes(x = x, y = dens)) +
+      # Área bajo la curva
+      geom_area(fill = "purple", alpha = 0.5) +
+      geom_line(color = "purple", size = 1) +
+
+      # Línea punteada en mu
+      geom_vline(xintercept = mu, linetype = "dashed", size = 0.7) +
+
+      # Flecha desde y = 0.45 hasta la curva en x = mu
+      annotate("segment",
+              x    = mu + 1, xend = mu,
+              y    = 0.45,  yend = dnorm(mu, mu, sigma),
+              arrow = grid::arrow(length = unit(0.2, "cm")),
+              colour = "black"
+      ) +
+
+      # Texto explicativo junto a la flecha
+      annotate("text",
+              x     = mu + 1.2,
+              y     = 0.45,
+              label = "Media~(mu==10)",
+              parse = TRUE,
+              hjust = 0, vjust = 0.5,
+              size  = 4
+      ) +
+
+      # Etiquetas y tema
+      labs(
+        title = paste0(
+        "Distribución Normal con σ ≈ ", round(sigma, 2),
+        "  |  CV ≈ ", round(cv_pct, 2), "%", 
+        "  |  Varianza ≈ ", round(varianza, 2)
+        ),
+        x     = "Valor",
+        y     = "Densidad"
+      ) +
+      theme_minimal() +
+
+      # Fijar el eje y hasta 0.5 sin recortar datos
+      coord_cartesian(ylim = c(0, 0.5))
+  })
+
   datosAleatorios <- reactive({
     switch(input$escenario,
       "normal"         = rnorm(100, mean = 50, sd = 10),
