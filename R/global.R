@@ -6,6 +6,9 @@ library(janitor)
 library(moments)
 library(plotly)
 library(bslib)
+library(ggplot2)
+library(patchwork)
+library(grid)
 
 # Cargar módulos
 mod_files <- list.files("R/modules", full.names = TRUE, pattern = "\\.R$")
