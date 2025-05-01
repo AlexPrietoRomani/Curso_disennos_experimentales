@@ -1,6 +1,8 @@
 # app.R
 library(shiny)
 
+options(encoding = "UTF-8")
+
 # Cargar módulos y definiciones globales
 source("R/global.R")
 source("R/ui.R")
