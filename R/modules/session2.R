@@ -1,4 +1,5 @@
 # R/modules/session2.R
+library(dplyr)
 library(ggplot2)
 
 session2UI <- function(id) {
@@ -725,6 +726,123 @@ df_acr <- df %>%
       )
   ),
 
+    # ——————————————
+    # PESTAÑA: 4 Visualización
+    # ——————————————
+    nav_panel(
+      title = "4 Visualización",
+      h4(class = "section-header", "4 Visualización de datos"),
+
+      # Teoría
+      tags$div(class = "theory-text",
+        tags$p(
+          "Esta actividad se centra en las técnicas gráficas para la exploración de datos. La visualización es una parte crucial del análisis estadístico, ya que facilita la comprensión de patrones, tendencias y anomalías que pueden no ser evidentes solo con números (Crawley, 2013)."
+        ),
+        tags$ul(
+          tags$li(tags$b("Histogramas:"), " útiles para visualizar la distribución de frecuencias de una variable cuantitativa continua. Permiten identificar la forma de la distribución (normal, sesgada, multimodal, etc.), la presencia de valores extremos y la variabilidad general."),
+          tags$li(tags$b("Boxplots:"), " resumen la distribución de una variable mostrando la mediana, los cuartiles (Q1 y Q3), y cualquier valor atípico fuera de 1.5 veces el rango intercuartílico. Son especialmente útiles para comparar distribuciones entre varios grupos de tratamiento o categorías. En agricultura, por ejemplo, se pueden comparar los rendimientos de diferentes variedades o tratamientos fertilizantes mediante boxplots lado a lado."),
+          tags$li(tags$b("Gráficos de barras:"), " empleados principalmente para variables categóricas (por ejemplo, distribución de frecuencias de variedades sembradas en una región, o conteo de parcelas por tipo de tratamiento). Cada barra representa una categoría y su altura corresponde a la frecuencia o proporción."),
+          tags$li(tags$b("Scatter plots:"), " muestran la relación entre dos variables cuantitativas, trazando puntos en un plano cartesiano. Son muy útiles para detectar correlaciones; por ejemplo, relacionar la cantidad de fertilizante aplicada (eje X) con el rendimiento obtenido (eje Y) para ver si existe tendencia positiva (mayor fertilizante, mayor rendimiento) o alguna tendencia no lineal."),
+          tags$li(tags$b("Gráficos de líneas:"), " útiles cuando se analizan datos de series de tiempo o tendencia a lo largo de gradientes. Por ejemplo, rendimiento de un cultivo a través de los años, o crecimiento de una planta a lo largo de semanas.")
+        ),
+        tags$p(
+          "Buenas prácticas: incluir títulos descriptivos, etiquetar los ejes con nombres y unidades, y agregar leyendas cuando corresponda. Un gráfico bien diseñado debe ser claro y transmitir la información clave de forma comprensible sin ambigüedad (Crawley, 2013). También se menciona la importancia de escalar correctamente los ejes (no truncarlos inapropiadamente) y de elegir el tipo de gráfico adecuado para cada tipo de dato."
+        )
+      ),
+
+      tags$br(),
+      tags$div(class = "my-image-container",
+      tags$h5("Mi gráfico explicativo"),
+      # Ruta relativa: www/images/elegir_graph.png → src = "images/elegir_graph.png"
+      tags$img(
+        src    = "images/elegir_graph.jpg",
+        alt    = "Ilustración de como elegir el gráfico adecuado",
+        class  = "img-responsive",
+        width  = "50%",       # puedes controlar tamaño con width/height
+        height = NULL,
+        style  = "border: 1px solid #ddd; border-radius: 4px; padding: 5px;"
+      )
+    ),
+
+      # Ejemplo 1: Boxplot comparativo
+      tags$br(),
+      h5(class = "section-header", "Ejemplos prácticos en R"),
+      tags$div(class = "example-text",
+        tags$p("A continuación, se presentan ejemplos de gráficos comunes en análisis de datos agronómicos. Se incluyen ejemplos de boxplots, histogramas, gráficos de barras, scatter plots y gráficos de líneas."),
+        tags$p("Los ejemplos son generados aleatoriamente y no representan datos reales.")
+      ),
+      tags$h6("Ejemplo 1: Boxplot comparativo"),
+      tags$pre("
+# Simular rendimientos de dos variedades (t/ha)
+variedad <- factor(c(rep('A', 15), rep('B', 15)))
+rend_frijol <- c(rnorm(15, mean = 2.1, sd = 0.3),
+                 rnorm(15, mean = 2.5, sd = 0.3))
+df_box <- data.frame(Variedad = variedad, Rendimiento = rend_frijol)
+    "),
+      plotOutput(ns("vizBoxplot"), height = "400px"),
+      tags$p("Comparamos la mediana y dispersión de Rendimiento entre las variedades A y B."),
+
+      tags$hr(),
+
+      # Ejemplo 2: Histograma
+      tags$br(),
+      tags$h6("Ejemplo 2: Histograma"),
+      tags$pre("
+# Reusar rend_frijol de antes o simular nueva variable
+hist_data <- rend_frijol
+    "),
+      plotOutput(ns("vizHistogram"), height = "400px"),
+      tags$p("El histograma muestra la forma de la distribución de Rendimiento, identificando sesgos y outliers."),
+
+      tags$hr(),
+
+      # Ejemplo 3: Gráfico de barras con medias y barras de error
+      tags$br(),
+      tags$h6("Ejemplo 3: Gráfico de barras con error estándar"),
+      tags$pre("
+# Calcular medias y error estándar por Variedad
+library(dplyr)
+df_bar <- df_box |>
+  group_by(Variedad) |>
+  summarise(
+    media = mean(Rendimiento),
+    se    = sd(Rendimiento)/sqrt(n()),
+    .groups = 'drop'
+  )
+    "),
+      plotOutput(ns("vizBarplot"), height = "400px"),
+      tags$p("Las barras muestran la media de Rendimiento y las líneas de error son ± 1 SE."),
+
+      tags$hr(),
+
+      # Ejemplo 4: Scatter plot (Fertilizante vs Rendimiento)
+      tags$br(),
+      tags$h6("Ejemplo 4: Scatter plot"),
+      tags$pre("
+# Simular dosis de fertilizante y rendimiento
+set.seed(2025)
+fert <- runif(50, 50, 150)                  # kg/ha
+yield <- 0.02 * fert + rnorm(50, 5, 0.5)    # t/ha
+df_scatter <- data.frame(Fertilizador = fert, Rendimiento = yield)
+    "),
+      plotOutput(ns("vizScatter"), height = "400px"),
+      tags$p("Exploramos la relación lineal entre dosis de fertilizante y rendimiento."),
+
+      tags$hr(),
+
+      # Ejemplo 5: Gráfico de líneas (Serie temporal)
+      tags$br(),
+      tags$h6("Ejemplo 5: Gráfico de líneas"),
+      tags$pre("
+# Simular rendimiento a lo largo de 10 días
+time <- 1:10
+rend_time <- cumsum(rnorm(10, mean = 0.5, sd = 0.2)) + 5
+df_line <- data.frame(Día = time, Rendimiento = rend_time)
+    "),
+      plotOutput(ns("vizLine"), height = "400px"),
+      tags$p("La línea muestra la tendencia de rendimiento a lo largo del tiempo.")
+  ),
+
 
     # ——————————————
     # PESTAÑA: Referencias 
@@ -1007,8 +1125,6 @@ session2Server <- function(input, output, session) {
 
   # -- PESTAÑA: 3 Agrupación
 
-  library(dplyr)
-
   # Función que genera datos según n
   make_data <- function(n) {
     set.seed(2025)
@@ -1178,6 +1294,100 @@ session2Server <- function(input, output, session) {
         "automáticamente con el sufijo _media y _sd."
       )
     })
+  })
+
+  # -- PESTAÑA: 4 Visualización
+
+  # Ejemplo 1: Boxplot comparativo
+  output$vizBoxplot <- renderPlot({
+    df_box <- data.frame(
+      Variedad = factor(c(rep('A', 15), rep('B', 15))),
+      Rendimiento = c(rnorm(15, 2.1, 0.3), rnorm(15, 2.5, 0.3))
+    )
+    ggplot(df_box, aes(x = Variedad, y = Rendimiento, fill = Variedad)) +
+      geom_boxplot() +
+      labs(
+        title = "Rendimiento por Variedad",
+        x     = "Variedad",
+        y     = "Rendimiento (t/ha)"
+      ) +
+      theme_minimal() +
+      theme(legend.position = "none")
+  })
+
+  # Ejemplo 2: Histograma
+  output$vizHistogram <- renderPlot({
+    df_box <- data.frame(
+      Rendimiento = c(rnorm(15, 2.1, 0.3), rnorm(15, 2.5, 0.3))
+    )
+    ggplot(df_box, aes(x = Rendimiento)) +
+      geom_histogram(binwidth = 0.2, fill = "steelblue", color = "white") +
+      labs(
+        title = "Histograma de Rendimiento",
+        x     = "Rendimiento (t/ha)",
+        y     = "Frecuencia"
+      ) +
+      theme_minimal()
+  })
+
+  # Ejemplo 3: Gráfico de barras con error estándar
+  output$vizBarplot <- renderPlot({
+    df_bar <- data.frame(
+      Variedad = factor(c(rep('A', 15), rep('B', 15))),
+      Rendimiento = c(rnorm(15, 2.1, 0.3), rnorm(15, 2.5, 0.3))
+    ) |>
+      group_by(Variedad) |>
+      summarise(
+        media = mean(Rendimiento),
+        se    = sd(Rendimiento) / sqrt(n()),
+        .groups = 'drop'
+      )
+
+    ggplot(df_bar, aes(x = Variedad, y = media, fill = Variedad)) +
+      geom_col(width = 0.6) +
+      geom_errorbar(aes(ymin = media - se, ymax = media + se), width = 0.2) +
+      labs(
+        title = "Media de Rendimiento ± SE",
+        x     = "Variedad",
+        y     = "Media (t/ha)"
+      ) +
+      theme_minimal() +
+      theme(legend.position = "none")
+  })
+
+  # Ejemplo 4: Scatter plot
+  output$vizScatter <- renderPlot({
+    set.seed(2025)
+    df_scatter <- data.frame(
+      Fertilizante = runif(50, 50, 150),
+      Rendimiento  = 0.02 * runif(50, 50, 150) + rnorm(50, 5, 0.5)
+    )
+    ggplot(df_scatter, aes(x = Fertilizante, y = Rendimiento)) +
+      geom_point() +
+      geom_smooth(method = "lm", se = FALSE, color = "red") +
+      labs(
+        title = "Relación Fertilizante vs Rendimiento",
+        x     = "Dosis de fertilizante (kg/ha)",
+        y     = "Rendimiento (t/ha)"
+      ) +
+      theme_minimal()
+  })
+
+  # Ejemplo 5: Gráfico de líneas
+  output$vizLine <- renderPlot({
+    df_line <- data.frame(
+      Día         = 1:10,
+      Rendimiento = cumsum(rnorm(10, 0.5, 0.2)) + 5
+    )
+    ggplot(df_line, aes(x = Día, y = Rendimiento)) +
+      geom_line(size = 1) +
+      geom_point() +
+      labs(
+        title = "Tendencia de Rendimiento en 10 días",
+        x     = "Día",
+        y     = "Rendimiento (t/ha)"
+      ) +
+      theme_minimal()
   })
 
 }
