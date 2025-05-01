@@ -1,6 +1,8 @@
 # R/modules/session2.R
 library(dplyr)
 library(ggplot2)
+library(moments)
+library(patchwork)
 
 session2UI <- function(id) {
   ns <- NS(id)
@@ -23,53 +25,53 @@ session2UI <- function(id) {
     
     # Usar navset_tab con nav_panel de bslib
     navset_tab(
-    # ——————————————
-    # PESTAÑA: TEMARIO
-    # ——————————————
-    nav_panel(title = "Temario",
-      h4(class = "section-header", "Temario"),
-      
-      # Tabla de actividades
-      tags$table(class = "table activity-table",
-        tags$thead(tags$tr(
-          tags$th("Segmento"),
-          tags$th("Tiempo"),
-          tags$th("Actividad")
-        )),
-        tags$tbody(
-          tags$tr(
-            tags$td("1 Medidas básicas"),
-            tags$td("0–25 min"),
-            tags$td("Cálculo de media, mediana, rango, varianza y desviación estándar (mean(), sd())")
-          ),
-          tags$tr(
-            tags$td("2 Curtosis/Asimetría"),
-            tags$td("25–45 min"),
-            tags$td("Introducción y cálculo con moments::kurtosis() y moments::skewness()")
-          ),
-          tags$tr(
-            tags$td("3 Agrupación"),
-            tags$td("45–70 min"),
-            tags$td("Uso de group_by() y summarise() para análisis por grupos")
-          ),
-          tags$tr(
-            tags$td("4 Visualización"),
-            tags$td("70–95 min"),
-            tags$td("Gráficos de caja con geom_boxplot() y detección de outliers")
-          ),
-          tags$tr(
-            tags$td("5 Interpretación"),
-            tags$td("95–120 min"),
-            tags$td("Aplicación agronómica de resultados y discusión")
+      # ——————————————
+      # PESTAÑA: TEMARIO
+      # ——————————————
+      nav_panel(title = "Temario",
+        h4(class = "section-header", "Temario"),
+        
+        # Tabla de actividades
+        tags$table(class = "table activity-table",
+          tags$thead(tags$tr(
+            tags$th("Segmento"),
+            tags$th("Tiempo"),
+            tags$th("Actividad")
+          )),
+          tags$tbody(
+            tags$tr(
+              tags$td("1 Medidas básicas"),
+              tags$td("0–25 min"),
+              tags$td("Cálculo de media, mediana, rango, varianza y desviación estándar (mean(), sd())")
+            ),
+            tags$tr(
+              tags$td("2 Curtosis/Asimetría"),
+              tags$td("25–45 min"),
+              tags$td("Introducción y cálculo con moments::kurtosis() y moments::skewness()")
+            ),
+            tags$tr(
+              tags$td("3 Agrupación"),
+              tags$td("45–70 min"),
+              tags$td("Uso de group_by() y summarise() para análisis por grupos")
+            ),
+            tags$tr(
+              tags$td("4 Visualización"),
+              tags$td("70–95 min"),
+              tags$td("Gráficos de caja con geom_boxplot() y detección de outliers")
+            ),
+            tags$tr(
+              tags$td("5 Interpretación"),
+              tags$td("95–120 min"),
+              tags$td("Aplicación agronómica de resultados y discusión")
+            )
           )
-        )
-      ),
-  
-      # Sección de contenido técnico
-      tags$div(class = "session-content",
-        h5("Medidas descriptivas"),
-        p("Implementación en R:"),
-        tags$pre(class="r-code", HTML("
+        ),
+    
+        # Sección de contenido técnico
+        tags$div(class = "session-content",
+          h5("Medidas descriptivas"),
+          p("Implementación en R:"),
+          tags$pre(class="r-code", HTML("
 # Datos de rendimiento
 rendimiento <- c(2.3, 3.1, 2.8, 4.0, 3.5, 2.9)
 
@@ -79,32 +81,32 @@ mediana <- median(rendimiento)
 desv_est <- sd(rendimiento)
 varianza <- var(rendimiento)
 rango <- range(rendimiento)
-    ")),
-        p("Resultado esperado:",
-          tags$pre(class="r-output", "
+          ")),
+              p("Resultado esperado:",
+                tags$pre(class="r-output", "
 [1] Media: 3.1
 [1] Mediana: 3.0
 [1] Desv. Est.: 0.56
-    ")
-        ),
-        
-        h5("Curtosis y asimetría"),
-        p("Análisis de forma de distribución [[6]]:"),
-        tags$pre(class="r-code", HTML("
+          ")
+              ),
+              
+              h5("Curtosis y asimetría"),
+              p("Análisis de forma de distribución:"),
+              tags$pre(class="r-code", HTML("
 library(moments)
 curtosis <- kurtosis(rendimiento)
 asimetria <- skewness(rendimiento)
-    ")),
-        p("Interpretación:",
-          tags$ul(
-            tags$li("Curtosis > 3: Distribución leptocúrtica (cola pesada)"),
-            tags$li("Asimetría > 0: Sesgo hacia la derecha")
-          )
-        ),
-        
-        h5("Agrupación y visualización"),
-        p("Flujo completo con tidyverse [[3]]:"),
-        tags$pre(class="r-code", HTML("
+          ")),
+              p("Interpretación:",
+                tags$ul(
+                  tags$li("Curtosis > 3: Distribución leptocúrtica (cola pesada)"),
+                  tags$li("Asimetría > 0: Sesgo hacia la derecha")
+                )
+              ),
+              
+              h5("Agrupación y visualización"),
+              p("Flujo completo con tidyverse:"),
+              tags$pre(class="r-code", HTML("
 library(dplyr)
 library(ggplot2)
 
@@ -116,55 +118,55 @@ datos %>%
   ) %>%
   ggplot(aes(x=tratamiento, y=media)) +
   geom_boxplot(aes(ymin=media-sd, ymax=media+sd))
-    ")),
-        
-        h5("Interpretación agronómica"),
-        p("Ejemplo de aplicación:",
-          tags$ul(
-            tags$li("Varianza alta → posible heterogeneidad en campo"),
-            tags$li("Asimetría positiva → respuesta diferencial a tratamientos")
+          ")),
+          
+          h5("Interpretación agronómica"),
+          p("Ejemplo de aplicación:",
+            tags$ul(
+              tags$li("Varianza alta → posible heterogeneidad en campo"),
+              tags$li("Asimetría positiva → respuesta diferencial a tratamientos")
+            )
           )
         )
-      )
-    ),
+      ),
 
-    # ——————————————
-    # PESTAÑA: 1 Medidas básicas
-    # ——————————————
-    nav_panel(
-          title = "1 Medidas básicas",
-          h4(class = "section-header", "Medidas básicas"),
+      # ——————————————
+      # PESTAÑA: 1 Medidas básicas
+      # ——————————————
+      nav_panel(
+            title = "1 Medidas básicas",
+            h4(class = "section-header", "Medidas básicas"),
 
-          # ----- Texto teórico introductorio -----
-          h5(class = "section-header", "Explicación teorica"),
-          tags$div(class = "theory-text",
-            tags$p("En esta sesión se profundiza en la estadística descriptiva, presentando las medidas numéricas más comunes para resumir datos cuantitativos. Las medidas de tendencia central describen el centro de la distribución de datos, mientras que las medidas de dispersión describen la variabilidad de los datos alrededor de ese centro (Montgomery & Runger, 2018)."),
-            tags$p("Las principales medidas de tendencia central son:"),
-            tags$ul(
-              tags$li(tags$b("Media aritmética:"), " es el promedio de los valores, calculado sumando todos los datos y dividiendo entre el número de observaciones. Útil para datos cuantitativos continuos, pero sensible a valores extremos."),
-              tags$li(tags$b("Mediana:"), " es el valor central de los datos cuando se ordenan de menor a mayor. Divide al conjunto en dos mitades iguales. Es una medida robusta, menos afectada por valores atípicos que la media (Montgomery & Runger, 2018)."),
-              tags$li(tags$b("Moda:"), " es el valor o categoría que aparece con mayor frecuencia; útil para variables categóricas o distribuciones discretas."),
-              tags$p("A continuación, un histograma de datos generados con distribución normal, con líneas punteadas que indican dónde caen la media (rojo), la mediana (verde) y la moda estimada (azul)."),
-              plotOutput(ns("theoryPlot"), height = "300px")
+            # ----- Texto teórico introductorio -----
+            h5(class = "section-header", "Explicación teorica"),
+            tags$div(class = "theory-text",
+              tags$p("En esta sesión se profundiza en la estadística descriptiva, presentando las medidas numéricas más comunes para resumir datos cuantitativos. Las medidas de tendencia central describen el centro de la distribución de datos, mientras que las medidas de dispersión describen la variabilidad de los datos alrededor de ese centro (Montgomery & Runger, 2018)."),
+              tags$p("Las principales medidas de tendencia central son:"),
+              tags$ul(
+                tags$li(tags$b("Media aritmética:"), " es el promedio de los valores, calculado sumando todos los datos y dividiendo entre el número de observaciones. Útil para datos cuantitativos continuos, pero sensible a valores extremos."),
+                tags$li(tags$b("Mediana:"), " es el valor central de los datos cuando se ordenan de menor a mayor. Divide al conjunto en dos mitades iguales. Es una medida robusta, menos afectada por valores atípicos que la media (Montgomery & Runger, 2018)."),
+                tags$li(tags$b("Moda:"), " es el valor o categoría que aparece con mayor frecuencia; útil para variables categóricas o distribuciones discretas."),
+                tags$p("A continuación, un histograma de datos generados con distribución normal, con líneas punteadas que indican dónde caen la media (rojo), la mediana (verde) y la moda estimada (azul)."),
+                plotOutput(ns("theoryPlot"), height = "300px")
+              ),
             ),
-          ),
-          
-          tags$div(class = "theory-text-cuant",
-            tags$p("Para cuantificar la dispersión o variabilidad de los datos:"),
-            tags$ul(
-              tags$li(tags$b("Rango (amplitud):"), " la diferencia entre el valor máximo y mínimo del conjunto de datos. Es fácil de calcular pero solo depende de dos valores extremos."),
-              tags$li(tags$b("Varianza:"), " la media de las desviaciones al cuadrado de cada observación respecto a la media del conjunto. Sirve como base teórica, aunque en unidades al cuadrado."),
-              tags$li(tags$b("Desviación estándar:"), " la raíz cuadrada de la varianza. Expresada en las mismas unidades que los datos originales, facilita la interpretación. Una desviación estándar alta indica que los datos están muy dispersos alrededor de la media, mientras que una baja significa que los datos están más concentrados cerca de la media (Montgomery & Runger, 2018)."),
-              tags$li(tags$b("Coeficiente de variación (CV):"), " la razón entre la desviación estándar y la media (a menudo expresada en porcentaje). Es útil para comparar variabilidad relativa entre conjuntos de datos de magnitudes muy distintas. En agricultura, el CV se usa para evaluar la estabilidad de rendimientos: por ejemplo, un cultivo con CV alto en rendimiento presenta mucha variabilidad entre parcelas, lo que puede implicar inconsistencias en manejo o en condiciones.")
+            
+            tags$div(class = "theory-text-cuant",
+              tags$p("Para cuantificar la dispersión o variabilidad de los datos:"),
+              tags$ul(
+                tags$li(tags$b("Rango (amplitud):"), " la diferencia entre el valor máximo y mínimo del conjunto de datos. Es fácil de calcular pero solo depende de dos valores extremos."),
+                tags$li(tags$b("Varianza:"), " la media de las desviaciones al cuadrado de cada observación respecto a la media del conjunto. Sirve como base teórica, aunque en unidades al cuadrado."),
+                tags$li(tags$b("Desviación estándar:"), " la raíz cuadrada de la varianza. Expresada en las mismas unidades que los datos originales, facilita la interpretación. Una desviación estándar alta indica que los datos están muy dispersos alrededor de la media, mientras que una baja significa que los datos están más concentrados cerca de la media (Montgomery & Runger, 2018)."),
+                tags$li(tags$b("Coeficiente de variación (CV):"), " la razón entre la desviación estándar y la media (a menudo expresada en porcentaje). Es útil para comparar variabilidad relativa entre conjuntos de datos de magnitudes muy distintas. En agricultura, el CV se usa para evaluar la estabilidad de rendimientos: por ejemplo, un cultivo con CV alto en rendimiento presenta mucha variabilidad entre parcelas, lo que puede implicar inconsistencias en manejo o en condiciones.")
+              ),
+              tags$p("Por ejemplo, un rendimiento medio de 5.0 t/ha con desviación estándar 0.8 t/ha sugiere dispersión moderada; si la desviación fuera 2.0 t/ha, habría gran heterogeneidad entre parcelas, quizá por variaciones en suelo o manejo."),
             ),
-            tags$p("Por ejemplo, un rendimiento medio de 5.0 t/ha con desviación estándar 0.8 t/ha sugiere dispersión moderada; si la desviación fuera 2.0 t/ha, habría gran heterogeneidad entre parcelas, quizá por variaciones en suelo o manejo."),
-          ),
-          h5(class = "section-header", "Ejemplo práctico"),
-          
-          tags$div(class = "ejemplo-practico",
-            tags$p("Supongamos que tenemos un conjunto de datos de rendimiento de trigo en parcelas agrícolas. Queremos calcular medidas descriptivas para entender la variabilidad de los rendimientos."),
-            tags$p("Ejemplo práctico: Rendimientos de trigo en 10 parcelas (t/ha)"),
-            tags$pre("
+            h5(class = "section-header", "Ejemplo práctico"),
+            
+            tags$div(class = "ejemplo-practico",
+              tags$p("Supongamos que tenemos un conjunto de datos de rendimiento de trigo en parcelas agrícolas. Queremos calcular medidas descriptivas para entender la variabilidad de los rendimientos."),
+              tags$p("Ejemplo práctico: Rendimientos de trigo en 10 parcelas (t/ha)"),
+              tags$pre("
 # Datos de ejemplo: rendimientos de trigo (t/ha) en 10 parcelas
 rend_trigo <- c(4.8, 5.5, 5.0, 6.1, 4.9, 5.3, 5.8, 4.7, 5.0, 5.4)
 
@@ -180,12 +182,12 @@ range(rend_trigo)                   # alternativa que da min y max juntos
 # Coeficiente de variación (sd/mean)
 cv <- sd(rend_trigo) / mean(rend_trigo) * 100  
 cv                                  # CV ≈ 8.5%
-            "), 
-            tags$p("Este análisis muestra baja variabilidad relativa (CV ~8.5%), indicando rendimientos consistentes."),
-            
-            h5(class = "section-header", "Graficos que ayudan a visualizar"),
-            tags$p("Para visualizar la distribución de los datos y detectar posibles outliers, se pueden usar histogramas y boxplots. Estos gráficos permiten observar la forma de la distribución y la presencia de valores atípicos."),
-            tags$pre("
+              "), 
+              tags$p("Este análisis muestra baja variabilidad relativa (CV ~8.5%), indicando rendimientos consistentes."),
+              
+              h5(class = "section-header", "Graficos que ayudan a visualizar"),
+              tags$p("Para visualizar la distribución de los datos y detectar posibles outliers, se pueden usar histogramas y boxplots. Estos gráficos permiten observar la forma de la distribución y la presencia de valores atípicos."),
+              tags$pre("
 # Histograma
 hist(rend_trigo, 
      main = 'Histograma de rendimiento de trigo', 
@@ -196,8 +198,8 @@ hist(rend_trigo,
 boxplot(rend_trigo, 
         main = 'Boxplot de rendimiento de trigo', 
         ylab = 'Rendimiento (t/ha)')
-  ")
-    ),
+              ")
+            ),
         
           # ----- Texto práctico -----
           h5(class = "section-header", "Ejercicio práctico"),
@@ -309,79 +311,79 @@ boxplot(rend_trigo,
                     tags$li("Calcula el coeficiente de variación para evaluar la estabilidad de rendimientos.")
                   )
                 )
-    ),
-
-    # ——————————————
-    # PESTAÑA: 2 Curtosis/Asimetría
-    # ——————————————
-
-    # --- UI: pestaña 2 Curtosis/Asimetría ---
-    nav_panel(
-      title = "2 Curtosis/Asimetría",
-      h4(class = "section-header", "Curtosis y Asimetría"),
-      
-      # ---- Texto teórico ----
-      tags$br(),
-      h5(class = "section-header", "Explicación teorica"),
-      tags$div(class = "theory-text",
-        tags$p("La curtosis y la asimetría describen la forma de la distribución de los datos. Según Joanes y Gill (1998), la asimetría mide la simetría, con valores negativos indicando distribución sesgada a la izquierda y positivos a la derecha, mientras que la curtosis mide la “colitud” de las colas, con valores positivos indicando colas pesadas (leptocúrtica) y negativos colas ligeras (platicúrtica). En R, estas medidas se calculan con el paquete ", tags$i("moments"), "."),
-        
-        # Ecuaciones con MathJax
-        tags$p(
-          "Se definen matemáticamente como:",
-          withMathJax(helpText("$$\\gamma_1 = \\frac{E\\bigl[(X-\\mu)^3\\bigr]}{\\sigma^3}, \\quad \\text{(Asimetría)}$$")),
-          withMathJax(helpText("$$\\gamma_2 = \\frac{E\\bigl[(X-\\mu)^4\\bigr]}{\\sigma^4} - 3, \\quad \\text{(Exceso de Curtosis)}$$"))
-        ),
-
-        tags$p("Donde \\(\\mu\\) es la media, \\(\\sigma\\) la desviación estándar, \\(E[\\cdot]\\) esperanza matemática. Un \\(\\gamma_1 > 0\\) indica sesgo a la derecha; \\(\\gamma_1 < 0\\), sesgo a la izquierda. Un \\(\\gamma_2 > 0\\) es leptocúrtico; \\(\\gamma_2 < 0\\), platicúrtico; y \\(\\gamma_2 = 0\\) mesocúrtico, igual a la normal."),
-
-        # Rangos recomendados
-        tags$p(
-          "Para aproximarse a una distribución normal y aplicar tests paramétricos, se recomienda que la asimetría se mantenga entre −1 y +1 (excelente) o como máximo ±2 (aceptable), y que el exceso de curtosis esté dentro de ±2 (estricto) o, en contextos más flexibles, dentro de −7 a +7 (Byrne, 2010; Hair et al., 2010)."
-        ), 
-
-        # Utilidad en agronomía
-        tags$p("En agronomía, estos estadísticos permiten:"),
-        tags$ul(
-          tags$li(
-            "  - Detectar sesgos en los rendimientos para ajustar manejo: valores de asimetría próximos a cero garantizan la validez de ANOVA y regresión lineal en ensayos de campo (George & Mallery, 2010)."
-          ),
-
-          tags$li(
-            "Cuantificar riesgo de eventos extremos: un exceso de curtosis positivo indica colas pesadas y mayor probabilidad de rendimientos muy bajos o muy altos, afectando planificación de cosecha y control de calidad (SPC for Excel, 2007)."
-          ),
-
-          tags$li(
-            "Identificar homogeneidad en parcelas: exceso de curtosis negativo señala colas ligeras, propio de datos más uniformes, deseable en ensayos comparativos de variedades (Ramirez, 2001)."
-          ),
-
-          tags$li(
-            "Diseñar prácticas resilientes: un sesgo bajo (|γ₁| < 0.5) y exceso de curtosis cercano a cero (|γ₂| < 0.5) son óptimos para modelos de estabilidad interanual y pronósticos de rendimiento (Tabachnick & Fidell, 2013)."
-          ), 
-        ),
-
-        # Ejemplo de datos y figura
-        tags$p(
-          "Ejemplo de datos (t/ha): ",
-          tags$code("c(4.8, 5.5, 5.0, 6.1, 4.9, 5.3, 5.8, 4.7, 5.0, 5.4, 4.6, 5.2)")
-        ),
-
-        tags$p(
-          "Calculamos en R:",
-          tags$code("skewness(datos)  ≈ -0.15"),
-          ", ",
-          tags$code("kurtosis(datos) ≈ -0.42"),
-          "—ambos cercanos a cero, indicando una distribución casi normal."
-        ),
-
-        tags$p("A continuación, la distribución de estos datos con líneas punteadas que señalan la media (rojo), la dirección del sesgo (morado) y la curtosis (marrón):"),
-        plotOutput(ns("skewKurtIllustration"), height = "300px")
-
       ),
 
-      # ---- Ejemplo práctico en R ----
-      h5(class = "section-header", "Ejemplo práctico en R"),
-      tags$pre("
+      # ——————————————
+      # PESTAÑA: 2 Curtosis/Asimetría
+      # ——————————————
+
+      # --- UI: pestaña 2 Curtosis/Asimetría ---
+      nav_panel(
+        title = "2 Curtosis/Asimetría",
+        h4(class = "section-header", "Curtosis y Asimetría"),
+        
+        # ---- Texto teórico ----
+        tags$br(),
+        h5(class = "section-header", "Explicación teorica"),
+        tags$div(class = "theory-text",
+          tags$p("La curtosis y la asimetría describen la forma de la distribución de los datos. Según Joanes y Gill (1998), la asimetría mide la simetría, con valores negativos indicando distribución sesgada a la izquierda y positivos a la derecha, mientras que la curtosis mide la “colitud” de las colas, con valores positivos indicando colas pesadas (leptocúrtica) y negativos colas ligeras (platicúrtica). En R, estas medidas se calculan con el paquete ", tags$i("moments"), "."),
+          
+          # Ecuaciones con MathJax
+          tags$p(
+            "Se definen matemáticamente como:",
+            withMathJax(helpText("$$\\gamma_1 = \\frac{E\\bigl[(X-\\mu)^3\\bigr]}{\\sigma^3}, \\quad \\text{(Asimetría)}$$")),
+            withMathJax(helpText("$$\\gamma_2 = \\frac{E\\bigl[(X-\\mu)^4\\bigr]}{\\sigma^4} - 3, \\quad \\text{(Exceso de Curtosis)}$$"))
+          ),
+
+          tags$p("Donde \\(\\mu\\) es la media, \\(\\sigma\\) la desviación estándar, \\(E[\\cdot]\\) esperanza matemática. Un \\(\\gamma_1 > 0\\) indica sesgo a la derecha; \\(\\gamma_1 < 0\\), sesgo a la izquierda. Un \\(\\gamma_2 > 0\\) es leptocúrtico; \\(\\gamma_2 < 0\\), platicúrtico; y \\(\\gamma_2 = 0\\) mesocúrtico, igual a la normal."),
+
+          # Rangos recomendados
+          tags$p(
+            "Para aproximarse a una distribución normal y aplicar tests paramétricos, se recomienda que la asimetría se mantenga entre −1 y +1 (excelente) o como máximo ±2 (aceptable), y que el exceso de curtosis esté dentro de ±2 (estricto) o, en contextos más flexibles, dentro de −7 a +7 (Byrne, 2010; Hair et al., 2010)."
+          ), 
+
+          # Utilidad en agronomía
+          tags$p("En agronomía, estos estadísticos permiten:"),
+          tags$ul(
+            tags$li(
+              "  - Detectar sesgos en los rendimientos para ajustar manejo: valores de asimetría próximos a cero garantizan la validez de ANOVA y regresión lineal en ensayos de campo (George & Mallery, 2010)."
+            ),
+
+            tags$li(
+              "Cuantificar riesgo de eventos extremos: un exceso de curtosis positivo indica colas pesadas y mayor probabilidad de rendimientos muy bajos o muy altos, afectando planificación de cosecha y control de calidad (SPC for Excel, 2007)."
+            ),
+
+            tags$li(
+              "Identificar homogeneidad en parcelas: exceso de curtosis negativo señala colas ligeras, propio de datos más uniformes, deseable en ensayos comparativos de variedades (Ramirez, 2001)."
+            ),
+
+            tags$li(
+              "Diseñar prácticas resilientes: un sesgo bajo (|γ₁| < 0.5) y exceso de curtosis cercano a cero (|γ₂| < 0.5) son óptimos para modelos de estabilidad interanual y pronósticos de rendimiento (Tabachnick & Fidell, 2013)."
+            ), 
+          ),
+
+          # Ejemplo de datos y figura
+          tags$p(
+            "Ejemplo de datos (t/ha): ",
+            tags$code("c(4.8, 5.5, 5.0, 6.1, 4.9, 5.3, 5.8, 4.7, 5.0, 5.4, 4.6, 5.2)")
+          ),
+
+          tags$p(
+            "Calculamos en R:",
+            tags$code("skewness(datos)  ≈ -0.15"),
+            ", ",
+            tags$code("kurtosis(datos) ≈ -0.42"),
+            "—ambos cercanos a cero, indicando una distribución casi normal."
+          ),
+
+          tags$p("A continuación, la distribución de estos datos con líneas punteadas que señalan la media (rojo), la dirección del sesgo (morado) y la curtosis (marrón):"),
+          plotOutput(ns("skewKurtIllustration"), height = "300px")
+
+        ),
+
+        # ---- Ejemplo práctico en R ----
+        h5(class = "section-header", "Ejemplo práctico en R"),
+        tags$pre("
 # Instalar y cargar paquete
 # install.packages('moments')
 library(moments)
@@ -526,121 +528,121 @@ print(paste('Exceso de Curtosis =', round(curtosis, 3)))
             ),
     ),
 
-    # ——————————————
-    # PESTAÑA: 3 Agrupación
-    # ——————————————
+      # ——————————————
+      # PESTAÑA: 3 Agrupación
+      # ——————————————
 
-    nav_panel(
-      title = "3 Agrupación",
-      h4(class = "section-header", "3 Agrupación – Análisis por grupos"),
+      nav_panel(
+        title = "3 Agrupación",
+        h4(class = "section-header", "3 Agrupación – Análisis por grupos"),
 
-      # --- Texto teórico ---
-      tags$br(),
-      h5(class = "section-header", "Explicación teorica"),
-      tags$div(class = "theory-text",
-        tags$p(
-          "En experimentos agronómicos a menudo se compara la estadística descriptiva entre grupos —por ejemplo, tratamientos o lotes— para evaluar diferencias en rendimiento o calidad. 
-          El paquete ", tags$b("dplyr"), " (parte del tidyverse) ofrece dos funciones clave:",
-        ),
-        tags$ul(
-          tags$li(
-            tags$b("group_by():"), 
-            "agrupa filas de un data frame según una o más variables categóricas."
+        # --- Texto teórico ---
+        tags$br(),
+        h5(class = "section-header", "Explicación teorica"),
+        tags$div(class = "theory-text",
+          tags$p(
+            "En experimentos agronómicos a menudo se compara la estadística descriptiva entre grupos —por ejemplo, tratamientos o lotes— para evaluar diferencias en rendimiento o calidad. 
+            El paquete ", tags$b("dplyr"), " (parte del tidyverse) ofrece dos funciones clave:",
           ),
-          tags$li(
-            tags$b("summarise():"), 
-            "calcula estadísticas resumen por cada grupo generado por group_by()."
-          )
-        ),
-        tags$p(
-          "Usamos el pipe nativo de R (`|>`) o (`%>%`) para encadenar pasos de forma legible:"
-        )
-      ),
-
-      # --- Tabla de funciones ---
-      tags$br(),
-      tags$h5("Funciones group_by() y summarise()"),
-      tags$table(class = "table table-bordered",
-        tags$thead(
-          tags$tr(
-            tags$th("Función"),
-            tags$th("Paquete"),
-            tags$th("Descripción"),
-            tags$th("Sintaxis Básica"),
-            tags$th("Ejemplo")
-          )
-        ),
-        tags$tbody(
-          tags$tr(
-            tags$td("group_by()"),
-            tags$td("dplyr"),
-            tags$td("Define las variables de agrupación."),
-            tags$td("data %>% group_by(var1, var2)"),
-            tags$td("df %>% group_by(Tratamiento)")
+          tags$ul(
+            tags$li(
+              tags$b("group_by():"), 
+              "agrupa filas de un data frame según una o más variables categóricas."
+            ),
+            tags$li(
+              tags$b("summarise():"), 
+              "calcula estadísticas resumen por cada grupo generado por group_by()."
+            )
           ),
-          tags$tr(
-            tags$td("summarise()"),
-            tags$td("dplyr"),
-            tags$td("Calcula estadísticas de resumen por grupo."),
-            tags$td("data_grp %>% summarise(nueva = fun(columna))"),
-            tags$td("df_grp %>% summarise(\n  media = mean(Rendimiento, na.rm=TRUE),\n  sd = sd(Rendimiento, na.rm=TRUE),\n  n = n()\n)")
+          tags$p(
+            "Usamos el pipe nativo de R (`|>`) o (`%>%`) para encadenar pasos de forma legible:"
           )
-        )
-      ),
-
-      # Selección de número de datos
-      tags$div(class = "data-selection",
-        numericInput(
-          ns("n_registros"),
-          label   = "Número de registros a generar:",
-          value   = 20,
-          min     = 5,
-          max     = 100,
-          step    = 5
         ),
-        actionButton(ns("genData"), "Generar datos aleatorios"),
-        tags$h5("Data frame generado"),
-        tableOutput(ns("dfPreview"))
-      ),
 
-      tags$hr(),
+        # --- Tabla de funciones ---
+        tags$br(),
+        tags$h5("Funciones group_by() y summarise()"),
+        tags$table(class = "table table-bordered",
+          tags$thead(
+            tags$tr(
+              tags$th("Función"),
+              tags$th("Paquete"),
+              tags$th("Descripción"),
+              tags$th("Sintaxis Básica"),
+              tags$th("Ejemplo")
+            )
+          ),
+          tags$tbody(
+            tags$tr(
+              tags$td("group_by()"),
+              tags$td("dplyr"),
+              tags$td("Define las variables de agrupación."),
+              tags$td("data %>% group_by(var1, var2)"),
+              tags$td("df %>% group_by(Tratamiento)")
+            ),
+            tags$tr(
+              tags$td("summarise()"),
+              tags$td("dplyr"),
+              tags$td("Calcula estadísticas de resumen por grupo."),
+              tags$td("data_grp %>% summarise(nueva = fun(columna))"),
+              tags$td("df_grp %>% summarise(\n  media = mean(Rendimiento, na.rm=TRUE),\n  sd = sd(Rendimiento, na.rm=TRUE),\n  n = n()\n)")
+            )
+          )
+        ),
 
-      # --- Ejemplos prácticos ---
-      tags$br(),
-      tags$h5("Ejemplos prácticos en R"),
-      # Botón y salida para ejercicio 1: solo group_by()
-      tags$div(class = "exercise",
-        tags$pre("
+        # Selección de número de datos
+        tags$div(class = "data-selection",
+          numericInput(
+            ns("n_registros"),
+            label   = "Número de registros a generar:",
+            value   = 20,
+            min     = 5,
+            max     = 100,
+            step    = 5
+          ),
+          actionButton(ns("genData"), "Generar datos aleatorios"),
+          tags$h5("Data frame generado"),
+          tableOutput(ns("dfPreview"))
+        ),
+
+        tags$hr(),
+
+        # --- Ejemplos prácticos ---
+        tags$br(),
+        tags$h5("Ejemplos prácticos en R"),
+        # Botón y salida para ejercicio 1: solo group_by()
+        tags$div(class = "exercise",
+          tags$pre("
 # Agrupamos sin resumir aún
 df_grp <- df %>% group_by(Tratamiento)
-        "),
-        actionButton(ns("run1"), "Ejercicio: group_by()"),
-        tableOutput(ns("res1")),
-        verbatimTextOutput(ns("exp1"))
-      ),
+          "),
+          actionButton(ns("run1"), "Ejercicio: group_by()"),
+          tableOutput(ns("res1")),
+          verbatimTextOutput(ns("exp1"))
+        ),
 
-      tags$hr(),
+        tags$hr(),
 
-      # Botón y salida para ejercicio 2: solo summarise()
-      tags$div(class = "exercise",
-        tags$pre("
+        # Botón y salida para ejercicio 2: solo summarise()
+        tags$div(class = "exercise",
+          tags$pre("
 # Resumimos TODO el data frame (sin group_by prevía)
 df_sum <- df %>% summarise(
   media_rend = mean(Rendimiento, na.rm = TRUE),
   sd_rend    = sd(Rendimiento, na.rm = TRUE),
   n          = n()
 )
-        "),
-        actionButton(ns("run2"), "Ejercicio: summarise()"),
-        tableOutput(ns("res2")),
-        verbatimTextOutput(ns("exp2"))
-      ),
+          "),
+          actionButton(ns("run2"), "Ejercicio: summarise()"),
+          tableOutput(ns("res2")),
+          verbatimTextOutput(ns("exp2"))
+        ),
 
-      tags$hr(),
+        tags$hr(),
 
-      # Botón y salida para ejercicio 3: group_by() + summarise() por dos variables
-      tags$div(class = "exercise",
-        tags$pre("
+        # Botón y salida para ejercicio 3: group_by() + summarise() por dos variables
+        tags$div(class = "exercise",
+          tags$pre("
 # Agrupamos y resumimos por dos variables 
 df_res <- df %>%
       group_by(Lote, Tratamiento) %>%
@@ -649,38 +651,38 @@ df_res <- df %>%
         sd_cal    = round(sd(Calidad, na.rm = TRUE), 2),
         .groups = 'drop'
       )
-        "),
-        actionButton(ns("run3"), "Ejercicio: group_by(Lote, Tratamiento)"),
-        tableOutput(ns("res3")),
-        verbatimTextOutput(ns("exp3"))
-      ),
+          "),
+          actionButton(ns("run3"), "Ejercicio: group_by(Lote, Tratamiento)"),
+          tableOutput(ns("res3")),
+          verbatimTextOutput(ns("exp3"))
+        ),
 
-      tags$hr(),
+        tags$hr(),
 
-      # Botón y salida para ejercicio: solo across() con mutate()
-      tags$div(class = "exercise",
-        tags$pre("
-      # Ejercicio: usar across() con mutate() para transformar columnas
-      # (sin resumir ni agrupar)
-      df_across_mut <- df |>
-        mutate(
-          across(
-            c(Rendimiento, Calidad),
-            ~ round((.x - mean(.x, na.rm = TRUE)) / sd(.x, na.rm = TRUE), 2),
-            .names = 'estandarizada_{.col}'
-          )
-        )
-        "),
-        actionButton(ns("runAcrossMut"), "Ejercicio: solo across() con mutate()"),
-        tableOutput(ns("resAcrossMut")),
-        verbatimTextOutput(ns("expAcrossMut"))
-      ),
+        # Botón y salida para ejercicio: solo across() con mutate()
+        tags$div(class = "exercise",
+          tags$pre("
+# Ejercicio: usar across() con mutate() para transformar columnas
+# (sin resumir ni agrupar)
+df_across_mut <- df |>
+  mutate(
+    across(
+      c(Rendimiento, Calidad),
+      ~ round((.x - mean(.x, na.rm = TRUE)) / sd(.x, na.rm = TRUE), 2),
+      .names = 'estandarizada_{.col}'
+    )
+  )
+          "),
+          actionButton(ns("runAcrossMut"), "Ejercicio: solo across() con mutate()"),
+          tableOutput(ns("resAcrossMut")),
+          verbatimTextOutput(ns("expAcrossMut"))
+        ),
 
-      tags$hr(),
+        tags$hr(),
 
-      # Botón y salida para ejercicio 5: solo summarise() con across()
-      tags$div(class = "exercise",
-        tags$pre("
+        # Botón y salida para ejercicio 5: solo summarise() con across()
+        tags$div(class = "exercise",
+          tags$pre("
 # across: aplicar funciones a múltiples columnas sin agrupar
 df_across <- df |> 
   summarise(
@@ -693,17 +695,18 @@ df_across <- df |>
       .names = '{.col}_{.fn}'
     ),
     n_total = n()
-  )"),
-        actionButton(ns("runAcross"), "Ejercicio: summarise(), across()"),
-        tableOutput(ns("resAcross")),
-        verbatimTextOutput(ns("expAcross"))
-      ),
+  )
+          "),
+          actionButton(ns("runAcross"), "Ejercicio: summarise(), across()"),
+          tableOutput(ns("resAcross")),
+          verbatimTextOutput(ns("expAcross"))
+        ),
 
-      tags$hr(),
+        tags$hr(),
 
-      # Botón y salida para ejercicio 4: summarise() con across()
-      tags$div(class = "exercise",
-        tags$pre("
+        # Botón y salida para ejercicio 4: summarise() con across()
+        tags$div(class = "exercise",
+          tags$pre("
 # Agrupamos y resumimos usando summarise() con across() (para aplicar la misma función a varias columnas)
 df_acr <- df %>%
       group_by(Tratamiento) %>%
@@ -719,87 +722,87 @@ df_acr <- df %>%
         n = n(),
         .groups = 'drop'
       )
-        "),
-        actionButton(ns("run4"), "Ejercicio: group_by(), summarise(across())"),
-        tableOutput(ns("res4")),
-        verbatimTextOutput(ns("exp4"))
-      )
-  ),
-
-    # ——————————————
-    # PESTAÑA: 4 Visualización
-    # ——————————————
-    nav_panel(
-      title = "4 Visualización",
-      h4(class = "section-header", "4 Visualización de datos"),
-
-      # Teoría
-      tags$div(class = "theory-text",
-        tags$p(
-          "Esta actividad se centra en las técnicas gráficas para la exploración de datos. La visualización es una parte crucial del análisis estadístico, ya que facilita la comprensión de patrones, tendencias y anomalías que pueden no ser evidentes solo con números (Crawley, 2013)."
-        ),
-        tags$ul(
-          tags$li(tags$b("Histogramas:"), " útiles para visualizar la distribución de frecuencias de una variable cuantitativa continua. Permiten identificar la forma de la distribución (normal, sesgada, multimodal, etc.), la presencia de valores extremos y la variabilidad general."),
-          tags$li(tags$b("Boxplots:"), " resumen la distribución de una variable mostrando la mediana, los cuartiles (Q1 y Q3), y cualquier valor atípico fuera de 1.5 veces el rango intercuartílico. Son especialmente útiles para comparar distribuciones entre varios grupos de tratamiento o categorías. En agricultura, por ejemplo, se pueden comparar los rendimientos de diferentes variedades o tratamientos fertilizantes mediante boxplots lado a lado."),
-          tags$li(tags$b("Gráficos de barras:"), " empleados principalmente para variables categóricas (por ejemplo, distribución de frecuencias de variedades sembradas en una región, o conteo de parcelas por tipo de tratamiento). Cada barra representa una categoría y su altura corresponde a la frecuencia o proporción."),
-          tags$li(tags$b("Scatter plots:"), " muestran la relación entre dos variables cuantitativas, trazando puntos en un plano cartesiano. Son muy útiles para detectar correlaciones; por ejemplo, relacionar la cantidad de fertilizante aplicada (eje X) con el rendimiento obtenido (eje Y) para ver si existe tendencia positiva (mayor fertilizante, mayor rendimiento) o alguna tendencia no lineal."),
-          tags$li(tags$b("Gráficos de líneas:"), " útiles cuando se analizan datos de series de tiempo o tendencia a lo largo de gradientes. Por ejemplo, rendimiento de un cultivo a través de los años, o crecimiento de una planta a lo largo de semanas.")
-        ),
-        tags$p(
-          "Buenas prácticas: incluir títulos descriptivos, etiquetar los ejes con nombres y unidades, y agregar leyendas cuando corresponda. Un gráfico bien diseñado debe ser claro y transmitir la información clave de forma comprensible sin ambigüedad (Crawley, 2013). También se menciona la importancia de escalar correctamente los ejes (no truncarlos inapropiadamente) y de elegir el tipo de gráfico adecuado para cada tipo de dato."
+          "),
+          actionButton(ns("run4"), "Ejercicio: group_by(), summarise(across())"),
+          tableOutput(ns("res4")),
+          verbatimTextOutput(ns("exp4"))
         )
       ),
 
-      tags$br(),
-      tags$div(class = "my-image-container",
-      tags$h5("Mi gráfico explicativo"),
-      # Ruta relativa: www/images/elegir_graph.png → src = "images/elegir_graph.png"
-      tags$img(
-        src    = "images/elegir_graph.jpg",
-        alt    = "Ilustración de como elegir el gráfico adecuado",
-        class  = "img-responsive",
-        width  = "50%",       # puedes controlar tamaño con width/height
-        height = NULL,
-        style  = "border: 1px solid #ddd; border-radius: 4px; padding: 5px;"
-      )
-    ),
+      # ——————————————
+      # PESTAÑA: 4 Visualización
+      # ——————————————
+      nav_panel(
+        title = "4 Visualización",
+        h4(class = "section-header", "4 Visualización de datos"),
 
-      # Ejemplo 1: Boxplot comparativo
-      tags$br(),
-      h5(class = "section-header", "Ejemplos prácticos en R"),
-      tags$div(class = "example-text",
-        tags$p("A continuación, se presentan ejemplos de gráficos comunes en análisis de datos agronómicos. Se incluyen ejemplos de boxplots, histogramas, gráficos de barras, scatter plots y gráficos de líneas."),
-        tags$p("Los ejemplos son generados aleatoriamente y no representan datos reales.")
+        # Teoría
+        tags$div(class = "theory-text",
+          tags$p(
+            "Esta actividad se centra en las técnicas gráficas para la exploración de datos. La visualización es una parte crucial del análisis estadístico, ya que facilita la comprensión de patrones, tendencias y anomalías que pueden no ser evidentes solo con números (Crawley, 2013)."
+          ),
+          tags$ul(
+            tags$li(tags$b("Histogramas:"), " útiles para visualizar la distribución de frecuencias de una variable cuantitativa continua. Permiten identificar la forma de la distribución (normal, sesgada, multimodal, etc.), la presencia de valores extremos y la variabilidad general."),
+            tags$li(tags$b("Boxplots:"), " resumen la distribución de una variable mostrando la mediana, los cuartiles (Q1 y Q3), y cualquier valor atípico fuera de 1.5 veces el rango intercuartílico. Son especialmente útiles para comparar distribuciones entre varios grupos de tratamiento o categorías. En agricultura, por ejemplo, se pueden comparar los rendimientos de diferentes variedades o tratamientos fertilizantes mediante boxplots lado a lado."),
+            tags$li(tags$b("Gráficos de barras:"), " empleados principalmente para variables categóricas (por ejemplo, distribución de frecuencias de variedades sembradas en una región, o conteo de parcelas por tipo de tratamiento). Cada barra representa una categoría y su altura corresponde a la frecuencia o proporción."),
+            tags$li(tags$b("Scatter plots:"), " muestran la relación entre dos variables cuantitativas, trazando puntos en un plano cartesiano. Son muy útiles para detectar correlaciones; por ejemplo, relacionar la cantidad de fertilizante aplicada (eje X) con el rendimiento obtenido (eje Y) para ver si existe tendencia positiva (mayor fertilizante, mayor rendimiento) o alguna tendencia no lineal."),
+            tags$li(tags$b("Gráficos de líneas:"), " útiles cuando se analizan datos de series de tiempo o tendencia a lo largo de gradientes. Por ejemplo, rendimiento de un cultivo a través de los años, o crecimiento de una planta a lo largo de semanas.")
+          ),
+          tags$p(
+            "Buenas prácticas: incluir títulos descriptivos, etiquetar los ejes con nombres y unidades, y agregar leyendas cuando corresponda. Un gráfico bien diseñado debe ser claro y transmitir la información clave de forma comprensible sin ambigüedad (Crawley, 2013). También se menciona la importancia de escalar correctamente los ejes (no truncarlos inapropiadamente) y de elegir el tipo de gráfico adecuado para cada tipo de dato."
+          )
+        ),
+
+        tags$br(),
+        tags$div(class = "my-image-container",
+        tags$h5("Mi gráfico explicativo"),
+        # Ruta relativa: www/images/elegir_graph.png → src = "images/elegir_graph.png"
+        tags$img(
+          src    = "images/elegir_graph.jpg",
+          alt    = "Ilustración de como elegir el gráfico adecuado",
+          class  = "img-responsive",
+          width  = "50%",       # puedes controlar tamaño con width/height
+          height = NULL,
+          style  = "border: 1px solid #ddd; border-radius: 4px; padding: 5px;"
+        )
       ),
-      tags$h6("Ejemplo 1: Boxplot comparativo"),
-      tags$pre("
+
+        # Ejemplo 1: Boxplot comparativo
+        tags$br(),
+        h5(class = "section-header", "Ejemplos prácticos en R"),
+        tags$div(class = "example-text",
+          tags$p("A continuación, se presentan ejemplos de gráficos comunes en análisis de datos agronómicos. Se incluyen ejemplos de boxplots, histogramas, gráficos de barras, scatter plots y gráficos de líneas."),
+          tags$p("Los ejemplos son generados aleatoriamente y no representan datos reales.")
+        ),
+        tags$h6("Ejemplo 1: Boxplot comparativo"),
+        tags$pre("
 # Simular rendimientos de dos variedades (t/ha)
 variedad <- factor(c(rep('A', 15), rep('B', 15)))
 rend_frijol <- c(rnorm(15, mean = 2.1, sd = 0.3),
                  rnorm(15, mean = 2.5, sd = 0.3))
 df_box <- data.frame(Variedad = variedad, Rendimiento = rend_frijol)
-    "),
-      plotOutput(ns("vizBoxplot"), height = "400px"),
-      tags$p("Comparamos la mediana y dispersión de Rendimiento entre las variedades A y B."),
+      "),
+        plotOutput(ns("vizBoxplot"), height = "400px"),
+        tags$p("Comparamos la mediana y dispersión de Rendimiento entre las variedades A y B."),
 
-      tags$hr(),
+        tags$hr(),
 
-      # Ejemplo 2: Histograma
-      tags$br(),
-      tags$h6("Ejemplo 2: Histograma"),
-      tags$pre("
+        # Ejemplo 2: Histograma
+        tags$br(),
+        tags$h6("Ejemplo 2: Histograma"),
+        tags$pre("
 # Reusar rend_frijol de antes o simular nueva variable
 hist_data <- rend_frijol
-    "),
-      plotOutput(ns("vizHistogram"), height = "400px"),
-      tags$p("El histograma muestra la forma de la distribución de Rendimiento, identificando sesgos y outliers."),
+      "),
+        plotOutput(ns("vizHistogram"), height = "400px"),
+        tags$p("El histograma muestra la forma de la distribución de Rendimiento, identificando sesgos y outliers."),
 
-      tags$hr(),
+        tags$hr(),
 
-      # Ejemplo 3: Gráfico de barras con medias y barras de error
-      tags$br(),
-      tags$h6("Ejemplo 3: Gráfico de barras con error estándar"),
-      tags$pre("
+        # Ejemplo 3: Gráfico de barras con medias y barras de error
+        tags$br(),
+        tags$h6("Ejemplo 3: Gráfico de barras con error estándar"),
+        tags$pre("
 # Calcular medias y error estándar por Variedad
 library(dplyr)
 df_bar <- df_box |>
@@ -809,56 +812,155 @@ df_bar <- df_box |>
     se    = sd(Rendimiento)/sqrt(n()),
     .groups = 'drop'
   )
-    "),
-      plotOutput(ns("vizBarplot"), height = "400px"),
-      tags$p("Las barras muestran la media de Rendimiento y las líneas de error son ± 1 SE."),
+      "),
+        plotOutput(ns("vizBarplot"), height = "400px"),
+        tags$p("Las barras muestran la media de Rendimiento y las líneas de error son ± 1 SE."),
 
-      tags$hr(),
+        tags$hr(),
 
-      # Ejemplo 4: Scatter plot (Fertilizante vs Rendimiento)
-      tags$br(),
-      tags$h6("Ejemplo 4: Scatter plot"),
-      tags$pre("
+        # Ejemplo 4: Scatter plot (Fertilizante vs Rendimiento)
+        tags$br(),
+        tags$h6("Ejemplo 4: Scatter plot"),
+        tags$pre("
 # Simular dosis de fertilizante y rendimiento
 set.seed(2025)
 fert <- runif(50, 50, 150)                  # kg/ha
 yield <- 0.02 * fert + rnorm(50, 5, 0.5)    # t/ha
 df_scatter <- data.frame(Fertilizador = fert, Rendimiento = yield)
-    "),
-      plotOutput(ns("vizScatter"), height = "400px"),
-      tags$p("Exploramos la relación lineal entre dosis de fertilizante y rendimiento."),
+      "),
+        plotOutput(ns("vizScatter"), height = "400px"),
+        tags$p("Exploramos la relación lineal entre dosis de fertilizante y rendimiento."),
 
-      tags$hr(),
+        tags$hr(),
 
-      # Ejemplo 5: Gráfico de líneas (Serie temporal)
-      tags$br(),
-      tags$h6("Ejemplo 5: Gráfico de líneas"),
-      tags$pre("
+        # Ejemplo 5: Gráfico de líneas (Serie temporal)
+        tags$br(),
+        tags$h6("Ejemplo 5: Gráfico de líneas"),
+        tags$pre("
 # Simular rendimiento a lo largo de 10 días
 time <- 1:10
 rend_time <- cumsum(rnorm(10, mean = 0.5, sd = 0.2)) + 5
 df_line <- data.frame(Día = time, Rendimiento = rend_time)
-    "),
-      plotOutput(ns("vizLine"), height = "400px"),
-      tags$p("La línea muestra la tendencia de rendimiento a lo largo del tiempo.")
-  ),
+        "),
+          plotOutput(ns("vizLine"), height = "400px"),
+          tags$p("La línea muestra la tendencia de rendimiento a lo largo del tiempo.")
+      ),
+
+      # ——————————————
+      # PESTAÑA: 5 Interpretación
+      # ——————————————
+
+      nav_panel(
+        title = "5 Interpretación",
+        h4(class = "section-header", "5 Interpretación de resultados"),
+
+        # Texto educativo con pasos y citas APA
+        tags$div(class = "theory-text",
+          tags$h5("Pasos esenciales para un análisis riguroso con estadística descriptiva"),
+
+          tags$p(
+            "1. Importación y limpieza de datos: antes de cualquier análisis, es fundamental asegurar la calidad de los datos ",
+            "mediante la importación con ", tags$code("read_csv()"), " o ", tags$code("read_excel()"), 
+            " y la normalización de nombres y tipos con paquetes como ", tags$code("janitor"), ". Esta etapa minimiza errores de entrada y facilita la reproducibilidad (APEC, 2013)." 
+          ),
+
+          tags$p(
+            "2. Exploración inicial y EDA: una inspección con ", tags$code("glimpse()"), ", ", tags$code("str()"), " y ", 
+            tags$code("summary()"), " combinada con gráficas rápidas (plot(), ggplot2) permite identificar valores faltantes, outliers y estructuras inesperadas (ARS USDA, 2019)." 
+          ),
+
+          tags$p(
+            "3. Resumen numérico: se calculan medidas de tendencia central (media, mediana, moda) y de dispersión (rango, varianza, desviación estándar) ",
+            "para describir características básicas de cada variable." 
+          ),
+
+          tags$p(
+            "4. Forma de la distribución: asimetría (skewness) y exceso de curtosis (kurtosis – 3) cuantifican sesgos y colas pesadas/ligeras. ",
+            "Estos parámetros ayudan a decidir la idoneidad de pruebas paramétricas y a anticipar eventos extremos." 
+          ), 
+
+          tags$p(
+            "5. Agrupación y resumen por subconjuntos: con `dplyr::group_by()` y `dplyr::summarise()` se comparan estadísticas entre tratamientos, lotes o categorías, ",
+            "facilitando la detección de diferencias sistemáticas entre grupos (Scribbr, 2019)." 
+          ),
+
+          tags$p(
+            "6. Visualización avanzada: histogramas, boxplots y gráficos de barras con errores estándar son esenciales para presentar la variabilidad y la forma de los datos, ",
+            "mejorando la interpretación y comunicación de resultados (Scribbr, 2019)." 
+          ),
+
+          tags$p(
+            "7. Interpretación en contexto agronómico: finalmente, los resultados deben traducirse a recomendaciones prácticas, ",
+            "considerando estabilidad de rendimientos, riesgo de valores extremos y heterogeneidad de parcelas." 
+          ),
+        ),
+
+        tags$hr(),
+
+        # Botón para cargar datos reales y activar análisis
+        tags$h5("Práctica aplicada con datos reales"),
+        actionButton(ns("runInterp"), "Cargar y analizar datos"),
+
+        # Salidas interactivas (preview, estadísticas, gráfico y texto interpretativo)
+        tags$br(), 
+        tags$h5("Vista previa"),
+        tableOutput(ns("interpPreview")),
+
+        tags$br(), 
+        tags$h5("Estadísticos descriptivos"),
+        tableOutput(ns("descStats")),
+
+        tags$br(),
+        tags$h5("Asimetría y Curtosis"),
+        tableOutput(ns("shapeStats")),
+
+        tags$br(), 
+        tags$h5("Histograma de Rendimiento"),
+        plotOutput(ns("interpHistogram"), height = "400px"),
+
+        tags$br(), 
+        tags$h5("Histograma de Calidad"),
+        plotOutput(ns("interpHistogramCal"), height = "400px"),
+
+        tags$br(),
+        tags$h5("Boxplot por Tratamiento"),
+        plotOutput(ns("interpBoxplot"), height = "400px"),
+
+        tags$br(),
+        tags$h5("Boxplot por Calidad"),
+        plotOutput(ns("interpBoxplotCal"), height = "400px"),
+
+        tags$br(),
+        tags$h5("Interpretación final"),
+        verbatimTextOutput(ns("interpText"))
+      ),
 
 
-    # ——————————————
-    # PESTAÑA: Referencias 
-    # ——————————————
-    nav_panel(
-      title = "Referencias",
-      tags$ul(
-        tags$li("Byrne, B. M. (2010). _Structural Equation Modeling with AMOS: Basic Concepts, Applications, and Programming_ (2nd ed.). Routledge."),
-        tags$li("George, D., & Mallery, P. (2010). _SPSS for Windows Step by Step: A Simple Guide and Reference_ (10th ed.). Pearson."),
-        tags$li("Hair, J. F., Black, W. C., Babin, B. J., & Anderson, R. E. (2010). _Multivariate Data Analysis_ (7th ed.). Prentice Hall."),
-        tags$li("Joanes, D. N., & Gill, C. A. (1998). Comparing measures of sample skewness and kurtosis. _Journal of the Royal Statistical Society: Series D (The Statistician)_, 47(1), 183–189."),
-        tags$li("Ramirez, O. A. (2001). Are crop yields normally distributed? Paper presented at the American Agricultural Economics Association Annual Meeting, Chicago, IL."),
-        tags$li("SPC for Excel. (2007). Are skewness and kurtosis useful statistics? Retrieved from https://www.spcforexcel.com/knowledge/basic-statistics/are-skewness-and-kurtosis-useful-statistics"),
-        tags$li("Tabachnick, B. G., & Fidell, L. S. (2013). _Using Multivariate Statistics_ (6th ed.). Pearson.")
+      # ——————————————
+      # PESTAÑA: Referencias 
+      # ——————————————
+      nav_panel(
+        title = "Referencias",
+        tags$ul(
+          tags$li("Byrne, B. M. (2010). _Structural Equation Modeling with AMOS: Basic Concepts, Applications, and Programming_ (2nd ed.). Routledge."),
+          tags$li("George, D., & Mallery, P. (2010). _SPSS for Windows Step by Step: A Simple Guide and Reference_ (10th ed.). Pearson."),
+          tags$li("Hair, J. F., Black, W. C., Babin, B. J., & Anderson, R. E. (2010). _Multivariate Data Analysis_ (7th ed.). Prentice Hall."),
+          tags$li("Joanes, D. N., & Gill, C. A. (1998). Comparing measures of sample skewness and kurtosis. _Journal of the Royal Statistical Society: Series D (The Statistician)_, 47(1), 183–189."),
+          tags$li("Ramirez, O. A. (2001). Are crop yields normally distributed? Paper presented at the American Agricultural Economics Association Annual Meeting, Chicago, IL."),
+          tags$li("SPC for Excel. (2007). Are skewness and kurtosis useful statistics? Retrieved from https://www.spcforexcel.com/knowledge/basic-statistics/are-skewness-and-kurtosis-useful-statistics"),
+          tags$li("Tabachnick, B. G., & Fidell, L. S. (2013). _Using Multivariate Statistics_ (6th ed.). Pearson."),
+          tags$li("APEC. (2013). _Agricultural Statistics Best Practice Methodology Handbook_. Retrieved from https://www.apec.org/docs/default-source/Publications/2013/12/Agricultural-Statistics-Best-Practice-Methodology-Handbook/2013_ATC_ag-stat-handbook.pdf"),
+          tags$li("ARS USDA. (2019). _Best Practices for Presenting Statistical Information in a Research Article_. Retrieved from https://www.ars.usda.gov/ARSUserFiles/3122/KramerEtAl2019Hortscience-BestPracticesForPresentingStatisticalInformationInAResearchArticle.pdf"),
+          tags$li("Investopedia. (2005). Descriptive Statistics: Definition, Overview, Types, and Examples. Retrieved from https://www.investopedia.com/terms/d/descriptive_statistics.asp"),
+          tags$li("Julius AI. (2023). Guide to Descriptive Statistics: Definition, Types, and More. Retrieved from https://julius.ai/articles/descriptive-statistical-analysis-guide"),
+          tags$li("van Elst, H. (2013). Foundations of Descriptive and Inferential Statistics (arXiv:1302.2525). Retrieved from https://arxiv.org/abs/1302.2525"),
+          tags$li("Minitab. (n.d.). Interpret the Key Results for Display Descriptive Statistics. Retrieved from https://support.minitab.com/en-us/minitab/help-and-how-to/statistics/basic-statistics/how-to/display-descriptive-statistics/interpret-the-results/key-results/"),
+          tags$li("Scribbr. (2019). Guide to Descriptive Statistics: Definition, Types, and Examples. Retrieved from https://www.scribbr.com/statistics/descriptive-statistics/"),
+          tags$li("3ie. (2018). Appendix F – Descriptive Statistics. Retrieved from https://www.3ieimpact.org/sites/default/files/TW4.1022-Online-appendix-F-Descriptive-statistics.pdf"),
+          tags$li("Medium. (2024). Unlocking Insights in Agricultural Science with Exploratory Data Analysis: A Complete Guide. Retrieved from https://medium.com/analytics-mastery/unlocking-insights-in-agricultural-science-with-exploratory-data-analysis-a-complete-guide-with-c67e475fa268"),
+          tags$li("Minitab Support. (n.d.). Interpret the Key Results for Display Descriptive Statistics. Retrieved from https://support.minitab.com")
+        )
       )
-    )
 
 
     )
@@ -1389,5 +1491,221 @@ session2Server <- function(input, output, session) {
       ) +
       theme_minimal()
   })
+
+  # -- PESTAÑA: 5 Interpretación
+
+  datos_real <- eventReactive(input$runInterp, {
+    path <- file.path("data", "data_session2.csv")
+    read.csv(path, stringsAsFactors = FALSE)
+  })
+
+  # Vista previa
+  output$interpPreview <- renderTable({
+    head(datos_real(), 10)
+  })
+
+  # Estadísticos descriptivos generales
+  output$descStats <- renderTable({
+    df <- datos_real() %>%
+      mutate(
+        calidad_pct = MTWPL / TTWPL * 100
+      )
+    df %>%
+      summarise(
+        media_TTWPL   = round(mean(TTWPL,   na.rm = TRUE), 2),
+        sd_TTWPL      = round(sd(TTWPL,     na.rm = TRUE), 2),
+        media_cal_pct = round(mean(calidad_pct, na.rm = TRUE), 2),
+        sd_cal_pct    = round(sd(calidad_pct,   na.rm = TRUE), 2),
+        n             = n()
+      )
+  })
+
+  # Asimetría y exceso de curtosis para TTWPL y calidad_pct
+  output$shapeStats <- renderTable({
+    df <- datos_real() %>%
+      mutate(
+        calidad_pct = MTWPL / TTWPL * 100
+      )
+    data.frame(
+      Variable      = c("TTWPL (kg/planta)", "Calidad (% peso comercial)"),
+      Asimetría     = c(
+                        round(skewness(df$TTWPL),  2),
+                        round(skewness(df$calidad_pct),  2)
+                      ),
+      CurtosisExceso = c(
+                        round(kurtosis(df$TTWPL) - 3,       2),
+                        round(kurtosis(df$calidad_pct) - 3, 2)
+                      )
+    )
+  })
+
+  # Boxplot de TTWPL por INSTN (variedades/tratamientos)
+  output$interpBoxplot <- renderPlot({
+    df <- datos_real()
+
+    # Cálculos globales
+    global_mean   <- mean(df$TTWPL, na.rm = TRUE)
+    global_median <- median(df$TTWPL, na.rm = TRUE)
+
+    # Plot 1: por INSTN con hlines
+    p1 <- ggplot(df, aes(x = INSTN, y = TTWPL, fill = INSTN)) +
+    geom_boxplot() +
+    geom_hline(yintercept = global_mean,   linetype = "dashed", color = "red",   size = 0.8) +
+    geom_hline(yintercept = global_median, linetype = "dotted", color = "blue", size = 0.8) +
+    labs(
+      title    = "TTWPL por Variedad",
+      subtitle = "Líneas: media global (rojo), mediana global (azul)",
+      x        = "Variedad (INSTN)",
+      y        = "TTWPL (kg/planta)"
+    ) +
+    theme_minimal() +
+    theme(
+      legend.position   = "none",
+      axis.text.x       = element_text(angle = 45, hjust = 1)
+    )
+
+    # Plot 2: boxplot global sin agrupar
+    p2 <- ggplot(df, aes(x = factor(1), y = TTWPL)) +
+      geom_boxplot(fill = "gray80") +
+      geom_hline(yintercept = global_mean,   linetype = "dashed", color = "red",   size = 0.8) +
+      geom_hline(yintercept = global_median, linetype = "dotted", color = "blue", size = 0.8) +
+      labs(
+        title = "Visión global",
+        x     = "",
+        y     = NULL
+      ) +
+      theme_minimal() +
+      theme(
+        axis.text.x = element_blank(),
+        axis.ticks.x = element_blank()
+      )
+
+    # Combinar con patchwork
+    p1 + p2 + 
+      plot_layout(ncol = 2, widths = c(3, 1))
+  })
+
+  # Boxplot de Calidad por INSTN (variedades/tratamientos)
+  output$interpBoxplotCal <- renderPlot({
+
+    df <- datos_real() %>%
+      mutate(
+        calidad_pct = MTWPL / TTWPL * 100
+      )
+
+    # Cálculos globales
+    global_mean   <- mean(df$calidad_pct, na.rm = TRUE)
+    global_median <- median(df$calidad_pct, na.rm = TRUE)
+
+    # Plot 1: por INSTN con hlines
+    p1 <- ggplot(df, aes(x = INSTN, y = calidad_pct, fill = INSTN)) +
+    geom_boxplot() +
+    geom_hline(yintercept = global_mean,   linetype = "dashed", color = "red",   size = 0.8) +
+    geom_hline(yintercept = global_median, linetype = "dotted", color = "blue", size = 0.8) +
+    labs(
+      title    = "Calidad por Variedad",
+      subtitle = "Líneas: media global (rojo), mediana global (azul)",
+      x        = "Variedad (INSTN)",
+      y        = "Calidad (%peso comercial)"
+    ) +
+    theme_minimal() +
+    theme(
+      legend.position   = "none",
+      axis.text.x       = element_text(angle = 45, hjust = 1)
+    )
+
+    # Plot 2: boxplot global sin agrupar
+    p2 <- ggplot(df, aes(x = factor(1), y = calidad_pct)) +
+      geom_boxplot(fill = "gray80") +
+      geom_hline(yintercept = global_mean,   linetype = "dashed", color = "red",   size = 0.8) +
+      geom_hline(yintercept = global_median, linetype = "dotted", color = "blue", size = 0.8) +
+      labs(
+        title = "Visión global",
+        x     = "",
+        y     = NULL
+      ) +
+      theme_minimal() +
+      theme(
+        axis.text.x = element_blank(),
+        axis.ticks.x = element_blank()
+      )
+
+    # Combinar con patchwork
+    p1 + p2 + 
+      plot_layout(ncol = 2, widths = c(3, 1))
+  })
+
+  # Histograma de TTWPL (variedades/tratamientos)
+  output$interpHistogram <- renderPlot({
+    df <- datos_real()
+    ggplot(df, aes(x = TTWPL)) +
+      geom_histogram() +
+      labs(
+        title = "Peso Total de Tubérculos (TTWPL)",
+        x     = "TTWPL (kg/planta)"
+      ) +
+      theme_minimal() +
+      theme(legend.position = "none")
+  })
+
+  # Histograma de TTWPL (variedades/tratamientos)
+  output$interpHistogramCal <- renderPlot({
+    df <- datos_real() %>%
+      mutate(
+        calidad_pct = MTWPL / TTWPL * 100
+      )
+
+    ggplot(df, aes(x = calidad_pct)) +
+      geom_histogram() +
+      labs(
+        title = "Calidad de Tubérculos (%)",
+        x     = "Calidad (%peso comercial)"
+      ) +
+      theme_minimal() +
+      theme(legend.position = "none")
+  })
+
+  # Texto interpretativo
+  output$interpText <- renderText({
+    df <- datos_real() %>% mutate(calidad_pct = MTWPL / TTWPL * 100)
+
+    media_yield   <- round(mean(df$TTWPL,   na.rm = TRUE), 2)
+    sd_yield      <- round(sd(df$TTWPL,     na.rm = TRUE), 2)
+    skew_yield    <- round(skewness(df$TTWPL), 2)
+    kurt_yield    <- round(kurtosis(df$TTWPL) - 3, 2)
+
+    media_qpct    <- round(mean(df$calidad_pct, na.rm = TRUE), 2)
+    sd_qpct       <- round(sd(df$calidad_pct,   na.rm = TRUE), 2)
+    skew_qpct     <- round(skewness(df$calidad_pct), 2)
+    kurt_qpct     <- round(kurtosis(df$calidad_pct) - 3, 2)
+
+    paste(
+      "• TTWPL (Peso total de tubérculos, kg/planta):",
+      sprintf("   • Media = %s, SD = %s.", media_yield, sd_yield),
+      sprintf("   • Asimetría = %s (%s).", skew_yield,
+              ifelse(skew_yield > 0, "positivo", "negativo")),
+      sprintf("   • Exceso de curtosis = %s (%s).", kurt_yield,
+              ifelse(kurt_yield > 0, "colas pesadas", "colas ligeras")),
+      "",
+      "• Calidad (% peso comercial = MTWPL/TTWPL×100):",
+      sprintf("   • Media = %s%%, SD = %s%%.", media_qpct, sd_qpct),
+      sprintf("   • Asimetría = %s (%s).", skew_qpct,
+              ifelse(skew_qpct > 0, "positivo", "negativo")),
+      sprintf("   • Exceso de curtosis = %s (%s).", kurt_qpct,
+              ifelse(kurt_qpct > 0, "leptocúrtico", "platicúrtico")),
+      "",
+      paste(
+        "Interpretación conjunta:",
+        sprintf("• TTWPL – Media = 0.54 kg/planta, SD = 0.27 kg/planta (CV ≈ %s%%). Sesgo positivo alto (%s) indica cola derecha alargada; exceso de curtosis %s sugiere colas pesadas y mayor probabilidad de valores extremos.",
+                round(sd_yield/media_yield*100,1), skew_yield, kurt_yield),
+        sprintf("• Calidad (MTWPL/TTWPL ×100) – Media = 73.8%%, SD = 12.09%% (CV ≈ %s%%). Sesgo negativo (%s) refleja cola izquierda alargada; exceso de curtosis %s (leptocúrtico) señala probabilidad de porcentajes extremos de calidad.",
+                round(sd_qpct/media_qpct*100,1), skew_qpct, kurt_qpct),
+        "• El boxplot por INSTN ilustra diferencias en TTWPL entre variedades, facilitando la identificación de genotipos con rendimiento más estable.",
+        sep = "\n"
+      ),
+      sep = "\n"
+    )
+  })
+
 
 }
