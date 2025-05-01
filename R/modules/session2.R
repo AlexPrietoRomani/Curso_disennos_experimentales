@@ -525,6 +525,206 @@ print(paste('Exceso de Curtosis =', round(curtosis, 3)))
             ),
     ),
 
+    # ——————————————
+    # PESTAÑA: 3 Agrupación
+    # ——————————————
+
+    nav_panel(
+      title = "3 Agrupación",
+      h4(class = "section-header", "3 Agrupación – Análisis por grupos"),
+
+      # --- Texto teórico ---
+      tags$br(),
+      h5(class = "section-header", "Explicación teorica"),
+      tags$div(class = "theory-text",
+        tags$p(
+          "En experimentos agronómicos a menudo se compara la estadística descriptiva entre grupos —por ejemplo, tratamientos o lotes— para evaluar diferencias en rendimiento o calidad. 
+          El paquete ", tags$b("dplyr"), " (parte del tidyverse) ofrece dos funciones clave:",
+        ),
+        tags$ul(
+          tags$li(
+            tags$b("group_by():"), 
+            "agrupa filas de un data frame según una o más variables categóricas."
+          ),
+          tags$li(
+            tags$b("summarise():"), 
+            "calcula estadísticas resumen por cada grupo generado por group_by()."
+          )
+        ),
+        tags$p(
+          "Usamos el pipe nativo de R (`|>`) o (`%>%`) para encadenar pasos de forma legible:"
+        )
+      ),
+
+      # --- Tabla de funciones ---
+      tags$br(),
+      tags$h5("Funciones group_by() y summarise()"),
+      tags$table(class = "table table-bordered",
+        tags$thead(
+          tags$tr(
+            tags$th("Función"),
+            tags$th("Paquete"),
+            tags$th("Descripción"),
+            tags$th("Sintaxis Básica"),
+            tags$th("Ejemplo")
+          )
+        ),
+        tags$tbody(
+          tags$tr(
+            tags$td("group_by()"),
+            tags$td("dplyr"),
+            tags$td("Define las variables de agrupación."),
+            tags$td("data %>% group_by(var1, var2)"),
+            tags$td("df %>% group_by(Tratamiento)")
+          ),
+          tags$tr(
+            tags$td("summarise()"),
+            tags$td("dplyr"),
+            tags$td("Calcula estadísticas de resumen por grupo."),
+            tags$td("data_grp %>% summarise(nueva = fun(columna))"),
+            tags$td("df_grp %>% summarise(\n  media = mean(Rendimiento, na.rm=TRUE),\n  sd = sd(Rendimiento, na.rm=TRUE),\n  n = n()\n)")
+          )
+        )
+      ),
+
+      # Selección de número de datos
+      tags$div(class = "data-selection",
+        numericInput(
+          ns("n_registros"),
+          label   = "Número de registros a generar:",
+          value   = 20,
+          min     = 5,
+          max     = 100,
+          step    = 5
+        ),
+        actionButton(ns("genData"), "Generar datos aleatorios"),
+        tags$h5("Data frame generado"),
+        tableOutput(ns("dfPreview"))
+      ),
+
+      tags$hr(),
+
+      # --- Ejemplos prácticos ---
+      tags$br(),
+      tags$h5("Ejemplos prácticos en R"),
+      # Botón y salida para ejercicio 1: solo group_by()
+      tags$div(class = "exercise",
+        tags$pre("
+# Agrupamos sin resumir aún
+df_grp <- df %>% group_by(Tratamiento)
+        "),
+        actionButton(ns("run1"), "Ejercicio: group_by()"),
+        tableOutput(ns("res1")),
+        verbatimTextOutput(ns("exp1"))
+      ),
+
+      tags$hr(),
+
+      # Botón y salida para ejercicio 2: solo summarise()
+      tags$div(class = "exercise",
+        tags$pre("
+# Resumimos TODO el data frame (sin group_by prevía)
+df_sum <- df %>% summarise(
+  media_rend = mean(Rendimiento, na.rm = TRUE),
+  sd_rend    = sd(Rendimiento, na.rm = TRUE),
+  n          = n()
+)
+        "),
+        actionButton(ns("run2"), "Ejercicio: summarise()"),
+        tableOutput(ns("res2")),
+        verbatimTextOutput(ns("exp2"))
+      ),
+
+      tags$hr(),
+
+      # Botón y salida para ejercicio 3: group_by() + summarise() por dos variables
+      tags$div(class = "exercise",
+        tags$pre("
+# Agrupamos y resumimos por dos variables 
+df_res <- df %>%
+      group_by(Lote, Tratamiento) %>%
+      summarise(
+        media_cal = round(mean(Calidad, na.rm = TRUE), 2),
+        sd_cal    = round(sd(Calidad, na.rm = TRUE), 2),
+        .groups = 'drop'
+      )
+        "),
+        actionButton(ns("run3"), "Ejercicio: group_by(Lote, Tratamiento)"),
+        tableOutput(ns("res3")),
+        verbatimTextOutput(ns("exp3"))
+      ),
+
+      tags$hr(),
+
+      # Botón y salida para ejercicio: solo across() con mutate()
+      tags$div(class = "exercise",
+        tags$pre("
+      # Ejercicio: usar across() con mutate() para transformar columnas
+      # (sin resumir ni agrupar)
+      df_across_mut <- df |>
+        mutate(
+          across(
+            c(Rendimiento, Calidad),
+            ~ round((.x - mean(.x, na.rm = TRUE)) / sd(.x, na.rm = TRUE), 2),
+            .names = 'estandarizada_{.col}'
+          )
+        )
+        "),
+        actionButton(ns("runAcrossMut"), "Ejercicio: solo across() con mutate()"),
+        tableOutput(ns("resAcrossMut")),
+        verbatimTextOutput(ns("expAcrossMut"))
+      ),
+
+      tags$hr(),
+
+      # Botón y salida para ejercicio 5: solo summarise() con across()
+      tags$div(class = "exercise",
+        tags$pre("
+# across: aplicar funciones a múltiples columnas sin agrupar
+df_across <- df |> 
+  summarise(
+    across(
+      c(Rendimiento, Calidad),
+      list(
+        media = ~round(mean(.x, na.rm = TRUE), 2),
+        sd    = ~round(sd(.x,   na.rm = TRUE), 2)
+      ),
+      .names = '{.col}_{.fn}'
+    ),
+    n_total = n()
+  )"),
+        actionButton(ns("runAcross"), "Ejercicio: summarise(), across()"),
+        tableOutput(ns("resAcross")),
+        verbatimTextOutput(ns("expAcross"))
+      ),
+
+      tags$hr(),
+
+      # Botón y salida para ejercicio 4: summarise() con across()
+      tags$div(class = "exercise",
+        tags$pre("
+# Agrupamos y resumimos usando summarise() con across() (para aplicar la misma función a varias columnas)
+df_acr <- df %>%
+      group_by(Tratamiento) %>%
+      summarise(
+        across(
+          c(Rendimiento, Calidad),
+          list(
+            media = ~round(mean(.x, na.rm = TRUE), 2),
+            sd    = ~round(sd(.x,   na.rm = TRUE), 2)
+          ),
+          .names = '{.col}_{.fn}'
+        ),
+        n = n(),
+        .groups = 'drop'
+      )
+        "),
+        actionButton(ns("run4"), "Ejercicio: group_by(), summarise(across())"),
+        tableOutput(ns("res4")),
+        verbatimTextOutput(ns("exp4"))
+      )
+  ),
+
 
     # ——————————————
     # PESTAÑA: Referencias 
@@ -803,6 +1003,181 @@ session2Server <- function(input, output, session) {
         title = "Comparación de Sesgos: Positivo, Simétrico & Negativo",
         legend = list(x = 0.1, y = -0.2, orientation = 'h')
       )
+  })
+
+  # -- PESTAÑA: 3 Agrupación
+
+  library(dplyr)
+
+  # Función que genera datos según n
+  make_data <- function(n) {
+    set.seed(2025)
+    data.frame(
+      Lote        = rep(1:4, length.out = n),
+      Tratamiento = rep(c('Control','Fert A','Fert B','Orgánico'), length.out = n),
+      Rendimiento = rnorm(n, mean = 5, sd = 0.5),
+      Calidad     = rnorm(n, mean = 7, sd = 1)
+    )
+  }
+
+  # Reactivo: data frame generado al pulsar genData
+  datos_reactive <- eventReactive(input$genData, {
+    make_data(input$n_registros)
+  })
+
+  # Mostrar preview del data.frame
+  output$dfPreview <- renderTable({
+    datos_reactive()
+  })
+
+  # Ejercicio 1: solo group_by()
+  observeEvent(input$run1, {
+    # Usamos el data frame generado por el botón "Generar datos aleatorios"
+    df <- datos_reactive()
+    # Agrupamos sin resumir aún
+    df_grp <- df %>% group_by(Tratamiento)
+    output$res1 <- renderTable({
+      as.data.frame(head(df_grp, 12))  # muestro primeras filas de cada grupo
+    })
+    output$exp1 <- renderText({
+      paste(
+        "Se agruparon los datos por Tratamiento con group_by().",
+        "Aquí ves las primeras filas dentro de cada grupo;",
+        "este paso prepara para calcular estadísticos agrupados."
+      )
+    })
+  })
+
+  # Ejercicio 2: solo summarise()
+  observeEvent(input$run2, {
+    # Usamos el data frame generado por el botón "Generar datos aleatorios"
+    df <- datos_reactive()
+    # Resumimos TODO el data frame (sin group_by prevía)
+    df_sum <- df %>% summarise(
+      media_rend = mean(Rendimiento, na.rm = TRUE),
+      sd_rend    = sd(Rendimiento, na.rm = TRUE),
+      n          = n()
+    )
+    output$res2 <- renderTable({ df_sum })
+    output$exp2 <- renderText({
+      paste(
+        "Se aplicó summarise() directamente al data frame",
+        "sin agrupar primero, por lo que se obtiene un único conjunto de estadísticas",
+        "(media, desviación y cuenta) para todo el data set."
+      )
+    })
+  })
+
+  # Ejercicio 3: group_by(Lote, Tratamiento) + summarise()
+  observeEvent(input$run3, {
+    # Usamos el data frame generado por el botón "Generar datos aleatorios"
+    df <- datos_reactive()
+    df_res <- df %>%
+      group_by(Lote, Tratamiento) %>%
+      summarise(
+        media_cal = round(mean(Calidad, na.rm = TRUE), 2),
+        sd_cal    = round(sd(Calidad, na.rm = TRUE), 2),
+        .groups = 'drop'
+      )
+    output$res3 <- renderTable({ df_res })
+    output$exp3 <- renderText({
+      paste(
+        "Aquí agrupamos por dos variables simultáneamente (Lote y Tratamiento) y",
+        "calculamos media y desviación de Calidad en cada combinación de grupo.",
+        "Es útil para comparar cómo varía la calidad entre lotes y tratamientos."
+      )
+    })
+  })
+
+  observeEvent(input$runAcrossMut, {
+    # Usamos el data frame generado por el botón "Generar datos aleatorios"
+    df <- datos_reactive()
+
+    # Aplicar mutate() con across() para estandarizar columnas
+    df_across_mut <- df |>
+      mutate(
+        across(
+          c(Rendimiento, Calidad),
+          ~ round((.x - mean(.x, na.rm = TRUE)) / sd(.x, na.rm = TRUE), 2),
+          .names = 'estandarizada_{.col}'
+        )
+      )
+
+    # Mostrar resultados
+    output$resAcrossMut <- renderTable({ head(df_across_mut, 10) })
+
+    # Explicación
+    output$expAcrossMut <- renderText({
+      paste(
+        "En este ejercicio usamos mutate() con across():",
+        "- seleccionamos las columnas Rendimiento y Calidad;",
+        "- para cada una restamos su media y dividimos por su sd (estandarización);",
+        "- guardamos el resultado en nuevas columnas 'estandarizada_Rendimiento' y 'estandarizada_Calidad';",
+        "- mostramos las primeras 10 filas para ver las transformaciones."
+      )
+    })
+  })
+
+  # Ejercicio 5: solo summarise() con across()
+  observeEvent(input$runAcross, {
+    # Usamos el data frame generado por el botón "Generar datos aleatorios"
+    df <- datos_reactive()
+
+    # Aplicamos summarise() con across() sin agrupar
+    df_across <- df |>
+      summarise(
+        across(
+          c(Rendimiento, Calidad),
+          list(
+            media = ~round(mean(.x, na.rm = TRUE), 2),
+            sd    = ~round(sd(.x,   na.rm = TRUE), 2)
+          ),
+          .names = '{.col}_{.fn}'
+        ),
+        n_total = n()
+      )
+
+    # Mostrar resultados
+    output$resAcross <- renderTable({ df_across })
+
+    # Explicación
+    output$expAcross <- renderText({
+      paste(
+        "En este ejercicio usamos sólo summarise() con across():",
+        "- aplicamos simultáneamente las funciones media y desviación estándar",
+        "a las columnas Rendimiento y Calidad;",
+        "el resultado es UN solo registro que resume TODO el data frame;",
+        "n_total muestra el tamaño del conjunto original."
+      )
+    })
+  })
+
+  # Ejercicio 4: summarise() con across()
+  observeEvent(input$run4, {
+    # Usamos el data frame generado por el botón "Generar datos aleatorios"
+    df <- datos_reactive()
+    df_acr <- df %>%
+      group_by(Tratamiento) %>%
+      summarise(
+        across(
+          c(Rendimiento, Calidad),
+          list(
+            media = ~round(mean(.x, na.rm = TRUE), 2),
+            sd    = ~round(sd(.x,   na.rm = TRUE), 2)
+          ),
+          .names = "{.col}_{.fn}"
+        ),
+        n = n(),
+        .groups = 'drop'
+      )
+    output$res4 <- renderTable({ df_acr })
+    output$exp4 <- renderText({
+      paste(
+        "Usamos across() dentro de summarise() para aplicar varias funciones",
+        "(media y sd) a múltiples columnas a la vez, generando nombres de columnas",
+        "automáticamente con el sufijo _media y _sd."
+      )
+    })
   })
 
 }
