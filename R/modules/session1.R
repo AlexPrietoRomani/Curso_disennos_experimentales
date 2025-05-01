@@ -398,7 +398,7 @@ library(readxl)
           p("Funcionalidades clave:",
             tags$ul(
               tags$li("tidyverse: Manipulación y visualización de datos"),
-              tags$li("readxl: Lectura de archivos .xls/.xlsx sin dependencias Java")
+              tags$li("readxl: Lectura de archivos .xls/.xlsx")
             )
           )
         ),
@@ -432,7 +432,7 @@ $ Fecha    <date> 2023-01-01, ...
       
       # CSV
       h5("1. Lectura de CSV"),
-      p("Métodos para importar archivos separados por comas [[2]][[3]]:"),
+      p("Métodos para importar archivos separados por comas:"),
       tags$div(class = "code-comparison",
         tags$pre(class="r-code", HTML("
 # Base R
@@ -447,15 +447,15 @@ df_tidy <- read_csv('data/datos.csv')
         ")),
             p("Diferencias clave:",
               tags$ul(
-                tags$li("read.csv() retorna data.frame [[7]]"),
-                tags$li("read_csv() retorna tibble y muestra progreso [[1]]")
+                tags$li("read.csv() retorna data.frame"),
+                tags$li("read_csv() retorna tibble y muestra progreso")
               )
             )
           ),
           
           # Excel
           h5("2. Lectura de Excel"),
-          p("Uso de readxl para archivos .xls/.xlsx [[1]][[2]]:"),
+          p("Uso de readxl para archivos .xls/.xlsx:"),
           tags$pre(class="r-code", HTML("
 library(readxl)
 df_excel <- read_excel('data/datos.xlsx', 
@@ -465,7 +465,7 @@ df_excel <- read_excel('data/datos.xlsx',
           p("Características:",
             tags$ul(
               tags$li("Detecta automáticamente tipos de datos"),
-              tags$li("Soporta formato .xls y .xlsx sin Java")
+              tags$li("Soporta formato .xls y .xlsx")
             )
           ),
           
@@ -517,7 +517,7 @@ $ Fecha    <date> 2023-01-01, ...
               ),
               tags$tr(
                 tags$td("glimpse()"),
-                tags$td("Vista compacta con tipos de datos [[6]]"),
+                tags$td("Vista compacta con tipos de datos"),
                 tags$td("dplyr")
               )
             )
