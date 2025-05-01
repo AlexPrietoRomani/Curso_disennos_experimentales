@@ -134,12 +134,12 @@ session1UI <- function(id) {
       # PESTAÑA: 2 Vectores
       # ---------------------
       nav_panel(title = "2 Vectores",
-  h4(class = "section-header", "2 Vectores: Creación y Manipulación"),
-  
-  # Creación básica
-  h5("Creación de vectores"),
-  p("Usando la función c() para concatenar elementos:"),
-  tags$pre(class="r-code", HTML("
+        h4(class = "section-header", "2 Vectores: Creación y Manipulación"),
+        
+        # Creación básica
+        h5("Creación de vectores"),
+        p("Usando la función c() para concatenar elementos:"),
+        tags$pre(class="r-code", HTML("
 # Numérico
 v_num <- c(2, 4, 6, 8)
 v_num
@@ -147,16 +147,16 @@ v_num
 # Carácter
 v_char <- c('rojo', 'verde', 'azul')
 v_char
-")),
-  tags$pre(class="r-output", "
+        ")),
+          tags$pre(class="r-output", "
 [1] 2 4 6 8
 [1] 'rojo' 'verde' 'azul'
-  "),
-  
-  # Secuencias
-  h5("Generación automática"),
-  p("Con operador : y funciones seq():"),
-  tags$pre(class="r-code", HTML("
+        "),
+        
+        # Secuencias
+        h5("Generación automática"),
+        p("Con operador : y funciones seq():"),
+        tags$pre(class="r-code", HTML("
 # Secuencia básica
 secuencia1 <- 1:10
 
@@ -165,17 +165,17 @@ secuencia2 <- seq(0, 20, by=2)
 
 # Repeticiones
 repeticiones <- rep('A', times=5)
-")),
-  tags$pre(class="r-output", "
+        ")),
+          tags$pre(class="r-output", "
 [1]  1  2  3  4  5  6  7  8  9 10
 [1]  0  2  4  6  8 10 12 14 16 18 20
 [1] 'A' 'A' 'A' 'A' 'A'
-  "),
-  
-  # Indexación
-  h5("Acceso a elementos"),
-  p("Uso de índices numéricos y lógicos:"),
-  tags$pre(class="r-code", HTML("
+        "),
+        
+        # Indexación
+        h5("Acceso a elementos"),
+        p("Uso de índices numéricos y lógicos:"),
+        tags$pre(class="r-code", HTML("
 # Por posición
 v_num[3]
 
@@ -184,29 +184,29 @@ v_num[v_num > 5]
 
 # Reemplazo
 v_char[2] <- 'amarillo'
-")),
-  tags$pre(class="r-output", "
+        ")),
+          tags$pre(class="r-output", "
 [1] 6
 [1] 6 8
 [1] 'rojo' 'amarillo' 'azul'
-  "),
-  
-  # Operaciones vectorizadas
-  h5("Operaciones vectorizadas"),
-  p("Cálculos aplicados a todos los elementos:"),
-  tags$pre(class="r-code", HTML("
+        "),
+        
+        # Operaciones vectorizadas
+        h5("Operaciones vectorizadas"),
+        p("Cálculos aplicados a todos los elementos:"),
+        tags$pre(class="r-code", HTML("
 # Aritméticas
 v_num * 10
 v_num + c(1, 2, 3, 4)
 
 # Lógicas
 v_num >= 5
-")),
-  tags$pre(class="r-output", "
+        ")),
+          tags$pre(class="r-output", "
 [1] 20 40 60 80
 [1]  3  6  9 12
 [1] FALSE FALSE  TRUE  TRUE
-  ")
+        ")
       ),
 
       # ---------------------
@@ -214,38 +214,38 @@ v_num >= 5
       # ---------------------
 
       nav_panel(title = "3 Gráficos",
-      h4(class = "section-header", "3 Gráficos: Visualización Básica"),
-  
-      # Sección de ejercicios interactivos
-      h5(class = "section-header", "Ejercicios Interactivos"),
-      p("Ajusta el tamaño de muestra y observa los gráficos:"),
-      sliderInput(ns("n"), "Tamaño de muestra simulada:", min = 50, max = 500, value = 200),
-      
-      fluidRow(
-        column(6,
-          div(class = "plot-box",
-            h5("Gráfico base R"),
-            plotOutput(ns("histPlot"), height = "200px")
+        h4(class = "section-header", "3 Gráficos: Visualización Básica"),
+    
+        # Sección de ejercicios interactivos
+        h5(class = "section-header", "Ejercicios Interactivos"),
+        p("Ajusta el tamaño de muestra y observa los gráficos:"),
+        sliderInput(ns("n"), "Tamaño de muestra simulada:", min = 50, max = 500, value = 200),
+        
+        fluidRow(
+          column(6,
+            div(class = "plot-box",
+              h5("Gráfico base R"),
+              plotOutput(ns("histPlot"), height = "200px")
+            )
+          ),
+          column(6,
+            div(class = "plot-box",
+              h5("Gráfico con ggplot2"),
+              plotOutput(ns("ggPlot"), height = "200px")
+            )
           )
         ),
-        column(6,
-          div(class = "plot-box",
-            h5("Gráfico con ggplot2"),
-            plotOutput(ns("ggPlot"), height = "200px")
-          )
-        )
-      ),
-      
-      # Explicación técnica
-      h5("Sistemas de graficación"),
-
-      # Sección plot()
-      tags$div(class = "graph-system",
-        h6("1. Sistema base (plot())"),
-        p("Funciones básicas para gráficos rápidos:"),
         
-        tags$div(class = "code-explanation",
-          tags$pre(class="r-code", HTML("
+        # Explicación técnica
+        h5("Sistemas de graficación"),
+
+        # Sección plot()
+        tags$div(class = "graph-system",
+          h6("1. Sistema base (plot())"),
+          p("Funciones básicas para gráficos rápidos:"),
+          
+          tags$div(class = "code-explanation",
+            tags$pre(class="r-code", HTML("
 # Gráfico de dispersión
 x <- rnorm(50)
 y <- x + rnorm(50)
