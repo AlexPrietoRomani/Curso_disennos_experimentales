@@ -1,0 +1,21 @@
+Package: Curso_disennos_experimentales 
+Version: 1.2.7  
+Title: Aplicación shiny para el curso de diseños experimentales  
+Description: Es una aplicación shiny para el curso de diseños experimentales, donde se pueden realizar diferentes análisis estadísticos y visualizaciones de datos.
+Author: Alex Anthony Prieto Romani
+Maintainer: Alex Anthony Prieto Romani <alexprieto1997@gmail.com>  
+License: MIT  
+Encoding: UTF-8  
+LazyData: true
+Imports:
+    shiny,
+    shinythemes,
+    tidyverse,
+    readxl,
+    janitor,
+    moments,
+    plotly,
+    bslib,
+    ggplot2,
+    patchwork,
+    grid
