@@ -772,17 +772,31 @@ df_acr <- df %>%
 
         tags$br(),
         tags$div(class = "my-image-container",
-        tags$h5("Mi gráfico explicativo"),
-        # Ruta relativa: www/images/elegir_graph.png → src = "images/elegir_graph.png"
-        tags$img(
-          src    = "images/elegir_graph.jpg",
-          alt    = "Ilustración de como elegir el gráfico adecuado",
-          class  = "img-responsive",
-          width  = "50%",       # puedes controlar tamaño con width/height
-          height = NULL,
-          style  = "border: 1px solid #ddd; border-radius: 4px; padding: 5px;"
-        )
-      ),
+          tags$h5("Mi gráfico explicativo"),
+          # Ruta relativa: www/images/elegir_graph.jpg → src = "images/elegir_graph.jpg"
+          tags$img(
+            src    = "images/elegir_graph.jpg",
+            alt    = "Ilustración de como elegir el gráfico adecuado",
+            class  = "img-responsive",
+            width  = "50%",       # puedes controlar tamaño con width/height
+            height = NULL,
+            style  = "border: 1px solid #ddd; border-radius: 4px; padding: 5px;"
+          ),
+        ),
+        tags$br(),
+        tags$div(class = "my-image-container",
+          tags$h5("Grafico Boxplot"),
+          # Ruta relativa: www/images/boxplot_explanation.png → src = "images/boxplot_explanation.png"
+          tags$img(
+            src    = "images/boxplot_explanation.png",
+            alt    = "Ilustración de como elegir el gráfico adecuado",
+            class  = "img-responsive",
+            width  = "50%",       # puedes controlar tamaño con width/height
+            height = NULL,
+            style  = "border: 1px solid #ddd; border-radius: 4px; padding: 5px;"
+          )
+        ),
+
 
         # Ejemplo 1: Boxplot comparativo
         tags$br(),
