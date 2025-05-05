@@ -44,91 +44,168 @@ session1UI <- function(id) {
       # ---------------------
       # PESTAÑA: 1 Intro
       # ---------------------
-      nav_panel(title = "1 Intro",
-        h4(class = "section-header", "1 Intro: Sintaxis Básica"),
-        
-        # Operadores
-        h5("Operadores en R"),
-        p("Elementos clave para manipular datos:"),
-        
-        tags$div(class = "concept-box",
-          h6("Aritméticos"),
-          tags$pre(class="r-code", HTML("
-  3 + 5    # Suma → 8<br>
-  4 * 2    # Multiplicación → 8
-  6^2      # Exponenciación → 36
-  7 %% 3   # Módulo → 1 (resto de 7/3)
-  9 %/% 2  # División entera → 4
-          ")),
-          p("Resultado esperado:", 
-            tags$pre(class="r-output", "
-  [1] 8
-  [1] 8
-  [1] 36
-  [1] 1
-  [1] 4
-            "))
+      nav_panel(
+      title = "1 Intro",
+      h4(class = "section-header", "1 Intro: Sintaxis Básica"),
+
+      # Teoría extendida
+      tags$div(class = "theory-text",
+        tags$p(
+          "En R, los operadores son símbolos que indican al intérprete cómo combinar valores escalares, vectores o expresiones para producir un resultado (Tutorialspoint, 2024).",
+          "Se clasifican en cuatro grupos principales:"
         ),
-        
-        tags$div(class = "concept-box",
-          h6("Comparación"),
+        tags$ul(
+          tags$li(
+            tags$b("Aritméticos:"), " +, -, *, /, ^ (o **), %% (módulo), %/% (división entera).",
+            "Actúan elemento a elemento sobre vectores (Programiz, 2024)."
+          ),
           tags$pre(class="r-code", HTML("
-  5 > 3   # Mayor que → TRUE
-  2 == 4  # Igualdad → FALSE
-  3 != 5  # Desigualdad → TRUE
+# Suma, resta, multiplicación, división, exponenciación, módulo, división entera
+3 + 5
+10 - 2
+4 * 2
+9 / 3
+6^2
+7 %% 3
+9 %/% 2
           ")),
-          p("Resultado esperado:",
-            tags$pre(class="r-output", "
-  [1] TRUE
-  [1] FALSE
-  [1] TRUE
-            "))
+          p("Salida esperada:"),
+          tags$pre(class="r-output", HTML("
+[1]  8
+[1]  8
+[1]  8
+[1]  3
+[1] 36
+[1]  1
+[1]  4
+          ")),
+          tags$br(),
+          tags$li(
+            tags$b("Relacionales:"), " >, <, ==, !=, >=, <=.",
+            "Comparan valores o vectores y devuelven TRUE/FALSE para cada elemento (W3Schools, 2024)."
+          ),
+          tags$pre(class="r-code", HTML("
+5 > 3
+2 == 4
+3 != 5
+7 >= 7
+1 < 0
+          ")),
+          p("Salida esperada:"),
+          tags$pre(class="r-output", HTML("
+[1] TRUE
+[1] FALSE
+[1] TRUE
+[1] TRUE
+[1] FALSE
+          ")),
+          tags$br(),
+          tags$li(
+            tags$b("Lógicos:"), " &, | (element-wise), &&, || (primer elemento), ! (NOT).",
+            "Se usan para combinar condiciones booleanas (Zero to Pro, 2024)."
+          ),
+          tags$pre(class="r-code", HTML("
+TRUE & FALSE   # element-wise
+TRUE && FALSE  # primer elemento
+FALSE | TRUE
+FALSE || TRUE
+!TRUE
+          ")),
+          p("Salida esperada:"),
+          tags$pre(class="r-output", HTML("
+[1] FALSE
+[1] FALSE
+[1] TRUE
+[1] TRUE
+[1] FALSE
+          ")),
+          tags$br(),
+          tags$li(
+            tags$b("Asignación:"), " <-, ->, = (desaconsejado), <<- y ->> (global).",
+            "Asignan valores a variables dentro de distintos entornos (Tutorialspoint, 2024)."
+          ),
+          tags$pre(class="r-code", HTML("
+a <- 10
+20 -> b
+c = 5   # desaconsejado
+a + b + c
+          ")),
+          p("Salida esperada:"),
+          tags$pre(class="r-output", HTML("
+# a y b quedan asignados
+[1] 35
+        ")),
         ),
-        
-        # Vectores
-        h5("Vectores"),
-        p("Estructuras fundamentales en R para almacenar datos homogéneos:"),
+        tags$p(
+          "La precedencia de operadores en R sigue: paréntesis > exponenciación > multiplicación y división > suma y resta.",
+          "Use paréntesis para garantizar el orden de evaluación deseado (Programiz, 2024)."
+        ),
+        tags$h5("Pipes"),
+        tags$p(
+          "Introducido en R 4.1.0, el pipe nativo `|>` toma la salida del LHS como primer argumento del RHS,",
+          "facilitando la lectura secuencial de transformaciones sin variables intermedias (Tidyverse Blog, 2023)."
+        ),
+        tags$p(
+          "El pipe de magrittr `%>%` ofrece más flexibilidad con pronombres (`.`) para posicionar el argumento dentro de la llamada (Ivelasq, 2020)."
+        ),
         tags$pre(class="r-code", HTML("
-  # Numérico (clase 'numeric')
-  edades <- c(23, 25, 19, 30)
-  edades + 5        # Operación vectorizada
+# Pipe nativo
+c(3,5,7) |> mean() |> round(1)
 
-  # Carácter (clase 'character')
-  nombres <- c('Ana', 'Luis', 'María')
-  toupper(nombres)  # Conversión a mayúsculas
-          ")),
-        p("Resultado esperado:",
-          tags$pre(class="r-output", "
-  [1] 28 30 24 35
-  [1] 'ANA' 'LUIS' 'MARÍA'
-          ")),
-        
-        # Pipes
-        h5("Operadores Pipe"),
-        p("Herramientas para encadenar operaciones:"),
-        tags$div(class = "pipe-comparison",
-          tags$pre(class="r-code", HTML("
-  # Pipe nativo (|>) desde R 4.1
-  c(3,5,7) |> 
-    mean() |> 
-    round(2) 
+# Pipe magrittr
+library(magrittr)
+c(3,5,7) %>% mean() %>% round(1)
+        ")),
+        p("Salida esperada:"),
+        tags$pre(class="r-output", "[1] 5.0")
+      ),
 
-  # Pipe de magrittr (%>%)
-  library(magrittr)
-  c(3,5,7) %>% 
-    mean() %>% 
-    round(2)
-          ")),
-          p("Ambos devuelven:", 
-            tags$pre(class="r-output", "[1] 5"))
+      # Tabla de operadores
+      tags$br(),
+      tags$h5("Tabla 1: Operadores básicos de R"),
+      tags$table(class = "table table-bordered",
+        tags$thead(
+          tags$tr(
+            tags$th("Tipo de operador"),
+            tags$th("Símbolo(s)"),
+            tags$th("Descripción"),
+            tags$th("Ejemplo")
+          )
         ),
-        p("Diferencias clave:",
-          tags$ul(
-            tags$li("|> : Nativo, no requiere librerías"),
-            tags$li("%>% : Más flexible, permite argumentos intermedios")
+        tags$tbody(
+          tags$tr(
+            tags$td("Aritméticos"),
+            tags$td("+, -, *, /, ^, %, %, %/%"),
+            tags$td("Operaciones matemáticas elementales"),
+            tags$td(tags$code("x <- 5 + 3"), ", ", tags$code("y <- 10 / 2"))
+          ),
+          tags$tr(
+            tags$td("Relacionales"),
+            tags$td(">, <, ==, !=, >=, <="),
+            tags$td("Comparan valores y devuelven booleanos"),
+            tags$td(tags$code("5 > 3"), ", ", tags$code("2 <= 4"))
+          ),
+          tags$tr(
+            tags$td("Lógicos"),
+            tags$td("!, &, &&, |, ||"),
+            tags$td("Combina condiciones TRUE/FALSE"),
+            tags$td(tags$code("TRUE & FALSE"), ", ", tags$code("!TRUE"))
+          ),
+          tags$tr(
+            tags$td("Asignación"),
+            tags$td("<-, ->, =, <<-, ->>"),
+            tags$td("Asigna valores a variables"),
+            tags$td(tags$code("a <- 10"), ", ", tags$code("20 -> b"))
+          ),
+          tags$tr(
+            tags$td("Pipe"),
+            tags$td("|>, %>%"),
+            tags$td("Encadena operaciones de manera legible"),
+            tags$td(tags$code("iris |> head()"), ", ", tags$code("iris %>% head()"))
           )
         )
-      ),
+      )
+    ),
 
       # ---------------------
       # PESTAÑA: 2 Vectores
@@ -729,6 +806,10 @@ df_limpio <- read_csv('data/datos.csv') %>%
 }
 
 session1Server <- function(input, output, session) {
+  
+  # --- Pestaña 1: Intro ---
+
+  
   # ---------------------
   # Gráficos interactivos para la pestaña 3
   # ---------------------
