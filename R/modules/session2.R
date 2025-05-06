@@ -21,7 +21,7 @@ session2UI <- function(id) {
         h4(class = "section-header", "Temario"),
         
         # Tabla de actividades
-        tags$table(class = "table activity-table",
+        tags$table(class = "table activity-table table-bordered",
           tags$thead(tags$tr(
             tags$th("Segmento"),
             tags$th("Tiempo"),
@@ -55,161 +55,110 @@ session2UI <- function(id) {
             )
           )
         ),
-    
-        # Sección de contenido técnico
-        tags$div(class = "session-content",
-          h5("Medidas descriptivas"),
-          p("Implementación en R:"),
-          tags$pre(class="r-code", HTML("
-# Datos de rendimiento
-rendimiento <- c(2.3, 3.1, 2.8, 4.0, 3.5, 2.9)
-
-# Medidas básicas
-media <- mean(rendimiento)
-mediana <- median(rendimiento)
-desv_est <- sd(rendimiento)
-varianza <- var(rendimiento)
-rango <- range(rendimiento)
-          ")),
-              p("Resultado esperado:",
-                tags$pre(class="r-output", "
-[1] Media: 3.1
-[1] Mediana: 3.0
-[1] Desv. Est.: 0.56
-          ")
-              ),
-              
-              h5("Curtosis y asimetría"),
-              p("Análisis de forma de distribución:"),
-              tags$pre(class="r-code", HTML("
-library(moments)
-curtosis <- kurtosis(rendimiento)
-asimetria <- skewness(rendimiento)
-          ")),
-              p("Interpretación:",
-                tags$ul(
-                  tags$li("Curtosis > 3: Distribución leptocúrtica (cola pesada)"),
-                  tags$li("Asimetría > 0: Sesgo hacia la derecha")
-                )
-              ),
-              
-              h5("Agrupación y visualización"),
-              p("Flujo completo con tidyverse:"),
-              tags$pre(class="r-code", HTML("
-library(dplyr)
-library(ggplot2)
-
-datos %>%
-  group_by(tratamiento) %>%
-  summarise(
-    media = mean(rendimiento),
-    sd = sd(rendimiento)
-  ) %>%
-  ggplot(aes(x=tratamiento, y=media)) +
-  geom_boxplot(aes(ymin=media-sd, ymax=media+sd))
-          ")),
-          
-          h5("Interpretación agronómica"),
-          p("Ejemplo de aplicación:",
-            tags$ul(
-              tags$li("Varianza alta → posible heterogeneidad en campo"),
-              tags$li("Asimetría positiva → respuesta diferencial a tratamientos")
-            )
-          )
-        )
-      ),
+      ),  
 
       # ——————————————
       # PESTAÑA: 1 Medidas básicas
       # ——————————————
       nav_panel(
-            title = "1 Medidas básicas",
-            h4(class = "section-header", "Medidas básicas"),
+          title = "1 Medidas básicas",
+          h4(class = "section-header", "Medidas básicas"),
 
-            # ----- Texto teórico introductorio -----
-            h5(class = "section-header", "Explicación teorica"),
-            tags$div(class = "theory-text",
-              tags$p("En esta sesión se profundiza en la estadística descriptiva, presentando las medidas numéricas más comunes para resumir datos cuantitativos. Las medidas de tendencia central describen el centro de la distribución de datos, mientras que las medidas de dispersión describen la variabilidad de los datos alrededor de ese centro (Montgomery & Runger, 2018)."),
-              tags$p("Las principales medidas de tendencia central son:"),
-              tags$ul(
-                tags$li(tags$b("Media aritmética:"), " es el promedio de los valores, calculado sumando todos los datos y dividiendo entre el número de observaciones. Útil para datos cuantitativos continuos, pero sensible a valores extremos."),
-                tags$li(tags$b("Mediana:"), " es el valor central de los datos cuando se ordenan de menor a mayor. Divide al conjunto en dos mitades iguales. Es una medida robusta, menos afectada por valores atípicos que la media (Montgomery & Runger, 2018)."),
-                tags$li(tags$b("Moda:"), " es el valor o categoría que aparece con mayor frecuencia; útil para variables categóricas o distribuciones discretas."),
-                tags$p("A continuación, un histograma de datos generados con distribución normal, con líneas punteadas que indican dónde caen la media (rojo), la mediana (verde) y la moda estimada (azul)."),
+          # ----- Texto teórico introductorio -----
+          h5(class = "section-header", "Explicación teorica"),
+          tags$div(class = "theory-text plot-box",
+            tags$p("En esta sesión se profundiza en la estadística descriptiva, presentando las medidas numéricas más comunes para resumir datos cuantitativos. Las medidas de tendencia central describen el centro de la distribución de datos, mientras que las medidas de dispersión describen la variabilidad de los datos alrededor de ese centro (Montgomery & Runger, 2018)."),
+            tags$p("Las principales medidas de tendencia central son:"),
+            tags$ul(
+              tags$li(tags$b("Media aritmética:"), " es el promedio de los valores, calculado sumando todos los datos y dividiendo entre el número de observaciones. Útil para datos cuantitativos continuos, pero sensible a valores extremos."),
+              tags$li(tags$b("Mediana:"), " es el valor central de los datos cuando se ordenan de menor a mayor. Divide al conjunto en dos mitades iguales. Es una medida robusta, menos afectada por valores atípicos que la media (Montgomery & Runger, 2018)."),
+              tags$li(tags$b("Moda:"), " es el valor o categoría que aparece con mayor frecuencia; útil para variables categóricas o distribuciones discretas."),
+              tags$p("A continuación, un histograma de datos generados con distribución normal, con líneas punteadas que indican dónde caen la media (rojo), la mediana (verde) y la moda estimada (azul)."),
+              tags$div(class = "plot-box",
                 plotOutput(ns("theoryPlot"), height = "300px")
               ),
             ),
-            
-            tags$div(class = "theory-text-cuant",
-              tags$p("Para cuantificar la dispersión o variabilidad de los datos:"),
-              tags$ul(
-                tags$li(tags$b("Rango (amplitud):"), " la diferencia entre el valor máximo y mínimo del conjunto de datos. Es fácil de calcular pero solo depende de dos valores extremos."),
-                tags$li(tags$b("Varianza:"), " la media de las desviaciones al cuadrado de cada observación respecto a la media del conjunto. Sirve como base teórica, aunque en unidades al cuadrado."),
-                tags$li(tags$b("Desviación estándar:"), " la raíz cuadrada de la varianza. Expresada en las mismas unidades que los datos originales, facilita la interpretación. Una desviación estándar alta indica que los datos están muy dispersos alrededor de la media, mientras que una baja significa que los datos están más concentrados cerca de la media (Montgomery & Runger, 2018)."),
-                tags$li(tags$b("Coeficiente de variación (CV):"), " la razón entre la desviación estándar y la media (a menudo expresada en porcentaje). Es útil para comparar variabilidad relativa entre conjuntos de datos de magnitudes muy distintas. En agricultura, el CV se usa para evaluar la estabilidad de rendimientos: por ejemplo, un cultivo con CV alto en rendimiento presenta mucha variabilidad entre parcelas, lo que puede implicar inconsistencias en manejo o en condiciones.")
-              )
-            ),
-            # Slider para sigma con animación
-            sliderInput(
-              inputId = ns("sigma"),
-              label   = "Desviación estándar \\(\\sigma\\):",
-              min     = 1,
-              max     = 5,
-              value   = 1,
-              step    = 0.1,
-              animate = animationOptions(interval = 500, loop = TRUE)
-            ),
-            # Punto de dibujo
+          ),
+          
+          tags$div(class = "theory-text-cuant plot-box",
+            tags$p("Para cuantificar la dispersión o variabilidad de los datos:"),
+            tags$ul(
+              tags$li(tags$b("Rango (amplitud):"), " la diferencia entre el valor máximo y mínimo del conjunto de datos. Es fácil de calcular pero solo depende de dos valores extremos."),
+              tags$li(tags$b("Varianza:"), " la media de las desviaciones al cuadrado de cada observación respecto a la media del conjunto. Sirve como base teórica, aunque en unidades al cuadrado."),
+              tags$li(tags$b("Desviación estándar:"), " la raíz cuadrada de la varianza. Expresada en las mismas unidades que los datos originales, facilita la interpretación. Una desviación estándar alta indica que los datos están muy dispersos alrededor de la media, mientras que una baja significa que los datos están más concentrados cerca de la media (Montgomery & Runger, 2018)."),
+              tags$li(tags$b("Coeficiente de variación (CV):"), " la razón entre la desviación estándar y la media (a menudo expresada en porcentaje). Es útil para comparar variabilidad relativa entre conjuntos de datos de magnitudes muy distintas. En agricultura, el CV se usa para evaluar la estabilidad de rendimientos: por ejemplo, un cultivo con CV alto en rendimiento presenta mucha variabilidad entre parcelas, lo que puede implicar inconsistencias en manejo o en condiciones.")
+            )
+          ),
+          # Slider para sigma con animación
+          sliderInput(
+            inputId = ns("sigma"),
+            label   = "Desviación estándar \\(\\sigma\\):",
+            min     = 1,
+            max     = 5,
+            value   = 1,
+            step    = 0.1,
+            animate = animationOptions(interval = 500, loop = TRUE)
+          ),
+          # Punto de dibujo
+          tags$div(class = "plot-box",
+            tags$p("La línea azul indica la media, la verde la mediana y la roja el rango intercuartílico (IQR)."),
             plotOutput(ns("densPlot"), height = "400px"),
+          ),         
 
-            tags$br(),
-            tags$p("Por ejemplo, un rendimiento medio de 5.0 t/ha con desviación estándar 0.8 t/ha sugiere dispersión moderada; si la desviación fuera 2.0 t/ha, habría gran heterogeneidad entre parcelas, quizá por variaciones en suelo o manejo."),
+          tags$br(),
+          tags$p("Por ejemplo, un rendimiento medio de 5.0 t/ha con desviación estándar 0.8 t/ha sugiere dispersión moderada; si la desviación fuera 2.0 t/ha, habría gran heterogeneidad entre parcelas, quizá por variaciones en suelo o manejo."),
 
-            tags$br(),
-            h5(class = "section-header", "Ejemplo práctico"),
+          tags$br(),
+          h5(class = "section-header", "Ejemplo práctico"),
+          
+          tags$div(class = "ejemplo-practico",
+            tags$p("Supongamos que tenemos un conjunto de datos de rendimiento de trigo en parcelas agrícolas. Queremos calcular medidas descriptivas para entender la variabilidad de los rendimientos."),
+            tags$p("Ejemplo práctico: Rendimientos de trigo en 10 parcelas (t/ha)"),
+            tags$pre(class = "r-code", 
+              htmltools::HTML(
+                "# Datos de ejemplo: rendimientos de trigo (t/ha) en 10 parcelas\n",
+                "rend_trigo <- c(4.8, 5.5, 5.0, 6.1, 4.9, 5.3, 5.8, 4.7, 5.0, 5.4)\n",
+                "\n",
+                "# Cálculos de medidas descriptivas\n",
+                "mean(rend_trigo, na.rm = TRUE)      # media ≈ 5.25\n",
+                "median(rend_trigo, na.rm = TRUE)    # mediana = 5.15\n",
+                "sd(rend_trigo, na.rm = TRUE)        # desviación ≈ 0.45\n",
+                "\n",
+                "# Rango (valor mínimo y máximo)\n",
+                "(min(rend_trigo), max(rend_trigo))  # rango = (4.7, 6.1)\n",
+                "range(rend_trigo)                   # alternativa que da min y max juntos\n",
+                "\n",
+                "# Coeficiente de variación (sd/mean)\n",
+                "cv <- sd(rend_trigo) / mean(rend_trigo) * 100  \n",
+                "cv                                  # CV ≈ 8.5%\n",
+              )
+            ), 
+            tags$p("Este análisis muestra baja variabilidad relativa (CV ~8.5%), indicando rendimientos consistentes."),
             
-            tags$div(class = "ejemplo-practico",
-              tags$p("Supongamos que tenemos un conjunto de datos de rendimiento de trigo en parcelas agrícolas. Queremos calcular medidas descriptivas para entender la variabilidad de los rendimientos."),
-              tags$p("Ejemplo práctico: Rendimientos de trigo en 10 parcelas (t/ha)"),
-              tags$pre("
-# Datos de ejemplo: rendimientos de trigo (t/ha) en 10 parcelas
-rend_trigo <- c(4.8, 5.5, 5.0, 6.1, 4.9, 5.3, 5.8, 4.7, 5.0, 5.4)
-
-# Cálculos de medidas descriptivas
-mean(rend_trigo, na.rm = TRUE)      # media ≈ 5.25
-median(rend_trigo, na.rm = TRUE)    # mediana = 5.15
-sd(rend_trigo, na.rm = TRUE)        # desviación ≈ 0.45
-
-# Rango (valor mínimo y máximo)
-(min(rend_trigo), max(rend_trigo))  # rango = (4.7, 6.1)
-range(rend_trigo)                   # alternativa que da min y max juntos
-
-# Coeficiente de variación (sd/mean)
-cv <- sd(rend_trigo) / mean(rend_trigo) * 100  
-cv                                  # CV ≈ 8.5%
-              "), 
-              tags$p("Este análisis muestra baja variabilidad relativa (CV ~8.5%), indicando rendimientos consistentes."),
-              
-              h5(class = "section-header", "Graficos que ayudan a visualizar"),
-              tags$p("Para visualizar la distribución de los datos y detectar posibles outliers, se pueden usar histogramas y boxplots. Estos gráficos permiten observar la forma de la distribución y la presencia de valores atípicos."),
-              tags$pre("
-# Histograma
-hist(rend_trigo, 
-     main = 'Histograma de rendimiento de trigo', 
-     xlab = 'Rendimiento (t/ha)', 
-     ylab = 'Frecuencia')
-
-# Boxplot
-boxplot(rend_trigo, 
-        main = 'Boxplot de rendimiento de trigo', 
-        ylab = 'Rendimiento (t/ha)')
-              ")
-            ),
-        
-          # ----- Texto práctico -----
-          h5(class = "section-header", "Ejercicio práctico"),
-            tags$p("A continuación, se presentan dos gráficos generados con datos aleatorios. Elija un escenario de datos y observe cómo cambian las medidas de tendencia central y dispersión."),
-            tags$br(),
+            h5(class = "section-header", "Graficos que ayudan a visualizar"),
+            tags$p("Para visualizar la distribución de los datos y detectar posibles outliers, se pueden usar histogramas y boxplots. Estos gráficos permiten observar la forma de la distribución y la presencia de valores atípicos."),
+            tags$pre(class = "r-code", 
+              htmltools::HTML(
+                "# Histograma\n",
+                "hist(rend_trigo, \n",
+                "     main = 'Histograma de rendimiento de trigo', \n",
+                "     xlab = 'Rendimiento (t/ha)', \n",
+                "     ylab = 'Frecuencia')\n",
+                "\n",
+                "# Boxplot\n",
+                "boxplot(rend_trigo, \n",
+                "        main = 'Boxplot de rendimiento de trigo', \n",
+                "        ylab = 'Rendimiento (t/ha)')\n"
+              )
+            )
+          ),
+      
+        # ----- Texto práctico -----
+        tags$br(),
+        tags$div(class = "plot-section plot-box",
+          h5(class = "section-header", "Esenarios práctico"),
+          tags$p("A continuación, se presentan dos gráficos generados con datos aleatorios. Elija un escenario de datos y observe cómo cambian las medidas de tendencia central y dispersión."),
+          tags$br(),
             tags$div(class = "plot-section",
             # Selección de escenario
             selectInput(
@@ -227,95 +176,106 @@ boxplot(rend_trigo,
             ),
             tags$br(),
             # Salidas de los dos gráficos
-            plotOutput(ns("histPlot"), height = "400px"),
-            plotOutput(ns("boxPlot"),  height = "200px")
+            tags$div(class = "plot-box",
+              plotOutput(ns("histPlot"), height = "400px"),
+              tags$div(class = "plot-explanation",
+                tags$p("El histograma muestra la distribución de los datos elegidos. La línea roja indica la media, la verde la mediana y la azul la moda estimada.")
+              ) 
+            ),
+            tags$br(),
+            tags$div(class = "plot-box",
+              # Boxplot
+              tags$p("El boxplot muestra la mediana (línea negra), el rango intercuartílico (IQR) y los outliers (puntos fuera de los bigotes)."),
+              plotOutput(ns("boxPlot"),  height = "200px")
+            )
           ),
 
           tags$br(),
-            # Explicación de escenarios de datos
-            tags$div(class = "scenario-explanations",
-              
-              # Explicaciones científicas de cada escenario
-              # --- Normal ---
-              tags$div(class = "scenario-explanation",
-                tags$h5("Escenario: Normal"),
-                tags$p(
-                  "Los datos generados con distribución normal (o gaussiana) siguen la función de densidad ",
-                  withMathJax(helpText("$$f(x) = \\frac{1}{\\sigma \\sqrt{2\\pi}} e^{-\\tfrac{(x-\\mu)^2}{2\\sigma^2}}$$")),
-                  " donde \\(\\mu\\) es la media y \\(\\sigma\\) la desviación estándar. Esta distribución es simétrica (asimetría cero), con curtosis teórica de 3, y aparece de forma natural en múltiples fenómenos gracias al Teorema Central del Límite."
-                )
-              ),
-
-              # --- Con outliers ---
-              tags$div(class = "scenario-explanation",
-                tags$h5("Escenario: Con outliers"),
-                tags$p(
-                  "Un outlier es una observación que se encuentra a una distancia anormal respecto al resto de los datos. Habitualmente, se identifican los valores que cumplen ",
-                  withMathJax(helpText("$$x < Q_1 - 1.5\\times IQR \\quad\\text{o}\\quad x > Q_3 + 1.5\\times IQR$$")),
-                  ", donde \\(Q_1\\) y \\(Q_3\\) son el primer y tercer cuartil, e IQR es la amplitud intercuartílica."
-                )
-              ),
-
-              # --- CV alto ---
-              tags$div(class = "scenario-explanation",
-                tags$h5("Escenario: CV alto"),
-                tags$p(
-                  "El coeficiente de variación se define como ",
-                  withMathJax(helpText("$$CV = \\frac{\\sigma}{\\mu}$$")),
-                  ", y cuantifica la variabilidad relativa de los datos. Un CV elevado señala que la dispersión (\\(\\sigma\\)) es considerable en relación con la media (\\(\\mu\\)), lo que puede reflejar inconsistencias o alta heterogeneidad en datos agronómicos."
-                )
-              ),
-
-              # --- SD muy grande ---
-              tags$div(class = "scenario-explanation",
-                tags$h5("Escenario: SD muy grande"),
-                tags$p(
-                  "La desviación estándar mide la dispersión absoluta: ",
-                  withMathJax(helpText("$$\\sigma = \\sqrt{\\frac{1}{n}\\sum_{i=1}^n (x_i - \\mu)^2}$$")),
-                  ". Un \\(\\sigma\\) muy alto indica gran dispersión, lo que dificulta identificar tendencias centrales y outliers."
-                )
-              ),
-
-              # --- Sesgo a la derecha ---
-              tags$div(class = "scenario-explanation",
-                tags$h5("Escenario: Sesgo a la derecha"),
-                tags$p(
-                  "El coeficiente de asimetría se define como ",
-                  withMathJax(helpText("$$\\gamma_1 = \\frac{E[(X-\\mu)^3]}{\\sigma^3}$$")),
-                  ". Si \\(\\gamma_1 > 0\\), la distribución presenta una cola larga hacia valores mayores, concentrando la mayoría de observaciones a la izquierda."
-                )
-              ),
-
-              # --- Sesgo a la izquierda ---
-              tags$div(class = "scenario-explanation",
-                tags$h5("Escenario: Sesgo a la izquierda"),
-                tags$p(
-                  "Cuando \\(\\gamma_1 < 0\\), la distribución tiene cola larga hacia valores menores, implicando una mayoría de datos en torno a valores altos con extremos por debajo del promedio."
-                )
-              ),
-
-              # --- Bimodal ---
-              tags$div(class = "scenario-explanation",
-                tags$h5("Escenario: Bimodal"),
-                tags$p(
-                  "Una distribución bimodal presenta dos picos o modos, modelable como mezcla de dos funciones de densidad:",
-                  withMathJax(helpText("$$f(x) = p\\,f_1(x) + (1-p)\\,f_2(x)$$")),
-                  ", donde cada componente aporta uno de los modos (mayor y minoritario)."
-                )
+          # Explicación de escenarios de datos
+          tags$div(class = "scenario-explanations",
+            
+            # Explicaciones científicas de cada escenario
+            # --- Normal ---
+            tags$div(class = "scenario-explanation",
+              tags$h5("Escenario: Normal"),
+              tags$p(
+                "Los datos generados con distribución normal (o gaussiana) siguen la función de densidad ",
+                withMathJax(helpText("$$f(x) = \\frac{1}{\\sigma \\sqrt{2\\pi}} e^{-\\tfrac{(x-\\mu)^2}{2\\sigma^2}}$$")),
+                " donde \\(\\mu\\) es la media y \\(\\sigma\\) la desviación estándar. Esta distribución es simétrica (asimetría cero), con curtosis teórica de 3, y aparece de forma natural en múltiples fenómenos gracias al Teorema Central del Límite."
               )
             ),
 
-            tags$br(),
-            # ----- Ejercicios prácticos -----
-                tags$div(class = "exercise-section",
-                  tags$h5("Ejercicios prácticos"),
-                  tags$ol(
-                    tags$li("Importa tu propio dataset de rendimiento y calcula media, mediana y desviación estándar."),
-                    tags$li("Compara las medidas de tendencia central y dispersión entre dos tratamientos usando group_by() y summarise()."),
-                    tags$li("Genera un histograma y un boxplot de tus datos; interpreta si existen valores atípicos."),
-                    tags$li("Calcula el coeficiente de variación para evaluar la estabilidad de rendimientos.")
-                  )
-                )
+            # --- Con outliers ---
+            tags$div(class = "scenario-explanation",
+              tags$h5("Escenario: Con outliers"),
+              tags$p(
+                "Un outlier es una observación que se encuentra a una distancia anormal respecto al resto de los datos. Habitualmente, se identifican los valores que cumplen ",
+                withMathJax(helpText("$$x < Q_1 - 1.5\\times IQR \\quad\\text{o}\\quad x > Q_3 + 1.5\\times IQR$$")),
+                ", donde \\(Q_1\\) y \\(Q_3\\) son el primer y tercer cuartil, e IQR es la amplitud intercuartílica."
+              )
+            ),
+
+            # --- CV alto ---
+            tags$div(class = "scenario-explanation",
+              tags$h5("Escenario: CV alto"),
+              tags$p(
+                "El coeficiente de variación se define como ",
+                withMathJax(helpText("$$CV = \\frac{\\sigma}{\\mu}$$")),
+                ", y cuantifica la variabilidad relativa de los datos. Un CV elevado señala que la dispersión (\\(\\sigma\\)) es considerable en relación con la media (\\(\\mu\\)), lo que puede reflejar inconsistencias o alta heterogeneidad en datos agronómicos."
+              )
+            ),
+
+            # --- SD muy grande ---
+            tags$div(class = "scenario-explanation",
+              tags$h5("Escenario: SD muy grande"),
+              tags$p(
+                "La desviación estándar mide la dispersión absoluta: ",
+                withMathJax(helpText("$$\\sigma = \\sqrt{\\frac{1}{n}\\sum_{i=1}^n (x_i - \\mu)^2}$$")),
+                ". Un \\(\\sigma\\) muy alto indica gran dispersión, lo que dificulta identificar tendencias centrales y outliers."
+              )
+            ),
+
+            # --- Sesgo a la derecha ---
+            tags$div(class = "scenario-explanation",
+              tags$h5("Escenario: Sesgo a la derecha"),
+              tags$p(
+                "El coeficiente de asimetría se define como ",
+                withMathJax(helpText("$$\\gamma_1 = \\frac{E[(X-\\mu)^3]}{\\sigma^3}$$")),
+                ". Si \\(\\gamma_1 > 0\\), la distribución presenta una cola larga hacia valores mayores, concentrando la mayoría de observaciones a la izquierda."
+              )
+            ),
+
+            # --- Sesgo a la izquierda ---
+            tags$div(class = "scenario-explanation",
+              tags$h5("Escenario: Sesgo a la izquierda"),
+              tags$p(
+                "Cuando \\(\\gamma_1 < 0\\), la distribución tiene cola larga hacia valores menores, implicando una mayoría de datos en torno a valores altos con extremos por debajo del promedio."
+              )
+            ),
+
+            # --- Bimodal ---
+            tags$div(class = "scenario-explanation",
+              tags$h5("Escenario: Bimodal"),
+              tags$p(
+                "Una distribución bimodal presenta dos picos o modos, modelable como mezcla de dos funciones de densidad:",
+                withMathJax(helpText("$$f(x) = p\\,f_1(x) + (1-p)\\,f_2(x)$$")),
+                ", donde cada componente aporta uno de los modos (mayor y minoritario)."
+              )
+            )
+          ),
+        ),
+        
+        tags$br(),
+        # ----- Ejercicios prácticos -----
+        tags$div(class = "exercise-section plot-box",
+          tags$h5("Ejercicios prácticos"),
+          tags$ol(
+            tags$li("Importa tu propio dataset de rendimiento y calcula media, mediana y desviación estándar."),
+            tags$li("Compara las medidas de tendencia central y dispersión entre dos tratamientos usando group_by() y summarise()."),
+            tags$li("Genera un histograma y un boxplot de tus datos; interpreta si existen valores atípicos."),
+            tags$li("Calcula el coeficiente de variación para evaluar la estabilidad de rendimientos.")
+          )
+        )
       ),
 
       # ——————————————
@@ -346,6 +306,11 @@ boxplot(rend_trigo,
           tags$p(
             "Para aproximarse a una distribución normal y aplicar tests paramétricos, se recomienda que la asimetría se mantenga entre −1 y +1 (excelente) o como máximo ±2 (aceptable), y que el exceso de curtosis esté dentro de ±2 (estricto) o, en contextos más flexibles, dentro de −7 a +7 (Byrne, 2010; Hair et al., 2010)."
           ), 
+
+          tags$div(class = "note-cloud",
+            tags$strong("Ayuda al alumno:"),
+            "Cuando calcules la curtosis, fíjate si usas exceso de curtosis (γ₂) o la definición directa (kurtosis – 3)."
+          ),
 
           # Utilidad en agronomía
           tags$p("En agronomía, estos estadísticos permiten:"),
@@ -531,7 +496,7 @@ print(paste('Exceso de Curtosis =', round(curtosis, 3)))
               tags$li("Interpreta si tu variable presenta sesgo o colas pesadas/ligeras."),
               tags$li("Compara los resultados entre dos grupos de tratamiento usando ", tags$code("group_by()"), " + ", tags$code("summarise()"), ".")
             ),
-    ),
+      ),
 
       # ——————————————
       # PESTAÑA: 3 Agrupación
