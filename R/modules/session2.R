@@ -11,18 +11,6 @@ session2UI <- function(id) {
     div(class = "session-title",
         h3("Sesión 2: Estadística Descriptiva Avanzada")
     ),
-    tags$style(HTML("
-      .r-code {
-        background: #f5f5f5;
-        padding: 12px;
-        border-radius: 6px;
-        font-family: 'Courier New', monospace;
-        line-height: 1.4;
-        white-space: pre-wrap;
-        border: 1px solid #e0e0e0;
-        margin: 10px 0;
-      }
-    ")),
     
     # Usar navset_tab con nav_panel de bslib
     navset_tab(
