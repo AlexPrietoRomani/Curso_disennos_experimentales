@@ -19,4 +19,3 @@ sesiones <- list(
   "Parte I (Básica)"      = paste0("Sesión ", 1:4),
   "Parte II (Intermedia)" = paste0("Sesión ", 5:8)
 )
-
