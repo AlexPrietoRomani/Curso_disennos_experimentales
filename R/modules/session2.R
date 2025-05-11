@@ -850,13 +850,16 @@ session2UI <- function(id) {
         # Ejemplo 4: Scatter plot (Fertilizante vs Rendimiento)
         tags$br(),
         tags$h6("Ejemplo 4: Scatter plot"),
-        tags$pre("
-# Simular dosis de fertilizante y rendimiento
-set.seed(2025)
-fert <- runif(50, 50, 150)                  # kg/ha
-yield <- 0.02 * fert + rnorm(50, 5, 0.5)    # t/ha
-df_scatter <- data.frame(Fertilizador = fert, Rendimiento = yield)
-      "),
+        tags$pre(
+          class = "r-code",
+          htmltools::HTML(
+            "# Simular dosis de fertilizante y rendimiento\n",
+            "set.seed(2025)\n",
+            "fert <- runif(50, 50, 150)                  # kg/ha\n",
+            "yield <- 0.02 * fert + rnorm(50, 5, 0.5)    # t/ha\n",
+            "df_scatter <- data.frame(Fertilizador = fert, Rendimiento = yield)\n"
+          )
+        ),
         plotOutput(ns("vizScatter"), height = "400px"),
         tags$p("Exploramos la relación lineal entre dosis de fertilizante y rendimiento."),
 
