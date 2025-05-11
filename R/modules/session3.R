@@ -22,48 +22,50 @@ session3UI <- function(id) {
 
                 # Tabla de actividades
                 tags$table(class = "table activity-table",
-                tags$thead(tags$tr(
-                    tags$th("Segmento"),
-                    tags$th("Tiempo"),
-                    tags$th("Actividad")
-                )),
-                tags$tbody(
-                    tags$tr(
-                    tags$td("1 Teoría de probabilidad"),
-                    tags$td("0–15 min"),
-                    tags$td("Revisar eventos simples y condicionales")
+                    tags$thead(tags$tr(
+                        tags$th("Segmento"),
+                        tags$th("Tiempo"),
+                        tags$th("Actividad")
+                        )
                     ),
-                    tags$tr(
-                    tags$td("2 Definición y simulación"),
-                    tags$td("15–45 min"),
-                    tags$td(HTML(
-                        "Binomial (infestación de plagas, <code>rbinom()</code>)<br/>",
-                        "Poisson (lesiones foliares, <code>rpois()</code>)<br/>",
-                        "Normal (variabilidad de rendimiento, <code>rnorm()</code>)"
-                    ))
-                    ),
-                    tags$tr(
-                    tags$td("3 Graficar distribuciones"),
-                    tags$td("45–75 min"),
-                    tags$td("Densidades y barras de frecuencia con <code>ggplot2</code>")
-                    ),
-                    tags$tr(
-                    tags$td("4 Discusión de elección"),
-                    tags$td("75–95 min"),
-                    tags$td("Comparar ajustes de distribuciones con datos reales")
-                    ),
-                    tags$tr(
-                    tags$td("5 Resultado esperado"),
-                    tags$td("95–120 min"),
-                    tags$td("Scripts de simulación y gráficos interpretados")
+                    tags$tbody(
+                        tags$tr(
+                            tags$td("1 Teoría de probabilidad"),
+                            tags$td("0–15 min"),
+                            tags$td("Revisar eventos simples y condicionales")
+                        ),
+                        tags$tr(
+                            tags$td("2 Definición y simulación"),
+                            tags$td("15–45 min"),
+                            tags$td(
+                                HTML(
+                                "Binomial (infestación de plagas, <code>rbinom()</code>)<br/>",
+                                "Poisson (lesiones foliares, <code>rpois()</code>)<br/>",
+                                "Normal (variabilidad de rendimiento, <code>rnorm()</code>)"
+                                )
+                            )
+                        ),
+                        tags$tr(
+                            tags$td("3 Graficar distribuciones"),
+                            tags$td("45–75 min"),
+                            tags$td("Densidades y barras de frecuencia con <code>ggplot2</code>")
+                        ),
+                        tags$tr(
+                            tags$td("4 Discusión de elección"),
+                            tags$td("75–95 min"),
+                            tags$td("Comparar ajustes de distribuciones con datos reales")
+                        ),
+                        tags$tr(
+                            tags$td("5 Resultado esperado"),
+                            tags$td("95–120 min"),
+                            tags$td("Scripts de simulación y gráficos interpretados")
+                        )
                     )
-                )
                 )
             ),
             # ——————————————
             # PESTAÑA: 1. TEORÍA
             # ——————————————
-
             nav_panel(
                 title = "1 Teoría de probabilidad",
                 h4(class = "section-header", "1.1 Conceptos básicos de probabilidad"),
@@ -403,7 +405,251 @@ session3UI <- function(id) {
                     )
                 )
             ),
-
+            # ——————————————
+            # PESTAÑA: 2. SIMULACIÓN
+            # ——————————————
+            nav_panel(
+                title = "2 Definición y simulación",
+                
+                # 2.1 Binomial
+                tags$h4(
+                    class = "section-header",
+                    "2.1 Binomial para infestación de plagas (rbinom())"
+                ),
+                tags$p(
+                    "La distribución binomial es un modelo de probabilidad discreto que describe el número de éxitos en un número fijo de ensayos de Bernoulli independientes, donde cada ensayo presenta solo dos resultados posibles: éxito o fracaso.",
+                    tags$ul(
+                        tags$li("Número fijo de ensayos \\(n\\), cada uno con dos posibles resultados."),
+                        tags$li("Ensayos independientes entre sí."),
+                        tags$li("Probabilidad de éxito \\(p\\) constante en cada ensayo."),
+                        tags$li("Función de masa: media \\(E[X] = np\\) y varianza \\(Var(X) = np(1-p)\\)."),
+                        tags$li("Aplicaciones: conteo de plantas infestadas, defectos en semillas, etc.")
+                    ),
+                    "La función de masa de probabilidad viene dada por:",
+                    withMathJax(helpText(
+                    "$$P(X = k) = \\binom{n}{k} p^k (1 - p)^{n - k}, \\quad k = 0,1,\\dots,n$$"
+                    )),
+                    "En el contexto de la infestación de plagas, un éxito se define como una planta infestada. Los parámetros son \\(n\\) (número de plantas muestreadas) y \\(p\\) (probabilidad de infestación por planta).",
+                    tags$small("(Montgomery & Runger, 2018; Dalgaard, 2008)")
+                ),
+                tags$pre(class = "r-code",
+                    htmltools::HTML(
+                    "# Simulación binomial: infestación de plagas\n",
+                    "num_plantas_muestra <- 50        # tamaño de la muestra (n)\n",
+                    "prob_infestacion   <- 0.2       # probabilidad de infestación por planta (p)\n",
+                    "num_simulaciones   <- 1000     # número de réplicas\n",
+                    "infestaciones_simuladas <- rbinom(n = num_simulaciones, size = num_plantas_muestra, prob = prob_infestacion)\n",
+                    "# Resumen de la simulación:\n",
+                    "mean(infestaciones_simuladas)    # Aproximación a E[X] = np\n",
+                    "var(infestaciones_simuladas)     # Aproximación a Var(X) = np(1-p)\n",
+                    "summary(infestaciones_simuladas)  # Estadísticas descriptivas\n"
+                    )
+                ),
+                plotOutput(ns("histogramaBinomial"), height = "400px"),
+                tags$table(class = "table-bordered",
+                    tags$thead(
+                    tags$tr(
+                        tags$th("Parámetro"),
+                        tags$th("Símbolo"),
+                        tags$th("Descripción en Infestación de Plagas"),
+                        tags$th("Función en R")
+                    )
+                    ),
+                    tags$tbody(
+                    tags$tr(
+                        tags$td("Número de Ensayos"),
+                        tags$td("n"),
+                        tags$td("Número de plantas muestreadas"),
+                        tags$td("size de rbinom()")
+                    ),
+                    tags$tr(
+                        tags$td("Probabilidad de Éxito"),
+                        tags$td("p"),
+                        tags$td("Probabilidad de infestación por planta"),
+                        tags$td("prob de rbinom()")
+                    ),
+                    tags$tr(
+                        tags$td("Media"),
+                        tags$td("E[X]"),
+                        tags$td("Número esperado de plantas infestadas: np"),
+                        tags$td("mean() de vectores simulados")
+                    ),
+                    tags$tr(
+                        tags$td("Varianza"),
+                        tags$td("Var(X)"),
+                        tags$td("Dispersión del número de infestaciones: np(1-p)"),
+                        tags$td("var() de vectores simulados")
+                    )
+                    )
+                ),
+                
+                # 2.2 Poisson (sin cambios)
+                tags$h4(
+                    class = "section-header",
+                    "2.2 Poisson para conteo de lesiones foliares (rpois())"
+                ),
+                tags$p(
+                    "La distribución de Poisson es un modelo de probabilidad discreto que describe el número de eventos raros que ocurren de manera independiente en un intervalo fijo de tiempo o espacio. Se basa en los siguientes supuestos:",
+                    tags$ul(
+                    tags$li("Intervalo de observación fijo de tiempo o espacio."),
+                    tags$li("Eventos independientes entre sí."),
+                    tags$li("Tasa media de ocurrencia \\(\\lambda\\) constante."),
+                    tags$li("Probabilidad de dos o más eventos simultáneos prácticamente cero."),
+                    tags$li("Propiedad de dispersión equidispersa:  E[X] = Var(X) = \\(\\lambda\\).")
+                    ),
+                    "Formalmente, la función de masa de probabilidad es:",
+                    withMathJax(helpText(
+                    "$$P(X = k) = \\frac{\\lambda^k e^{-\\lambda}}{k!}, \\quad k = 0,1,2,\\dots$$"
+                    )),
+                    "En agronomía, para el conteo de lesiones foliares en hojas, \\(\\lambda\\) representa la tasa media de lesiones por hoja en un área muestreada. Cuando el número de ensayos \\(n\\) es grande y la probabilidad de evento \\(p\\) pequeña, la distribución binomial converge a Poisson con \\(\\lambda = n p\\).",
+                    tags$small("(Dalgaard, 2008; Montgomery & Runger, 2018)")
+                ),
+                tags$pre(class = "r-code",
+                    htmltools::HTML(
+                    "# Simulación Poisson: lesiones foliares\n",
+                    "num_hojas               <- 20      # hojas muestreadas por réplica\n",
+                    "tasa_promedio_lesiones  <- 3       # lesiones promedio por hoja (\u03BB)\n",
+                    "num_simulaciones       <- 1000    # réplicas totales\n",
+                    "lesiones_simuladas     <- rpois(n = num_simulaciones * num_hojas, lambda = tasa_promedio_lesiones)\n",
+                    "# Visualización: histograma de lesiones simuladas\n",
+                    "hist(lesiones_simuladas, main = 'Distribución Simulada de Lesiones Foliares', xlab = 'Número de Lesiones por Hoja')  # Dalgaard (2008)\n"
+                    )
+                ),
+                plotOutput(ns("histogramaPoisson"), height = "400px"),
+                tags$table(class = "table-bordered",
+                    tags$thead(
+                    tags$tr(
+                        tags$th("Parámetro"),
+                        tags$th("Símbolo"),
+                        tags$th("Contexto de Lesiones Foliares"),
+                        tags$th("Función en R")
+                    )
+                    ),
+                    tags$tbody(
+                    tags$tr(
+                        tags$td("Tasa de Ocurrencia"),
+                        tags$td("\u03BB"),
+                        tags$td("Lesiones promedio por hoja"),
+                        tags$td("lambda de rpois()")
+                    ),
+                    tags$tr(
+                        tags$td("Repeticiones"),
+                        tags$td("n"),
+                        tags$td("Número de hojas * simulaciones"),
+                        tags$td("n de rpois()")
+                    )
+                    )
+                ),
+                
+                # 2.3 Normal (sin cambios)
+                tags$h4(
+                    class = "section-header",
+                    "2.3 Normal para variabilidad de rendimiento (rnorm())"
+                ),
+                tags$p(
+                    "La distribución normal, o gaussiana, es continua y se define por su media \\(\\mu\\) y desviación estándar \\(\\sigma\\).",
+                    withMathJax(helpText(
+                    "$$f(x) = \\frac{1}{\\sigma \\sqrt{2\\pi}} e^{-\\tfrac{(x-\\mu)^2}{2\\sigma^2}}$$"
+                    )),
+                    "Esta distribución es fundamental en agronomía para modelar rendimientos de cultivo, debido a la agregación de múltiples factores aleatorios que siguen el Teorema Central del Límite.",
+                    tags$ul(
+                    tags$li("Es simétrica alrededor de la media, con asimetría cero."),
+                    tags$li("Curtosis igual a 3 (colas moderadas)."),
+                    tags$li("Regla empírica: ~68% dentro de 1\\(\\sigma\\), 95% dentro de 2\\(\\sigma\\), 99.7% dentro de 3\\(\\sigma\\).")
+                    ),
+                    "Antes de aplicar, verificar normalidad mediante Q-Q plot o pruebas (Shapiro-Wilk, Kolmogorov-Smirnov).",
+                    tags$small("(Dalgaard, 2008; Montgomery & Runger, 2018)")
+                ),
+                tags$pre(class = "r-code",
+                    htmltools::HTML(
+                    "# Simulación Normal: variabilidad de rendimiento\n",
+                    "num_rendimientos   <- 100   # cantidad de valores simulados\n",
+                    "media_rendimiento  <- 70    # rendimiento promedio (bushel/acre)\n",
+                    "sd_rendimiento     <- 10    # variabilidad alrededor de la media\n",
+                    "rendimientos_sim   <- rnorm(n = num_rendimientos, mean = media_rendimiento, sd = sd_rendimiento)\n",
+                    "# Visualización: histograma y Q-Q plot\n",
+                    "hist(rendimientos_sim, main = 'Rendimientos Simulados (Normal)', xlab = 'Bushels/acre')\n",
+                    "qqnorm(rendimientos_sim); qqline(rendimientos_sim, col = 'red')  # Dalgaard (2008)\n"
+                    )
+                ),
+                plotOutput(ns("histogramaNormal"), height = "400px"),
+                tags$table(class = "table-bordered",
+                    tags$thead(
+                    tags$tr(
+                        tags$th("Parámetro"),
+                        tags$th("Símbolo"),
+                        tags$th("Contexto de Rendimiento de Cultivo"),
+                        tags$th("Función en R")
+                    )
+                    ),
+                    tags$tbody(
+                    tags$tr(
+                        tags$td("Media"),
+                        tags$td("\u03BC"),
+                        tags$td("Rendimiento promedio esperado"),
+                        tags$td("mean de rnorm()")
+                    ),
+                    tags$tr(
+                        tags$td("Desviación Estándar"),
+                        tags$td("\u03C3"),
+                        tags$td("Variabilidad de rendimientos"),
+                        tags$td("sd de rnorm()")
+                    ),
+                    tags$tr(
+                        tags$td("Observaciones"),
+                        tags$td("n"),
+                        tags$td("Número de valores simulados"),
+                        tags$td("n de rnorm()")
+                    )
+                    )
+                ),
+                tags$br(),
+                tags$p(
+                    "La distribución normal es fundamental en estadística y agronomía, ya que muchos fenómenos naturales tienden a seguirla. Su uso es esencial para la inferencia estadística y el análisis de datos."
+                ),
+                # 2.4 Comparativa de distribuciones
+                tags$h4(class = "section-header", "2.4 Tabla comparativa de distribuciones"),
+                tags$table(class = "table-bordered",
+                    tags$thead(
+                    tags$tr(
+                        tags$th("Distribución"),
+                        tags$th("Teoría"),
+                        tags$th("Ejemplo Agronómico"),
+                        tags$th("Beneficio"),
+                        tags$th("Desventaja")
+                    )
+                    ),
+                    tags$tbody(
+                    tags$tr(
+                        tags$td("Binomial"),
+                        tags$td("Número de éxitos en ensayos Bernoulli."),
+                        tags$td("Plantas infestadas en muestra fija."),
+                        tags$td("Fácil interpretación; momentos simples."),
+                        tags$td("Requiere ensayos independientes; p constante.")
+                    ),
+                    tags$tr(
+                        tags$td("Poisson"),
+                        tags$td("Conteo de eventos raros en intervalo."),
+                        tags$td("Lesiones foliares por hoja."),
+                        tags$td("Convergencia desde binomial; manejo de rareza."),
+                        tags$td("Supuestos independientes; equidispersión.")
+                    ),
+                    tags$tr(
+                        tags$td("Normal"),
+                        tags$td("Distribución continua en campana."),
+                        tags$td("Variabilidad de rendimiento."),
+                        tags$td("Aplicable por TCL; descontamina outliers."),
+                        tags$td("No maneja bien datos sesgados/extremos.")
+                    )
+                    )
+                ),
+                tags$br(),
+                tags$p(
+                    "La elección de la distribución adecuada es crucial para un análisis estadístico efectivo. La comprensión de sus supuestos y limitaciones permite una mejor interpretación de los resultados."
+                ),
+                tags$h4(class = "section-header", "2.5 Gráfico comparativo"),
+                plotOutput(ns("distComparison"), height = "400px")
+            ),
             # ——————————————
             # PESTAÑA: Referencias 
             # ——————————————
@@ -443,5 +689,59 @@ session3UI <- function(id) {
 }
 
 session3Server <- function(input, output, session) {
-  # Lógica de simulación y gráficos se implementará aquí
+    #----- Pestana 2: Simulación -----
+    # Histograma Binomial
+    output$histogramaBinomial <- renderPlot({
+        num_plantas_muestra <- 50
+        prob_infestacion   <- 0.2
+        num_simulaciones   <- 1000
+        infestaciones_simuladas <- rbinom(n = num_simulaciones, size = num_plantas_muestra, prob = prob_infestacion)
+        hist(infestaciones_simuladas,
+            main = "Distribución Simulada de Infestación de Plagas",
+            xlab = "Número de Plantas Infestadas",
+            border = "white",
+            col = "steelblue",
+            breaks = seq(0, num_plantas_muestra, by = 1))
+    })
+
+    # Histograma Poisson
+    output$histogramaPoisson <- renderPlot({
+        num_hojas               <- 20
+        tasa_promedio_lesiones  <- 3
+        num_simulaciones        <- 1000
+        lesiones_simuladas      <- rpois(n = num_simulaciones * num_hojas, lambda = tasa_promedio_lesiones)
+        hist(lesiones_simuladas,
+            main = "Distribución Simulada de Lesiones Foliares",
+            xlab = "Número de Lesiones por Hoja",
+            border = "white",
+            col = "steelblue",
+            breaks = 12)
+    })
+
+    # Histograma Normal
+    output$histogramaNormal <- renderPlot({
+        num_rendimientos  <- 100
+        media_rendimiento <- 70
+        sd_rendimiento    <- 10
+        rendimientos_sim  <- rnorm(n = num_rendimientos, mean = media_rendimiento, sd = sd_rendimiento)
+        hist(rendimientos_sim,
+            main = "Rendimientos Simulados (Normal)",
+            xlab = "Bushels/acre",
+            border = "white",
+            col = "steelblue",
+            breaks = 12)
+    })
+
+    # Comparativa de distribuciones
+    output$distComparison <- renderPlot({
+        set.seed(123)
+        b <- rbinom(1000, size = 50, prob = 0.2)/50
+        p <- rpois(1000, lambda = 3)/10
+        n <- rnorm(1000, mean = 70, sd = 10)/100
+        plot(density(b), main = "Comparación de Distribuciones", xlim = c(0,1), ylim = c(0,5))
+        lines(density(p), col = "darkgreen")
+        lines(density(n), col = "blue")
+        legend("topright", legend = c("Binomial","Poisson","Normal"), 
+            col = c("black","darkgreen","blue"), lwd = 2)
+    })
 }
