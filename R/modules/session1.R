@@ -47,82 +47,106 @@ session1UI <- function(id) {
             tags$b("Aritméticos:"), " +, -, *, /, ^ (o **), %% (módulo), %/% (división entera).",
             "Actúan elemento a elemento sobre vectores (Programiz, 2024)."
           ),
-          tags$pre(class="r-code", HTML("
-# Suma, resta, multiplicación, división, exponenciación, módulo, división entera
-3 + 5
-10 - 2
-4 * 2
-9 / 3
-6^2
-7 %% 3
-9 %/% 2
-          ")),
+          tags$pre(
+            class = "r-code",
+            htmltools::HTML(
+              "# Suma, resta, multiplicación, división, exponenciación, módulo, división entera\n",
+              "3 + 5\n",
+              "10 - 2\n",
+              "4 * 2\n",
+              "9 / 3\n",
+              "6^2\n",
+              "7 %% 3\n",
+              "9 %/% 2\n"
+            )
+          ),
           p("Salida esperada:"),
-          tags$pre(class="r-output", HTML("
-[1]  8
-[1]  8
-[1]  8
-[1]  3
-[1] 36
-[1]  1
-[1]  4
-          ")),
+          tags$pre(
+            class = "r-output",
+            htmltools::HTML(
+              "[1]  8\n",
+              "[1]  8\n",
+              "[1]  8\n",
+              "[1]  3\n",
+              "[1] 36\n",
+              "[1]  1\n",
+              "[1]  4\n"
+            )
+          ),
           tags$br(),
           tags$li(
             tags$b("Relacionales:"), " >, <, ==, !=, >=, <=.",
             "Comparan valores o vectores y devuelven TRUE/FALSE para cada elemento (W3Schools, 2024)."
           ),
-          tags$pre(class="r-code", HTML("
-5 > 3
-2 == 4
-3 != 5
-7 >= 7
-1 < 0
-          ")),
+          tags$pre(
+            class = "r-code",
+            htmltools::HTML(
+              "5 > 3\n",
+              "2 == 4\n",
+              "3 != 5\n",
+              "7 >= 7\n",
+              "1 < 0\n"
+            )
+          ),
           p("Salida esperada:"),
-          tags$pre(class="r-output", HTML("
-[1] TRUE
-[1] FALSE
-[1] TRUE
-[1] TRUE
-[1] FALSE
-          ")),
+          tags$pre(
+            class = "r-output",
+            htmltools::HTML(
+              "[1] TRUE\n",
+              "[1] FALSE\n",
+              "[1] TRUE\n",
+              "[1] TRUE\n",
+              "[1] FALSE\n"
+            )
+          ),
           tags$br(),
           tags$li(
             tags$b("Lógicos:"), " &, | (element-wise), &&, || (primer elemento), ! (NOT).",
             "Se usan para combinar condiciones booleanas (Zero to Pro, 2024)."
           ),
-          tags$pre(class="r-code", HTML("
-TRUE & FALSE   # element-wise
-TRUE && FALSE  # primer elemento
-FALSE | TRUE
-FALSE || TRUE
-!TRUE
-          ")),
+          tags$pre(
+            class = "r-code",
+            htmltools::HTML(
+              "TRUE & FALSE   # element-wise\n",
+              "TRUE && FALSE  # primer elemento\n",
+              "FALSE | TRUE\n",
+              "FALSE || TRUE\n",
+              "!TRUE\n"
+            )
+          ),
           p("Salida esperada:"),
-          tags$pre(class="r-output", HTML("
-[1] FALSE
-[1] FALSE
-[1] TRUE
-[1] TRUE
-[1] FALSE
-          ")),
+          tags$pre(
+            class = "r-output",
+            htmltools::HTML(
+              "[1] FALSE\n",
+              "[1] FALSE\n",
+              "[1] TRUE\n",
+              "[1] TRUE\n",
+              "[1] FALSE\n"
+            )
+          ),
           tags$br(),
           tags$li(
             tags$b("Asignación:"), " <-, ->, = (desaconsejado), <<- y ->> (global).",
             "Asignan valores a variables dentro de distintos entornos (Tutorialspoint, 2024)."
           ),
-          tags$pre(class="r-code", HTML("
-a <- 10
-20 -> b
-c = 5   # desaconsejado
-a + b + c
-          ")),
+          tags$pre(
+            class = "r-code",
+            htmltools::HTML(
+              "a <- 10\n",
+              "20 -> b\n",
+              "c = 5   # desaconsejado\n",
+              "a + b + c\n"
+            )
+          ),
           p("Salida esperada:"),
-          tags$pre(class="r-output", HTML("
-# a y b quedan asignados
-[1] 35
-        ")),
+          tags$pre(
+            class = "r-output",
+            htmltools::HTML(
+              "# a y b quedan asignados\n",
+              "[1] 35\n"
+            )
+          ),
         ),
         tags$p(
           "La precedencia de operadores en R sigue: paréntesis > exponenciación > multiplicación y división > suma y resta.",
@@ -136,16 +160,24 @@ a + b + c
         tags$p(
           "El pipe de magrittr `%>%` ofrece más flexibilidad con pronombres (`.`) para posicionar el argumento dentro de la llamada (Ivelasq, 2020)."
         ),
-        tags$pre(class="r-code", HTML("
-# Pipe nativo
-c(3,5,7) |> mean() |> round(1)
-
-# Pipe magrittr
-library(magrittr)
-c(3,5,7) %>% mean() %>% round(1)
-        ")),
+        tags$pre(
+          class = "r-code",
+          htmltools::HTML(
+            "# Pipe nativo\n",
+            "c(3,5,7) |> mean() |> round(1)\n\n",
+            "# Pipe magrittr\n",
+            "library(magrittr)\n",
+            "c(3,5,7) %>% mean() %>% round(1)\n"
+          )
+        ),
         p("Salida esperada:"),
-        tags$pre(class="r-output", "[1] 5.0")
+        tags$pre(
+          class = "r-output",
+          htmltools::HTML(
+            "[1] 5.0\n",
+            "[2] 5.0\n"
+          )
+        )
       ),
 
       # Tabla de operadores
@@ -204,74 +236,95 @@ c(3,5,7) %>% mean() %>% round(1)
         # Creación básica
         h5("Creación de vectores"),
         p("Usando la función c() para concatenar elementos:"),
-        tags$pre(class="r-code", HTML("
-# Numérico
-v_num <- c(2, 4, 6, 8)
-v_num
-
-# Carácter
-v_char <- c('rojo', 'verde', 'azul')
-v_char
-        ")),
-          tags$pre(class="r-output", "
-[1] 2 4 6 8
-[1] 'rojo' 'verde' 'azul'
-        "),
+        tags$pre(
+          class = "r-code",
+          htmltools::HTML(
+            "# Numérico\n",
+            "v_num <- c(2, 4, 6, 8)\n",
+            "v_num\n\n",
+            "# Carácter\n",
+            "v_char <- c('rojo', 'verde', 'azul')\n",
+            "v_char\n"
+          )
+        ),
+        tags$pre(
+          class = "r-output",
+          htmltools::HTML(
+            "[1] 2 4 6 8\n",
+            "[1] 'rojo' 'verde' 'azul'\n"
+          )
+        ),
         
         # Secuencias
         h5("Generación automática"),
         p("Con operador : y funciones seq():"),
-        tags$pre(class="r-code", HTML("
-# Secuencia básica
-secuencia1 <- 1:10
-
-# Con paso definido
-secuencia2 <- seq(0, 20, by=2)
-
-# Repeticiones
-repeticiones <- rep('A', times=5)
-        ")),
-          tags$pre(class="r-output", "
-[1]  1  2  3  4  5  6  7  8  9 10
-[1]  0  2  4  6  8 10 12 14 16 18 20
-[1] 'A' 'A' 'A' 'A' 'A'
-        "),
+        tags$pre(
+          class = "r-code",
+          htmltools::HTML(
+            "# Secuencia básica\n",
+            "secuencia1 <- 1:10\n\n",
+            "# Con paso definido\n",
+            "secuencia2 <- seq(0, 20, by=2)\n\n",
+            "# Repeticiones\n",
+            "repeticiones <- rep('A', times=5)\n"
+          )
+        ),
+        p("Salida esperada:"),
+        tags$pre(
+          class = "r-output",
+          htmltools::HTML(
+            "[1]  1  2  3  4  5  6  7  8  9 10\n",
+            "[1]  0  2  4  6  8 10 12 14 16 18 20\n",
+            "[1] 'A' 'A' 'A' 'A' 'A'\n"
+          )
+        ),
         
         # Indexación
         h5("Acceso a elementos"),
         p("Uso de índices numéricos y lógicos:"),
-        tags$pre(class="r-code", HTML("
-# Por posición
-v_num[3]
-
-# Por condición
-v_num[v_num > 5]
-
-# Reemplazo
-v_char[2] <- 'amarillo'
-        ")),
-          tags$pre(class="r-output", "
-[1] 6
-[1] 6 8
-[1] 'rojo' 'amarillo' 'azul'
-        "),
+        tags$pre(
+          class = "r-code",
+          htmltools::HTML(
+            "# Por posición\n",
+            "v_num[3]\n\n",
+            "# Por condición\n",
+            "v_num[v_num > 5]\n\n",
+            "# Reemplazo\n",
+            "v_char[2] <- 'amarillo'\n"
+          )
+        ),
+        p("Salida esperada:"),
+        tags$pre(
+          class = "r-output",
+          htmltools::HTML(
+            "[1] 6\n",
+            "[1] 6 8\n",
+            "[1] 'rojo' 'amarillo' 'azul'\n"
+          )
+        ),
         
         # Operaciones vectorizadas
         h5("Operaciones vectorizadas"),
         p("Cálculos aplicados a todos los elementos:"),
-        tags$pre(class="r-code", HTML("
-# Aritméticas
-v_num * 10
-v_num + c(1, 2, 3, 4)
-
-# Lógicas
-v_num >= 5
-        ")),
-          tags$pre(class="r-output", "
-[1] 20 40 60 80
-[1]  3  6  9 12
-[1] FALSE FALSE  TRUE  TRUE
-        ")
+        tags$pre(
+          class = "r-code",
+          htmltools::HTML(
+            "# Aritméticas\n",
+            "v_num * 10\n",
+            "v_num + c(1, 2, 3, 4)\n\n",
+            "# Lógicas\n",
+            "v_num >= 5\n"
+          )
+        ),
+        p("Salida esperada:"),
+        tags$pre(
+          class = "r-output",
+          htmltools::HTML(
+            "[1] 20 40 60 80\n",
+            "[1]  3  6  9 12\n",
+            "[1] FALSE FALSE  TRUE  TRUE\n"
+          )
+        ),
       ),
 
       # ---------------------
@@ -310,18 +363,22 @@ v_num >= 5
           p("Funciones básicas para gráficos rápidos:"),
           
           tags$div(class = "code-explanation",
-            tags$pre(class="r-code", HTML("
-# Gráfico de dispersión
-x <- rnorm(50)
-y <- x + rnorm(50)
-plot(x, y,
-     main='Relación entre X e Y',
-     xlab='Variable X',
-     ylab='Variable Y',
-     pch=19,        # Tipo de punto
-     col='#2980B9', # Color
-     cex=1.2)       # Tamaño
-            ")),
+            tags$pre(
+              class = "r-code",
+              htmltools::HTML(
+                "# Gráfico de dispersión\n",
+                "x <- rnorm(50)\n",
+                "y <- x + rnorm(50)\n",
+                "plot(x, y,\n",
+                "     main='Relación entre X e Y',\n",
+                "     xlab='Variable X',\n",
+                "     ylab='Variable Y',\n",
+                "     pch=19,        # Tipo de punto\n",
+                "     col='#2980B9', # Color\n",
+                "     cex=1.2)       # Tamaño\n"
+              )
+            ),
+            p("Salida esperada:"),
             plotOutput(ns("GrafDispersion"), height = "400px")
           ),
           
@@ -342,26 +399,29 @@ plot(x, y,
           p("Gramática de gráficos para visualización avanzada:"),
           
           tags$div(class = "code-explanation",
-            tags$pre(class="r-code", HTML("
-# Gráfico de dispersión con ggplot2
-library(ggplot2)
-df <- data.frame(x = rnorm(50), y = rnorm(50))
-
-ggplot(df, aes(x=x, y=y)) +
-  geom_point(
-    aes(color = x + y),  # Mapeo estético
-    size = 3,            # Tamaño fijo
-    alpha = 0.7          # Transparencia
-  ) +
-  scale_color_viridis_c() +
-  labs(
-    title = 'Relación entre X e Y',
-    subtitle = 'Ejemplo con ggplot2',
-    x = 'Variable X',
-    y = 'Variable Y'
-  ) +
-  theme_bw()
-          ")),
+            tags$pre(
+              class = "r-code",
+              htmltools::HTML(
+                "# Gráfico de dispersión con ggplot2\n",
+                "library(ggplot2)\n",
+                "df <- data.frame(x = rnorm(50), y = rnorm(50))\n\n",
+                "ggplot(df, aes(x=x, y=y)) +\n",
+                "  geom_point(\n",
+                "    aes(color = x + y),  # Mapeo estético\n",
+                "    size = 3,            # Tamaño fijo\n",
+                "    alpha = 0.7          # Transparencia\n",
+                "  ) +\n",
+                "  scale_color_viridis_c() +\n",
+                "  labs(\n",
+                "    title = 'Relación entre X e Y',\n",
+                "    subtitle = 'Ejemplo con ggplot2',\n",
+                "    x = 'Variable X',\n",
+                "    y = 'Variable Y'\n",
+                "  ) +\n",
+                "  theme_bw()\n"
+              )
+            ),
+          p("Salida esperada:"),
           plotOutput(ns("GrafDispersionggplot2"), height = "400px")
           ),
           
@@ -414,16 +474,19 @@ ggplot(df, aes(x=x, y=y)) +
       # ---------------------
 
       nav_panel(title = "4 Setup",
-      h4(class = "section-header", "4 Setup: Configuración de Proyecto"),
-      
-      # Creación de proyecto
-      h5("1. Creación de proyecto RStudio"),
-      p("Estructura recomendada para proyectos reproducibles:"),
-      tags$pre(class="r-code", HTML("
-# En RStudio:
-# File → New Project → New Directory → Empty Project
-# Nombre: mi_proyecto
-      ")),
+        h4(class = "section-header", "4 Setup: Configuración de Proyecto"),
+        
+        # Creación de proyecto
+        h5("1. Creación de proyecto RStudio"),
+        p("Estructura recomendada para proyectos reproducibles:"),
+        tags$pre(
+          class = "r-code",
+          htmltools::HTML(
+            "# En RStudio:\n",
+            "# File → New Project → New Directory → Empty Project\n",
+            "# Nombre: mi_proyecto\n"
+          )
+        ),
         p("Características clave:",
           tags$ul(
             tags$li("Directorio de trabajo definido"),
@@ -431,17 +494,19 @@ ggplot(df, aes(x=x, y=y)) +
             tags$li("Mejora la organización de scripts y datos")
           )
         ),
-        
+          
         # Instalación de paquetes
         h5("2. Instalación de paquetes esenciales"),
         tags$div(class = "package-install",
-          tags$pre(class="r-code", HTML("
-# Instalar tidyverse (colección de paquetes)
-install.packages('tidyverse')
-
-# Instalar readxl para Excel
-install.packages('readxl')
-        ")),
+          tags$pre(
+            class = "r-code",
+            htmltools::HTML(
+              "# Instalar tidyverse (colección de paquetes)\n",
+              "install.packages('tidyverse')\n\n",
+              "# Instalar readxl para Excel\n",
+              "install.packages('readxl')\n"
+            )
+          ),
           p("Documentación oficial:",
             tags$ul(
               tags$li(tags$a("Tidyverse", href="https://www.tidyverse.org/", target="_blank")),
@@ -449,17 +514,19 @@ install.packages('readxl')
             )
           )
         ),
-        
+          
         # Carga de librerías
         h5("3. Carga de librerías"),
         tags$div(class = "code-explanation",
-          tags$pre(class="r-code", HTML("
-# Cargar tidyverse (incluye dplyr, ggplot2, etc)
-library(tidyverse)
-
-# Cargar readxl para lectura de Excel
-library(readxl)
-        ")),
+          tags$pre(
+            class = "r-code",
+            htmltools::HTML(
+              "# Cargar tidyverse (incluye dplyr, ggplot2, etc)\n",
+              "library(tidyverse)\n\n",
+              "# Cargar readxl para lectura de Excel\n",
+              "library(readxl)\n"
+            )
+          ),
           p("Funcionalidades clave:",
             tags$ul(
               tags$li("tidyverse: Manipulación y visualización de datos"),
@@ -471,20 +538,26 @@ library(readxl)
         # Ejemplo práctico
         h5("4. Ejemplo de uso"),
         tags$div(class = "code-example",
-          tags$pre(class="r-code", HTML("
-# Leer datos con readxl
-datos_excel <- read_excel('data/datos.xlsx')
-
-# Ver estructura con tidyverse
-glimpse(datos_excel)
-        ")),
-            tags$pre(class="r-output", "
-Rows: 100
-Columns: 5
-$ ID       <dbl> 1, 2, 3, ...
-$ Nombre   <chr> 'Ana', 'Luis', ...
-$ Fecha    <date> 2023-01-01, ...
-          ")
+          tags$pre(
+            class = "r-code",
+            htmltools::HTML(
+              "# Leer datos con readxl\n",
+              "datos_excel <- read_excel('data/datos.xlsx')\n\n",
+              "# Ver estructura con tidyverse\n",
+              "glimpse(datos_excel)\n"
+            )
+          ),
+          p("Salida esperada:"),
+          tags$pre(
+            class = "r-output",
+            htmltools::HTML(
+              "Rows: 100\n",
+              "Columns: 5\n",
+              "$ ID       <dbl> 1, 2, 3, ...\n",
+              "$ Nombre   <chr> 'Ana', 'Luis', ...\n",
+              "$ Fecha    <date> 2023-01-01, ...\n"
+            )
+          )
         )
       ),
 
@@ -493,70 +566,86 @@ $ Fecha    <date> 2023-01-01, ...
       # ---------------------
 
       nav_panel(title = "5 Import",
-      h4(class = "section-header", "5 Import: Lectura de Datos"),
-      
-      # CSV
-      h5("1. Lectura de CSV"),
-      p("Métodos para importar archivos separados por comas:"),
-      tags$div(class = "code-comparison",
-        tags$pre(class="r-code", HTML("
-# Base R
-df_base <- read.csv('data/datos.csv', 
-                   header=TRUE, 
-                   sep=',', 
-                   stringsAsFactors=FALSE)
-
-# Tidyverse (readr)
-library(readr)
-df_tidy <- read_csv('data/datos.csv')
-        ")),
-            p("Diferencias clave:",
-              tags$ul(
-                tags$li("read.csv() retorna data.frame"),
-                tags$li("read_csv() retorna tibble y muestra progreso")
-              )
+        h4(class = "section-header", "5 Import: Lectura de Datos"),
+        
+        # CSV
+        h5("1. Lectura de CSV"),
+        p("Métodos para importar archivos separados por comas:"),
+        tags$div(class = "code-comparison",
+          tags$pre(
+            class = "r-code",
+            htmltools::HTML(
+              "# Base R\n",
+              "df_base <- read.csv('data/datos.csv', \n",
+              "                   header=TRUE, \n",
+              "                   sep=',', \n",
+              "                   stringsAsFactors=FALSE)\n\n",
+              "# Tidyverse (readr)\n",
+              "library(readr)\n",
+              "df_tidy <- read_csv('data/datos.csv')\n"
             )
           ),
-          
-          # Excel
-          h5("2. Lectura de Excel"),
-          p("Uso de readxl para archivos .xls/.xlsx:"),
-          tags$pre(class="r-code", HTML("
-library(readxl)
-df_excel <- read_excel('data/datos.xlsx', 
-                      sheet = 'Hoja1', 
-                      col_types = NULL)
-        ")),
-          p("Características:",
+          p("Diferencias clave:",
             tags$ul(
-              tags$li("Detecta automáticamente tipos de datos"),
-              tags$li("Soporta formato .xls y .xlsx")
+              tags$li("read.csv() retorna data.frame"),
+              tags$li("read_csv() retorna tibble y muestra progreso")
+            )
+          )
+        ),
+          
+        # Excel
+        h5("2. Lectura de Excel"),
+        p("Uso de readxl para archivos .xls/.xlsx:"),
+        tags$pre(
+          class = "r-code",
+          htmltools::HTML(
+            "library(readxl)\n",
+            "df_excel <- read_excel('data/datos.xlsx', \n",
+            "                      sheet = 'Hoja1', \n",
+            "                      col_types = NULL)\n"
+          )
+        ),
+        p("Características:",
+          tags$ul(
+            tags$li("Detecta automáticamente tipos de datos"),
+            tags$li("Soporta formato .xls y .xlsx")
+          )
+        ),
+        
+        # Exploración
+        h5("3. Exploración inicial"),
+        tags$div(class = "exploration-tools",
+          tags$pre(
+            class = "r-code",
+            htmltools::HTML(
+              "# Estructura base R\n",
+              "str(df_base)\n\n",
+              "# Resumen estadístico\n",
+              "summary(df_excel)\n\n",
+              "# Vista rápida (tidyverse)\n",
+              "library(dplyr)\n",
+              "glimpse(df_tidy)\n"
             )
           ),
-          
-          # Exploración
-          h5("3. Exploración inicial"),
-          tags$div(class = "exploration-tools",
-            tags$pre(class="r-code", HTML("
-# Estructura base R
-str(df_base)
-
-# Resumen estadístico
-summary(df_excel)
-
-# Vista rápida (tidyverse)
-library(dplyr)
-glimpse(df_tidy)
-        ")),
-            tags$pre(class="r-output", "
-# Ejemplo glimpse() [[5]]:
-Rows: 100
-Columns: 5
-$ ID       <dbl> 1, 2, 3, ...
-$ Nombre   <chr> 'Ana', 'Luis', ...
-$ Fecha    <date> 2023-01-01, ...
-        ")
+          p("Salida esperada:",
+            tags$ul(
+              tags$li("str() muestra estructura y tipos de datos"),
+              tags$li("summary() proporciona estadísticos descriptivos"),
+              tags$li("glimpse() ofrece vista compacta con tipos de datos")
+            )
           ),
+          tags$pre(
+            class = "r-output",
+            htmltools::HTML(
+              "# Ejemplo glimpse() [[5]]:\n",
+              "Rows: 100\n",
+              "Columns: 5\n",
+              "$ ID       <dbl> 1, 2, 3, ...\n",
+              "$ Nombre   <chr> 'Ana', 'Luis', ...\n",
+              "$ Fecha    <date> 2023-01-01, ...\n"
+            )
+          )
+        ),
   
         # Comparativa
         tags$div(class = "comparison-table",
@@ -595,83 +684,130 @@ $ Fecha    <date> 2023-01-01, ...
       # ---------------------
 
       nav_panel(title = "6 Limpieza",
-      h4(class = "section-header", "6 Limpieza: Preprocesamiento de Datos"),
-      
-      # Sección clean_names()
-      h5("1. Estandarización de nombres con janitor"),
-      p("La función ", tags$code("clean_names()"), " realiza múltiples transformaciones automáticas:", 
-        tags$ul(
-          tags$li("Convierte a minúsculas"),
-          tags$li("Reemplaza espacios por guiones bajos"),
-          tags$li("Elimina caracteres especiales"),
-          tags$li("Garantiza nombres únicos")
-        )
-      ),
-      
-      tags$div(class = "code-example",
-        tags$pre(class="r-code", HTML("
-# Antes
-nombres_originales <- c('Código País', 'Tasa$Crecim.', 'Fecha-Actual')
-
-# Aplicación
-library(janitor)
-nombres_limpios <- clean_names(nombres_originales)
-nombres_limpios
-      ")),
-    tags$pre(class="r-output", "
-[1] 'codigo_pais'   'tasa_crecim'   'fecha_actual'
-      ")
+        h4(class = "section-header", "6 Limpieza: Preprocesamiento de Datos"),
+        
+        # Sección clean_names()
+        h5("1. Estandarización de nombres con janitor"),
+        p("La función ", tags$code("clean_names()"), " realiza múltiples transformaciones automáticas:", 
+          tags$ul(
+            tags$li("Convierte a minúsculas"),
+            tags$li("Reemplaza espacios por guiones bajos"),
+            tags$li("Elimina caracteres especiales"),
+            tags$li("Garantiza nombres únicos")
+          )
+        ),
+        
+        tags$div(class = "code-example",
+          tags$pre(
+            class = "r-code",
+            htmltools::HTML(
+              "# Antes\n",
+              "nombres_originales <- c('Código País', 'Tasa$Crecim.', 'Fecha-Actual')\n\n",
+              "# Aplicación\n",
+              "library(janitor)\n",
+              "nombres_limpios <- clean_names(nombres_originales)\n",
+              "nombres_limpios\n"
+            )
+          ),
+          p("Salida esperada:"),
+          tags$pre(
+            class = "r-output",
+            htmltools::HTML(
+              "[1] 'codigo_pais'   'tasa_crecim'   'fecha_actual'\n"
+            )
+          ),
+          p("Ventajas:",
+            tags$ul(
+              tags$li("Facilita la manipulación de datos"),
+              tags$li("Reduce errores en nombres de columnas")
+            )
+          ),
+          p("Desventajas:",
+            tags$ul(
+              tags$li("Puede perder información semántica"),
+              tags$li("No es reversible")
+            )
+          ),
+          p("Uso típico:",
+            tags$ul(
+              tags$li("Limpieza de nombres de columnas en dataframes"),
+              tags$li("Facilita la manipulación posterior")
+            )
+          )
         ),
         
         # Coerción de tipos
         h5("2. Conversión de tipos de datos"),
-        tags$div(class = "type-conversion",
+        tags$div(
+          class = "type-conversion",
           h6("Base R"),
-          tags$pre(class="r-code", HTML("
-# Numérico a factor
-as.factor(df$columna)
-
-# Carácter a fecha
-as.Date('2023-01-01', format='%Y-%m-%d')
-
-# Factor a numérico
-as.numeric(as.character(df$columna))
-      ")),
+          tags$pre(
+            class = "r-code",
+            htmltools::HTML(
+              "# Numérico a factor\n",
+              "as.factor(df$columna)\n\n",
+              "# Carácter a fecha\n",
+              "as.Date('2023-01-01', format='%Y-%m-%d')\n\n",
+              "# Factor a numérico\n",
+              "as.numeric(as.character(df$columna))\n"
+            )
+          ),
           h6("Tidyverse/dplyr"),
-          tags$pre(class="r-code", HTML("
-library(dplyr)
-
-df %>%
-  mutate(
-    columna = as.factor(columna),
-    fecha = as.Date(fecha, format='%Y-%m-%d')
-  )
-      "))
+          tags$pre(
+            class = "r-code",
+            htmltools::HTML(
+              "library(dplyr)\n\n",
+              "df %>%\n",
+              "  mutate(\n",
+              "    columna = as.factor(columna),\n",
+              "    fecha = as.Date(fecha, format='%Y-%m-%d')\n",
+              "  )\n"
+            )
+          )          
+          p("Salida esperada:",
+            tags$ul(
+              tags$li("df$columna ahora es un factor"),
+              tags$li("df$fecha ahora es un objeto Date")
+            )
+          )
         ),
         
         # Flujo completo
         h5("3. Flujo de limpieza integrado"),
         tags$div(class = "full-workflow",
-          tags$pre(class="r-code", HTML("
-library(tidyverse)
-library(janitor)
-
-df_limpio <- read_csv('data/datos.csv') %>%
-  clean_names() %>%
-  mutate(
-    fecha = as.Date(fecha, format='%d/%m/%Y'),
-    categoria = as.factor(categoria),
-    ingresos = as.numeric(ingresos)
-  ) %>%
-  select(-starts_with('temp_'))  # Elimina columnas temporales
-      ")),
-          tags$pre(class="r-output", "
-# A tibble: 100 × 5
-   codigo_cliente fecha       categoria ingresos
-   <chr>          <date>      <fct>        <dbl>
- 1 C001           2023-01-01  A             2500
- 2 C002           2023-01-02  B             3200
-      ")
+          tags$pre(
+            class = "r-code",
+            htmltools::HTML(
+              "library(tidyverse)\n",
+              "library(janitor)\n\n",
+              "df_limpio <- read_csv('data/datos.csv') %>%\n",
+              "  clean_names() %>%\n",
+              "  mutate(\n",
+              "    fecha = as.Date(fecha, format='%d/%m/%Y'),\n",
+              "    categoria = as.factor(categoria),\n",
+              "    ingresos = as.numeric(ingresos)\n",
+              "  ) %>%\n",
+              "  select(-starts_with('temp_'))  # Elimina columnas temporales\n"
+            )
+          ),
+          p("Salida esperada:",
+            tags$ul(
+              tags$li("df_limpio tiene nombres estandarizados"),
+              tags$li("fecha es un objeto Date"),
+              tags$li("categoría es un factor"),
+              tags$li("ingresos son numéricos")
+            )
+          ),
+          tags$pre(
+            class = "r-output",
+            htmltools::HTML(
+              "# A tibble: 100 × 5\n",
+              "   codigo_cliente fecha       categoria ingresos\n",
+              "   <chr>          <date>      <fct>        <dbl>\n",
+              " 1 C001           2023-01-01  A             2500\n",
+              " 2 C002           2023-01-02  B             3200\n"
+            )
+          )
         ),
         
         # Buenas prácticas
