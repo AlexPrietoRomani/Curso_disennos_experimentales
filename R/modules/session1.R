@@ -763,7 +763,7 @@ session1UI <- function(id) {
               "    fecha = as.Date(fecha, format='%Y-%m-%d')\n",
               "  )\n"
             )
-          )          
+          ),          
           p("Salida esperada:",
             tags$ul(
               tags$li("df$columna ahora es un factor"),
