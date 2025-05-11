@@ -114,7 +114,8 @@ session2UI <- function(id) {
           tags$div(class = "ejemplo-practico",
             tags$p("Supongamos que tenemos un conjunto de datos de rendimiento de trigo en parcelas agrícolas. Queremos calcular medidas descriptivas para entender la variabilidad de los rendimientos."),
             tags$p("Ejemplo práctico: Rendimientos de trigo en 10 parcelas (t/ha)"),
-            tags$pre(class = "r-code", 
+            tags$pre(
+              class = "r-code", 
               htmltools::HTML(
                 "# Datos de ejemplo: rendimientos de trigo (t/ha) en 10 parcelas\n",
                 "rend_trigo <- c(4.8, 5.5, 5.0, 6.1, 4.9, 5.3, 5.8, 4.7, 5.0, 5.4)\n",
@@ -137,7 +138,8 @@ session2UI <- function(id) {
             
             h5(class = "section-header", "Graficos que ayudan a visualizar"),
             tags$p("Para visualizar la distribución de los datos y detectar posibles outliers, se pueden usar histogramas y boxplots. Estos gráficos permiten observar la forma de la distribución y la presencia de valores atípicos."),
-            tags$pre(class = "r-code", 
+            tags$pre(
+              class = "r-code", 
               htmltools::HTML(
                 "# Histograma\n",
                 "hist(rend_trigo, \n",
@@ -353,149 +355,152 @@ session2UI <- function(id) {
 
         # ---- Ejemplo práctico en R ----
         h5(class = "section-header", "Ejemplo práctico en R"),
-        tags$pre("
-# Instalar y cargar paquete
-# install.packages('moments')
-library(moments)
+        tags$pre(
+          class = "r-code",
+          htmltools::HTML(
+            "# Instalar y cargar paquete\n",
+            "# install.packages('moments')\n",
+            "library(moments)\n",
+            "\n",
+            "# Supongamos datos ficticios en un data.frame\n",
+            "set.seed(42)\n",
+            "datos <- data.frame(variable = c(rnorm(100, 10, 2), rnorm(10, 20, 1)))\n",
+            "\n",
+            "# Calcular asimetría y curtosis\n",
+            "asimetria <- skewness(datos$variable)    # skewness()\n",
+            "curtosis   <- kurtosis(datos$variable)   # kurtosis()  (retorna exceso de curtosis)\n",
+            "print(paste('Asimetría =', round(asimetria, 3)))\n",
+            "print(paste('Exceso de Curtosis =', round(curtosis, 3)))\n"
+          )
+        ),
 
-# Supongamos datos ficticios en un data.frame
-set.seed(42)
-datos <- data.frame(variable = c(rnorm(100, 10, 2), rnorm(10, 20, 1)))
+        # ---- Visualización de datos ----
+        tags$br(),
+        tags$h5("Visualización de distribuciones"),
+        tags$p("Para explorar la forma de la distribución se recomienda usar:"),
+        tags$ul(
+          tags$li(tags$b("Histograma:"), " identifica la forma general (normalidad, sesgos, multimodalidad)."),
+          tags$li(tags$b("Boxplot:"), " muestra mediana, cuartiles y outliers (<1.5×IQR)."),
+          tags$li(tags$b("Gráfico de densidad:"), " enfatiza colas y picos suavizados.")
+        ),
 
-# Calcular asimetría y curtosis
-asimetria <- skewness(datos$variable)    # skewness()
-curtosis   <- kurtosis(datos$variable)   # kurtosis()  (retorna exceso de curtosis)
-print(paste('Asimetría =', round(asimetria, 3)))
-print(paste('Exceso de Curtosis =', round(curtosis, 3)))
-            "),
-
-            # ---- Visualización de datos ----
-            tags$br(),
-            tags$h5("Visualización de distribuciones"),
-            tags$p("Para explorar la forma de la distribución se recomienda usar:"),
-            tags$ul(
-              tags$li(tags$b("Histograma:"), " identifica la forma general (normalidad, sesgos, multimodalidad)."),
-              tags$li(tags$b("Boxplot:"), " muestra mediana, cuartiles y outliers (<1.5×IQR)."),
-              tags$li(tags$b("Gráfico de densidad:"), " enfatiza colas y picos suavizados.")
+        # Curtosis
+        tags$h5("Visualización interactiva de Curtosis"),
+        plotlyOutput(ns("kurtosisPlot"), height = "300px"),
+        tags$div(class = "plot-explanation",
+          tags$p(
+            "La curtosis mide el peso relativo de las colas de la distribución frente a su parte central. Aunque se pensó inicialmente que cuantificaba el \"pico\" de la curva, en realidad refleja la probabilidad de obtener valores extremos."
+          ),
+          tags$p(
+            "Una distribución normal tiene curtosis = 3. Muchos paquetes reportan el ",
+            tags$b("exceso de curtosis"),
+            " (kurtosis – 3), de modo que para la normal el exceso es 0."
+          ),
+          tags$ul(
+            tags$li(
+              tags$b("Mesocúrtica (Exceso = 0):"),
+              " igual a la normal; función ",
+              tags$code("dnorm(x, 0, 1)")
             ),
+            tags$li(
+              tags$b("Leptocúrtica (Exceso > 0):"),
+              " colas pesadas, mayor probabilidad de valores extremos; ejemplo con ",
+              tags$code("dt(x, df = 2)")
+            ),
+            tags$li(
+              tags$b("Platicúrtica (Exceso < 0):"),
+              " colas ligeras, menor probabilidad de valores extremos; ejemplo con ",
+              tags$code("dunif(x, -3, 3)")
+            )
+          ),
+          tags$p(
+            "En este gráfico usamos un rango simétrico de ",
+            tags$code("x = -5"),
+            " a ",
+            tags$code("x = 5"),
+            " para comparar claramente la extensión y el peso de las colas en cada caso."
+          )
+        ),
 
-            # Curtosis
-            tags$h5("Visualización interactiva de Curtosis"),
-            plotlyOutput(ns("kurtosisPlot"), height = "300px"),
-            tags$div(class = "plot-explanation",
-              tags$p(
-                "La curtosis mide el peso relativo de las colas de la distribución frente a su parte central. Aunque se pensó inicialmente que cuantificaba el \"pico\" de la curva, en realidad refleja la probabilidad de obtener valores extremos."
-              ),
-              tags$p(
-                "Una distribución normal tiene curtosis = 3. Muchos paquetes reportan el ",
-                tags$b("exceso de curtosis"),
-                " (kurtosis – 3), de modo que para la normal el exceso es 0."
-              ),
-              tags$ul(
-                tags$li(
-                  tags$b("Mesocúrtica (Exceso = 0):"),
-                  " igual a la normal; función ",
-                  tags$code("dnorm(x, 0, 1)")
-                ),
-                tags$li(
-                  tags$b("Leptocúrtica (Exceso > 0):"),
-                  " colas pesadas, mayor probabilidad de valores extremos; ejemplo con ",
-                  tags$code("dt(x, df = 2)")
-                ),
-                tags$li(
-                  tags$b("Platicúrtica (Exceso < 0):"),
-                  " colas ligeras, menor probabilidad de valores extremos; ejemplo con ",
-                  tags$code("dunif(x, -3, 3)")
-                )
-              ),
-              tags$p(
-                "En este gráfico usamos un rango simétrico de ",
-                tags$code("x = -5"),
-                " a ",
-                tags$code("x = 5"),
-                " para comparar claramente la extensión y el peso de las colas en cada caso."
+
+        # Asimetría
+        tags$h5("Visualización interactiva de Asimetría"),
+        tags$br(),
+        plotlyOutput(ns("skewnessPlot"), height = "400px"),
+        tags$div(class = "plot-explanation",
+          tags$p("Este gráfico interactivo muestra tres paneles con distribuciones de distinto sesgo:"),
+          tags$ul(
+            tags$li(tags$b("Sesgo Positivo (Gamma):"),
+                    " una distribución Gamma (shape = 2, scale = 2) con cola larga a la derecha;"),
+            tags$li(tags$b("Distribución Simétrica (Normal):"),
+                    " una curva normal estándar sin sesgo;"),
+            tags$li(tags$b("Sesgo Negativo (Gamma invertida):"),
+                    " el espejo de la Gamma, con cola larga a la izquierda.")
+          ),
+          tags$p("En cada panel se han añadido líneas verticales que señalan:"),
+          tags$ul(
+            tags$li(tags$span(style = "color:blue;", "Moda"), "(línea sólida azul)"),
+            tags$li(tags$span(style = "color:green;", "Mediana"), "(línea punteada verde)"),
+            tags$li(tags$span(style = "color:red;", "Media"), "(línea punteada roja)")
+          ),
+          tags$p("Los rangos en el eje X son:"),
+          tags$ul(
+            tags$li("0 a 14 para Sesgo Positivo,"),
+            tags$li("-6 a 6 para la Distribución Simétrica,"),
+            tags$li("-14 a 0 para Sesgo Negativo.")
+          ),
+        ),    
+
+        # ---- Tabla resumen ----
+        tags$br(),
+        h5(class = "section-header", "Tabla resumen"),
+        tags$div(class = "table-responsive",
+          tags$table(class = "table table-bordered",
+            tags$thead(
+              tags$tr(
+                tags$th("Medida"),
+                tags$th("Definición"),
+                tags$th("Interpretación"),
+                tags$th("Función en R (moments)")
               )
             ),
-
-
-            # Asimetría
-            tags$h5("Visualización interactiva de Asimetría"),
-            tags$br(),
-            plotlyOutput(ns("skewnessPlot"), height = "400px"),
-            tags$div(class = "plot-explanation",
-              tags$p("Este gráfico interactivo muestra tres paneles con distribuciones de distinto sesgo:"),
-              tags$ul(
-                tags$li(tags$b("Sesgo Positivo (Gamma):"),
-                        " una distribución Gamma (shape = 2, scale = 2) con cola larga a la derecha;"),
-                tags$li(tags$b("Distribución Simétrica (Normal):"),
-                        " una curva normal estándar sin sesgo;"),
-                tags$li(tags$b("Sesgo Negativo (Gamma invertida):"),
-                        " el espejo de la Gamma, con cola larga a la izquierda.")
-              ),
-              tags$p("En cada panel se han añadido líneas verticales que señalan:"),
-              tags$ul(
-                tags$li(tags$span(style = "color:blue;", "Moda"), "(línea sólida azul)"),
-                tags$li(tags$span(style = "color:green;", "Mediana"), "(línea punteada verde)"),
-                tags$li(tags$span(style = "color:red;", "Media"), "(línea punteada roja)")
-              ),
-              tags$p("Los rangos en el eje X son:"),
-              tags$ul(
-                tags$li("0 a 14 para Sesgo Positivo,"),
-                tags$li("-6 a 6 para la Distribución Simétrica,"),
-                tags$li("-14 a 0 para Sesgo Negativo.")
-              ),
-            ),    
-
-            # ---- Tabla resumen ----
-            tags$br(),
-            h5(class = "section-header", "Tabla resumen"),
-            tags$div(class = "table-responsive",
-              tags$table(class = "table table-bordered",
-                tags$thead(
-                  tags$tr(
-                    tags$th("Medida"),
-                    tags$th("Definición"),
-                    tags$th("Interpretación"),
-                    tags$th("Función en R (moments)")
+            tags$tbody(
+              tags$tr(
+                tags$td("Curtosis"),
+                tags$td("Pesadez de las colas de la distribución"),
+                tags$td(
+                  tags$ul(
+                    tags$li("> 0: Leptocúrtica colas pesadas, pico agudo"),
+                    tags$li("< 0: Platicúrtica colas ligeras, pico plano"),
+                    tags$li("= 0: Mesocúrtica igual a normal")
                   )
                 ),
-                tags$tbody(
-                  tags$tr(
-                    tags$td("Curtosis"),
-                    tags$td("Pesadez de las colas de la distribución"),
-                    tags$td(
-                      tags$ul(
-                        tags$li("> 0: Leptocúrtica colas pesadas, pico agudo"),
-                        tags$li("< 0: Platicúrtica colas ligeras, pico plano"),
-                        tags$li("= 0: Mesocúrtica igual a normal")
-                      )
-                    ),
-                    tags$td(tags$code("kurtosis(x)"))
-                  ),
-                  tags$tr(
-                    tags$td("Asimetría"),
-                    tags$td("Falta de simetría alrededor de la media"),
-                    tags$td(
-                      tags$ul(
-                        tags$li("> 0: Sesgo positivo cola derecha alargada"),
-                        tags$li("< 0: Sesgo negativo cola izquierda alargada"),
-                        tags$li("≈ 0: Simétrica")
-                      )
-                    ),
-                    tags$td(tags$code("skewness(x)"))
+                tags$td(tags$code("kurtosis(x)"))
+              ),
+              tags$tr(
+                tags$td("Asimetría"),
+                tags$td("Falta de simetría alrededor de la media"),
+                tags$td(
+                  tags$ul(
+                    tags$li("> 0: Sesgo positivo cola derecha alargada"),
+                    tags$li("< 0: Sesgo negativo cola izquierda alargada"),
+                    tags$li("≈ 0: Simétrica")
                   )
-                )
+                ),
+                tags$td(tags$code("skewness(x)"))
               )
-            ),
+            )
+          )
+        ),
 
-            # ---- Ejercicio práctico ----
-            tags$br(),
-            tags$h5("Ejercicio práctico"),
-            tags$ol(
-              tags$li("Importa tu propio conjunto de datos y calcula asimetría y curtosis con ", tags$code("skewness()"), " y ", tags$code("kurtosis()"), "."),
-              tags$li("Interpreta si tu variable presenta sesgo o colas pesadas/ligeras."),
-              tags$li("Compara los resultados entre dos grupos de tratamiento usando ", tags$code("group_by()"), " + ", tags$code("summarise()"), ".")
-            ),
+        # ---- Ejercicio práctico ----
+        tags$br(),
+        tags$h5("Ejercicio práctico"),
+        tags$ol(
+          tags$li("Importa tu propio conjunto de datos y calcula asimetría y curtosis con ", tags$code("skewness()"), " y ", tags$code("kurtosis()"), "."),
+          tags$li("Interpreta si tu variable presenta sesgo o colas pesadas/ligeras."),
+          tags$li("Compara los resultados entre dos grupos de tratamiento usando ", tags$code("group_by()"), " + ", tags$code("summarise()"), ".")
+        ),
       ),
 
       # ——————————————
@@ -582,10 +587,21 @@ print(paste('Exceso de Curtosis =', round(curtosis, 3)))
         tags$h5("Ejemplos prácticos en R"),
         # Botón y salida para ejercicio 1: solo group_by()
         tags$div(class = "exercise",
-          tags$pre("
-# Agrupamos sin resumir aún
-df_grp <- df %>% group_by(Tratamiento)
-          "),
+          tags$pre(
+            class = "r-code",
+            htmltools::HTML(
+              "# Agrupamos por una variable (Tratamiento)\n",
+              "df <- data.frame(\n",
+              "  Lote = rep(1:5, each = 4),\n",
+              "  Tratamiento = rep(c('A', 'B'), each = 2, times = 5),\n",
+              "  Rendimiento = rnorm(20, mean = 5, sd = 1),\n",
+              "  Calidad = rnorm(20, mean = 7, sd = 0.5)\n",
+              ")\n",
+              "# Agrupamos por Tratamiento\n",
+              "df_grp <- df %>% group_by(Tratamiento)\n",
+            ),
+          ),
+          # Se presentará el resultado del ejercicio al hacer clic en el botón
           actionButton(ns("run1"), "Ejercicio: group_by()"),
           tableOutput(ns("res1")),
           verbatimTextOutput(ns("exp1"))
@@ -595,14 +611,17 @@ df_grp <- df %>% group_by(Tratamiento)
 
         # Botón y salida para ejercicio 2: solo summarise()
         tags$div(class = "exercise",
-          tags$pre("
-# Resumimos TODO el data frame (sin group_by prevía)
-df_sum <- df %>% summarise(
-  media_rend = mean(Rendimiento, na.rm = TRUE),
-  sd_rend    = sd(Rendimiento, na.rm = TRUE),
-  n          = n()
-)
-          "),
+          tags$pre(
+            class = "r-code",
+            htmltools::HTML(
+              "# Resumimos TODO el data frame (sin group_by prevía)\n",
+              "df_sum <- df %>% summarise(\n",
+              "  media_rend = mean(Rendimiento, na.rm = TRUE),\n",
+              "  sd_rend    = sd(Rendimiento, na.rm = TRUE),\n",
+              "  n          = n()\n",
+              "  )\n",
+              ),
+          ),
           actionButton(ns("run2"), "Ejercicio: summarise()"),
           tableOutput(ns("res2")),
           verbatimTextOutput(ns("exp2"))
@@ -612,16 +631,20 @@ df_sum <- df %>% summarise(
 
         # Botón y salida para ejercicio 3: group_by() + summarise() por dos variables
         tags$div(class = "exercise",
-          tags$pre("
-# Agrupamos y resumimos por dos variables 
-df_res <- df %>%
-      group_by(Lote, Tratamiento) %>%
-      summarise(
-        media_cal = round(mean(Calidad, na.rm = TRUE), 2),
-        sd_cal    = round(sd(Calidad, na.rm = TRUE), 2),
-        .groups = 'drop'
-      )
-          "),
+          tags$pre(
+            class = "r-code",
+            htmltools::HTML(
+              "# Agrupamos y resumimos por una variable (Tratamiento)\n",
+              "df_res <- df %>%\n",
+              "      group_by(Tratamiento) %>%\n",
+              "      summarise(\n",
+              "        media_rend = round(mean(Rendimiento, na.rm = TRUE), 2),\n",
+              "        sd_rend    = round(sd(Rendimiento, na.rm = TRUE), 2),\n",
+              "        n          = n(),\n",
+              "        .groups = 'drop'\n",
+              "      )\n"
+            ),
+          ),
           actionButton(ns("run3"), "Ejercicio: group_by(Lote, Tratamiento)"),
           tableOutput(ns("res3")),
           verbatimTextOutput(ns("exp3"))
@@ -631,18 +654,24 @@ df_res <- df %>%
 
         # Botón y salida para ejercicio: solo across() con mutate()
         tags$div(class = "exercise",
-          tags$pre("
-# Ejercicio: usar across() con mutate() para transformar columnas
-# (sin resumir ni agrupar)
-df_across_mut <- df |>
-  mutate(
-    across(
-      c(Rendimiento, Calidad),
-      ~ round((.x - mean(.x, na.rm = TRUE)) / sd(.x, na.rm = TRUE), 2),
-      .names = 'estandarizada_{.col}'
-    )
-  )
-          "),
+          tags$pre(
+            class = "r-code",
+            htmltools::HTML(
+              "# across: aplicar funciones a múltiples columnas sin agrupar\n",
+              "df_across <- df |> \n",
+              "  summarise(\n",
+              "    across(\n",
+              "      c(Rendimiento, Calidad),\n",
+              "      list(\n",
+              "        media = ~round(mean(.x, na.rm = TRUE), 2),\n",
+              "        sd    = ~round(sd(.x,   na.rm = TRUE), 2)\n",
+              "      ),\n",
+              "      .names = '{.col}_{.fn}'\n",
+              "    ),\n",
+              "    n_total = n()\n",
+              "  )\n"
+            )
+          ),
           actionButton(ns("runAcrossMut"), "Ejercicio: solo across() con mutate()"),
           tableOutput(ns("resAcrossMut")),
           verbatimTextOutput(ns("expAcrossMut"))
@@ -652,21 +681,24 @@ df_across_mut <- df |>
 
         # Botón y salida para ejercicio 5: solo summarise() con across()
         tags$div(class = "exercise",
-          tags$pre("
-# across: aplicar funciones a múltiples columnas sin agrupar
-df_across <- df |> 
-  summarise(
-    across(
-      c(Rendimiento, Calidad),
-      list(
-        media = ~round(mean(.x, na.rm = TRUE), 2),
-        sd    = ~round(sd(.x,   na.rm = TRUE), 2)
-      ),
-      .names = '{.col}_{.fn}'
-    ),
-    n_total = n()
-  )
-          "),
+          tags$pre(
+            class = "r-code",
+            htmltools::HTML(
+              "# across: aplicar funciones a múltiples columnas sin agrupar\n",
+              "df_across <- df |> \n",
+              "  summarise(\n",
+              "    across(\n",
+              "      c(Rendimiento, Calidad),\n",
+              "      list(\n",
+              "        media = ~round(mean(.x, na.rm = TRUE), 2),\n",
+              "        sd    = ~round(sd(.x,   na.rm = TRUE), 2)\n",
+              "      ),\n",
+              "      .names = '{.col}_{.fn}'\n",
+              "    ),\n",
+              "    n_total = n()\n",
+              "  )\n"
+            )
+          ),
           actionButton(ns("runAcross"), "Ejercicio: summarise(), across()"),
           tableOutput(ns("resAcross")),
           verbatimTextOutput(ns("expAcross"))
@@ -676,23 +708,27 @@ df_across <- df |>
 
         # Botón y salida para ejercicio 4: summarise() con across()
         tags$div(class = "exercise",
-          tags$pre("
-# Agrupamos y resumimos usando summarise() con across() (para aplicar la misma función a varias columnas)
-df_acr <- df %>%
-      group_by(Tratamiento) %>%
-      summarise(
-        across(
-          c(Rendimiento, Calidad),
-          list(
-            media = ~round(mean(.x, na.rm = TRUE), 2),
-            sd    = ~round(sd(.x,   na.rm = TRUE), 2)
+          tags$pre(
+            class = "r-code",
+            htmltools::HTML(
+              "# Agrupamos y resumimos usando summarise() con across() (para aplicar la misma función a varias columnas)\n",
+              "df_acr <- df %>%\n",
+              "  group_by(Tratamiento) %>%\n",
+              "  summarise(\n",
+              "    across(\n",
+              "      c(Rendimiento, Calidad),\n",
+              "      list(\n",
+              "        media = ~round(mean(.x, na.rm = TRUE), 2),\n",
+              "        sd    = ~round(sd(.x,   na.rm = TRUE), 2)\n",
+              "      ),\n",
+              "      .names = '{.col}_{.fn}'\n",
+              "    ),\n",
+              "    n = n(),\n",
+              "    .groups = 'drop'\n",
+              "  )\n"
+            )
           ),
-          .names = '{.col}_{.fn}'
-        ),
-        n = n(),
-        .groups = 'drop'
-      )
-          "),
+          # Se presentará el resultado del ejercicio al hacer clic en el botón
           actionButton(ns("run4"), "Ejercicio: group_by(), summarise(across())"),
           tableOutput(ns("res4")),
           verbatimTextOutput(ns("exp4"))
@@ -759,13 +795,16 @@ df_acr <- df %>%
           tags$p("Los ejemplos son generados aleatoriamente y no representan datos reales.")
         ),
         tags$h6("Ejemplo 1: Boxplot comparativo"),
-        tags$pre("
-# Simular rendimientos de dos variedades (t/ha)
-variedad <- factor(c(rep('A', 15), rep('B', 15)))
-rend_frijol <- c(rnorm(15, mean = 2.1, sd = 0.3),
-                 rnorm(15, mean = 2.5, sd = 0.3))
-df_box <- data.frame(Variedad = variedad, Rendimiento = rend_frijol)
-      "),
+        tags$pre(
+          class = "r-code",
+          htmltools::HTML(
+            "# Simular rendimientos de dos variedades (t/ha)\n",
+            "variedad <- factor(c(rep('A', 15), rep('B', 15)))\n",
+            "rend_frijol <- c(rnorm(15, mean = 2.1, sd = 0.3),\n",
+            "                 rnorm(15, mean = 2.5, sd = 0.3))\n",
+            "df_box <- data.frame(Variedad = variedad, Rendimiento = rend_frijol)\n"
+          )
+        ),
         plotOutput(ns("vizBoxplot"), height = "400px"),
         tags$p("Comparamos la mediana y dispersión de Rendimiento entre las variedades A y B."),
 
@@ -774,10 +813,13 @@ df_box <- data.frame(Variedad = variedad, Rendimiento = rend_frijol)
         # Ejemplo 2: Histograma
         tags$br(),
         tags$h6("Ejemplo 2: Histograma"),
-        tags$pre("
-# Reusar rend_frijol de antes o simular nueva variable
-hist_data <- rend_frijol
-      "),
+        tags$pre(
+          class = "r-code",
+          htmltools::HTML(
+            "# Reusar rend_frijol de antes o simular nueva variable\n",
+            "hist_data <- rend_frijol\n"
+          )
+        ),
         plotOutput(ns("vizHistogram"), height = "400px"),
         tags$p("El histograma muestra la forma de la distribución de Rendimiento, identificando sesgos y outliers."),
 
@@ -786,17 +828,20 @@ hist_data <- rend_frijol
         # Ejemplo 3: Gráfico de barras con medias y barras de error
         tags$br(),
         tags$h6("Ejemplo 3: Gráfico de barras con error estándar"),
-        tags$pre("
-# Calcular medias y error estándar por Variedad
-library(dplyr)
-df_bar <- df_box |>
-  group_by(Variedad) |>
-  summarise(
-    media = mean(Rendimiento),
-    se    = sd(Rendimiento)/sqrt(n()),
-    .groups = 'drop'
-  )
-      "),
+        tags$pre(
+          class = "r-code",
+          htmltools::HTML(
+            "# Calcular medias y error estándar por Variedad\n",
+            "library(dplyr)\n",
+            "df_bar <- df_box |>\n",
+            "  group_by(Variedad) |>\n",
+            "  summarise(\n",
+            "    media = mean(Rendimiento),\n",
+            "    se    = sd(Rendimiento)/sqrt(n()),\n",
+            "    .groups = 'drop'\n",
+            "  )\n"
+          )
+        ),
         plotOutput(ns("vizBarplot"), height = "400px"),
         tags$p("Las barras muestran la media de Rendimiento y las líneas de error son ± 1 SE."),
 
@@ -820,14 +865,18 @@ df_scatter <- data.frame(Fertilizador = fert, Rendimiento = yield)
         # Ejemplo 5: Gráfico de líneas (Serie temporal)
         tags$br(),
         tags$h6("Ejemplo 5: Gráfico de líneas"),
-        tags$pre("
-# Simular rendimiento a lo largo de 10 días
-time <- 1:10
-rend_time <- cumsum(rnorm(10, mean = 0.5, sd = 0.2)) + 5
-df_line <- data.frame(Día = time, Rendimiento = rend_time)
-        "),
-          plotOutput(ns("vizLine"), height = "400px"),
-          tags$p("La línea muestra la tendencia de rendimiento a lo largo del tiempo.")
+        tags$pre(
+          class = "r-code",
+          htmltools::HTML(
+            "# Simular dosis de fertilizante y rendimiento\n",
+            "set.seed(2025)\n",
+            "fert <- runif(50, 50, 150)                  # kg/ha\n",
+            "yield <- 0.02 * fert + rnorm(50, 5, 0.5)    # t/ha\n",
+            "df_scatter <- data.frame(Fertilizador = fert, Rendimiento = yield)\n"
+          )
+        ),
+        plotOutput(ns("vizLine"), height = "400px"),
+        tags$p("La línea muestra la tendencia de rendimiento a lo largo del tiempo.")
       ),
 
       # ——————————————
