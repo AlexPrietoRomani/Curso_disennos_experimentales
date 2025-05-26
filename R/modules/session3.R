@@ -789,6 +789,94 @@ session3UI <- function(id) {
             ),
 
             # ——————————————
+            # PESTAÑA 4: Discusión de elección
+            # ——————————————
+
+            nav_panel(
+                title = "4 Discusión de elección",
+                h4(class = "section-header", "4.1 Comparación de ajustes de distribuciones con datos reales"),
+
+                tags$h6(tags$b("4.1.1 Ajuste de distribuciones a datos reales")),
+                tags$div(class = "row",
+                    tags$div(
+                        class = "col-md-8",
+                        tags$p(
+                            "En esta sección, se ilustra cómo ajustar diferentes distribuciones teóricas a un conjunto de datos reales y comparar su adecuación utilizando gráficos y medidas estadísticas."
+                        ),
+                        tags$p(
+                            "Se simulan datos que representan tiempos de espera, los cuales suelen seguir distribuciones como la exponencial o la gamma."
+                        ),
+                        tags$pre(class = "r-code",
+                            htmltools::HTML(
+                            "# Simulación de datos de tiempos de espera\n",
+                            "set.seed(123)\n",
+                            "datos_espera <- rexp(1000, rate = 1/5)  # media de 5 minutos\n",
+                            "\n",
+                            "# Ajuste de distribuciones\n",
+                            "ajuste_normal <- fitdistr(datos_espera, 'normal')\n",
+                            "ajuste_exponencial <- fitdistr(datos_espera, 'exponential')\n",
+                            "ajuste_gamma <- fitdistr(datos_espera, 'gamma')"
+                            )
+                        ),
+                        tags$p(
+                            "Se ajustan tres distribuciones: normal, exponencial y gamma. A continuación, se comparan visualmente mediante histogramas y curvas de densidad."
+                        )
+                    ),
+                    tags$div(
+                        class = "note-cloud",
+                        tags$strong("Nota didáctica:"),
+                        "El ajuste de distribuciones permite identificar el modelo probabilístico que mejor representa los datos observados, lo cual es fundamental para realizar inferencias estadísticas adecuadas."
+                    ),
+                ),
+
+                tags$h6(tags$b("4.1.2 Evaluación de la bondad de ajuste")),
+                tags$div(
+                    class = "row",
+                    tags$div(class = "col-md-8",
+                    tags$p(
+                        "Para evaluar la calidad del ajuste de cada distribución, se utilizan pruebas estadísticas como la de Kolmogorov-Smirnov y gráficos Q-Q."
+                    ),
+                    tags$pre(class = "r-code",
+                        htmltools::HTML(
+                        "# Pruebas de Kolmogorov-Smirnov\n",
+                        "ks.test(datos_espera, 'pnorm', mean = ajuste_normal$estimate['mean'], sd = ajuste_normal$estimate['sd'])\n",
+                        "ks.test(datos_espera, 'pexp', rate = ajuste_exponencial$estimate['rate'])\n",
+                        "ks.test(datos_espera, 'pgamma', shape = ajuste_gamma$estimate['shape'], rate = ajuste_gamma$estimate['rate'])"
+                        )
+                    ),
+                    tags$p(
+                        "Los valores p obtenidos en las pruebas de Kolmogorov-Smirnov indican la plausibilidad de que los datos provengan de cada distribución teórica."
+                    )
+                    ),
+                    tags$div(class = "note-cloud",
+                    tags$strong("Nota didáctica:"),
+                    "Un valor p alto en la prueba de Kolmogorov-Smirnov sugiere que no hay evidencia suficiente para rechazar la hipótesis de que los datos siguen la distribución teórica considerada."
+                    )
+                ),
+
+                tags$h6(
+                    
+                    tags$b("4.1.3 Selección de distribución y visualización"),
+
+                    tabPanel(
+                        title = "4. Discusión de elección",
+                        sidebarLayout(
+                            sidebarPanel(
+                            selectInput(ns("dist_seleccionada"), "Seleccione la distribución:",
+                                        choices = c("Normal", "Exponencial", "Gamma")),
+                            selectInput(ns("tipo_grafico"), "Seleccione el tipo de gráfico:",
+                                        choices = c("Histograma con curva de densidad", "Gráfico Q-Q"))
+                            ),
+                            mainPanel(
+                            plotlyOutput(ns("grafico_ajuste"), height = "500px")
+                            )
+                        )
+                    )                   
+                ),
+            ),
+
+
+            # ——————————————
             # PESTAÑA: Referencias 
             # ——————————————
             nav_panel(
@@ -954,5 +1042,88 @@ session3Server <- function(input, output, session) {
                             yaxis = list(title = "Frecuencia"),
                             barmode = "overlay")
         fig
+    })
+
+    #----- Pestana 4: Discusión de elección -----
+    # Cargar los datos de ejemplo
+    datos_espera <- faithful$waiting
+
+    # Función para ajustar la distribución seleccionada
+    ajustar_distribucion <- function(distribucion, datos) {
+        switch(distribucion,
+            "Normal" = fitdistr(datos, "normal"),
+            "Exponencial" = fitdistr(datos, "exponential"),
+            "Gamma" = fitdistr(datos, "gamma"))
+    }
+
+    # Renderizar el gráfico interactivo según las selecciones del usuario
+    output$grafico_ajuste <- renderPlotly({
+        req(input$dist_seleccionada, input$tipo_grafico)
+
+        ajuste <- ajustar_distribucion(input$dist_seleccionada, datos_espera)
+        x_vals <- seq(min(datos_espera), max(datos_espera), length.out = 1000)
+
+        if (input$tipo_grafico == "Histograma con curva de densidad") {
+            densidad_teorica <- switch(input$dist_seleccionada,
+            "Normal" = dnorm(x_vals, mean = ajuste$estimate["mean"], sd = ajuste$estimate["sd"]),
+            "Exponencial" = dexp(x_vals, rate = ajuste$estimate["rate"]),
+            "Gamma" = dgamma(x_vals, shape = ajuste$estimate["shape"], rate = ajuste$estimate["rate"])
+            )
+
+            fig <- plot_ly()
+            fig <- fig %>% add_histogram(
+            x = datos_espera,
+            name = "Datos observados",
+            marker = list(color = 'lightgray'),
+            opacity = 0.6,
+            nbinsx = 30,
+            yaxis = "y1"
+            )
+            fig <- fig %>% add_lines(
+            x = x_vals,
+            y = densidad_teorica,
+            name = paste("Ajuste", input$dist_seleccionada),
+            line = list(color = 'red'),
+            yaxis = "y2"
+            )
+            fig <- fig %>% layout(
+            title = paste("Histograma con ajuste", input$dist_seleccionada),
+            xaxis = list(title = "Tiempo de espera"),
+            yaxis = list(title = "Frecuencia", side = "left"),
+            yaxis2 = list(title = "Densidad", overlaying = "y", side = "right")
+            )
+            fig
+        } else if (input$tipo_grafico == "Gráfico Q-Q") {
+            n <- length(datos_espera)
+            observados <- sort(datos_espera)
+
+            # Calcular los cuantiles teóricos según la distribución seleccionada
+            teoricos <- switch(input$dist_seleccionada,
+            "Normal" = qnorm(ppoints(n), mean = ajuste$estimate["mean"], sd = ajuste$estimate["sd"]),
+            "Exponencial" = qexp(ppoints(n), rate = ajuste$estimate["rate"]),
+            "Gamma" = qgamma(ppoints(n), shape = ajuste$estimate["shape"], rate = ajuste$estimate["rate"])
+            )
+
+            # Crear el gráfico Q-Q
+            fig <- plot_ly()
+            fig <- fig %>% add_markers(
+            x = teoricos,
+            y = observados,
+            name = "Datos",
+            marker = list(color = 'blue')
+            )
+            fig <- fig %>% add_lines(
+            x = teoricos,
+            y = teoricos,
+            name = "Línea teórica",
+            line = list(color = 'red', dash = 'dash')
+            )
+            fig <- fig %>% layout(
+            title = paste("Gráfico Q-Q: ajuste", input$dist_seleccionada),
+            xaxis = list(title = "Cuantiles teóricos"),
+            yaxis = list(title = "Cuantiles de los datos")
+            )
+            fig
+        }
     })
 }
