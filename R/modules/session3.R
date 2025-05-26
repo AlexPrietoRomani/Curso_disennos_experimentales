@@ -434,15 +434,18 @@ session3UI <- function(id) {
                 ),
                 tags$pre(class = "r-code",
                     htmltools::HTML(
-                    "# Simulación binomial: infestación de plagas\n",
-                    "num_plantas_muestra <- 50        # tamaño de la muestra (n)\n",
-                    "prob_infestacion   <- 0.2       # probabilidad de infestación por planta (p)\n",
-                    "num_simulaciones   <- 1000     # número de réplicas\n",
-                    "infestaciones_simuladas <- rbinom(n = num_simulaciones, size = num_plantas_muestra, prob = prob_infestacion)\n",
-                    "# Resumen de la simulación:\n",
-                    "mean(infestaciones_simuladas)    # Aproximación a E[X] = np\n",
-                    "var(infestaciones_simuladas)     # Aproximación a Var(X) = np(1-p)\n",
-                    "summary(infestaciones_simuladas)  # Estadísticas descriptivas\n"
+                        "# Simulación binomial: infestación de plagas\n",
+                        "set.seed(42)                    # Reproducibilidad\n",
+                        "n       <- 50                  # número de plantas muestreadas\n",
+                        "p       <- 0.2                 # probabilidad de infestación por planta\n",
+                        "R       <- 1000               # réplicas de simulación\n",
+                        "X       <- rbinom(R, size = n, prob = p)\n",
+                        "# Estadísticos de la muestra simulada:\n",
+                        "mean(X)    # Aprox. E[X] = np    # 50 × 0.2 = 10\n",
+                        "var(X)     # Aprox. Var(X) = np(1-p)\n",
+                        "summary(X)  # Cinco números resumo\n",
+                        "# Probabilidades teóricas (ej.): P(X ≤ 5)\n",
+                        "pbinom(5, size = n, prob = p)\n"
                     )
                 ),
                 plotOutput(ns("histogramaBinomial"), height = "400px"),
@@ -483,7 +486,7 @@ session3UI <- function(id) {
                     )
                 ),
                 
-                # 2.2 Poisson (sin cambios)
+                # 2.2 Poisson
                 tags$h4(
                     class = "section-header",
                     "2.2 Poisson para conteo de lesiones foliares (rpois())"
@@ -654,6 +657,137 @@ session3UI <- function(id) {
             # PESTAÑA 3: Graficar distribuciones
             # ——————————————
             
+            nav_panel(
+                title = "3 Graficar distribuciones",
+                h4(class = "section-header", "3.1 Visualización de distribuciones con ggplot2"),
+
+                tags$h6(tags$b("3.1.1 Histogramas y curvas de densidad")),
+                tags$div(
+                    class = "row",
+                    tags$div(
+                        class = "col-md-8",
+                        tags$p(
+                            "Los histogramas permiten visualizar la distribución de una variable continua, mostrando la frecuencia de observaciones en intervalos específicos. ",
+                            "Superponer una curva de densidad sobre el histograma proporciona una estimación suave de la distribución subyacente."
+                        ),
+                        tags$p(
+                            "En ggplot2, esto se logra utilizando ",
+                            tags$code("geom_histogram()"),
+                            " y ",
+                            tags$code("geom_density()"),
+                            "."
+                        ),
+                        tags$pre(
+                            class = "r-code",
+                            htmltools::HTML(
+                            "# Simulación de datos\n",
+                            "set.seed(123)\n",
+                            "datos <- data.frame(valor = rnorm(1000, mean = 0, sd = 1))\n",
+                            "\n",
+                            "# Gráfico con histograma y curva de densidad\n",
+                            "ggplot(datos, aes(x = valor)) +\n",
+                            "  geom_histogram(aes(y = ..density..), binwidth = 0.5, fill = 'skyblue', color = 'black') +\n",
+                            "  geom_density(color = 'red', size = 1) +\n",
+                            "  labs(title = 'Histograma con curva de densidad', x = 'Valor', y = 'Densidad')"
+                            )
+                        ),
+                        tags$p(
+                            "En este ejemplo, se simulan 1000 observaciones de una distribución normal estándar. ",
+                            "El histograma muestra la frecuencia relativa de los datos, mientras que la curva roja representa la estimación de densidad."
+                        )
+                    ),
+                    tags$div(
+                        class = "note-cloud",
+                        tags$strong("Nota didáctica:"),
+                        "Ajustar el parámetro ",
+                        tags$code("binwidth"),
+                        " en ",
+                        tags$code("geom_histogram()"),
+                        " permite controlar el número de barras y, por ende, la granularidad del histograma."
+                    ),
+                    plotlyOutput(ns("histogramaDensidad"), height = "400px"),
+                ),
+
+                tags$h6(tags$b("3.1.2 Gráficos de barras de frecuencia")),
+                tags$div(
+                    class = "row",
+                    tags$div(
+                        class = "col-md-8",
+                        tags$p(
+                            "Para variables categóricas, los gráficos de barras son útiles para mostrar la frecuencia de cada categoría. ",
+                            "En ggplot2, se utiliza ",
+                            tags$code("geom_bar()"),
+                            " para este propósito."
+                        ),
+                        tags$pre(
+                            class = "r-code",
+                            htmltools::HTML(
+                            "# Simulación de datos categóricos\n",
+                            "set.seed(456)\n",
+                            "categorias <- data.frame(grupo = sample(c('A', 'B', 'C'), size = 500, replace = TRUE))\n",
+                            "\n",
+                            "# Gráfico de barras de frecuencia\n",
+                            "ggplot(categorias, aes(x = grupo)) +\n",
+                            "  geom_bar(fill = 'lightgreen', color = 'black') +\n",
+                            "  labs(title = 'Frecuencia por grupo', x = 'Grupo', y = 'Frecuencia')"
+                            )
+                        ),
+                        tags$p(
+                            "Este gráfico muestra la cantidad de observaciones en cada grupo categórico (A, B y C)."
+                        )
+                    ),
+                    tags$div(
+                        class = "note-cloud",
+                        tags$strong("Nota didáctica:"),
+                        "Para ordenar las barras de mayor a menor frecuencia, se puede utilizar la función ",
+                        tags$code("reorder()"),
+                        " en el mapeo estético de ",
+                        tags$code("aes()"),
+                        "."
+                    ),
+                    plotlyOutput(ns("graficoBarras"), height = "400px"),
+                ),
+
+                tags$h6(tags$b("3.1.3 Comparación de distribuciones por grupo")),
+                tags$div(class = "row",
+                    tags$div(
+                        class = "col-md-8",
+                        tags$p(
+                            "Cuando se desea comparar la distribución de una variable continua entre diferentes grupos, se pueden utilizar histogramas o curvas de densidad diferenciadas por color."
+                        ),
+                        tags$pre(class = "r-code",
+                            htmltools::HTML(
+                            "# Simulación de datos con grupos\n",
+                            "set.seed(789)\n",
+                            "datos_grupo <- data.frame(\n",
+                            "  valor = c(rnorm(500, mean = 0), rnorm(500, mean = 3)),\n",
+                            "  grupo = rep(c('Grupo 1', 'Grupo 2'), each = 500)\n",
+                            ")\n",
+                            "\n",
+                            "# Histograma con grupos\n",
+                            "ggplot(datos_grupo, aes(x = valor, fill = grupo)) +\n",
+                            "  geom_histogram(position = 'identity', alpha = 0.6, binwidth = 0.5) +\n",
+                            "  labs(title = 'Comparación de distribuciones por grupo', x = 'Valor', y = 'Frecuencia')"
+                            )
+                        ),
+                        tags$p(
+                            "En este ejemplo, se comparan dos grupos con medias diferentes. ",
+                            "El uso de transparencia (",
+                            tags$code("alpha"),
+                            ") permite visualizar la superposición de las distribuciones."
+                        )
+                    ),
+                    tags$div(
+                        class = "note-cloud",
+                        tags$strong("Nota didáctica:"),
+                        "Para una comparación más clara, también se pueden utilizar gráficos de densidad con ",
+                        tags$code("geom_density()"),
+                        ", diferenciando los grupos por color."
+                    ),
+                    plotlyOutput(ns("comparacionDistribuciones"), height = "400px"),
+                )
+            ),
+
             # ——————————————
             # PESTAÑA: Referencias 
             # ——————————————
@@ -686,8 +820,6 @@ session3UI <- function(id) {
                 tags$li(""),
                 )
             )
-        
-            # — aquí podrían agregarse más nav_panel() para ejercicios, teoría, etc.
         )
     )
 }
@@ -747,5 +879,80 @@ session3Server <- function(input, output, session) {
         lines(density(n), col = "blue")
         legend("topright", legend = c("Binomial","Poisson","Normal"), 
             col = c("black","darkgreen","blue"), lwd = 2)
+    })
+
+    #----- Pestana 3: Graficar distribuciones -----
+    # 3.1.1 Histograma con curva de densidad interactivo
+    output$histogramaDensidad <- renderPlotly({
+        set.seed(123)
+        datos <- rnorm(1000, mean = 0, sd = 1)
+        densidad <- density(datos)
+        counts <- hist(datos, plot = FALSE, breaks = 30)
+        
+        fig <- plot_ly()
+        # Histograma (frecuencia absoluta, eje Y izquierdo)
+        fig <- fig %>% add_bars(
+            x = counts$mids,
+            y = counts$counts,
+            name = "Frecuencia",
+            marker = list(color = 'skyblue'),
+            opacity = 0.6,
+            yaxis = "y1"
+        )
+        # Densidad (eje Y derecho)
+        fig <- fig %>% add_lines(
+            x = densidad$x,
+            y = densidad$y,
+            name = "Densidad",
+            line = list(color = 'red', width = 3),
+            yaxis = "y2"
+        )
+        fig <- fig %>% layout(
+            title = "Histograma (frecuencia) y Curva de Densidad",
+            xaxis = list(title = "Valor"),
+            yaxis = list(title = "Frecuencia", side = "left"),
+            yaxis2 = list(title = "Densidad", overlaying = "y", side = "right", showgrid = FALSE),
+            legend = list(x = 0.8, y = 0.95)
+        )
+        fig
+    })
+    
+    # 3.1.2 Gráfico de barras de frecuencia interactivo
+    output$graficoBarras <- renderPlotly({
+        set.seed(456)
+        categorias <- sample(c("A", "B", "C"), size = 500, replace = TRUE)
+        df_categorias <- as.data.frame(table(categorias))
+        
+        fig <- plot_ly(data = df_categorias,
+                    x = ~categorias,
+                    y = ~Freq,
+                    type = 'bar',
+                    marker = list(color = 'lightgreen'))
+        fig <- fig %>% layout(title = "Frecuencia por grupo",
+                            xaxis = list(title = "Grupo"),
+                            yaxis = list(title = "Frecuencia"))
+        fig
+    })
+    
+    # 3.1.3 Comparación de distribuciones por grupo interactivo
+    output$comparacionDistribuciones <- renderPlotly({
+        set.seed(789)
+        grupo1 <- rnorm(500, mean = 0)
+        grupo2 <- rnorm(500, mean = 3)
+        
+        fig <- plot_ly()
+        fig <- fig %>% add_histogram(x = grupo1,
+                                    name = "Grupo 1",
+                                    opacity = 0.6,
+                                    marker = list(color = 'blue'))
+        fig <- fig %>% add_histogram(x = grupo2,
+                                    name = "Grupo 2",
+                                    opacity = 0.6,
+                                    marker = list(color = 'orange'))
+        fig <- fig %>% layout(title = "Comparación de distribuciones por grupo",
+                            xaxis = list(title = "Valor"),
+                            yaxis = list(title = "Frecuencia"),
+                            barmode = "overlay")
+        fig
     })
 }
