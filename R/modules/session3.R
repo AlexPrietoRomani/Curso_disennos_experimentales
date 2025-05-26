@@ -406,7 +406,7 @@ session3UI <- function(id) {
                 )
             ),
             # ——————————————
-            # PESTAÑA: 2. SIMULACIÓN
+            # PESTAÑA: 2. Definición y simulación
             # ——————————————
             nav_panel(
                 title = "2 Definición y simulación",
@@ -650,6 +650,10 @@ session3UI <- function(id) {
                 tags$h4(class = "section-header", "2.5 Gráfico comparativo"),
                 plotOutput(ns("distComparison"), height = "400px")
             ),
+            # ——————————————
+            # PESTAÑA 3: Graficar distribuciones
+            # ——————————————
+            
             # ——————————————
             # PESTAÑA: Referencias 
             # ——————————————
