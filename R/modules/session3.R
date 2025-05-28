@@ -875,6 +875,11 @@ session3UI <- function(id) {
                 ),
             ),
 
+            # ——————————————
+            # PESTAÑA: 5. Resultado esperado
+            # ——————————————
+
+            
 
             # ——————————————
             # PESTAÑA: Referencias 
