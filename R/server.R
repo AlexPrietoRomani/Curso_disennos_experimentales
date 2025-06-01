@@ -10,13 +10,13 @@ server <- function(input, output, session) {
     switch(input$sesion,
       "Sesión 1" = session1UI("s1"),
       "Sesión 2" = session2UI("s2"),
-      "Sesión 3" = session3UI("s3")
-      # … resto de sesiones …
+      "Sesión 3" = session3UI("s3"),
+      "Sesión 4" = session4UI("s4"),
     )
   })
   
   callModule(session1Server, "s1")
   callModule(session2Server, "s2")
   callModule(session3Server, "s3")
-  # … resto de módulos …
+  callModule(session4Server, "s4")
 }
