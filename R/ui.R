@@ -169,13 +169,13 @@ ui <- fluidPage(
   
   sidebarLayout(
     sidebarPanel(
-      width = 3,
+      width = 2,
       h4("Navegación"),
       radioButtons("parte", "Parte:", choices = names(sesiones)),
       uiOutput("sesion_ui")
     ),
     mainPanel(
-      width = 9,
+      width = 10,
       uiOutput("contenido_ui")
     )
   )
