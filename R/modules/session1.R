@@ -18,214 +18,270 @@ session1UI <- function(id) {
         tags$table(class = "table activity-table",
           tags$thead(tags$tr(tags$th("Segmento"), tags$th("Tiempo"), tags$th("Actividad"))),
           tags$tbody(
-            tags$tr(tags$td("1 Intro"),    tags$td("0–20 min"),  tags$td("Sintaxis básica: operadores, |> y vectores.")),
-            tags$tr(tags$td("2 Vectores"), tags$td("20–40 min"), tags$td("Crear y manipular vectores ficticios.")),
-            tags$tr(tags$td("3 Gráficos"), tags$td("40–60 min"), tags$td("Plot rápido con plot() / ggplot2.")),
-            tags$tr(tags$td("4 Setup"),    tags$td("60–75 min"), tags$td("Proyecto y librerías (tidyverse, readxl).")),
-            tags$tr(tags$td("5 Import"),   tags$td("75–95 min"), tags$td("Leer CSV/Excel y glimpse()/str()/summary().")),
-            tags$tr(tags$td("6 Limpieza"), tags$td("95–115 min"),tags$td("janitor::clean_names() y coerción de tipos.")),
-            tags$tr(tags$td("7 Cierre"),   tags$td("115–120 min"),tags$td("Recapitulación y preguntas."))
+            tags$tr(tags$td("1 Introducción a R"),    tags$td("0–20 min"),  tags$td("Operadores (aritméticos, relacionales, lógicos, asignación), precedencia. Introducción al pipe nativo \\(|>\\) y pipe de magrittr \\(%>\\).")),
+            tags$tr(tags$td("2 Vectores"), tags$td("20–40 min"), tags$td("Creación de vectores (numéricos, de caracteres, lógicos) usando \\(c()\\), \\(seq()\\), \\(rep()\\). Indexación y operaciones vectorizadas elementales.")),
+            tags$tr(tags$td("3 Gráficos"), tags$td("40–60 min"), tags$td("Introducción a gráficos básicos con \\(plot()\\) (ej. histograma, dispersión). Primer vistazo a \\(ggplot2\\) para la misma tarea, resaltando la gramática de gráficos.")),
+            tags$tr(tags$td("4 Setup"),    tags$td("60–75 min"), tags$td("Creación de un proyecto en RStudio para organización. Instalación (\\(install.packages()\\)) y carga (\\(library()\\)) de paquetes esenciales: \\(tidyverse\\), \\(readxl\\), \\(janitor\\).")),
+            tags$tr(tags$td("5 Import"),   tags$td("75–95 min"), tags$td("Lectura de archivos CSV (\\(read.csv()\\), \\(read_csv()\\)) y Excel (\\(read_excel()\\)). Inspección inicial con \\(glimpse()\\), \\(str()\\), \\(summary()\\).")),
+            tags$tr(tags$td("6 Limpieza"), tags$td("95–115 min"),tags$td("Uso de \\(janitor::clean_names()\\) para estandarizar nombres de columnas. Coerción básica de tipos de variables (ej. de caracter a numérico o factor).")),
+            tags$tr(tags$td("7 Cierre"),   tags$td("115–120 min"),tags$td("Recapitulación de los conceptos aprendidos, resolución de dudas y avance de la Sesión 2."))
           )
         ),
       ),
       
       # ---------------------
-      # PESTAÑA: 1 Intro
+      # PESTAÑA: 1 Sintaxis Básica
       # ---------------------
       nav_panel(
-      title = "1 Intro",
-      h4(class = "section-header", "1 Intro: Sintaxis Básica"),
-
-      # Teoría extendida
-      tags$div(class = "theory-text",
-        tags$p(
-          "En R, los operadores son símbolos que indican al intérprete cómo combinar valores escalares, vectores o expresiones para producir un resultado (Tutorialspoint, 2024).",
-          "Se clasifican en cuatro grupos principales:"
-        ),
-        tags$ul(
-          tags$li(
-            tags$b("Aritméticos:"), " +, -, *, /, ^ (o **), %% (módulo), %/% (división entera).",
-            "Actúan elemento a elemento sobre vectores (Programiz, 2024)."
-          ),
-          tags$pre(
-            class = "r-code",
-            htmltools::HTML(
-              "# Suma, resta, multiplicación, división, exponenciación, módulo, división entera\n",
-              "3 + 5\n",
-              "10 - 2\n",
-              "4 * 2\n",
-              "9 / 3\n",
-              "6^2\n",
-              "7 %% 3\n",
-              "9 %/% 2\n"
+        title = "1 Sintaxis Básica",
+        h4(class = "section-header", "1.1 Operadores Fundamentales en R"),
+        tags$div(class = "content-row",
+          tags$div(class = "main-content",
+            tags$p(
+              "Los operadores son símbolos esenciales en R que le indican al intérprete cómo realizar operaciones específicas —ya sean matemáticas, de comparación, lógicas o de asignación— sobre valores individuales (escalares) o conjuntos de valores (como los vectores). Comprender y utilizar correctamente los operadores es el cimiento para escribir código funcional y eficiente en R (R Core Team, 2023)."
+            ),
+            tags$p("Los operadores se clasifican principalmente en los siguientes grupos:"),
+            tags$ul(
+              tags$li(
+                tags$b("Operadores Aritméticos:"), " Estos operadores realizan cálculos numéricos básicos. Incluyen: \\(+\\) (suma), \\(-\\) (resta), \\(*\\) (multiplicación), \\(/\\) (división), \\(\\^\\) o \\(**\\) (exponenciación), \\(%%\\) (módulo, que devuelve el resto de una división), y \\(%/%\\) (división entera, que devuelve la parte entera de una división). Una característica poderosa de R es que estos operadores son ", tags$em("vectorizados"), ", lo que significa que pueden operar sobre cada elemento de un vector automáticamente, sin necesidad de bucles explícitos."
+              ),
+              tags$pre(
+                class = "r-code",
+                htmltools::HTML(
+                  "# Datos agronómicos de ejemplo\n",
+                  "area_hectareas <- 2.5\n",
+                  "rendimiento_por_hectarea_kg <- 3500 # kg/ha\n",
+                  "produccion_total_kg <- area_hectareas * rendimiento_por_hectarea_kg\n",
+                  "cat('Producción Total (kg):', produccion_total_kg, '\\n')\n",
+                  "\n",
+                  "costo_semillas_por_ha <- 120 # USD\n",
+                  "costo_fertilizantes_por_ha <- 250 # USD\n",
+                  "costo_total_insumos_por_ha <- costo_semillas_por_ha + costo_fertilizantes_por_ha\n",
+                  "cat('Costo Total Insumos (USD/ha):', costo_total_insumos_por_ha, '\\n')\n",
+                  "\n",
+                  "# Exponenciación: Si una población de insectos se duplica cada generación (2^n)\n",
+                  "generaciones <- 4\n",
+                  "factor_crecimiento_poblacional <- 2^generaciones\n",
+                  "cat('Factor de Crecimiento en', generaciones, 'generaciones:', factor_crecimiento_poblacional, '\\n')\n",
+                  "\n",
+                  "# Módulo y división entera: distribuir 26 plantas en filas de 5\n",
+                  "total_plantas <- 26\n",
+                  "plantas_por_fila <- 5\n",
+                  "filas_completas <- total_plantas %/% plantas_por_fila\n",
+                  "plantas_sobrantes <- total_plantas %% plantas_por_fila\n",
+                  "cat('Filas completas:', filas_completas, '- Plantas sobrantes:', plantas_sobrantes, '\\n')"
+                )
+              ),
+              tags$p(tags$strong("Salida esperada:")),
+              tags$pre(
+                class = "r-output",
+                htmltools::HTML(
+                  "Producción Total (kg): 8750 \n",
+                  "Costo Total Insumos (USD/ha): 370 \n",
+                  "Factor de Crecimiento en 4 generaciones: 16 \n",
+                  "Filas completas: 5 - Plantas sobrantes: 1 "
+                )
+              ),
+              tags$li(
+                tags$b("Operadores Relacionales (o de Comparación):"), " Estos operadores comparan dos valores (operandos) y devuelven un resultado lógico: \\(TRUE\\) (verdadero) o \\(FALSE\\) (falso). Son: \\(>\\) (mayor que), \\(<\\) (menor que), \\(==\\) (exactamente igual a), \\(!=\\) (distinto de), \\(>=\\) (mayor o igual que), y \\(<=\\) (menor o igual que). Es crucial notar la diferencia entre \\(==\\) (comparación) y \\(=\\) (que puede ser usado para asignación, aunque \\(<- \\) es preferido)."
+              ),
+              tags$pre(
+                class = "r-code",
+                htmltools::HTML(
+                  "ph_suelo_optimo_min <- 6.0\n",
+                  "ph_suelo_optimo_max <- 7.0\n",
+                  "ph_actual_parcela1 <- 6.5\n",
+                  "ph_actual_parcela2 <- 5.5\n",
+                  "\n",
+                  "parcela1_en_rango <- ph_actual_parcela1 >= ph_suelo_optimo_min & ph_actual_parcela1 <= ph_suelo_optimo_max\n",
+                  "cat('pH Parcela 1 dentro del rango óptimo:', parcela1_en_rango, '\\n')\n",
+                  "\n",
+                  "parcela2_necesita_cal <- ph_actual_parcela2 < ph_suelo_optimo_min\n",
+                  "cat('pH Parcela 2 necesita enmienda cálcica:', parcela2_necesita_cal, '\\n')\n",
+                  "\n",
+                  "son_ph_iguales <- ph_actual_parcela1 == ph_actual_parcela2\n",
+                  "cat('¿Tienen ambas parcelas el mismo pH?:', son_ph_iguales, '\\n')"
+                )
+              ),
+              tags$p(tags$strong("Salida esperada:")),
+              tags$pre(
+                class = "r-output",
+                htmltools::HTML(
+                  "pH Parcela 1 dentro del rango óptimo: TRUE \n",
+                  "pH Parcela 2 necesita enmienda cálcica: TRUE \n",
+                  "¿Tienen ambas parcelas el mismo pH?: FALSE "
+                )
+              ),
+              tags$li(
+                tags$b("Operadores Lógicos:"), " Se utilizan para combinar o modificar expresiones lógicas (que evalúan a \\(TRUE\\) o \\(FALSE\\)). Los principales son: \\(&\\) (Y lógico, vectorizado: \\(TRUE\\) si ambos operandos son \\(TRUE\\)), \\(|\\) (O lógico, vectorizado: \\(TRUE\\) si al menos un operando es \\(TRUE\\)), y \\(!\\) (NO lógico o negación, invierte el valor lógico). Existen también \\(&&\\) (Y lógico de cortocircuito) y \\(||\\) (O lógico de cortocircuito), que evalúan solo el primer elemento de los vectores y son más eficientes en estructuras de control como los condicionales \\(if\\), ya que dejan de evaluar tan pronto como el resultado es determinado."
+              ),
+              tags$pre(
+                class = "r-code",
+                htmltools::HTML(
+                  "lluvia_suficiente <- TRUE\n",
+                  "temperatura_adecuada <- FALSE\n",
+                  "control_plagas_realizado <- TRUE\n",
+                  "\n",
+                  "# Condiciones ideales para siembra: lluvia Y temperatura adecuadas\n",
+                  "condiciones_siembra_ideales <- lluvia_suficiente & temperatura_adecuada\n",
+                  "cat('Condiciones de siembra ideales:', condiciones_siembra_ideales, '\\n')\n",
+                  "\n",
+                  "# Se puede proceder si hay lluvia O se realizó control de plagas (ejemplo simplificado)\n",
+                  "se_puede_proceder <- lluvia_suficiente | control_plagas_realizado\n",
+                  "cat('Se puede proceder con alguna condición favorable:', se_puede_proceder, '\\n')\n",
+                  "\n",
+                  "# Negación: ¿No hay temperatura adecuada?\n",
+                  "no_temperatura_adecuada <- !temperatura_adecuada\n",
+                  "cat('¿No hay temperatura adecuada?:', no_temperatura_adecuada, '\\n')"
+                )
+              ),
+              tags$p(tags$strong("Salida esperada:")),
+              tags$pre(
+                class = "r-output",
+                htmltools::HTML(
+                  "Condiciones de siembra ideales: FALSE \n",
+                  "Se puede proceder con alguna condición favorable: TRUE \n",
+                  "¿No hay temperatura adecuada?: TRUE "
+                )
+              ),
+              tags$li(
+                tags$b("Operadores de Asignación:"), " Se utilizan para asignar un valor a un nombre de variable (u objeto) en R. El operador de asignación canónico y más recomendado en R es \\(<- \\) (la flecha apuntando hacia la variable). Aunque \\(=\\) también puede usarse para asignación en el nivel superior, se desaconseja para mantener la claridad y distinguirlo de la asignación de argumentos en llamadas a funciones. Los operadores \\(->\\) (flecha derecha), \\(<<-\\) y \\(->>\\) (asignación en entornos globales o superiores) existen pero se usan con menos frecuencia y requieren una comprensión más profunda de los entornos en R."
+              ),
+              tags$pre(
+                class = "r-code",
+                htmltools::HTML(
+                  "nombre_variedad_trigo <- 'Klein Centauro'\n",
+                  "ciclo_dias <- 150\n",
+                  "tolerante_sequia <- FALSE\n",
+                  "\n",
+                  "cat('Variedad:', nombre_variedad_trigo, \n",
+                  "    '| Ciclo (días):', ciclo_dias, \n",
+                  "    '| Tolerante a Sequía:', tolerante_sequia, '\\n')"
+                )
+              ),
+              tags$p(tags$strong("Salida esperada:")),
+              tags$pre(
+                class = "r-output",
+                htmltools::HTML(
+                  "Variedad: Klein Centauro | Ciclo (días): 150 | Tolerante a Sequía: FALSE "
+                )
+              ),
             )
           ),
-          p("Salida esperada:"),
-          tags$pre(
-            class = "r-output",
-            htmltools::HTML(
-              "[1]  8\n",
-              "[1]  8\n",
-              "[1]  8\n",
-              "[1]  3\n",
-              "[1] 36\n",
-              "[1]  1\n",
-              "[1]  4\n"
-            )
-          ),
-          tags$br(),
-          tags$li(
-            tags$b("Relacionales:"), " >, <, ==, !=, >=, <=.",
-            "Comparan valores o vectores y devuelven TRUE/FALSE para cada elemento (W3Schools, 2024)."
-          ),
-          tags$pre(
-            class = "r-code",
-            htmltools::HTML(
-              "5 > 3\n",
-              "2 == 4\n",
-              "3 != 5\n",
-              "7 >= 7\n",
-              "1 < 0\n"
-            )
-          ),
-          p("Salida esperada:"),
-          tags$pre(
-            class = "r-output",
-            htmltools::HTML(
-              "[1] TRUE\n",
-              "[1] FALSE\n",
-              "[1] TRUE\n",
-              "[1] TRUE\n",
-              "[1] FALSE\n"
-            )
-          ),
-          tags$br(),
-          tags$li(
-            tags$b("Lógicos:"), " &, | (element-wise), &&, || (primer elemento), ! (NOT).",
-            "Se usan para combinar condiciones booleanas (Zero to Pro, 2024)."
-          ),
-          tags$pre(
-            class = "r-code",
-            htmltools::HTML(
-              "TRUE & FALSE   # element-wise\n",
-              "TRUE && FALSE  # primer elemento\n",
-              "FALSE | TRUE\n",
-              "FALSE || TRUE\n",
-              "!TRUE\n"
-            )
-          ),
-          p("Salida esperada:"),
-          tags$pre(
-            class = "r-output",
-            htmltools::HTML(
-              "[1] FALSE\n",
-              "[1] FALSE\n",
-              "[1] TRUE\n",
-              "[1] TRUE\n",
-              "[1] FALSE\n"
-            )
-          ),
-          tags$br(),
-          tags$li(
-            tags$b("Asignación:"), " <-, ->, = (desaconsejado), <<- y ->> (global).",
-            "Asignan valores a variables dentro de distintos entornos (Tutorialspoint, 2024)."
-          ),
-          tags$pre(
-            class = "r-code",
-            htmltools::HTML(
-              "a <- 10\n",
-              "20 -> b\n",
-              "c = 5   # desaconsejado\n",
-              "a + b + c\n"
-            )
-          ),
-          p("Salida esperada:"),
-          tags$pre(
-            class = "r-output",
-            htmltools::HTML(
-              "# a y b quedan asignados\n",
-              "[1] 35\n"
-            )
-          ),
-        ),
-        tags$p(
-          "La precedencia de operadores en R sigue: paréntesis > exponenciación > multiplicación y división > suma y resta.",
-          "Use paréntesis para garantizar el orden de evaluación deseado (Programiz, 2024)."
-        ),
-        tags$h5("Pipes"),
-        tags$p(
-          "Introducido en R 4.1.0, el pipe nativo `|>` toma la salida del LHS como primer argumento del RHS,",
-          "facilitando la lectura secuencial de transformaciones sin variables intermedias (Tidyverse Blog, 2023)."
-        ),
-        tags$p(
-          "El pipe de magrittr `%>%` ofrece más flexibilidad con pronombres (`.`) para posicionar el argumento dentro de la llamada (Ivelasq, 2020)."
-        ),
-        tags$pre(
-          class = "r-code",
-          htmltools::HTML(
-            "# Pipe nativo\n",
-            "c(3,5,7) |> mean() |> round(1)\n\n",
-            "# Pipe magrittr\n",
-            "library(magrittr)\n",
-            "c(3,5,7) %>% mean() %>% round(1)\n"
+          tags$div(class = "note-cloud",
+            tags$strong("Precedencia de Operadores:"),
+            tags$p("R evalúa las expresiones en un orden específico, conocido como precedencia de operadores. Generalmente, los paréntesis \\(()\\) tienen la precedencia más alta, forzando la evaluación de su contenido primero. Luego vienen la exponenciación \\(\\^\\), seguida de la multiplicación \\(*\\) y la división \\(/\\) (que tienen igual precedencia y se evalúan de izquierda a derecha), y después la suma \\(+\\) y la resta \\(-\\). Los operadores relacionales y lógicos tienen menor precedencia. En caso de duda o para asegurar un orden específico, ¡siempre es una buena práctica usar paréntesis \\(()\\)!"),
+            tags$code("resultado <- (5 + 3) * 2  # Primero suma, luego multiplica. Resultado: 16"), br(),
+            tags$code("resultado_sin_paren <- 5 + 3 * 2 # Primero multiplica, luego suma. Resultado: 11")
           )
         ),
-        p("Salida esperada:"),
-        tags$pre(
-          class = "r-output",
-          htmltools::HTML(
-            "[1] 5.0\n",
-            "[2] 5.0\n"
+
+        h4(class = "section-header", "1.2 El Operador Pipe: Escribiendo Código Más Legible y Secuencial"),
+        tags$div(class = "content-row",
+          tags$div(class = "main-content",
+            tags$p(
+              "El operador \"pipe\" (tubería) es una herramienta poderosa para escribir secuencias de operaciones de una manera más intuitiva y legible. En lugar de anidar funciones (lo que puede volverse difícil de leer) o crear múltiples variables intermedias, el pipe toma el resultado de la expresión a su izquierda y lo \"entuba\" como el primer argumento de la función a su derecha."
+            ),
+            tags$ul(
+              tags$li(tags$b("Pipe Nativo de R (\\(|>\\)):"), " Introducido oficialmente en la versión de R 4.1.0. Es simple, eficiente y no requiere la carga de paquetes adicionales. Su sintaxis es: \\(datos |> funcion_siguiente()\\)."),
+              tags$li(tags$b("Pipe de Magrittr (\\(%>\\)):"), " Proveniente del paquete `magrittr` (que es una dependencia central del `tidyverse`). Fue el pipe más popular durante mucho tiempo y sigue siendo ampliamente utilizado. Ofrece algunas funcionalidades adicionales, como el uso del marcador de posición (placeholder) punto \\(.\\) para especificar explícitamente dónde debe insertarse el resultado de la izquierda si no es el primer argumento. Su sintaxis es: \\(datos %>% funcion_siguiente()\\).")
+            ),
+            tags$pre(
+              class = "r-code",
+              htmltools::HTML(
+                "# Datos de ejemplo: contenido de humedad (%) de muestras de suelo\n",
+                "humedad_suelo <- c(22.5, 25.1, 19.8, 23.5, 26.2, 20.4)\n",
+                "\n",
+                "# SIN PIPE: calcular la media, luego redondear a un decimal\n",
+                "media_humedad <- mean(humedad_suelo)\n",
+                "media_humedad_redondeada_v1 <- round(media_humedad, 1)\n",
+                "cat('Media de humedad (sin pipe):', media_humedad_redondeada_v1, '%\\n')\n",
+                "\n",
+                "# CON PIPE NATIVO |>\n",
+                "media_humedad_redondeada_v2 <- humedad_suelo |> mean() |> round(1)\n",
+                "cat('Media de humedad (pipe nativo |>):', media_humedad_redondeada_v2, '%\\n')\n",
+                "\n",
+                "# CON PIPE DE MAGRITTR %>%\n",
+                "# library(magrittr) # Asegúrate de que está cargado, usualmente con library(tidyverse)\n",
+                "media_humedad_redondeada_v3 <- humedad_suelo %>% mean() %>% round(1)\n",
+                "cat('Media de humedad (pipe magrittr %>%):', media_humedad_redondeada_v3, '%\\n')\n",
+                "\n",
+                "# Ejemplo de uso del placeholder (.) con magrittr:\n",
+                "# Supongamos una función que toma los datos como segundo argumento\n",
+                "funcion_ejemplo <- function(parametro1, datos, parametro3) {\n",
+                "  paste(parametro1, mean(datos) * parametro3)\n",
+                "}\n",
+                "resultado_placeholder <- humedad_suelo %>% \n",
+                "  funcion_ejemplo(parametro1 = 'Resultado escalado:', ., parametro3 = 10) \n",
+                "cat(resultado_placeholder, '\\n')"
+              )
+            ),
+            tags$p(tags$strong("Salida esperada:")),
+            tags$pre(
+              class = "r-output",
+              htmltools::HTML(
+                "Media de humedad (sin pipe): 22.9 %\n",
+                "Media de humedad (pipe nativo |>): 22.9 %\n",
+                "Media de humedad (pipe magrittr %>%): 22.9 %\n",
+                "Resultado escalado: 229.166666666667 "
+              )
+            )
+          ),
+          tags$div(class = "note-cloud",
+            tags$strong("Beneficios del Pipe:"),
+            tags$ul(
+                tags$li(tags$b("Legibilidad:"), "El código se lee de izquierda a derecha, siguiendo el flujo de los datos, lo que lo hace más natural de entender."),
+                tags$li(tags$b("Menos Variables Intermedias:"), "Reduce la necesidad de crear y nombrar múltiples objetos temporales."),
+                tags$li(tags$b("Facilita la Composición:"), "Es más fácil construir secuencias complejas de transformaciones de datos.")
+            ),
+            tags$p("Aunque ambos pipes son muy útiles, el pipe nativo \\(|>\\) está ganando popularidad por su integración directa en R base. Sin embargo, muchos códigos existentes y paquetes del `tidyverse` utilizan extensamente el pipe \\(%>\\).")
+          )
+        ),
+        tags$br(),
+        tags$h5("Tabla Resumen: Operadores Comunes en R para Agronomía"),
+        tags$table(class = "table table-bordered",
+          tags$thead(
+            tags$tr(
+              tags$th("Tipo de operador"),
+              tags$th("Símbolo(s) Clave"),
+              tags$th("Descripción y Uso Principal"),
+              tags$th("Ejemplo Breve en Contexto Agronómico")
+            )
+          ),
+          tags$tbody(
+            tags$tr(
+              tags$td("Aritméticos"),
+              tags$td("\\(+\\), \\(*\\), \\(/\\), \\(\\^\\)"),
+              tags$td("Cálculos numéricos directos."),
+              tags$td(tags$code("dosis_total_N <- N_base + N_adicional"))
+            ),
+            tags$tr(
+              tags$td("Relacionales"),
+              tags$td("\\(>=\\), \\(<=\\), \\(==\\)"),
+              tags$td("Comparaciones que resultan en \\(TRUE\\)/\\(FALSE\\)."),
+              tags$td(tags$code("humedad_suelo_actual >= punto_marchitez"))
+            ),
+            tags$tr(
+              tags$td("Lógicos"),
+              tags$td("\\(&\\), \\(|\\), \\(!\\)"),
+              tags$td("Combinar o negar condiciones lógicas."),
+              tags$td(tags$code("(temperatura > 10) & (precipitacion > 5)"))
+            ),
+            tags$tr(
+              tags$td("Asignación"),
+              tags$td("\\(<- \\)"),
+              tags$td("Almacenar un valor o resultado en una variable."),
+              tags$td(tags$code("biomasa_aerea_g <- 57.3"))
+            ),
+            tags$tr(
+              tags$td("Pipe"),
+              tags$td("\\(|>\\), \\(%>\\)"),
+              tags$td("Encadenar funciones para un flujo de datos legible."),
+              tags$td(tags$code("datos_campo |> calcular_indices() |> graficar_resultados()"))
+            )
           )
         )
       ),
-
-      # Tabla de operadores
-      tags$br(),
-      tags$h5("Tabla 1: Operadores básicos de R"),
-      tags$table(class = "table table-bordered",
-        tags$thead(
-          tags$tr(
-            tags$th("Tipo de operador"),
-            tags$th("Símbolo(s)"),
-            tags$th("Descripción"),
-            tags$th("Ejemplo")
-          )
-        ),
-        tags$tbody(
-          tags$tr(
-            tags$td("Aritméticos"),
-            tags$td("+, -, *, /, ^, %, %, %/%"),
-            tags$td("Operaciones matemáticas elementales"),
-            tags$td(tags$code("x <- 5 + 3"), ", ", tags$code("y <- 10 / 2"))
-          ),
-          tags$tr(
-            tags$td("Relacionales"),
-            tags$td(">, <, ==, !=, >=, <="),
-            tags$td("Comparan valores y devuelven booleanos"),
-            tags$td(tags$code("5 > 3"), ", ", tags$code("2 <= 4"))
-          ),
-          tags$tr(
-            tags$td("Lógicos"),
-            tags$td("!, &, &&, |, ||"),
-            tags$td("Combina condiciones TRUE/FALSE"),
-            tags$td(tags$code("TRUE & FALSE"), ", ", tags$code("!TRUE"))
-          ),
-          tags$tr(
-            tags$td("Asignación"),
-            tags$td("<-, ->, =, <<-, ->>"),
-            tags$td("Asigna valores a variables"),
-            tags$td(tags$code("a <- 10"), ", ", tags$code("20 -> b"))
-          ),
-          tags$tr(
-            tags$td("Pipe"),
-            tags$td("|>, %>%"),
-            tags$td("Encadena operaciones de manera legible"),
-            tags$td(tags$code("iris |> head()"), ", ", tags$code("iris %>% head()"))
-          )
-        )
-      )
-    ),
 
       # ---------------------
       # PESTAÑA: 2 Vectores
