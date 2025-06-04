@@ -1,9 +1,4 @@
 # R/modules/session3.R
-library(dplyr)
-library(ggplot2)
-library(moments)
-library(patchwork)
-library(grid)
 
 session3UI <- function(id) {
     ns <- NS(id)
@@ -432,23 +427,26 @@ session3UI <- function(id) {
                     "En el contexto de la infestación de plagas, un éxito se define como una planta infestada. Los parámetros son \\(n\\) (número de plantas muestreadas) y \\(p\\) (probabilidad de infestación por planta).",
                     tags$small("(Montgomery & Runger, 2018; Dalgaard, 2008)")
                 ),
+                tags$hr(),
+                plotOutput(ns("histogramaBinomial"), height = "400px"),
+                tags$h6(tags$b("Ajuste Visual (Conceptual):")),
+                tags$p("Si tuviéramos datos observados de un fenómeno que creemos binomial (ej. número de plantas infestadas en lotes de 50), podríamos comparar su histograma con la distribución binomial teórica usando los parámetros estimados (o supuestos). Aunque ", tags$code("fitdistr()"), " no ajusta directamente la binomial a datos de conteo individuales de esta forma, podemos superponer la función de masa de probabilidad (PMF) teórica."),
                 tags$pre(class = "r-code",
-                    htmltools::HTML(
-                        "# Simulación binomial: infestación de plagas\n",
-                        "set.seed(42)                    # Reproducibilidad\n",
-                        "n       <- 50                  # número de plantas muestreadas\n",
-                        "p       <- 0.2                 # probabilidad de infestación por planta\n",
-                        "R       <- 1000               # réplicas de simulación\n",
-                        "X       <- rbinom(R, size = n, prob = p)\n",
-                        "# Estadísticos de la muestra simulada:\n",
-                        "mean(X)    # Aprox. E[X] = np    # 50 × 0.2 = 10\n",
-                        "var(X)     # Aprox. Var(X) = np(1-p)\n",
-                        "summary(X)  # Cinco números resumo\n",
-                        "# Probabilidades teóricas (ej.): P(X ≤ 5)\n",
-                        "pbinom(5, size = n, prob = p)\n"
+                htmltools::HTML(
+                    "# Ejemplo conceptual: Superponer PMF teórica\n",
+                    "set.seed(123)\n",
+                    "datos_observados_infestacion <- rbinom(100, size = 50, prob = 0.2)\n",
+                    "hist(datos_observados_infestacion, prob = TRUE, breaks = seq(-0.5, 50.5, by = 1), \n",
+                    "     main = 'Histograma de Datos Observados vs. PMF Binomial Teórica',\n",
+                    "     xlab = 'Número de plantas infestadas (de 50)', ylab = 'Densidad de Probabilidad')\n",
+                    "x_vals <- 0:50\n",
+                    "pmf_teorica <- dbinom(x_vals, size = 50, prob = 0.2)\n",
+                    "points(x_vals, pmf_teorica, col = 'red', pch = 19) # Puntos para la PMF discreta\n",
+                    "lines(x_vals, pmf_teorica, col = 'red', type = 'h', lty = 2) # Líneas a los puntos\n",
+                    "legend('topright', legend = 'PMF Teórica (p=0.2)', col = 'red', pch = 19, lty = 2)"
                     )
                 ),
-                plotOutput(ns("histogramaBinomial"), height = "400px"),
+                tags$hr(),
                 tags$table(class = "table-bordered",
                     tags$thead(
                     tags$tr(
@@ -507,18 +505,27 @@ session3UI <- function(id) {
                     "En agronomía, para el conteo de lesiones foliares en hojas, \\(\\lambda\\) representa la tasa media de lesiones por hoja en un área muestreada. Cuando el número de ensayos \\(n\\) es grande y la probabilidad de evento \\(p\\) pequeña, la distribución binomial converge a Poisson con \\(\\lambda = n p\\).",
                     tags$small("(Dalgaard, 2008; Montgomery & Runger, 2018)")
                 ),
-                tags$pre(class = "r-code",
-                    htmltools::HTML(
-                    "# Simulación Poisson: lesiones foliares\n",
-                    "num_hojas               <- 20      # hojas muestreadas por réplica\n",
-                    "tasa_promedio_lesiones  <- 3       # lesiones promedio por hoja (\u03BB)\n",
-                    "num_simulaciones       <- 1000    # réplicas totales\n",
-                    "lesiones_simuladas     <- rpois(n = num_simulaciones * num_hojas, lambda = tasa_promedio_lesiones)\n",
-                    "# Visualización: histograma de lesiones simuladas\n",
-                    "hist(lesiones_simuladas, main = 'Distribución Simulada de Lesiones Foliares', xlab = 'Número de Lesiones por Hoja')  # Dalgaard (2008)\n"
-                    )
-                ),
+                tags$hr(),
                 plotOutput(ns("histogramaPoisson"), height = "400px"),
+                tags$h6(tags$b("Ajuste Visual (Conceptual):")),
+                tags$p("Para datos de conteo que sospechamos siguen una distribución de Poisson (ej. número de lesiones por hoja), podemos comparar el histograma de los datos con la PMF teórica de Poisson, usando una \\(\\lambda\\) estimada de los datos (la media muestral es un buen estimador)."),
+                tags$pre(class = "r-code",
+                htmltools::HTML(
+                    "# Ejemplo conceptual: Superponer PMF Poisson Teórica\n",
+                    "set.seed(456)\n",
+                    "datos_observados_lesiones <- rpois(200, lambda = 3)\n",
+                    "lambda_estimada <- mean(datos_observados_lesiones) # Estimador de lambda\n",
+                    "hist(datos_observados_lesiones, prob = TRUE, breaks = seq(-0.5, max(datos_observados_lesiones)+0.5, by = 1),\n",
+                    "     main = 'Histograma de Lesiones Observadas vs. PMF Poisson Teórica',\n",
+                    "     xlab = 'Número de lesiones por hoja', ylab = 'Densidad de Probabilidad')\n",
+                    "x_vals_poisson <- 0:max(datos_observados_lesiones)\n",
+                    "pmf_teorica_poisson <- dpois(x_vals_poisson, lambda = lambda_estimada)\n",
+                    "points(x_vals_poisson, pmf_teorica_poisson, col = 'blue', pch = 19)\n",
+                    "lines(x_vals_poisson, pmf_teorica_poisson, col = 'blue', type = 'h', lty = 2)\n",
+                    "legend('topright', legend = paste0('PMF Teórica (lambda_est = ', round(lambda_estimada,2), ')'), col = 'blue', pch = 19, lty = 2)"
+                    )   
+                ),
+                tags$hr(),
                 tags$table(class = "table-bordered",
                     tags$thead(
                     tags$tr(
@@ -563,19 +570,41 @@ session3UI <- function(id) {
                     "Antes de aplicar, verificar normalidad mediante Q-Q plot o pruebas (Shapiro-Wilk, Kolmogorov-Smirnov).",
                     tags$small("(Dalgaard, 2008; Montgomery & Runger, 2018)")
                 ),
-                tags$pre(class = "r-code",
-                    htmltools::HTML(
-                    "# Simulación Normal: variabilidad de rendimiento\n",
-                    "num_rendimientos   <- 100   # cantidad de valores simulados\n",
-                    "media_rendimiento  <- 70    # rendimiento promedio (bushel/acre)\n",
-                    "sd_rendimiento     <- 10    # variabilidad alrededor de la media\n",
-                    "rendimientos_sim   <- rnorm(n = num_rendimientos, mean = media_rendimiento, sd = sd_rendimiento)\n",
-                    "# Visualización: histograma y Q-Q plot\n",
-                    "hist(rendimientos_sim, main = 'Rendimientos Simulados (Normal)', xlab = 'Bushels/acre')\n",
-                    "qqnorm(rendimientos_sim); qqline(rendimientos_sim, col = 'red')  # Dalgaard (2008)\n"
+                tags$hr(),
+                plotOutput(ns("histogramaNormal"), height = "400px"), # Este plot ya puede incluir el qqnorm
+                tags$h6(tags$b("Verificación de Normalidad (Fundamental):")),
+                tags$p(
+                    "Antes de asumir que los datos siguen una distribución normal, es crucial verificarlo. El método visual más común es el ",
+                    tags$b("Gráfico Cuantil-Cuantil (QQ-plot)."),
+                    " Si los puntos en el QQ-plot se alinean aproximadamente a lo largo de la línea de referencia, es una buena indicación de normalidad."
+                ),
+                tags$p(
+                    "Además, existen pruebas formales como la ", tags$b("prueba de Shapiro-Wilk"), " (para muestras más pequeñas, típicamente n < 5000) o la prueba de Kolmogorov-Smirnov (más general). En la prueba de Shapiro-Wilk:",
+                    tags$ul(
+                        tags$li("Hipótesis Nula (\\(H_0\\)): Los datos provienen de una distribución normal."),
+                        tags$li("Hipótesis Alternativa (\\(H_1\\)): Los datos no provienen de una distribución normal."),
+                        tags$li("Si el p-valor es > 0.05 (usando un nivel de significancia \\(\\alpha = 0.05\\)), no rechazamos \\(H_0\\) y podemos asumir normalidad.")
                     )
                 ),
-                plotOutput(ns("histogramaNormal"), height = "400px"),
+                tags$pre(class = "r-code",
+                htmltools::HTML(
+                    "# Ejemplo de QQ-plot y Shapiro-Wilk test\n",
+                    "set.seed(789)\n",
+                    "datos_rendimiento_reales <- rnorm(100, mean = 70, sd = 10)\n",
+                    "\n",
+                    "# QQ-plot\n",
+                    "par(mfrow=c(1,2)) # Para mostrar dos gráficos juntos\n",
+                    "hist(datos_rendimiento_reales, main='Histograma de Rendimientos')\n",
+                    "qqnorm(datos_rendimiento_reales, main = 'QQ-plot de Rendimientos')\n",
+                    "qqline(datos_rendimiento_reales, col = 'red', lwd = 2)\n",
+                    "par(mfrow=c(1,1)) # Resetear layout gráfico\n",
+                    "\n",
+                    "# Prueba de Shapiro-Wilk\n",
+                    "shapiro.test(datos_rendimiento_reales)\n",
+                    "# Interpretar el p-valor"
+                    )
+                ),
+                tags$hr(),
                 tags$table(class = "table-bordered",
                     tags$thead(
                     tags$tr(
@@ -650,8 +679,11 @@ session3UI <- function(id) {
                 tags$p(
                     "La elección de la distribución adecuada es crucial para un análisis estadístico efectivo. La comprensión de sus supuestos y limitaciones permite una mejor interpretación de los resultados."
                 ),
-                tags$h4(class = "section-header", "2.5 Gráfico comparativo"),
-                plotOutput(ns("distComparison"), height = "400px")
+                tags$h4(class = "section-header", "2.5 Visualización Comparativa de Formas de Distribución"),
+                tags$p(
+                  "A continuación, se muestran las formas típicas de las distribuciones Binomial, Poisson y Normal. Para facilitar la comparación visual de sus formas en un mismo rango, los datos simulados para Binomial y Poisson (que son discretos) se presentan como densidades estimadas. Note que los parámetros elegidos son solo para ilustración."
+                ),
+                plotOutput(ns("distComparisonEnhanced"), height = "450px")
             ),
             # ——————————————
             # PESTAÑA 3: Graficar distribuciones
@@ -833,27 +865,28 @@ session3UI <- function(id) {
                 tags$div(
                     class = "row",
                     tags$div(class = "col-md-8",
-                    tags$p(
-                        "Para evaluar la calidad del ajuste de cada distribución, se utilizan pruebas estadísticas como la de Kolmogorov-Smirnov y gráficos Q-Q."
-                    ),
-                    tags$pre(class = "r-code",
-                        htmltools::HTML(
-                        "# Pruebas de Kolmogorov-Smirnov\n",
-                        "ks.test(datos_espera, 'pnorm', mean = ajuste_normal$estimate['mean'], sd = ajuste_normal$estimate['sd'])\n",
-                        "ks.test(datos_espera, 'pexp', rate = ajuste_exponencial$estimate['rate'])\n",
-                        "ks.test(datos_espera, 'pgamma', shape = ajuste_gamma$estimate['shape'], rate = ajuste_gamma$estimate['rate'])"
-                        )
-                    ),
-                    tags$p(
-                        "Los valores p obtenidos en las pruebas de Kolmogorov-Smirnov indican la plausibilidad de que los datos provengan de cada distribución teórica."
-                    )
+                        tags$p(
+                            "Para evaluar la calidad del ajuste de cada distribución, se utilizan pruebas estadísticas como la de Kolmogorov-Smirnov y gráficos Q-Q."
+                        ),
+                        tags$pre(class = "r-code",
+                            htmltools::HTML(
+                            "# Pruebas de Kolmogorov-Smirnov\n",
+                            "ks.test(datos_espera, 'pnorm', mean = ajuste_normal$estimate['mean'], sd = ajuste_normal$estimate['sd'])\n",
+                            "ks.test(datos_espera, 'pexp', rate = ajuste_exponencial$estimate['rate'])\n",
+                            "ks.test(datos_espera, 'pgamma', shape = ajuste_gamma$estimate['shape'], rate = ajuste_gamma$estimate['rate'])"
+                            )
+                        ),
+                        tags$p(
+                            "Los valores p obtenidos en las pruebas de Kolmogorov-Smirnov (para datos continuos) indican la plausibilidad de que los datos provengan de cada distribución teórica. Para datos discretos o datos continuos agrupados en categorías, la ",
+                            tags$b("prueba Chi-cuadrado (\\(\\chi^2\\)) de bondad de ajuste"),
+                            " es otra herramienta útil. Compara las frecuencias observadas en cada categoría con las frecuencias esperadas bajo la distribución teórica."
+                        ),
                     ),
                     tags$div(class = "note-cloud",
                     tags$strong("Nota didáctica:"),
                     "Un valor p alto en la prueba de Kolmogorov-Smirnov sugiere que no hay evidencia suficiente para rechazar la hipótesis de que los datos siguen la distribución teórica considerada."
                     )
                 ),
-
                 tags$h6(
                     
                     tags$b("4.1.3 Selección de distribución y visualización"),
@@ -949,29 +982,85 @@ session3Server <- function(input, output, session) {
 
     # Histograma Normal
     output$histogramaNormal <- renderPlot({
+        set.seed(as.integer(Sys.time())) # Para variabilidad si se re-ejecuta
         num_rendimientos  <- 100
         media_rendimiento <- 70
         sd_rendimiento    <- 10
         rendimientos_sim  <- rnorm(n = num_rendimientos, mean = media_rendimiento, sd = sd_rendimiento)
+
+        # Guardar configuración gráfica original y restaurarla
+        old_par <- par(mfrow = c(1, 2), mar = c(4, 4, 2, 1)) # mar para márgenes
+        on.exit(par(old_par)) # Asegura que se restaure al salir de la función
+
         hist(rendimientos_sim,
-            main = "Rendimientos Simulados (Normal)",
+            main = "Histograma de Rendimientos", # Título más corto
             xlab = "Bushels/acre",
             border = "white",
             col = "steelblue",
-            breaks = 12)
+            breaks = 12,
+            freq = FALSE) # freq=FALSE para densidad, mejor para superponer curva
+        curve(dnorm(x, mean = media_rendimiento, sd = sd_rendimiento), 
+            add = TRUE, col = "darkred", lwd = 2) # Curva teórica
+
+        qqnorm(rendimientos_sim, main = "QQ-plot", pch = 16, cex=0.8)
+        qqline(rendimientos_sim, col = "darkred", lwd = 2)
     })
 
     # Comparativa de distribuciones
-    output$distComparison <- renderPlot({
+    output$distComparisonEnhanced <- renderPlot({
         set.seed(123)
-        b <- rbinom(1000, size = 50, prob = 0.2)/50
-        p <- rpois(1000, lambda = 3)/10
-        n <- rnorm(1000, mean = 70, sd = 10)/100
-        plot(density(b), main = "Comparación de Distribuciones", xlim = c(0,1), ylim = c(0,5))
-        lines(density(p), col = "darkgreen")
-        lines(density(n), col = "blue")
-        legend("topright", legend = c("Binomial","Poisson","Normal"), 
-            col = c("black","darkgreen","blue"), lwd = 2)
+        n_sim <- 1000 # Número de simulaciones para cada una
+
+        # Parámetros para cada distribución (elegidos para ilustración)
+        # Binomial: n ensayos, p probabilidad de éxito
+        binom_n <- 50
+        binom_p <- 0.3
+        datos_b <- rbinom(n_sim, size = binom_n, prob = binom_p)
+
+        # Poisson: lambda (tasa media)
+        poisson_lambda <- 5
+        datos_p <- rpois(n_sim, lambda = poisson_lambda)
+
+        # Normal: mu (media), sigma (desv. estándar)
+        normal_mu <- 10
+        normal_sigma <- 2
+        datos_n <- rnorm(n_sim, mean = normal_mu, sd = normal_sigma)
+
+        # Crear un data.frame largo para ggplot2
+        df_comparacion <- data.frame(
+            valor = c(datos_b, datos_p, datos_n),
+            distribucion = factor(rep(c("Binomial (n=50, p=0.3)",
+                                        "Poisson (λ=5)",
+                                        "Normal (μ=10, σ=2)"), each = n_sim),
+                                levels = c("Binomial (n=50, p=0.3)", "Poisson (λ=5)", "Normal (μ=10, σ=2)")) # Controlar orden
+        )
+
+        # Gráfico con ggplot2 y facet_wrap para escalas separadas (mejor para formas no normalizadas)
+        p_comp <- ggplot(df_comparacion, aes(x = valor, fill = distribucion)) +
+            # Usar geom_histogram con aes(y=..density..) para poder superponer geom_density
+            geom_histogram(aes(y = after_stat(density)),
+                        alpha = 0.6,
+                        position = "identity",
+                        bins = 30) + # Ajustar bins según necesidad
+            geom_density(alpha = 0.4, aes(color = distribucion), linewidth = 0.8, show.legend = FALSE) +
+            facet_wrap(~ distribucion, scales = "free") + # "free_x" o "free_y" o "free"
+            labs(
+                title = "Comparación de Formas de Distribuciones de Probabilidad",
+                x = "Valor de la Variable Aleatoria",
+                y = "Densidad Estimada / Frecuencia Relativa"
+            ) +
+            theme_minimal(base_size = 12) +
+            theme(
+                legend.position = "none", # La leyenda ya está en los títulos de facet
+                strip.text = element_text(size = 10, face = "bold"),
+                axis.title.x = element_text(margin = margin(t = 10)),
+                axis.title.y = element_text(margin = margin(r = 10)),
+                plot.title = element_text(hjust = 0.5, size = 14, face = "bold")
+            ) +
+            scale_fill_brewer(palette = "Set2") + # Paleta de colores amigable
+            scale_color_brewer(palette = "Set2")
+
+        print(p_comp)
     })
 
     #----- Pestana 3: Graficar distribuciones -----
