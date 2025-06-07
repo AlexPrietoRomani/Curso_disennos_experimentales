@@ -1,6 +1,7 @@
 # R/global.R
 library(shiny)
 library(tidyverse)
+library(agricolae)
 library(readxl)
 library(janitor)
 library(moments)
