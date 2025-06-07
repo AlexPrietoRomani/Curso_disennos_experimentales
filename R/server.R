@@ -12,6 +12,8 @@ server <- function(input, output, session) {
       "Sesión 2" = session2UI("s2"),
       "Sesión 3" = session3UI("s3"),
       "Sesión 4" = session4UI("s4"),
+      "Sesión 5" = session5UI("s5"),
+      #"Sesión 6" = session6UI("s6"),
     )
   })
   
@@ -19,4 +21,6 @@ server <- function(input, output, session) {
   callModule(session2Server, "s2")
   callModule(session3Server, "s3")
   callModule(session4Server, "s4")
+  callModule(session5Server, "s5")
+  #callModule(session6Server, "s6")
 }
