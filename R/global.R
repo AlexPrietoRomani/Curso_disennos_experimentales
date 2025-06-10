@@ -15,6 +15,8 @@ library(dplyr)
 library(MASS)
 library(effectsize)
 library(broom)
+library(emmeans)
+library(DT)
 
 # Cargar módulos
 mod_files <- list.files("R/modules", full.names = TRUE, pattern = "\\.R$")
