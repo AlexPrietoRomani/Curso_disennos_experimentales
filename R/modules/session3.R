@@ -510,7 +510,7 @@ session3UI <- function(id) {
                 tags$h6(tags$b("Ajuste Visual (Conceptual):")),
                 tags$p("Para datos de conteo que sospechamos siguen una distribución de Poisson (ej. número de lesiones por hoja), podemos comparar el histograma de los datos con la PMF teórica de Poisson, usando una \\(\\lambda\\) estimada de los datos (la media muestral es un buen estimador)."),
                 tags$pre(class = "r-code",
-                htmltools::HTML(
+                    htmltools::HTML(
                     "# Ejemplo conceptual: Superponer PMF Poisson Teórica\n",
                     "set.seed(456)\n",
                     "datos_observados_lesiones <- rpois(200, lambda = 3)\n",
