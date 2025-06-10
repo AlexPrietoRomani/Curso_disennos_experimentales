@@ -1,6 +1,6 @@
 # R/modules/session7.R
 
-# UI para la Sesión 6
+# UI para la Sesión 7
 session7UI <- function(id) {
     ns <- NS(id)
     tagList(
@@ -404,7 +404,7 @@ session7UI <- function(id) {
     )
 }
 
-# Server para la Sesión 6
+# Server para la Sesión 7
 session7Server <- function(input, output, session) {
         
     # --- LÓGICA PARA LA PESTAÑA 1: CONSTRUCTOR DE DISEÑO SPLIT-PLOT ---
