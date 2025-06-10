@@ -395,7 +395,7 @@ session6UI <- function(id) {
 }
 
 # Server para la Sesión 6
-session6Server<- function(input, output, session) {
+session6Server <- function(input, output, session) {
     # Definir el namespace para usarlo en el server
     ns <- session$ns 
 
