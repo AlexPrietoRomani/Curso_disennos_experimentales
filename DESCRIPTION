@@ -9,8 +9,8 @@ Encoding: UTF-8
 LazyData: true
 Imports:
     shiny,
-    shinythemes,
     tidyverse,
+    agricolae,
     readxl,
     janitor,
     moments,
@@ -19,4 +19,11 @@ Imports:
     ggplot2,
     patchwork,
     grid,
-    MASS
+    car,
+    dplyr,
+    MASS,
+    effectsize,
+    broom,
+    emmeans,
+    DT,
+    pwr
