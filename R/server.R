@@ -15,7 +15,7 @@ server <- function(input, output, session) {
       "Sesión 5" = session5UI("s5"),
       "Sesión 6" = session6UI("s6"),
       "Sesión 7" = session7UI("s7"),
-      "Sesión 8" = session8UI("s8"),
+      "Sesión 8" = session8UI("s8")
     )
   })
   
