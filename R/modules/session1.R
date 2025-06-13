@@ -1,40 +1,139 @@
 # R/modules/session1.R
-library(ggplot2)
 
 session1UI <- function(id) {
   ns <- NS(id)
   tagList(
-    div(class = "session-title",
-        h3("Sesión 1: Importación y Exploración de Datos en R")
-    ),
+    tags$h3(class = "session-title", "Sesión 1: Preparando el Terreno - Importación y Exploración de Datos en R"),
     
-    # Usar navset_tab con nav_panel de bslib
     navset_tab(
-      # ——————————————
-      # PESTAÑA: TEMARIO
-      # ——————————————
-      nav_panel(title = "Temario",
-        h4(class = "section-header", "Temario"),
-        tags$table(class = "table activity-table",
-          tags$thead(tags$tr(tags$th("Segmento"), tags$th("Tiempo"), tags$th("Actividad"))),
-          tags$tbody(
-            tags$tr(tags$td("1 Introducción a R"),    tags$td("0–20 min"),  tags$td("Operadores (aritméticos, relacionales, lógicos, asignación), precedencia. Introducción al pipe nativo \\(|>\\) y pipe de magrittr \\(%>\\).")),
-            tags$tr(tags$td("2 Vectores"), tags$td("20–40 min"), tags$td("Creación de vectores (numéricos, de caracteres, lógicos) usando \\(c()\\), \\(seq()\\), \\(rep()\\). Indexación y operaciones vectorizadas elementales.")),
-            tags$tr(tags$td("3 Gráficos"), tags$td("40–60 min"), tags$td("Introducción a gráficos básicos con \\(plot()\\) (ej. histograma, dispersión). Primer vistazo a \\(ggplot2\\) para la misma tarea, resaltando la gramática de gráficos.")),
-            tags$tr(tags$td("4 Setup"),    tags$td("60–75 min"), tags$td("Creación de un proyecto en RStudio para organización. Instalación (\\(install.packages()\\)) y carga (\\(library()\\)) de paquetes esenciales: \\(tidyverse\\), \\(readxl\\), \\(janitor\\).")),
-            tags$tr(tags$td("5 Import"),   tags$td("75–95 min"), tags$td("Lectura de archivos CSV (\\(read.csv()\\), \\(read_csv()\\)) y Excel (\\(read_excel()\\)). Inspección inicial con \\(glimpse()\\), \\(str()\\), \\(summary()\\).")),
-            tags$tr(tags$td("6 Limpieza"), tags$td("95–115 min"),tags$td("Uso de \\(janitor::clean_names()\\) para estandarizar nombres de columnas. Coerción básica de tipos de variables (ej. de caracter a numérico o factor).")),
-            tags$tr(tags$td("7 Cierre"),   tags$td("115–120 min"),tags$td("Recapitulación de los conceptos aprendidos, resolución de dudas y avance de la Sesión 2."))
-          )
-        ),
-      ),
-      
-      # ---------------------
-      # PESTAÑA: 1 Sintaxis Básica
-      # ---------------------
+      # ===== PESTAÑA 1: Bienvenida y Contexto (VERSIÓN MEJORADA) =====
       nav_panel(
-        title = "1 Sintaxis Básica",
-        h4(class = "section-header", "1.1 Operadores Fundamentales en R"),
+          title = "1. Bienvenida y Contexto",
+          icon = icon("rocket"),
+          
+          h4(class = "section-header", "1.1 La Evolución de una Herramienta: Una Línea de Tiempo"),
+          p("Para entender el poder de R, es útil conocer su origen. No es solo un programa, sino la culminación de décadas de innovación en computación estadística."),
+
+          # --- Línea de Tiempo HTML/CSS ---
+          tags$div(class = "timeline-container",
+              tags$ul(class = "timeline",
+                  # Hito 1: Nacimiento de S
+                  tags$li(
+                      tags$div(class="timeline-badge primary", icon("lightbulb")),
+                      tags$div(class="timeline-panel",
+                          tags$div(class="timeline-heading",
+                              tags$h5(class="timeline-title", "Década de 1970: Nacimiento del Lenguaje S"),
+                              tags$p(tags$small(class="text-muted", "Laboratorios Bell, EE. UU."))
+                          ),
+                          tags$div(class="timeline-body",
+                              p("John Chambers y su equipo crean S, un lenguaje interactivo diseñado para que los estadísticos pudieran 'jugar' con los datos. La filosofía era clara: crear un entorno ", strong("para el análisis de datos, por analistas de datos."))
+                          )
+                      )
+                  ),
+                  
+                  # Hito 2: Creación de R
+                  tags$li(class="timeline-inverted",
+                      tags$div(class="timeline-badge success", icon("r-project")),
+                      tags$div(class="timeline-panel",
+                          tags$div(class="timeline-heading",
+                              tags$h5(class="timeline-title", "1993: La Creación de R"),
+                              tags$p(tags$small(class="text-muted", "Universidad de Auckland, Nueva Zelanda"))
+                          ),
+                          tags$div(class="timeline-body",
+                              p("Ross Ihaka y Robert Gentleman desarrollan R como una implementación de código abierto del lenguaje S. Al ser gratuito y abierto, se desata una explosión de colaboración global."),
+                              p(strong("El momento clave:"), " La estadística de vanguardia se vuelve accesible para todos, no solo para las grandes corporaciones.")
+                          )
+                      )
+                  ),
+
+                  # Hito 3: Lanzamiento de RStudio IDE
+                  tags$li(
+                      tags$div(class="timeline-badge info", icon("desktop")),
+                      tags$div(class="timeline-panel",
+                          tags$div(class="timeline-heading",
+                              tags$h5(class="timeline-title", "2011: Llega RStudio IDE"),
+                              tags$p(tags$small(class="text-muted", "JJ Allaire y equipo"))
+                          ),
+                          tags$div(class="timeline-body",
+                              p("RStudio (ahora Posit) crea un Entorno de Desarrollo Integrado (IDE) que revoluciona la experiencia de usuario. La combinación de editor de código, consola, visor de gráficos y ayuda en una sola ventana hace que R sea inmensamente más productivo y fácil de aprender.")
+                          )
+                      )
+                  ),
+                  
+                  # Hito 4: El Auge del Tidyverse
+                  tags$li(class="timeline-inverted",
+                      tags$div(class="timeline-badge warning", icon("box-open")),
+                      tags$div(class="timeline-panel",
+                          tags$div(class="timeline-heading",
+                              tags$h5(class="timeline-title", "Década de 2010: El Auge del `tidyverse`"),
+                              tags$p(tags$small(class="text-muted", "Hadley Wickham y equipo"))
+                          ),
+                          tags$div(class="timeline-body",
+                              p("Se desarrolla una colección de paquetes (`dplyr`, `ggplot2`, etc.) que comparten una filosofía de diseño común, haciendo el análisis de datos más intuitivo, legible y eficiente. Este es el ecosistema en el que nos centraremos en este curso.")
+                          )
+                      )
+                  )
+              )
+          ),
+
+          tags$h4(class = "section-header", "1.2 ¿Por qué R es la Herramienta Elegida en la Agronomía Moderna?"),
+          tags$p(
+              "Si bien existen muchos programas estadísticos, R se ha convertido en la herramienta preferida en la investigación agrícola por varias razones clave:"
+          ),
+          tags$ul(
+              tags$li(strong("Especialización y Flexibilidad:"), " La comunidad ha desarrollado miles de paquetes especializados. ¿Necesitas analizar un diseño en bloques aumentados? Existe un paquete para ello (`agricolae`). ¿Modelar la distribución espacial de una plaga? Hay paquetes de geoestadística. R se adapta a tu problema, no al revés."),
+              tags$li(strong("Reproducibilidad:"), " Un análisis en R es un script, un archivo de texto. Esto garantiza la total reproducibilidad de tu trabajo. Puedes compartir tu código con un colega o un revisor de una revista científica, y ellos podrán replicar tu análisis exactamente. Esto es el estándar de oro de la ciencia moderna."),
+              tags$li(strong("Visualización de Calidad para Publicación:"), " Con paquetes como `ggplot2`, puedes crear gráficos complejos y estéticamente pulcros, listos para ser incluidos en tesis, informes y publicaciones de alto impacto."),
+              tags$li(strong("Costo y Acceso:"), " R y RStudio son gratuitos y de código abierto, eliminando barreras económicas para estudiantes, investigadores e instituciones de todo el mundo.")
+          ),
+          
+          tags$hr(),
+
+          tags$h4(class = "section-header", "1.3 La Filosofía del `tidyverse`: Datos Ordenados para un Análisis Fluido"),
+          p(
+              "Dentro del ecosistema de R, el ", strong("`tidyverse`"), " es una colección de paquetes que comparten una filosofía de diseño y una gramática común, haciendo el análisis de datos más intuitivo y eficiente. Su piedra angular es el concepto de ", strong("Datos Ordenados (Tidy Data)"), " (Wickham, 2014)."
+          ),
+          fluidRow(
+              column(5,
+                  tags$img(src="images/tidy-data.png", width="200px", class="border rounded", alt="Diagrama de Tidy Data")
+              ),
+              column(7,
+                  p("Un conjunto de datos es 'tidy' si cumple tres reglas simples:"),
+                  tags$ol(
+                      tags$li(strong("Cada variable forma una columna.")),
+                      tags$li(strong("Cada observación forma una fila.")),
+                      tags$li(strong("Cada tipo de unidad observacional forma una tabla."))
+                  ),
+                  tags$p("Al estructurar nuestros datos de esta manera, podemos usar un pequeño conjunto de verbos consistentes para resolver una gran variedad de problemas de manipulación de datos.")
+              )
+          ),
+          
+          tags$h5("El Ecosistema `tidyverse`:"),
+          tags$p("Estos son algunos de los paquetes centrales que usaremos:"),
+          tags$div(class="row text-center",
+              tags$div(class="col", tags$strong(code("dplyr")), br(), "Manipulación"),
+              tags$div(class="col", tags$strong(code("ggplot2")), br(), "Visualización"),
+              tags$div(class="col", tags$strong(code("readr")), br(), "Importación"),
+              tags$div(class="col", tags$strong(code("tidyr")), br(), "Ordenamiento"),
+              tags$div(class="col", tags$strong(code("purrr")), br(), "Programación Funcional")
+          ),
+          
+          tags$hr(),
+          
+          tags$h4(class="section-header", "1.4 Paquetes Estadísticos Clave para este Curso"),
+          tags$p("Además del `tidyverse`, nos apoyaremos en paquetes especializados en estadística agrícola:"),
+          tags$ul(
+              tags$li(strong(code("agricolae")), ": Desarrollado por agrónomos para agrónomos. Es una navaja suiza para el diseño y análisis de experimentos, incluyendo pruebas post-hoc como Duncan y LSD, y la generación de diseños complejos."),
+              tags$li(strong(code("emmeans")), ": El estándar moderno para calcular y comparar medias marginales estimadas. Es indispensable para interpretar correctamente las interacciones en diseños factoriales y mixtos."),
+              tags$li(strong(code("pwr")), ": Una implementación en R de las herramientas clásicas para el análisis de poder y cálculo del tamaño de la muestra."),
+              tags$li(strong(code("car")), ": Proporciona funciones avanzadas para la regresión y el ANOVA, incluyendo la robusta Prueba de Levene para la homogeneidad de varianzas.")
+          )
+      ),
+
+      # ===== PESTAÑA 2: Fundamentos de R =====
+      nav_panel(
+        title = "2. Fundamentos de R",
+        tags$h4(class = "section-header", "2.1 Operadores Fundamentales"),
         tags$div(class = "content-row",
           tags$div(class = "main-content",
             tags$p(
@@ -176,7 +275,7 @@ session1UI <- function(id) {
           )
         ),
 
-        h4(class = "section-header", "1.2 El Operador Pipe: Escribiendo Código Más Legible y Secuencial"),
+        tags$h4(class = "section-header", "1.2 El Operador Pipe: Escribiendo Código Más Legible y Secuencial"),
         tags$div(class = "content-row",
           tags$div(class = "main-content",
             tags$p(
@@ -280,16 +379,9 @@ session1UI <- function(id) {
               tags$td(tags$code("datos_campo |> calcular_indices() |> graficar_resultados()"))
             )
           )
-        )
-      ),
-
-      # ---------------------
-      # PESTAÑA: 2 Vectores
-      # ---------------------
-      nav_panel(title = "2 Vectores",
-        h4(class = "section-header", "2 Vectores: Creación y Manipulación"),
+        ),
         
-        # Creación básica
+        tags$h4(class = "section-header", "2.2 Vectores: La Estructura de Datos Base"),
         h5("Creación de vectores"),
         p("Usando la función c() para concatenar elementos:"),
         tags$pre(
@@ -312,8 +404,8 @@ session1UI <- function(id) {
         ),
         
         # Secuencias
-        h5("Generación automática"),
-        p("Con operador : y funciones seq():"),
+        tags$h5("Generación automática"),
+        tags$p("Con operador : y funciones seq():"),
         tags$pre(
           class = "r-code",
           htmltools::HTML(
@@ -325,7 +417,7 @@ session1UI <- function(id) {
             "repeticiones <- rep('A', times=5)\n"
           )
         ),
-        p("Salida esperada:"),
+        tags$p("Salida esperada:"),
         tags$pre(
           class = "r-output",
           htmltools::HTML(
@@ -336,8 +428,8 @@ session1UI <- function(id) {
         ),
         
         # Indexación
-        h5("Acceso a elementos"),
-        p("Uso de índices numéricos y lógicos:"),
+        tags$h5("Acceso a elementos"),
+        tags$p("Uso de índices numéricos y lógicos:"),
         tags$pre(
           class = "r-code",
           htmltools::HTML(
@@ -349,7 +441,7 @@ session1UI <- function(id) {
             "v_char[2] <- 'amarillo'\n"
           )
         ),
-        p("Salida esperada:"),
+        tags$p("Salida esperada:"),
         tags$pre(
           class = "r-output",
           htmltools::HTML(
@@ -360,8 +452,8 @@ session1UI <- function(id) {
         ),
         
         # Operaciones vectorizadas
-        h5("Operaciones vectorizadas"),
-        p("Cálculos aplicados a todos los elementos:"),
+        tags$h5("Operaciones vectorizadas"),
+        tags$p("Cálculos aplicados a todos los elementos:"),
         tags$pre(
           class = "r-code",
           htmltools::HTML(
@@ -372,7 +464,7 @@ session1UI <- function(id) {
             "v_num >= 5\n"
           )
         ),
-        p("Salida esperada:"),
+        tags$p("Salida esperada:"),
         tags$pre(
           class = "r-output",
           htmltools::HTML(
@@ -383,666 +475,509 @@ session1UI <- function(id) {
         ),
       ),
 
-      # ---------------------
-      # PESTAÑA: 3 Gráficos
-      # ---------------------
-
-      nav_panel(title = "3 Gráficos",
-        h4(class = "section-header", "3 Gráficos: Visualización Básica"),
-    
-        # Sección de ejercicios interactivos
-        h5(class = "section-header", "Ejercicios Interactivos"),
-        p("Ajusta el tamaño de muestra y observa los gráficos:"),
-        sliderInput(ns("n"), "Tamaño de muestra simulada:", min = 50, max = 500, value = 200),
+      # ===== PESTAÑA 3: Importación y Limpieza =====
+      nav_panel(
+        title = "3. Importación y Limpieza",
         
-        fluidRow(
-          column(6,
-            div(class = "plot-box",
-              h5("Gráfico base R"),
-              plotOutput(ns("histPlot"), height = "200px")
-            )
-          ),
-          column(6,
-            div(class = "plot-box",
-              h5("Gráfico con ggplot2"),
-              plotOutput(ns("ggPlot"), height = "200px")
-            )
-          )
-        ),
-        
-        # Explicación técnica
-        h5("Sistemas de graficación"),
-
-        # Sección plot()
-        tags$div(class = "graph-system",
-          h6("1. Sistema base (plot())"),
-          p("Funciones básicas para gráficos rápidos:"),
+        # Usamos un navset anidado para separar la teoría de la práctica
+        navset_card_pill(
+          header = tags$h4(class="section-header", "Flujo de Trabajo: Del Archivo Crudo al Dataset Tidy"),
           
-          tags$div(class = "code-explanation",
-            tags$pre(
-              class = "r-code",
-              htmltools::HTML(
-                "# Gráfico de dispersión\n",
-                "x <- rnorm(50)\n",
-                "y <- x + rnorm(50)\n",
-                "plot(x, y,\n",
-                "     main='Relación entre X e Y',\n",
-                "     xlab='Variable X',\n",
-                "     ylab='Variable Y',\n",
-                "     pch=19,        # Tipo de punto\n",
-                "     col='#2980B9', # Color\n",
-                "     cex=1.2)       # Tamaño\n"
-              )
+          # --- SUB-PESTAÑA: GUÍA Y FUNCIONES ---
+          nav_panel(
+            title = "Guía y Funciones Clave",
+            
+            # --- Lectura de Datos ---
+            tags$h5("Paso 1: Lectura de Datos (Importación)"),
+            tags$p("El primer paso es traer los datos desde un archivo (CSV, Excel) a R. El `tidyverse` ofrece funciones modernas y eficientes para esto."),
+            tags$div(class="row",
+                column(6, 
+                    tags$h6("Lectura de CSV con `readr`"),
+                    tags$pre(class="r-code", htmltools::HTML("# Tidyverse (readr)\nlibrary(readr)\ndf_tidy <- read_csv('data/datos.csv')"))
+                ),
+                column(6,
+                    tags$h6("Lectura de Excel con `readxl`"),
+                    tags$pre(class="r-code", htmltools::HTML("# library(readxl)\ndf_excel <- read_excel('data/datos.xlsx', sheet = 'Hoja1')"))
+                )
             ),
-            p("Salida esperada:"),
-            plotOutput(ns("GrafDispersion"), height = "400px")
-          ),
-          
-          tags$div(class = "key-args",
-            p("Argumentos clave:", 
-              tags$ul(
-                tags$li("pch: Tipo de símbolo (19 = círculo relleno)"),
-                tags$li("col: Color en formato hexadecimal"),
-                tags$li("cex: Escala de tamaño (1 = default)")
-              )
-            )
-          )
-        ),
-
-        # Sección ggplot2
-        tags$div(class = "graph-system",
-          h6("2. Sistema ggplot2"),
-          p("Gramática de gráficos para visualización avanzada:"),
-          
-          tags$div(class = "code-explanation",
-            tags$pre(
-              class = "r-code",
-              htmltools::HTML(
-                "# Gráfico de dispersión con ggplot2\n",
-                "library(ggplot2)\n",
-                "df <- data.frame(x = rnorm(50), y = rnorm(50))\n\n",
-                "ggplot(df, aes(x=x, y=y)) +\n",
-                "  geom_point(\n",
-                "    aes(color = x + y),  # Mapeo estético\n",
-                "    size = 3,            # Tamaño fijo\n",
-                "    alpha = 0.7          # Transparencia\n",
-                "  ) +\n",
-                "  scale_color_viridis_c() +\n",
-                "  labs(\n",
-                "    title = 'Relación entre X e Y',\n",
-                "    subtitle = 'Ejemplo con ggplot2',\n",
-                "    x = 'Variable X',\n",
-                "    y = 'Variable Y'\n",
-                "  ) +\n",
-                "  theme_bw()\n"
-              )
+            
+            # --- Limpieza de Nombres ---
+            tags$h5("Paso 2: Estandarización de Nombres con `janitor`"),
+            tags$p("Los nombres de columnas de archivos de campo o Excel suelen tener espacios, mayúsculas o caracteres especiales (ej. 'Rendimiento (kg/ha)'). Esto dificulta la programación. La función ", code("janitor::clean_names()"), " soluciona esto automáticamente."),
+            tags$pre(class="r-code", htmltools::HTML(
+                "library(janitor)\n# Antes: data.frame con nombres como 'ID Parcela' y 'Rendimiento (kg/ha)'\ndatos_limpios <- datos_crudos %>% clean_names()\n# Después: nombres como 'id_parcela' y 'rendimiento_kg_ha'"
+            )),
+            
+            # --- Manejo de NAs (NUEVA SECCIÓN) ---
+            tags$h5("Paso 3: Detección y Manejo de Valores Faltantes (NA)"),
+            tags$p("Los datos del mundo real casi siempre están incompletos. Los valores faltantes en R se representan como `NA`. Ignorarlos puede llevar a errores o resultados sesgados. El primer paso es siempre detectar su presencia."),
+            tags$ul(
+                tags$li(strong("Contar NAs por columna:"), code("colSums(is.na(df))"), " Te da un resumen rápido de qué columnas tienen problemas."),
+                tags$li(strong("Filtrar filas completas:"), code("na.omit(df)"), " o ", code("dplyr::drop_na(df)"), ". Es la solución más simple, pero puede ser peligrosa si pierdes muchas observaciones."),
+                tags$li(strong("Imputación Simple:"), " Reemplazar los `NA` con un valor, como la media o la mediana de la columna. Es una técnica básica que debe usarse con precaución, ya que puede reducir artificialmente la varianza de los datos. Ejemplo: ", code("df %>% mutate(columna = ifelse(is.na(columna), mean(columna, na.rm=T), columna))"))
             ),
-          p("Salida esperada:"),
-          plotOutput(ns("GrafDispersionggplot2"), height = "400px")
+            
+            # --- Conversión de Tipos ---
+            tags$h5("Paso 4: Verificación y Coerción de Tipos de Datos"),
+            tags$p("A menudo, R puede interpretar incorrectamente una columna (ej. leer una variable numérica como texto si contiene un carácter erróneo). Es crucial verificar y corregir los tipos de datos."),
+            tags$p("Las funciones clave son las de la familia `as.*`, como ", code("as.numeric()"), ", ", code("as.factor()"), " y ", code("as.Date()"), ", usualmente dentro de un `dplyr::mutate()`."),
+            tags$pre(class="r-code", htmltools::HTML(
+                "datos_finales <- datos_limpios %>%\n  mutate(\n    tratamiento = as.factor(tratamiento),\n    rendimiento = as.numeric(rendimiento)\n  )"
+            )),
+            
+            # --- Inspección Final ---
+            tags$h5("Paso 5: Inspección Final"),
+            tags$p("Después de la limpieza, siempre debemos volver a inspeccionar los datos para asegurarnos de que la estructura es la correcta."),
+            tags$table(class="table",
+                tags$thead(tags$tr(tags$th("Función"), tags$th("Propósito"))),
+                tags$tbody(
+                  tags$tr(tags$td(code("glimpse(df)")), tags$td("Vista compacta y rápida de cada columna, su tipo y algunos valores de ejemplo.")),
+                  tags$tr(tags$td(code("summary(df)")), tags$td("Resumen estadístico para cada columna (mín, máx, media, etc. para numéricas; frecuencias para factores).")),
+                  tags$tr(tags$td(code("head(df)")), tags$td("Muestra las primeras 6 filas del dataset."))
+                )
+              )
           ),
-          
-          tags$div(class = "key-args",
-            p("Componentes esenciales:", 
-              tags$ul(
-                tags$li("aes(): Mapeo de variables a propiedades visuales"),
-                tags$li("geom_*(): Capas geométricas (puntos, líneas, etc)"),
-                tags$li("scale_*(): Escalas de color/posición"),
-                tags$li("theme(): Personalización visual")
-              )
-            )
-          )
-        ),
-
-        # Comparativa técnica
-        tags$div(class = "comparison-table",
-          h6("Comparativa clave"),
-          tags$table(class = "table",
-            tags$thead(
-              tags$tr(
-                tags$th("Característica"),
-                tags$th("plot()"),
-                tags$th("ggplot2")
-              )
-            ),
-            tags$tbody(
-              tags$tr(
-                tags$td("Curva de aprendizaje"),
-                tags$td("Baja"),
-                tags$td("Moderada")
+            
+          # --- SUB-PESTAÑA: PRÁCTICA INTERACTIVA ---
+          nav_panel(
+            title = "Práctica Interactiva",
+            # Aquí va el sidebarLayout que ya habíamos diseñado
+            sidebarLayout(
+              sidebarPanel(
+                width = 4,
+                tags$h5("Paso 1: Carga de Datos"),
+                fileInput(ns("file_upload"), "Sube tu archivo CSV",
+                          accept = c("text/csv", ".csv")),
+                checkboxInput(ns("use_demo_data"), "O usar datos de demostración (rendimiento de maíz)", TRUE),
+                tags$hr(),
+                tags$h5("Paso 2: Opciones de Limpieza"),
+                checkboxInput(ns("clean_names"), "Estandarizar nombres (janitor::clean_names())", TRUE),
+                selectInput(ns("na_action"), "Manejo de Valores Faltantes (NA):",
+                            choices = c("No hacer nada" = "none",
+                                        "Eliminar filas con NAs" = "omit",
+                                        "Imputar con la media (solo numérico)" = "impute_mean")),
+                actionButton(ns("process_data"), "Procesar Datos", icon=icon("sync"), class="btn-primary w-100")
               ),
-              tags$tr(
-                tags$td("Personalización"),
-                tags$td("Básica"),
-                tags$td("Avanzada")
-              ),
-              tags$tr(
-                tags$td("Reproducibilidad"),
-                tags$td("Manual"),
-                tags$td("Automática")
-              )
-            )
-          )
-        )
-      ),
-      
-      # ---------------------
-      # PESTAÑA: 4 Setup
-      # ---------------------
-
-      nav_panel(title = "4 Setup",
-        h4(class = "section-header", "4 Setup: Configuración de Proyecto"),
-        
-        # Creación de proyecto
-        h5("1. Creación de proyecto RStudio"),
-        p("Estructura recomendada para proyectos reproducibles:"),
-        tags$pre(
-          class = "r-code",
-          htmltools::HTML(
-            "# En RStudio:\n",
-            "# File → New Project → New Directory → Empty Project\n",
-            "# Nombre: mi_proyecto\n"
-          )
-        ),
-        p("Características clave:",
-          tags$ul(
-            tags$li("Directorio de trabajo definido"),
-            tags$li("R versionado con .Rproj"),
-            tags$li("Mejora la organización de scripts y datos")
-          )
-        ),
-          
-        # Instalación de paquetes
-        h5("2. Instalación de paquetes esenciales"),
-        tags$div(class = "package-install",
-          tags$pre(
-            class = "r-code",
-            htmltools::HTML(
-              "# Instalar tidyverse (colección de paquetes)\n",
-              "install.packages('tidyverse')\n\n",
-              "# Instalar readxl para Excel\n",
-              "install.packages('readxl')\n"
-            )
-          ),
-          p("Documentación oficial:",
-            tags$ul(
-              tags$li(tags$a("Tidyverse", href="https://www.tidyverse.org/", target="_blank")),
-              tags$li(tags$a("Readxl", href="https://readxl.tidyverse.org/", target="_blank"))
-            )
-          )
-        ),
-          
-        # Carga de librerías
-        h5("3. Carga de librerías"),
-        tags$div(class = "code-explanation",
-          tags$pre(
-            class = "r-code",
-            htmltools::HTML(
-              "# Cargar tidyverse (incluye dplyr, ggplot2, etc)\n",
-              "library(tidyverse)\n\n",
-              "# Cargar readxl para lectura de Excel\n",
-              "library(readxl)\n"
-            )
-          ),
-          p("Funcionalidades clave:",
-            tags$ul(
-              tags$li("tidyverse: Manipulación y visualización de datos"),
-              tags$li("readxl: Lectura de archivos .xls/.xlsx")
-            )
-          )
-        ),
-        
-        # Ejemplo práctico
-        h5("4. Ejemplo de uso"),
-        tags$div(class = "code-example",
-          tags$pre(
-            class = "r-code",
-            htmltools::HTML(
-              "# Leer datos con readxl\n",
-              "datos_excel <- read_excel('data/datos.xlsx')\n\n",
-              "# Ver estructura con tidyverse\n",
-              "glimpse(datos_excel)\n"
-            )
-          ),
-          p("Salida esperada:"),
-          tags$pre(
-            class = "r-output",
-            htmltools::HTML(
-              "Rows: 100\n",
-              "Columns: 5\n",
-              "$ ID       <dbl> 1, 2, 3, ...\n",
-              "$ Nombre   <chr> 'Ana', 'Luis', ...\n",
-              "$ Fecha    <date> 2023-01-01, ...\n"
-            )
-          )
-        )
-      ),
-
-      # ---------------------
-      # PESTAÑA: 5 Import
-      # ---------------------
-
-      nav_panel(title = "5 Import",
-        h4(class = "section-header", "5 Import: Lectura de Datos"),
-        
-        # CSV
-        h5("1. Lectura de CSV"),
-        p("Métodos para importar archivos separados por comas:"),
-        tags$div(class = "code-comparison",
-          tags$pre(
-            class = "r-code",
-            htmltools::HTML(
-              "# Base R\n",
-              "df_base <- read.csv('data/datos.csv', \n",
-              "                   header=TRUE, \n",
-              "                   sep=',', \n",
-              "                   stringsAsFactors=FALSE)\n\n",
-              "# Tidyverse (readr)\n",
-              "library(readr)\n",
-              "df_tidy <- read_csv('data/datos.csv')\n"
-            )
-          ),
-          p("Diferencias clave:",
-            tags$ul(
-              tags$li("read.csv() retorna data.frame"),
-              tags$li("read_csv() retorna tibble y muestra progreso")
-            )
-          )
-        ),
-          
-        # Excel
-        h5("2. Lectura de Excel"),
-        p("Uso de readxl para archivos .xls/.xlsx:"),
-        tags$pre(
-          class = "r-code",
-          htmltools::HTML(
-            "library(readxl)\n",
-            "df_excel <- read_excel('data/datos.xlsx', \n",
-            "                      sheet = 'Hoja1', \n",
-            "                      col_types = NULL)\n"
-          )
-        ),
-        p("Características:",
-          tags$ul(
-            tags$li("Detecta automáticamente tipos de datos"),
-            tags$li("Soporta formato .xls y .xlsx")
-          )
-        ),
-        
-        # Exploración
-        h5("3. Exploración inicial"),
-        tags$div(class = "exploration-tools",
-          tags$pre(
-            class = "r-code",
-            htmltools::HTML(
-              "# Estructura base R\n",
-              "str(df_base)\n\n",
-              "# Resumen estadístico\n",
-              "summary(df_excel)\n\n",
-              "# Vista rápida (tidyverse)\n",
-              "library(dplyr)\n",
-              "glimpse(df_tidy)\n"
-            )
-          ),
-          p("Salida esperada:",
-            tags$ul(
-              tags$li("str() muestra estructura y tipos de datos"),
-              tags$li("summary() proporciona estadísticos descriptivos"),
-              tags$li("glimpse() ofrece vista compacta con tipos de datos")
-            )
-          ),
-          tags$pre(
-            class = "r-output",
-            htmltools::HTML(
-              "# Ejemplo glimpse() [[5]]:\n",
-              "Rows: 100\n",
-              "Columns: 5\n",
-              "$ ID       <dbl> 1, 2, 3, ...\n",
-              "$ Nombre   <chr> 'Ana', 'Luis', ...\n",
-              "$ Fecha    <date> 2023-01-01, ...\n"
-            )
-          )
-        ),
-  
-        # Comparativa
-        tags$div(class = "comparison-table",
-          h6("Funciones de exploración"),
-          tags$table(class = "table",
-            tags$thead(
-              tags$tr(
-                tags$th("Función"),
-                tags$th("Propósito"),
-                tags$th("Paquete")
-              )
-            ),
-            tags$tbody(
-              tags$tr(
-                tags$td("str()"),
-                tags$td("Estructura básica del dataset"),
-                tags$td("base R")
-              ),
-              tags$tr(
-                tags$td("summary()"),
-                tags$td("Estadísticos descriptivos"),
-                tags$td("base R")
-              ),
-              tags$tr(
-                tags$td("glimpse()"),
-                tags$td("Vista compacta con tipos de datos"),
-                tags$td("dplyr")
+              mainPanel(
+                width = 8,
+                tags$h5("Paso 3: Inspección del Dataset"),
+                tags$p("Una vez procesado, examinamos la estructura del data.frame resultante."),
+                tags$h6("Vista Rápida (`glimpse`):"),
+                verbatimTextOutput(ns("glimpse_output")),
+                tags$h6("Resumen Estadístico (`summary`):"),
+                verbatimTextOutput(ns("summary_output")),
+                tags$h6("Conteo de Valores Faltantes (NAs) ANTES del manejo:"),
+                verbatimTextOutput(ns("na_count_output")),
+                tags$h6("Primeras Filas del Dataset Limpio:"),
+                DT::dataTableOutput(ns("cleaned_data_table"))
               )
             )
           )
         )
       ),
 
-      # ---------------------
-      # PESTAÑA: 6 Limpieza
-      # ---------------------
-
-      nav_panel(title = "6 Limpieza",
-        h4(class = "section-header", "6 Limpieza: Preprocesamiento de Datos"),
+      # ===== PESTAÑA 4: Exploración Visual =====
+      nav_panel(
+        title = "4. Exploración Visual",
         
-        # Sección clean_names()
-        h5("1. Estandarización de nombres con janitor"),
-        p("La función ", tags$code("clean_names()"), " realiza múltiples transformaciones automáticas:", 
-          tags$ul(
-            tags$li("Convierte a minúsculas"),
-            tags$li("Reemplaza espacios por guiones bajos"),
-            tags$li("Elimina caracteres especiales"),
-            tags$li("Garantiza nombres únicos")
-          )
-        ),
-        
-        tags$div(class = "code-example",
-          tags$pre(
-            class = "r-code",
-            htmltools::HTML(
-              "# Antes\n",
-              "nombres_originales <- c('Código País', 'Tasa$Crecim.', 'Fecha-Actual')\n\n",
-              "# Aplicación\n",
-              "library(janitor)\n",
-              "nombres_limpios <- clean_names(nombres_originales)\n",
-              "nombres_limpios\n"
+        navset_card_pill(
+          header = tags$h4(class="section-header", "Visualizando para Entender: Base R vs. `ggplot2`"),
+          
+          # --- SUB-PESTAÑA: GUÍA Y COMPARACIÓN ---
+          nav_panel(
+            title = "Guía y Comparación de Sistemas",
+            
+            tags$h5("Dos Filosofías para Graficar en R"),
+            tags$p("R ofrece dos sistemas principales para crear gráficos. Entender sus diferencias es clave para elegir la herramienta adecuada para cada tarea."),
+            
+            fluidRow(
+              column(6,
+                  div(class="card h-100",
+                    div(class="card-header", strong("Sistema de Gráficos Base (`plot`, `hist`, etc.)")),
+                    div(class="card-body",
+                      tags$h6("Filosofía: 'El Lienzo en Blanco'"),
+                      tags$p("Las funciones base como `plot()` actúan como un pintor que dibuja directamente sobre un lienzo. Primero creas el gráfico principal, y luego añades elementos (puntos, líneas, leyendas) como capas sucesivas. Es rápido para gráficos simples y exploratorios."),
+                      tags$p(strong("Ventajas:"), " Rápido, intuitivo para gráficos sencillos, no requiere paquetes adicionales."),
+                      tags$p(strong("Desventajas:"), " La personalización avanzada es engorrosa, es difícil crear leyendas complejas y no se integra naturalmente con el `tidyverse`.")
+                    )
+                  )
+                ),
+                column(6,
+                  tags$div(class="card h-100",
+                    tags$div(class="card-header", strong("Sistema `ggplot2` (Parte del `tidyverse`)")),
+                    tags$div(class="card-body",
+                      tags$h6("Filosofía: 'La Gramática de Gráficos'"),
+                      tags$p("`ggplot2` trata los gráficos como una composición de capas. Tú no dibujas, sino que describes los componentes del gráfico: los datos, el mapeo estético (`aes`) de variables a elementos visuales, y las capas geométricas (`geom`). Es un enfoque más estructurado y potente (Wickham, 2016)."),
+                      tags$p(strong("Ventajas:"), " Extremadamente potente y flexible, personalización casi ilimitada, manejo automático de leyendas, integración perfecta con el `tidyverse`."),
+                      tags$p(strong("Desventajas:"), " Curva de aprendizaje inicial más pronunciada, puede ser más verboso para gráficos muy simples.")
+                    )
+                  )
+                )
+            ),
+              
+              tags$hr(),
+              tags$h5("Comparación Lado a Lado"),
+              tags$p("Veamos cómo crear un gráfico de dispersión simple con ambos sistemas."),
+              
+              fluidRow(
+                  column(6,
+                    tags$h6("Base R: `plot()`"),
+                    tags$pre(
+                      class="r-code", 
+                      htmltools::HTML(
+                        "plot(x = iris$Petal.Length, y = iris$Petal.Width, \n",
+                        "     main = 'Largo vs. Ancho del Pétalo',\n",
+                        "     xlab = 'Largo del Pétalo (cm)',\n",
+                        "     ylab = 'Ancho del Pétalo (cm)',\n",
+                        "     col = iris$Species, # Color por especie\n",
+                        "     pch = 19) # Símbolo de punto sólido\n",
+                        "legend('topleft', legend = levels(iris$Species), \n",
+                        "       col = 1:3, pch = 19)"
+                      )
+                    )
+                  ),
+                  column(6,
+                      tags$h6("`ggplot2`"),
+                      tags$pre(
+                        class="r-code", 
+                        htmltools::HTML(
+                          "ggplot(iris, aes(x = Petal.Length, y = Petal.Width)) +\n",
+                          "  geom_point(aes(color = Species), size = 3, alpha = 0.7) +\n",
+                          "  labs(title = 'Largo vs. Ancho del Pétalo',\n",
+                          "       x = 'Largo del Pétalo (cm)',\n",
+                          "       y = 'Ancho del Pétalo (cm)',\n",
+                          "       color = 'Especie') +\n",
+                          "  theme_minimal()"
+                        )
+                      )
+                    )
+              )
+            ),
+            
+            # --- SUB-PESTAÑA: PRÁCTICA INTERACTIVA ---
+          nav_panel(
+            title = "Práctica Interactiva",
+            p("Usa los controles para explorar el dataset que procesaste en la Pestaña 3. Elige el tipo de gráfico, las variables y el sistema de graficación para generar visualizaciones y ver el código correspondiente."),
+            sidebarLayout(
+                sidebarPanel(
+                    width = 3,
+                    tags$h5("Controles de Visualización"),
+                    
+                    # 1. Selector del tipo de gráfico
+                    selectInput(ns("plot_type"), "Tipo de Gráfico:",
+                                choices = c("Histograma", "Gráfico de Densidad", "Boxplot", "Gráfico de Dispersión")),
+                    
+                    # 2. Selector del sistema de graficación
+                    radioButtons(ns("plot_system"), "Sistema de Graficación:",
+                                 choices = c("ggplot2 (Interactivo)" = "ggplot2", 
+                                             "Base R" = "base_r"), 
+                                 selected = "ggplot2"),
+                    
+                    # 3. UI dinámico para las variables, que dependerá del tipo de gráfico
+                    uiOutput(ns("plot_controls_ui"))
+                ),
+                mainPanel(
+                    width = 9,
+                    # Salida del gráfico (usaremos plotlyOutput para ggplot)
+                    uiOutput(ns("plot_output_ui")),
+                    
+                    # Salida para el código R correspondiente
+                    h5(class="mt-4", "Código R Utilizado:"),
+                    verbatimTextOutput(ns("plot_code_output"))
+                )
             )
-          ),
-          p("Salida esperada:"),
-          tags$pre(
-            class = "r-output",
-            htmltools::HTML(
-              "[1] 'codigo_pais'   'tasa_crecim'   'fecha_actual'\n"
-            )
-          ),
-          p("Ventajas:",
-            tags$ul(
-              tags$li("Facilita la manipulación de datos"),
-              tags$li("Reduce errores en nombres de columnas")
-            )
-          ),
-          p("Desventajas:",
-            tags$ul(
-              tags$li("Puede perder información semántica"),
-              tags$li("No es reversible")
-            )
-          ),
-          p("Uso típico:",
-            tags$ul(
-              tags$li("Limpieza de nombres de columnas en dataframes"),
-              tags$li("Facilita la manipulación posterior")
-            )
-          )
-        ),
-        
-        # Coerción de tipos
-        h5("2. Conversión de tipos de datos"),
-        tags$div(
-          class = "type-conversion",
-          h6("Base R"),
-          tags$pre(
-            class = "r-code",
-            htmltools::HTML(
-              "# Numérico a factor\n",
-              "as.factor(df$columna)\n\n",
-              "# Carácter a fecha\n",
-              "as.Date('2023-01-01', format='%Y-%m-%d')\n\n",
-              "# Factor a numérico\n",
-              "as.numeric(as.character(df$columna))\n"
-            )
-          ),
-          h6("Tidyverse/dplyr"),
-          tags$pre(
-            class = "r-code",
-            htmltools::HTML(
-              "library(dplyr)\n\n",
-              "df %>%\n",
-              "  mutate(\n",
-              "    columna = as.factor(columna),\n",
-              "    fecha = as.Date(fecha, format='%Y-%m-%d')\n",
-              "  )\n"
-            )
-          ),          
-          p("Salida esperada:",
-            tags$ul(
-              tags$li("df$columna ahora es un factor"),
-              tags$li("df$fecha ahora es un objeto Date")
-            )
-          )
-        ),
-        
-        # Flujo completo
-        h5("3. Flujo de limpieza integrado"),
-        tags$div(class = "full-workflow",
-          tags$pre(
-            class = "r-code",
-            htmltools::HTML(
-              "library(tidyverse)\n",
-              "library(janitor)\n\n",
-              "df_limpio <- read_csv('data/datos.csv') %>%\n",
-              "  clean_names() %>%\n",
-              "  mutate(\n",
-              "    fecha = as.Date(fecha, format='%d/%m/%Y'),\n",
-              "    categoria = as.factor(categoria),\n",
-              "    ingresos = as.numeric(ingresos)\n",
-              "  ) %>%\n",
-              "  select(-starts_with('temp_'))  # Elimina columnas temporales\n"
-            )
-          ),
-          p("Salida esperada:",
-            tags$ul(
-              tags$li("df_limpio tiene nombres estandarizados"),
-              tags$li("fecha es un objeto Date"),
-              tags$li("categoría es un factor"),
-              tags$li("ingresos son numéricos")
-            )
-          ),
-          tags$pre(
-            class = "r-output",
-            htmltools::HTML(
-              "# A tibble: 100 × 5\n",
-              "   codigo_cliente fecha       categoria ingresos\n",
-              "   <chr>          <date>      <fct>        <dbl>\n",
-              " 1 C001           2023-01-01  A             2500\n",
-              " 2 C002           2023-01-02  B             3200\n"
-            )
-          )
-        ),
-        
-        # Buenas prácticas
-        h5("4. Recomendaciones"),
-        tags$div(class = "best-practices",
-          tags$ul(
-            tags$li("Siempre verifica clases con ", tags$code("str()"), " antes de limpiar"),
-            tags$li("Usa ", tags$code("across()"), " para aplicar transformaciones a múltiples columnas"),
-            tags$li("Combina con ", tags$code("janitor::tabyl()"), " para análisis de frecuencias")
-          )
-        ),
-        
-        # Documentación oficial
-        h5("5. Referencias técnicas"),
-        tags$div(class = "documentation-links",
-          tags$ul(
-            tags$li(tags$a("Janitor documentation", href="https://cran.r-project.org/web/packages/janitor/vignettes/janitor.html", target="_blank")),
-            tags$li(tags$a("dplyr cheatsheet", href="https://www.rstudio.com/wp-content/uploads/2015/02/data-wrangling-cheatsheet.pdf", target="_blank")),
-            tags$li(tags$a("Data transformation in R", href="https://dplyr.tidyverse.org/reference/index.html", target="_blank"))
           )
         )
       ),
 
-      # ---------------------
-      # PESTAÑA: 7 Cierre
-      # ---------------------
-
-      nav_panel(title = "7 Cierre",
-      h4(class = "section-header", "7 Cierre: Recapitulación Final"),
-      
-      # Resumen técnico
-      h5("Recorrido completo del flujo de trabajo"),
-      tags$div(class = "recap-table",
-        tags$table(class = "table",
-          tags$thead(
-            tags$tr(
-              tags$th("Segmento"),
-              tags$th("Herramientas clave"),
-              tags$th("Conceptos fundamentales")
-            )
+      # ===== PESTAÑA FINAL: Recursos y Próximos Pasos =====
+      nav_panel(
+          title = "Recursos y Próximos Pasos",
+          icon = icon("graduation-cap"),
+          
+          tags$h4(class = "section-header", "Ampliando tus Horizontes en R y la Estadística Agronómica"),
+          tags$p(
+              "¡Felicitaciones por completar el contenido del curso! El viaje del análisis de datos es continuo. Esta sección está diseñada para ser tu guía de referencia, con recursos cuidadosamente seleccionados para que puedas profundizar en los temas que más te interesen y seguir desarrollando tus habilidades."
           ),
-          tags$tbody(
-            tags$tr(
-              tags$td("1. Intro"),
-              tags$td("Operadores, |>"),
-              tags$td("Sintaxis básica y vectores [[7]]")
-            ),
-            tags$tr(
-              tags$td("2. Vectores"),
-              tags$td("c(), seq(), rep()"),
-              tags$td("Indexación y operaciones vectorizadas")
-            ),
-            tags$tr(
-              tags$td("3. Gráficos"),
-              tags$td("plot(), ggplot2"),
-              tags$td("Visualización base vs gramática de gráficos [[4]]")
-            ),
-            tags$tr(
-              tags$td("4. Setup"),
-              tags$td("RStudio, install.packages()"),
-              tags$td("Gestión de proyectos y librerías")
-            ),
-            tags$tr(
-              tags$td("5. Import"),
-              tags$td("read.csv(), read_excel()"),
-              tags$td("Lectura de datos y exploración inicial")
-            ),
-            tags$tr(
-              tags$td("6. Limpieza"),
-              tags$td("janitor, dplyr"),
-              tags$td("Transformación de datos y coerción de tipos")
-            )
+          
+          tags$hr(),
+          
+          fluidRow(
+              # --- Columna 1: Fundamentos de R y Tidyverse ---
+              column(4,
+                  tags$div(class="card h-100",
+                      tags$div(class="card-header bg-primary text-white", strong("Fundamentos de R y `tidyverse`")),
+                      tags$div(class="card-body",
+                          tags$h6("Libros Esenciales (Online y Gratuitos)"),
+                          tags$ul(
+                              tags$li(tags$a("R for Data Science (2nd Edition)", href="https://r4ds.hadley.nz/", target="_blank"), " - La 'biblia' del tidyverse, escrita por sus creadores. Indispensable."),
+                              tags$li(tags$a("Advanced R", href="https://adv-r.hadley.nz/", target="_blank"), " - Para cuando quieras entender cómo funciona R 'por dentro'."),
+                              tags$li(tags$a("R Cookbook, 2nd Edition", href="https://rc2e.com/", target="_blank"), " - Un recetario lleno de soluciones prácticas a problemas comunes.")
+                          ),
+                          tags$h6("Hojas de Trucos (Cheatsheets) de Posit"),
+                          tags$ul(
+                              tags$li(tags$a("Data Wrangling with dplyr", href="https://posit.co/resources/cheatsheets/data-wrangling-cheatsheet/", target="_blank")),
+                              tags$li(tags$a("Data Visualization with ggplot2", href="https://posit.co/resources/cheatsheets/data-visualization-2-1/", target="_blank")),
+                              tags$li(tags$a("RStudio IDE", href="https://posit.co/resources/cheatsheets/rstudio-ide/", target="_blank"))
+                          )
+                      )
+                  )
+              ),
+              
+              # --- Columna 2: Estadística y Diseño Experimental ---
+              column(4,
+                  tags$div(class="card h-100",
+                      tags$div(class="card-header bg-success text-white", strong("Estadística y Diseño Experimental")),
+                      tags$div(class="card-body",
+                          tags$h6("Libros Clásicos de Referencia"),
+                          tags$ul(
+                              tags$li("Montgomery, D. C. (2017). ", em("Design and Analysis of Experiments.")),
+                              tags$li("Kuehl, R. O. (2000). ", em("Design of experiments: Statistical principles of research design and analysis.")),
+                              tags$li("Gomez, K. A., & Gomez, A. A. (1984). ", em("Statistical Procedures for Agricultural Research."))
+                          ),
+                          tags$h6("Recursos Específicos para Agronomía"),
+                          tags$ul(
+                              tags$li(tags$a("The R-Podcast", href="https://r-podcast.org/", target="_blank"), " - Episodios sobre aplicaciones de R en diferentes campos."),
+                              tags$li(tags$a("CRAN Task View: Agriculture", href="https://cran.r-project.org/web/views/Agriculture.html", target="_blank"), " - Una lista curada de paquetes de R para la ciencia agrícola.")
+                          )
+                      )
+                  )
+              ),
+              
+              # --- Columna 3: Temas Avanzados y Comunidad ---
+              column(4,
+                  tags$div(class="card h-100",
+                      tags$div(class="card-header bg-info text-dark", strong("Temas Avanzados y Comunidad")),
+                      tags$div(class="card-body",
+                          tags$h6("Modelos Mixtos y GLMM"),
+                          tags$p("Para analizar diseños más complejos (bloques incompletos, efectos aleatorios), los modelos mixtos son la herramienta estándar."),
+                          tags$ul(
+                              tags$li("Paquetes clave: ", code("lme4"), " y ", code("nlme"), "."),
+                              tags$li(tags$a("Tutorial sobre GLMM en R", href="https://bbolker.github.io/mixedmodels-misc/glmmFAQ.html", target="_blank"), " (por Ben Bolker).")
+                          ),
+                          tags$h6("Únete a la Comunidad de R"),
+                          tags$ul(
+                              tags$li(tags$a("R-bloggers", href="https://www.r-bloggers.com/", target="_blank"), " - Un agregador de cientos de blogs sobre R."),
+                              tags$li(tags$a("Stack Overflow (etiqueta [r])", href="https://stackoverflow.com/questions/tagged/r", target="_blank"), " - Para resolver dudas de programación."),
+                              tags$li("Busca grupos locales de usuarios de R (R-Ladies, etc.) o conferencias como `useR!` y `Posit::conf`.")
+                          )
+                      )
+                  )
+              )
+          ),
+          
+          tags$hr(),
+          
+          tags$h4(class="section-header", "Próximos Pasos Sugeridos"),
+          tags$ol(
+              tags$li(strong("Practica con tus Propios Datos:"), " La mejor manera de aprender es aplicar estas técnicas a un conjunto de datos que conozcas bien. Intenta importar, limpiar y analizar un archivo de Excel de uno de tus propios experimentos."),
+              tags$li(strong("Domina `dplyr` y `ggplot2`:"), " Dedica tiempo a aprender más sobre la manipulación de datos con `dplyr` y la visualización con `ggplot2`. Son las dos habilidades que más retorno te darán en tu día a día."),
+              tags$li(strong("Aprende a Crear Informes con R Markdown:"), " El siguiente paso lógico es aprender a combinar tu código, tus resultados y tu texto en un único informe reproducible usando R Markdown o Quarto. Esto cambiará por completo la forma en que comunicas tus resultados."),
+              tags$li(strong("No Tengas Miedo de Pedir Ayuda:"), " La comunidad de R es increíblemente abierta y colaborativa. Usa los foros y las redes para hacer preguntas.")
           )
-        )
-      ),
-      
-      # Preguntas frecuentes
-      h5("Preguntas clave"),
-      tags$div(class = "faq-section",
-        tags$ul(
-          tags$li("¿Cómo seleccionar columnas específicas con dplyr? ", 
-                  tags$code("select(nombre_columna)"), 
-                  " o usando selectores como ", tags$code("starts_with('temp_')")),
-          
-          tags$li("¿Qué hacer si falla la lectura de un CSV? ",
-                  "Verificar encoding y separadores con ", tags$code("readr::problems()"), 
-                  " y especificar ", tags$code("locale = locale(encoding = 'UTF-8')")),
-          
-          tags$li("¿Cómo manejar valores faltantes? ",
-                  "Usar ", tags$code("janitor::remove_empty()"), 
-                  " o ", tags$code("dplyr::filter(!is.na(columna))")),
-          
-          tags$li("¿Cómo personalizar temas en ggplot2? ",
-                  "Modificar con ", tags$code("theme_minimal()"), 
-                  " o crear temas personalizados con ", tags$code("theme()")),
-          
-          tags$li("¿Qué hacer con fechas en formatos no estándar? ",
-                  "Usar ", tags$code("lubridate::parse_date_time()"), 
-                  " especificando formatos como 'ymd' o 'dmy'"),
-          
-          tags$li("¿Cómo organizar proyectos complejos? ",
-                  "Seguir el flujo ", tags$code("ProjectTemplate"), 
-                  " o estructura ", tags$code("RStudio Projects"))
-        )
-      ),
-      
-      # Recursos adicionales
-      h5("Para profundizar"),
-      tags$div(class = "resources",
-        tags$ul(
-          tags$li(tags$a("R for Data Science", href="https://r4ds.had.co.nz/", target="_blank"), " "),
-          tags$li(tags$a("Janitor documentation", href="https://cran.r-project.org/web/packages/janitor/vignettes/janitor.html", target="_blank"), " "),
-          tags$li(tags$a("ggplot2 cheatsheet", href="https://www.rstudio.com/wp-content/uploads/2015/03/ggplot2-cheatsheet.pdf", target="_blank"), " ")
-        )
       )
-    )
-
     )
   )
 }
 
 session1Server <- function(input, output, session) {
-  
-  # --- Pestaña 1: Intro ---
+  # Namespace para los IDs de los inputs y outputs
+  ns <- session$ns
+        
+  # --- LÓGICA PARA LA PESTAÑA 3: IMPORTACIÓN Y LIMPIEZA ---
 
+  # 1. Usar un reactiveVal para almacenar los datos procesados.
+  # Lo inicializamos con los datos de demostración ya limpios.
   
-  # ---------------------
-  # Gráficos interactivos para la pestaña 3
-  # ---------------------
-  output$histPlot <- renderPlot({
-    datos <- rnorm(input$n, mean = 100, sd = 15)
-    hist(datos, 
-         breaks = 30,
-         main = "Distribución muestral (base R)",
-         xlab = "Valor",
-         col = "#2C3E50",
-         border = "white")
+  # Función para limpiar los datos de demostración
+  get_demo_data <- function() {
+      df <- data.frame(
+          `ID Parcela` = 1:20,
+          `Rendimiento (kg/ha)` = c(5500, 5800, 5300, NA, 6200, 5600, 5900, 4800, 5700, 6100, 5400, 5850, "error", 6300, 5550, NA, 6000, 5950, 5250, 6150),
+          `Humedad Cosecha (%)` = runif(20, 14.5, 18.0),
+          `Fecha Siembra` = "2023-10-15",
+          check.names = FALSE
+      )
+      # Limpieza básica inicial
+      df %>%
+          janitor::clean_names() %>%
+          mutate(rendimiento_kg_ha = as.numeric(as.character(rendimiento_kg_ha)))
+  }
+  
+  # Inicializar el reactiveVal
+  processed_data_rv <- reactiveVal(get_demo_data())
+
+  # 2. Usar observeEvent para manejar el procesamiento de datos
+  observeEvent(input$process_data, {
+      
+      df <- if (input$use_demo_data) {
+          get_demo_data() # Cargar el demo limpio de nuevo
+      } else {
+          req(input$file_upload)
+          # Limpiar los datos subidos
+          janitor::clean_names(read.csv(input$file_upload$datapath))
+      }
+      
+      # Guardar el conteo de NAs ANTES de cualquier acción
+      na_counts_before(colSums(is.na(df)))
+      
+      # Aplicar la acción de manejo de NAs seleccionada
+      if (input$na_action == "omit") {
+          df <- na.omit(df)
+      } else if (input$na_action == "impute_mean") {
+          df <- df %>%
+              mutate(across(where(is.numeric), ~ifelse(is.na(.), mean(., na.rm = TRUE), .)))
+      }
+      
+      # Actualizar el reactiveVal con los nuevos datos procesados
+      processed_data_rv(df)
+  })
+
+  # Reactive para el conteo de NAs
+  na_counts_before <- reactiveVal(colSums(is.na(get_demo_data())))
+
+  # 3. Salidas para la inspección
+  output$glimpse_output <- renderPrint({
+      req(processed_data_rv())
+      glimpse(processed_data_rv())
   })
   
-  output$ggPlot <- renderPlot({
-    datos <- rnorm(input$n, mean = 100, sd = 15)
-    ggplot(data.frame(valor = datos), aes(x = valor)) +
-      geom_histogram(bins = 30, fill = "#E74C3C", color = "white") +
-      labs(title = "Distribución muestral (ggplot2)",
-           x = "Valor",
-           y = "Frecuencia") +
-      theme_minimal()
+  output$summary_output <- renderPrint({
+      req(processed_data_rv())
+      summary(processed_data_rv())
+  })
+  
+  output$na_count_output <- renderPrint({
+      req(na_counts_before())
+      na_counts_before()
+  })
+  
+  output$cleaned_data_table <- DT::renderDataTable({
+      req(processed_data_rv())
+      DT::datatable(processed_data_rv(), options=list(pageLength=5, scrollX=TRUE))
+  })
+  
+  # --- LÓGICA PARA LA PESTAÑA 4: EXPLORACIÓN VISUAL ---
+
+  # UI dinámico para los controles del gráfico. Ahora depende de processed_data_rv()
+  output$plot_controls_ui <- renderUI({
+      df <- processed_data_rv()
+      req(df)
+      
+      numeric_cols <- names(df)[sapply(df, is.numeric)]
+      categorical_cols <- names(df)[sapply(df, function(c) is.factor(c) || is.character(c))]
+      
+      tagList(
+          if (input$plot_type %in% c("Histograma", "Gráfico de Densidad")) {
+              selectInput(ns("plot_x_hist"), "Variable Numérica:", choices = numeric_cols)
+          },
+          if (input$plot_type == "Boxplot") {
+              tagList(
+                  selectInput(ns("plot_x_box"), "Eje X (Categórico):", choices = categorical_cols),
+                  selectInput(ns("plot_y_box"), "Eje Y (Numérico):", choices = numeric_cols)
+              )
+          },
+          if (input$plot_type == "Gráfico de Dispersión") {
+              tagList(
+                  selectInput(ns("plot_x_scatter"), "Eje X (Numérico):", choices = numeric_cols),
+                  selectInput(ns("plot_y_scatter"), "Eje Y (Numérico):", choices = numeric_cols, selected = if(length(numeric_cols)>1) numeric_cols[2] else numeric_cols[1])
+              )
+          },
+          selectInput(ns("plot_color"), "Variable para Agrupar/Colorear:", 
+                      choices = c("Ninguna", categorical_cols), selected = "Ninguna")
+      )
+  })
+  
+  # UI dinámico para el contenedor del gráfico
+  output$plot_output_ui <- renderUI({
+      ns <- session$ns # Asegurar que ns esté definido
+      if (input$plot_system == "ggplot2") {
+          plotly::plotlyOutput(ns("exploratory_plotly"))
+      } else {
+          plotOutput(ns("exploratory_plot_base"))
+      }
+  })
+  
+  # Reactive que genera el gráfico y el código
+  reactive_plot_and_code <- reactive({
+    df <- processed_data_rv()
+    # Usar req con cancelOutput para detenerse limpiamente si los inputs no están listos
+    req(df, input$plot_type, input$plot_system, cancelOutput = TRUE)
+      
+    code_string <- "# Selecciona un tipo de gráfico y variables"
+    plot_obj <- NULL
+    
+    # Lógica para generar el gráfico y el código correspondiente
+    tryCatch({
+      if (input$plot_type == "Histograma") {
+        req(input$plot_x_hist)
+        if (input$plot_system == "ggplot2") {
+          code_string <- glue::glue(
+            "ggplot(df, aes(x = {input$plot_x_hist})) +\n  geom_histogram(aes(fill = ..count..), bins=20, alpha=0.7) +\n  scale_fill_gradient('Conteo', low='blue', high='red') +\n  labs(title = 'Histograma de {input$plot_x_hist}')"
+          )
+          plot_obj <- ggplot(df, aes_string(x = input$plot_x_hist)) + 
+            geom_histogram(aes(fill = ..count..), bins=20, alpha=0.7) + 
+            scale_fill_gradient("Conteo", low="blue", high="red") +
+            labs(title = paste("Histograma de", input$plot_x_hist)) + theme_minimal()
+        } else {
+          code_string <- glue::glue("hist(df${input$plot_x_hist}, \n     main = 'Histograma de {input$plot_x_hist}', \n     xlab = '{input$plot_x_hist}', \n     col = 'skyblue', \n     breaks = 20)")
+          # Se necesita un hack para capturar el gráfico base
+          plot_obj <- recordPlot({ hist(df[[input$plot_x_hist]], main = paste("Histograma de", input$plot_x_hist), xlab = input$plot_x_hist, col = "skyblue", breaks = 20) })
+        }
+      } else if (input$plot_type == "Boxplot") {
+        req(input$plot_x_box, input$plot_y_box)
+        if (input$plot_system == "ggplot2") {
+          code_string <- glue::glue("ggplot(df, aes(x = {input$plot_x_box}, y = {input$plot_y_box})) +\n  geom_boxplot(aes(fill = {input$plot_x_box}), alpha=0.7, show.legend=F)")
+          plot_obj <- ggplot(df, aes_string(x = input$plot_x_box, y = input$plot_y_box)) + 
+              geom_boxplot(aes_string(fill = input$plot_x_box), alpha=0.7, show.legend=FALSE) + theme_minimal()
+        } else {
+          code_string <- glue::glue("boxplot({input$plot_y_box} ~ {input$plot_x_box}, data = df, \n        main='Boxplot', col='lightblue')")
+          plot_obj <- recordPlot({ boxplot(as.formula(paste(input$plot_y_box, "~", input$plot_x_box)), data = df, main="Boxplot", col="lightblue") })
+        }
+      } else if (input$plot_type == "Gráfico de Dispersión") {
+        req(input$plot_x_scatter, input$plot_y_scatter)
+        color_aes <- if(input$plot_color != "Ninguna") glue::glue(", color = {input$plot_color}") else ""
+        
+        if (input$plot_system == "ggplot2") {
+          code_string <- glue::glue("ggplot(df, aes(x = {input$plot_x_scatter}, y = {input$plot_y_scatter})) +\n  geom_point(aes(color = {if(input$plot_color != 'Ninguna') input$plot_color else 'NULL'}), alpha=0.7, size=3)")
+          plot_obj <- ggplot(df, aes_string(x = input$plot_x_scatter, y = input$plot_y_scatter))
+          if(input$plot_color != "Ninguna") {
+              plot_obj <- plot_obj + geom_point(aes_string(color = input$plot_color), alpha=0.7, size=3)
+          } else {
+              plot_obj <- plot_obj + geom_point(alpha=0.7, size=3)
+          }
+          plot_obj <- plot_obj + theme_minimal()
+        } else {
+          color_code <- if(input$plot_color != "Ninguna") glue::glue("col = as.factor(df${input$plot_color})") else "col = 'black'"
+          code_string <- glue::glue("plot(df${input$plot_x_scatter}, df${input$plot_y_scatter}, \n     {color_code}, pch=19)")
+          plot_obj <- recordPlot({ plot(df[[input$plot_x_scatter]], df[[input$plot_y_scatter]], col = if(input$plot_color != "Ninguna") as.factor(df[[input$plot_color]]) else "black", pch=19, xlab=input$plot_x_scatter, ylab=input$plot_y_scatter) })
+        }
+      } # Añadir más tipos de gráficos aquí si se desea (ej. Densidad)
+    }, error = function(e) {
+          # Manejar errores de graficación
+          code_string <- paste("# Error al generar el gráfico:\n#", e$message)
+          plot_obj <- NULL
+      })
+      
+      list(code = code_string, plot = plot_obj)
   })
 
-  output$GrafDispersion <- renderPlot({
-    # Gráfico de dispersión
-    x <- rnorm(50)
-    y <- x + rnorm(50)
-    plot(x, y,
-        main='Relación entre X e Y',
-        xlab='Variable X',
-        ylab='Variable Y',
-        pch=19,        # Tipo de punto
-        col='#2980B9', # Color
-        cex=1.2)       # Tamaño
+  # Renderizar los outputs
+  output$exploratory_plotly <- plotly::renderPlotly({
+      res <- reactive_plot_and_code()
+      req(res, res$plot, inherits(res$plot, "ggplot"))
+      plotly::ggplotly(res$plot)
+  })
+  
+  output$exploratory_plot_base <- renderPlot({
+      res <- reactive_plot_and_code()
+      req(res, res$plot, inherits(res$plot, "recordedplot"))
+      replayPlot(res$plot)
   })
 
-  output$GrafDispersionggplot2 <- renderPlot({
-    # Gráfico de dispersión con ggplot2
-    df <- data.frame(x = rnorm(50), y = rnorm(50))
-
-    ggplot(df, aes(x=x, y=y)) +
-      geom_point(
-        aes(color = x + y),  # Mapeo estético
-        size = 3,            # Tamaño fijo
-        alpha = 0.7          # Transparencia
-      ) +
-      scale_color_viridis_c() +
-      labs(
-        title = 'Relación entre X e Y',
-        subtitle = 'Ejemplo con ggplot2',
-        x = 'Variable X',
-        y = 'Variable Y'
-      ) +
-      theme_bw()
+  output$plot_code_output <- renderText({
+      res <- reactive_plot_and_code()
+      req(res)
+      res$code
   })
 }
