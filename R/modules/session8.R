@@ -292,7 +292,6 @@ session8UI <- function(id) {
                             tags$li(strong("Type of power analysis:"), " Eliges 'A priori: Compute required sample size'."),
                             tags$li(strong("Input Parameters:"), " Aquí introduces tus 'ingredientes':"),
                             tags$ul(
-                                # ===== CORRECCIÓN APLICADA AQUÍ =====
                                 tags$li(tags$span(code("Effect size f"), ": Lo estimas como aprendimos en la Pestaña 2.")),
                                 tags$li(tags$span(code("α err prob"), ": Tu alfa (ej. 0.05).")),
                                 tags$li(tags$span(code("Power (1-β err prob)"), ": Tu poder deseado (ej. 0.80).")),
