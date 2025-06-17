@@ -1,16 +1,9 @@
 # R/modules/session2.R
-library(dplyr)
-library(ggplot2)
-library(moments)
-library(patchwork)
-library(grid)
 
 session2UI <- function(id) {
   ns <- NS(id)
   tagList(
-    div(class = "session-title",
-        h3("Sesión 2: Estadística Descriptiva Avanzada")
-    ),
+    h3(class = "session-title", "Sesión 2: Estadística Descriptiva Avanzada y Exploración de Datos"),
     
     # Usar navset_tab con nav_panel de bslib
     navset_tab(
@@ -61,677 +54,321 @@ session2UI <- function(id) {
       # PESTAÑA: 1 Medidas básicas
       # ——————————————
       nav_panel(
-          title = "1 Medidas básicas",
-          h4(class = "section-header", "Medidas básicas"),
-
-          # ----- Texto teórico introductorio -----
-          h5(class = "section-header", "Explicación teorica"),
-          tags$div(class = "theory-text plot-box",
-            tags$p("En esta sesión se profundiza en la estadística descriptiva, presentando las medidas numéricas más comunes para resumir datos cuantitativos. Las medidas de tendencia central describen el centro de la distribución de datos, mientras que las medidas de dispersión describen la variabilidad de los datos alrededor de ese centro (Montgomery & Runger, 2018)."),
-            tags$p("Las principales medidas de tendencia central son:"),
-            tags$ul(
-              tags$li(tags$b("Media aritmética:"), " es el promedio de los valores, calculado sumando todos los datos y dividiendo entre el número de observaciones. Útil para datos cuantitativos continuos, pero sensible a valores extremos."),
-              tags$li(tags$b("Mediana:"), " es el valor central de los datos cuando se ordenan de menor a mayor. Divide al conjunto en dos mitades iguales. Es una medida robusta, menos afectada por valores atípicos que la media (Montgomery & Runger, 2018)."),
-              tags$li(tags$b("Moda:"), " es el valor o categoría que aparece con mayor frecuencia; útil para variables categóricas o distribuciones discretas."),
-              tags$p("A continuación, un histograma de datos generados con distribución normal, con líneas punteadas que indican dónde caen la media (rojo), la mediana (verde) y la moda estimada (azul)."),
-              tags$div(class = "plot-box",
-                plotOutput(ns("theoryPlot"), height = "300px")
-              ),
-            ),
-          ),
-          
-          tags$div(class = "theory-text-cuant plot-box",
-            tags$p("Para cuantificar la dispersión o variabilidad de los datos:"),
-            tags$ul(
-              tags$li(tags$b("Rango (amplitud):"), " la diferencia entre el valor máximo y mínimo del conjunto de datos. Es fácil de calcular pero solo depende de dos valores extremos."),
-              tags$li(tags$b("Varianza:"), " la media de las desviaciones al cuadrado de cada observación respecto a la media del conjunto. Sirve como base teórica, aunque en unidades al cuadrado."),
-              tags$li(tags$b("Desviación estándar:"), " la raíz cuadrada de la varianza. Expresada en las mismas unidades que los datos originales, facilita la interpretación. Una desviación estándar alta indica que los datos están muy dispersos alrededor de la media, mientras que una baja significa que los datos están más concentrados cerca de la media (Montgomery & Runger, 2018)."),
-              tags$li(tags$b("Coeficiente de variación (CV):"), " la razón entre la desviación estándar y la media (a menudo expresada en porcentaje). Es útil para comparar variabilidad relativa entre conjuntos de datos de magnitudes muy distintas. En agricultura, el CV se usa para evaluar la estabilidad de rendimientos: por ejemplo, un cultivo con CV alto en rendimiento presenta mucha variabilidad entre parcelas, lo que puede implicar inconsistencias en manejo o en condiciones.")
-            )
-          ),
-          # Slider para sigma con animación
-          sliderInput(
-            inputId = ns("sigma"),
-            label   = "Desviación estándar \\(\\sigma\\):",
-            min     = 1,
-            max     = 5,
-            value   = 1,
-            step    = 0.1,
-            animate = animationOptions(interval = 500, loop = TRUE)
-          ),
-          # Punto de dibujo
-          tags$div(class = "plot-box",
-            tags$p("La línea azul indica la media, la verde la mediana y la roja el rango intercuartílico (IQR)."),
-            plotOutput(ns("densPlot"), height = "400px"),
-          ),         
-
-          tags$br(),
-          tags$p("Por ejemplo, un rendimiento medio de 5.0 t/ha con desviación estándar 0.8 t/ha sugiere dispersión moderada; si la desviación fuera 2.0 t/ha, habría gran heterogeneidad entre parcelas, quizá por variaciones en suelo o manejo."),
-
-          tags$br(),
-          h5(class = "section-header", "Ejemplo práctico"),
-          
-          tags$div(class = "ejemplo-practico",
-            tags$p("Supongamos que tenemos un conjunto de datos de rendimiento de trigo en parcelas agrícolas. Queremos calcular medidas descriptivas para entender la variabilidad de los rendimientos."),
-            tags$p("Ejemplo práctico: Rendimientos de trigo en 10 parcelas (t/ha)"),
-            tags$pre(
-              class = "r-code", 
-              htmltools::HTML(
-                "# Datos de ejemplo: rendimientos de trigo (t/ha) en 10 parcelas\n",
-                "rend_trigo <- c(4.8, 5.5, 5.0, 6.1, 4.9, 5.3, 5.8, 4.7, 5.0, 5.4)\n",
-                "\n",
-                "# Cálculos de medidas descriptivas\n",
-                "mean(rend_trigo, na.rm = TRUE)      # media ≈ 5.25\n",
-                "median(rend_trigo, na.rm = TRUE)    # mediana = 5.15\n",
-                "sd(rend_trigo, na.rm = TRUE)        # desviación ≈ 0.45\n",
-                "\n",
-                "# Rango (valor mínimo y máximo)\n",
-                "(min(rend_trigo), max(rend_trigo))  # rango = (4.7, 6.1)\n",
-                "range(rend_trigo)                   # alternativa que da min y max juntos\n",
-                "\n",
-                "# Coeficiente de variación (sd/mean)\n",
-                "cv <- sd(rend_trigo) / mean(rend_trigo) * 100  \n",
-                "cv                                  # CV ≈ 8.5%\n",
-              )
-            ), 
-            tags$p("Este análisis muestra baja variabilidad relativa (CV ~8.5%), indicando rendimientos consistentes."),
+        title = "1. Medidas Básicas",
+        
+        # Usamos un navset anidado
+        navset_card_pill(
+            header = h4(class="section-header", "Resumiendo Datos: Del Centro a la Forma"),
             
-            h5(class = "section-header", "Graficos que ayudan a visualizar"),
-            tags$p("Para visualizar la distribución de los datos y detectar posibles outliers, se pueden usar histogramas y boxplots. Estos gráficos permiten observar la forma de la distribución y la presencia de valores atípicos."),
-            tags$pre(
-              class = "r-code", 
-              htmltools::HTML(
-                "# Histograma\n",
-                "hist(rend_trigo, \n",
-                "     main = 'Histograma de rendimiento de trigo', \n",
-                "     xlab = 'Rendimiento (t/ha)', \n",
-                "     ylab = 'Frecuencia')\n",
-                "\n",
-                "# Boxplot\n",
-                "boxplot(rend_trigo, \n",
-                "        main = 'Boxplot de rendimiento de trigo', \n",
-                "        ylab = 'Rendimiento (t/ha)')\n"
-              )
-            )
-          ),
-      
-        # ----- Texto práctico -----
-        tags$br(),
-        tags$div(class = "plot-section plot-box",
-          h5(class = "section-header", "Esenarios práctico"),
-          tags$p("A continuación, se presentan dos gráficos generados con datos aleatorios. Elija un escenario de datos y observe cómo cambian las medidas de tendencia central y dispersión."),
-          tags$br(),
-            tags$div(class = "plot-section",
-            # Selección de escenario
-            selectInput(
-              ns("escenario"),
-              "Elija un escenario de datos:",
-              choices = c(
-                "Normal"         = "normal",
-                "Con outliers"   = "outliers",
-                "CV alto"        = "cv_alto",
-                "SD muy grande"  = "sd_grande",
-                "Sesgo derecha"  = "skew_right",
-                "Sesgo izquierda"= "skew_left",
-                "Bimodal"        = "bimodal"
-              )
+            # ===== SUB-PESTAÑA 1: TEORÍA =====
+            nav_panel(
+                title = "Teoría: Centro y Dispersión",
+                
+                h5("Medidas de Tendencia Central"),
+                tags$div(class = "theory-text plot-box",
+                  tags$p("En esta sesión se profundiza en la estadística descriptiva, presentando las medidas numéricas más comunes para resumir datos cuantitativos. Las medidas de tendencia central describen el centro de la distribución de datos, mientras que las medidas de dispersión describen la variabilidad de los datos alrededor de ese centro (Montgomery & Runger, 2018)."),
+                  tags$p("Las principales medidas de tendencia central son:"),
+                  tags$ul(
+                    tags$li(tags$b("Media aritmética:"), " es el promedio de los valores, calculado sumando todos los datos y dividiendo entre el número de observaciones. Útil para datos cuantitativos continuos, pero sensible a valores extremos."),
+                    tags$li(tags$b("Mediana:"), " es el valor central de los datos cuando se ordenan de menor a mayor. Divide al conjunto en dos mitades iguales. Es una medida robusta, menos afectada por valores atípicos que la media (Montgomery & Runger, 2018)."),
+                    tags$li(tags$b("Moda:"), " es el valor o categoría que aparece con mayor frecuencia; útil para variables categóricas o distribuciones discretas."),
+                    tags$p("A continuación, un histograma de datos generados con distribución normal, con líneas punteadas que indican dónde caen la media (rojo), la mediana (verde) y la moda estimada (azul)."),
+                  ),
+                ),
+                p("..."),
+                plotOutput(ns("theoryPlot"), height = "300px"),
+                
+                hr(),
+                
+                h5("Medidas de Dispersión y Variabilidad"),
+                tags$div(class = "theory-text-cuant plot-box",
+                  tags$p("Para cuantificar la dispersión o variabilidad de los datos:"),
+                  tags$ul(
+                    tags$li(tags$b("Rango (amplitud):"), " la diferencia entre el valor máximo y mínimo del conjunto de datos. Es fácil de calcular pero solo depende de dos valores extremos."),
+                    tags$li(tags$b("Varianza:"), " la media de las desviaciones al cuadrado de cada observación respecto a la media del conjunto. Sirve como base teórica, aunque en unidades al cuadrado."),
+                    tags$li(tags$b("Desviación estándar:"), " la raíz cuadrada de la varianza. Expresada en las mismas unidades que los datos originales, facilita la interpretación. Una desviación estándar alta indica que los datos están muy dispersos alrededor de la media, mientras que una baja significa que los datos están más concentrados cerca de la media (Montgomery & Runger, 2018)."),
+                    tags$li(tags$b("Coeficiente de variación (CV):"), " la razón entre la desviación estándar y la media (a menudo expresada en porcentaje). Es útil para comparar variabilidad relativa entre conjuntos de datos de magnitudes muy distintas. En agricultura, el CV se usa para evaluar la estabilidad de rendimientos: por ejemplo, un cultivo con CV alto en rendimiento presenta mucha variabilidad entre parcelas, lo que puede implicar inconsistencias en manejo o en condiciones.")
+                  )
+                ),
+                p("..."),
+                
+                h6("Visualización Interactiva de la Dispersión"),
+                p("Observa cómo al cambiar la Desviación Estándar (σ), cambia la forma de la distribución y la dispersión de los datos individuales. Una σ alta implica mayor 'ruido' o variabilidad en tus mediciones."),
+                
+                sliderInput(
+                    inputId = ns("sigma"),
+                    label   = "Ajusta la Desviación Estándar (σ):",
+                    min = 0.5, max = 5, value = 1.5, step = 0.1,
+                    animate = animationOptions(interval = 400, loop = TRUE)
+                ),
+                
+                # Usamos fluidRow para poner los gráficos lado a lado
+                fluidRow(
+                    column(6, 
+                        h5("A) Curva de Densidad Teórica", class="text-center"),
+                        plotOutput(ns("densPlot"), height = "300px")
+                    ),
+                    column(6,
+                        h5("B) Muestra de Datos Simulados", class="text-center"),
+                        plotOutput(ns("stripPlot"), height = "300px")
+                    )
+                ),
+                
+                tags$div(class="alert alert-info mt-2",
+                    htmlOutput(ns("dispersion_interpretation"))
+                )
             ),
-            tags$br(),
-            # Salidas de los dos gráficos
-            tags$div(class = "plot-box",
-              plotOutput(ns("histPlot"), height = "400px"),
-              tags$div(class = "plot-explanation",
-                tags$p("El histograma muestra la distribución de los datos elegidos. La línea roja indica la media, la verde la mediana y la azul la moda estimada.")
-              ) 
-            ),
-            tags$br(),
-            tags$div(class = "plot-box",
-              # Boxplot
-              tags$p("El boxplot muestra la mediana (línea negra), el rango intercuartílico (IQR) y los outliers (puntos fuera de los bigotes)."),
-              plotOutput(ns("boxPlot"),  height = "200px")
-            )
-          ),
-
-          tags$br(),
-          # Explicación de escenarios de datos
-          tags$div(class = "scenario-explanations",
             
-            # Explicaciones científicas de cada escenario
-            # --- Normal ---
-            tags$div(class = "scenario-explanation",
-              tags$h5("Escenario: Normal"),
-              tags$p(
-                "Los datos generados con distribución normal (o gaussiana) siguen la función de densidad ",
-                withMathJax(helpText("$$f(x) = \\frac{1}{\\sigma \\sqrt{2\\pi}} e^{-\\tfrac{(x-\\mu)^2}{2\\sigma^2}}$$")),
-                " donde \\(\\mu\\) es la media y \\(\\sigma\\) la desviación estándar. Esta distribución es simétrica (asimetría cero), con curtosis teórica de 3, y aparece de forma natural en múltiples fenómenos gracias al Teorema Central del Límite."
-              )
+            # ===== SUB-PESTAÑA 2: LABORATORIO INTERACTIVO =====
+            nav_panel(
+                title = "Laboratorio de Distribuciones",
+                h5("Explorando Diferentes Escenarios de Datos"),
+                p("Selecciona un escenario para generar un conjunto de datos y observa cómo cambian las estadísticas descriptivas y las visualizaciones. Esto te ayudará a entrenar tu ojo para identificar patrones."),
+                
+                sidebarLayout(
+                    sidebarPanel(
+                        width = 3,
+                        selectInput(
+                            ns("escenario"), "Elige un escenario de datos:",
+                            choices = c(
+                                "Normal (Ideal)" = "normal",
+                                "Con Outliers Extremos" = "outliers",
+                                "CV Alto (Mucha Variabilidad Relativa)" = "cv_alto",
+                                "Sesgo a la Derecha (Datos de conteo)" = "skew_right",
+                                "Sesgo a la Izquierda" = "skew_left",
+                                "Bimodal (Dos grupos mezclados)" = "bimodal"
+                            )
+                        ),
+                        hr(),
+                        h6("Estadísticas Descriptivas Clave:"),
+                        tableOutput(ns("stats_table"))
+                    ),
+                    mainPanel(
+                        width = 9,
+                        fluidRow(
+                            column(8, plotOutput(ns("histPlot_escenario"), height="300px")),
+                            column(4, plotOutput(ns("boxPlot_escenario"), height="300px"))
+                        ),
+                        h6("Interpretación del Escenario:", class="mt-3"),
+                        tags$div(class="note-cloud",
+                            htmlOutput(ns("scenario_interpretation"))
+                        )
+                    )
+                )
             ),
 
-            # --- Con outliers ---
-            tags$div(class = "scenario-explanation",
-              tags$h5("Escenario: Con outliers"),
-              tags$p(
-                "Un outlier es una observación que se encuentra a una distancia anormal respecto al resto de los datos. Habitualmente, se identifican los valores que cumplen ",
-                withMathJax(helpText("$$x < Q_1 - 1.5\\times IQR \\quad\\text{o}\\quad x > Q_3 + 1.5\\times IQR$$")),
-                ", donde \\(Q_1\\) y \\(Q_3\\) son el primer y tercer cuartil, e IQR es la amplitud intercuartílica."
-              )
-            ),
-
-            # --- CV alto ---
-            tags$div(class = "scenario-explanation",
-              tags$h5("Escenario: CV alto"),
-              tags$p(
-                "El coeficiente de variación se define como ",
-                withMathJax(helpText("$$CV = \\frac{\\sigma}{\\mu}$$")),
-                ", y cuantifica la variabilidad relativa de los datos. Un CV elevado señala que la dispersión (\\(\\sigma\\)) es considerable en relación con la media (\\(\\mu\\)), lo que puede reflejar inconsistencias o alta heterogeneidad en datos agronómicos."
-              )
-            ),
-
-            # --- SD muy grande ---
-            tags$div(class = "scenario-explanation",
-              tags$h5("Escenario: SD muy grande"),
-              tags$p(
-                "La desviación estándar mide la dispersión absoluta: ",
-                withMathJax(helpText("$$\\sigma = \\sqrt{\\frac{1}{n}\\sum_{i=1}^n (x_i - \\mu)^2}$$")),
-                ". Un \\(\\sigma\\) muy alto indica gran dispersión, lo que dificulta identificar tendencias centrales y outliers."
-              )
-            ),
-
-            # --- Sesgo a la derecha ---
-            tags$div(class = "scenario-explanation",
-              tags$h5("Escenario: Sesgo a la derecha"),
-              tags$p(
-                "El coeficiente de asimetría se define como ",
-                withMathJax(helpText("$$\\gamma_1 = \\frac{E[(X-\\mu)^3]}{\\sigma^3}$$")),
-                ". Si \\(\\gamma_1 > 0\\), la distribución presenta una cola larga hacia valores mayores, concentrando la mayoría de observaciones a la izquierda."
-              )
-            ),
-
-            # --- Sesgo a la izquierda ---
-            tags$div(class = "scenario-explanation",
-              tags$h5("Escenario: Sesgo a la izquierda"),
-              tags$p(
-                "Cuando \\(\\gamma_1 < 0\\), la distribución tiene cola larga hacia valores menores, implicando una mayoría de datos en torno a valores altos con extremos por debajo del promedio."
-              )
-            ),
-
-            # --- Bimodal ---
-            tags$div(class = "scenario-explanation",
-              tags$h5("Escenario: Bimodal"),
-              tags$p(
-                "Una distribución bimodal presenta dos picos o modos, modelable como mezcla de dos funciones de densidad:",
-                withMathJax(helpText("$$f(x) = p\\,f_1(x) + (1-p)\\,f_2(x)$$")),
-                ", donde cada componente aporta uno de los modos (mayor y minoritario)."
-              )
+            # ===== SUB-PESTAÑA 3: EXPORTAR DATOS =====
+            nav_panel(
+                title = "Exportar Datos de Escenario",
+                h5("Descarga los Datos para Practicar"),
+                p("Aquí puedes descargar el conjunto de datos que seleccionaste en el 'Laboratorio de Distribuciones' para poder analizarlo en tu propio RStudio."),
+                p("Selecciona el escenario que deseas descargar y haz clic en el botón."),
+                selectInput(ns("export_escenario"), "Selecciona el escenario a descargar:",
+                            choices = c(
+                                "Normal (Ideal)" = "normal",
+                                "Con Outliers Extremos" = "outliers",
+                                "CV Alto (Mucha Variabilidad Relativa)" = "cv_alto",
+                                "Sesgo a la Derecha (Datos de conteo)" = "skew_right",
+                                "Sesgo a la Izquierda" = "skew_left",
+                                "Bimodal (Dos grupos mezclados)" = "bimodal"
+                            )),
+                downloadButton(ns("download_data_csv"), "Descargar como CSV", class="btn-success"),
+                downloadButton(ns("download_data_xlsx"), "Descargar como Excel (.xlsx)", class="btn-info")
             )
-          ),
+        )
+      ),
+
+      # ——————————————
+      # PESTAÑA 2: Forma de la Distribución 
+      # ——————————————
+      nav_panel(
+        title = "2. Forma de la Distribución",
+        
+        h4(class = "section-header", "Más Allá del Centro y la Dispersión"),
+        p(
+            "Una vez que sabemos dónde está el centro de nuestros datos y cuán dispersos están, el siguiente paso es entender su ", strong("forma."), 
+            "¿Son los datos simétricos o están sesgados? ¿Tienen más o menos valores extremos de lo esperado? Estas preguntas son cruciales porque la forma de la distribución determina la validez de muchas de las pruebas estadísticas que usaremos más adelante."
         ),
         
-        tags$br(),
-        # ----- Ejercicios prácticos -----
-        tags$div(class = "exercise-section plot-box",
-          tags$h5("Ejercicios prácticos"),
-          tags$ol(
-            tags$li("Importa tu propio dataset de rendimiento y calcula media, mediana y desviación estándar."),
-            tags$li("Compara las medidas de tendencia central y dispersión entre dos tratamientos usando group_by() y summarise()."),
-            tags$li("Genera un histograma y un boxplot de tus datos; interpreta si existen valores atípicos."),
-            tags$li("Calcula el coeficiente de variación para evaluar la estabilidad de rendimientos.")
+        # Usamos navset para separar Asimetría y Curtosis
+        navset_card_pill(
+          # --- SUB-PESTAÑA: ASIMETRÍA ---
+          nav_panel(
+            title = "Asimetría (Skewness)",
+            p(strong("La asimetría mide la falta de simetría de una distribución.")),
+            p(
+                "En un mundo ideal, muchos de nuestros datos seguirían una distribución normal perfectamente simétrica. Sin embargo, en la biología y la agronomía, los sesgos son comunes. Un sesgo nos indica que los datos no se distribuyen equitativamente alrededor de la media."
+            ),
+            tags$ul(
+                tags$li(strong("Asimetría > 0 (Sesgo Positivo):"), " La 'cola' de la distribución se alarga hacia la derecha. Esto es muy común en datos que no pueden ser negativos, como el conteo de plagas, la biomasa o los días hasta la floración. Hay muchas observaciones agrupadas en valores bajos, pero unas pocas observaciones con valores muy altos 'estiran' la media hacia la derecha."),
+                tags$li(strong("Asimetría < 0 (Sesgo Negativo):"), " La 'cola' se alarga hacia la izquierda. Es menos común, pero puede ocurrir con datos que tienen un límite superior, como el porcentaje de germinación (muchas parcelas pueden tener 95-100%, pero algunas pueden tener valores mucho más bajos).")
+            ),
+            p(
+                "La relación entre la media, mediana y moda es un indicador clave del sesgo: en un sesgo positivo, típicamente ", code("Media > Mediana > Moda"), "."
+            ),
+            hr(),
+            h6("Laboratorio Interactivo: Explorando el Sesgo con la Distribución Gamma"),
+            p(
+                "La ", strong("distribución Gamma"), " es un modelo de probabilidad muy útil en ciencias biológicas porque solo toma valores positivos y es naturalmente asimétrica. Se define por un parámetro de ", em("forma (shape)."), " En este laboratorio, puedes manipular este parámetro para ver cómo cambia el sesgo."
+            ),
+            sidebarLayout(
+              sidebarPanel(
+                width=3,
+                sliderInput(ns("skew_shape"), "Parámetro de Forma (Gamma):", min=1.1, max=10, value=2, step=0.1),
+                p(class="text-muted", "Un valor bajo crea un sesgo positivo fuerte. A medida que aumenta, la distribución se vuelve más simétrica."),
+                hr(),
+                h6("Estadísticas de la Distribución:"),
+                verbatimTextOutput(ns("skew_stats_text"))
+              ),
+              mainPanel(
+                width=9,
+                plotOutput(ns("skew_plot"), height="350px")
+              )
+            )
+          ),
+          
+          # --- SUB-PESTAÑA: CURTOSIS ---
+          nav_panel(
+            title = "Curtosis (Kurtosis)",
+            p(strong("La curtosis es una medida del riesgo: la probabilidad de obtener valores extremos (outliers).")),
+            p(
+                "A menudo se malinterpreta como una medida del 'pico' de la distribución. Es más útil pensar en ella como una medida del 'peso' de las colas. Una alta curtosis no significa un pico más alto, sino colas más 'pesadas', lo que implica que los valores muy alejados de la media son más probables de lo que se esperaría en una distribución normal."
+            ),
+            p("El punto de referencia es la distribución Normal (mesocúrtica). El ", strong("Exceso de Curtosis"), " se calcula como `Curtosis - 3`."),
+            tags$ul(
+                tags$li(strong("Exceso de Curtosis > 0 (Leptocúrtica):"), " 'Colas pesadas'. El riesgo de outliers es alto. Imagina los datos de rendimiento de un año con una sequía inesperada o una plaga devastadora; la mayoría de los rendimientos son normales, pero unos pocos son catastróficamente bajos. Esto produce una distribución leptocúrtica."),
+                tags$li(strong("Exceso de Curtosis < 0 (Platicúrtica):"), " 'Colas ligeras'. El riesgo de outliers es bajo. Los datos están más uniformemente distribuidos y es menos probable encontrar valores extremos. Esto podría ocurrir en un ambiente muy controlado, como un invernadero, donde las condiciones son muy homogéneas.")
+            ),
+            hr(),
+            h6("Laboratorio Interactivo: Explorando la Curtosis con la Distribución t"),
+            p(
+                "La ", strong("distribución t de Student"), " es una familia de distribuciones que se parece a la normal pero, dependiendo de sus ", em("grados de libertad (df),"), " puede tener colas más pesadas. Es el ejemplo perfecto para entender la curtosis."
+            ),
+            sidebarLayout(
+              sidebarPanel(
+                width=3,
+                sliderInput(ns("kurt_df"), "Grados de Libertad (Distribución t):", min=1, max=30, value=3, step=1),
+                p(class="text-muted", "Pocos grados de libertad producen colas muy pesadas (alta curtosis). A medida que `df` aumenta, la distribución t se aproxima a la Normal."),
+                hr(),
+                h6("Estadísticas de la Distribución:"),
+                verbatimTextOutput(ns("kurt_stats_text"))
+              ),
+              mainPanel(
+                width=9,
+                plotOutput(ns("kurt_plot"), height="350px")
+              )
+            )
+          )
+        ),
+        hr(),
+        # --- SECCIÓN FINAL DE CONCLUSIÓN ---
+        h4(class="section-header", "¿Por Qué Nos Importa la Forma para el Diseño de Experimentos?"),
+        tags$div(class="alert alert-success", role="alert",
+          tags$h5(class="alert-heading", "La Conexión con el ANOVA y las Pruebas Paramétricas"),
+          p(
+              "El Análisis de Varianza (ANOVA), que es la herramienta central que usaremos a partir de la Sesión 4, es una ", strong("prueba paramétrica."), " Esto significa que su validez matemática se basa en varios supuestos, siendo uno de los más importantes que los ", strong("errores (residuales) del modelo sigan una distribución normal."), " Una distribución normal es, por definición, simétrica (asimetría = 0) y mesocúrtica (exceso de curtosis = 0)."
+          ),
+          p(
+              "Si nuestros datos originales tienen un sesgo o una curtosis muy pronunciados, es muy probable que los residuales de nuestro modelo ANOVA también los tengan, violando así los supuestos de la prueba. Esto puede llevar a:",
+              tags$ul(
+                  tags$li("P-valores incorrectos, lo que nos puede hacer cometer Errores de Tipo I o II."),
+                  tags$li("Estimaciones de los efectos de los tratamientos que no son fiables.")
+              )
+          ),
+          p(
+              "Por lo tanto, analizar la asimetría y la curtosis en la fase de exploración de datos es una ", strong("medida de diagnóstico crucial."), " Nos alerta sobre posibles problemas y nos permite tomar acciones correctivas (como la transformación de datos, ej. logarítmica para datos con sesgo positivo) antes de realizar el análisis inferencial. Es el equivalente a que un mecánico revise el motor antes de una carrera larga."
           )
         )
       ),
 
       # ——————————————
-      # PESTAÑA: 2 Curtosis/Asimetría
+      # PESTAÑA 3: Análisis por Grupos
       # ——————————————
-
-      # --- UI: pestaña 2 Curtosis/Asimetría ---
       nav_panel(
-        title = "2 Curtosis/Asimetría",
-        h4(class = "section-header", "Curtosis y Asimetría"),
+        title = "3. Análisis por Grupos",
         
-        # ---- Texto teórico ----
-        tags$br(),
-        h5(class = "section-header", "Explicación teorica"),
-        tags$div(class = "theory-text",
-          tags$p("La curtosis y la asimetría describen la forma de la distribución de los datos. Según Joanes y Gill (1998), la asimetría mide la simetría, con valores negativos indicando distribución sesgada a la izquierda y positivos a la derecha, mientras que la curtosis mide la “colitud” de las colas, con valores positivos indicando colas pesadas (leptocúrtica) y negativos colas ligeras (platicúrtica). En R, estas medidas se calculan con el paquete ", tags$i("moments"), "."),
+        navset_card_pill(
+          header = h4(class="section-header", "De Datos Crudos a Insights: Resumiendo por Grupos"),
+
+          # --- SUB-PESTAÑA: TEORÍA ---
+          nav_panel(
+              title = "Guía y Funciones Clave",
+              
+              h5("La Estrategia 'Dividir-Aplicar-Combinar'"),
+              p("En la mayoría de los análisis agronómicos, no queremos una sola media para todo el ensayo; queremos comparar las medias de diferentes tratamientos, variedades o condiciones. El flujo de trabajo para lograr esto se conoce como ", strong("Dividir-Aplicar-Combinar"), " (Split-Apply-Combine), una estrategia popularizada por Hadley Wickham."),
+              tags$ol(
+                  tags$li(strong("Dividir:"), " Se divide el conjunto de datos completo en subconjuntos más pequeños, basados en los niveles de una o más variables categóricas. Esto se hace con ", code("group_by()"), "."),
+                  tags$li(strong("Aplicar:"), " A cada subconjunto, se le aplica una función de resumen (como `mean()`, `sd()`, `n()`)."),
+                  tags$li(strong("Combinar:"), " Los resultados de cada subconjunto se combinan en una nueva tabla de resumen. La función ", code("summarise()"), " se encarga de los pasos 2 y 3.")
+              ),
+              
+              p("El paquete ", code("dplyr"), " hace este proceso increíblemente fluido y legible usando el operador pipe (", code("%>%"), ")."),
+              
+              hr(),
+              
+              h5("Ampliando el Poder con `across()`"),
+              p(
+                  "¿Qué pasa si queremos calcular la media y la desviación estándar para tres variables diferentes (ej. rendimiento, altura, biomasa)? Escribir el código para cada una sería repetitivo. La función ", code("across()"), " es la solución moderna. Nos permite aplicar las mismas operaciones a múltiples columnas a la vez dentro de un ", code("summarise()"), " o ", code("mutate()"), "."
+              ),
+              pre(class="r-code", htmltools::HTML(
+                  "datos %>% \n",
+                  "  group_by(tratamiento) %>% \n",
+                  "  summarise(\n",
+                  "    across(c(rendimiento, altura, biomasa), # Columnas a resumir\n",
+                  "           list(media = ~mean(.x, na.rm=T), # Funciones a aplicar\n",
+                  "                sd = ~sd(.x, na.rm=T)),\n",
+                  "           .names = '{.col}_{.fn}'), # Cómo nombrar las nuevas columnas\n",
+                  "    n = n() # Contar observaciones por grupo\n",
+                  "  )"
+              ))
+          ),
           
-          # Ecuaciones con MathJax
-          tags$p(
-            "Se definen matemáticamente como:",
-            withMathJax(helpText("$$\\gamma_1 = \\frac{E\\bigl[(X-\\mu)^3\\bigr]}{\\sigma^3}, \\quad \\text{(Asimetría)}$$")),
-            withMathJax(helpText("$$\\gamma_2 = \\frac{E\\bigl[(X-\\mu)^4\\bigr]}{\\sigma^4} - 3, \\quad \\text{(Exceso de Curtosis)}$$"))
-          ),
-
-          tags$p("Donde \\(\\mu\\) es la media, \\(\\sigma\\) la desviación estándar, \\(E[\\cdot]\\) esperanza matemática. Un \\(\\gamma_1 > 0\\) indica sesgo a la derecha; \\(\\gamma_1 < 0\\), sesgo a la izquierda. Un \\(\\gamma_2 > 0\\) es leptocúrtico; \\(\\gamma_2 < 0\\), platicúrtico; y \\(\\gamma_2 = 0\\) mesocúrtico, igual a la normal."),
-
-          # Rangos recomendados
-          tags$p(
-            "Para aproximarse a una distribución normal y aplicar tests paramétricos, se recomienda que la asimetría se mantenga entre −1 y +1 (excelente) o como máximo ±2 (aceptable), y que el exceso de curtosis esté dentro de ±2 (estricto) o, en contextos más flexibles, dentro de −7 a +7 (Byrne, 2010; Hair et al., 2010)."
-          ), 
-
-          tags$div(class = "note-cloud",
-            tags$strong("Ayuda al alumno:"),
-            "Cuando calcules la curtosis, fíjate si usas exceso de curtosis (γ₂) o la definición directa (kurtosis – 3)."
-          ),
-
-          # Utilidad en agronomía
-          tags$p("En agronomía, estos estadísticos permiten:"),
-          tags$ul(
-            tags$li(
-              "  - Detectar sesgos en los rendimientos para ajustar manejo: valores de asimetría próximos a cero garantizan la validez de ANOVA y regresión lineal en ensayos de campo (George & Mallery, 2010)."
-            ),
-
-            tags$li(
-              "Cuantificar riesgo de eventos extremos: un exceso de curtosis positivo indica colas pesadas y mayor probabilidad de rendimientos muy bajos o muy altos, afectando planificación de cosecha y control de calidad (SPC for Excel, 2007)."
-            ),
-
-            tags$li(
-              "Identificar homogeneidad en parcelas: exceso de curtosis negativo señala colas ligeras, propio de datos más uniformes, deseable en ensayos comparativos de variedades (Ramirez, 2001)."
-            ),
-
-            tags$li(
-              "Diseñar prácticas resilientes: un sesgo bajo (|γ₁| < 0.5) y exceso de curtosis cercano a cero (|γ₂| < 0.5) son óptimos para modelos de estabilidad interanual y pronósticos de rendimiento (Tabachnick & Fidell, 2013)."
-            ), 
-          ),
-
-          # Ejemplo de datos y figura
-          tags$p(
-            "Ejemplo de datos (t/ha): ",
-            tags$code("c(4.8, 5.5, 5.0, 6.1, 4.9, 5.3, 5.8, 4.7, 5.0, 5.4, 4.6, 5.2)")
-          ),
-
-          tags$p(
-            "Calculamos en R:",
-            tags$code("skewness(datos)  ≈ -0.15"),
-            ", ",
-            tags$code("kurtosis(datos) ≈ -0.42"),
-            "—ambos cercanos a cero, indicando una distribución casi normal."
-          ),
-
-          tags$p("A continuación, la distribución de estos datos con líneas punteadas que señalan la media (rojo), la dirección del sesgo (morado) y la curtosis (marrón):"),
-          plotOutput(ns("skewKurtIllustration"), height = "300px")
-
-        ),
-
-        # ---- Ejemplo práctico en R ----
-        h5(class = "section-header", "Ejemplo práctico en R"),
-        tags$pre(
-          class = "r-code",
-          htmltools::HTML(
-            "# Instalar y cargar paquete\n",
-            "# install.packages('moments')\n",
-            "library(moments)\n",
-            "\n",
-            "# Supongamos datos ficticios en un data.frame\n",
-            "set.seed(42)\n",
-            "datos <- data.frame(variable = c(rnorm(100, 10, 2), rnorm(10, 20, 1)))\n",
-            "\n",
-            "# Calcular asimetría y curtosis\n",
-            "asimetria <- skewness(datos$variable)    # skewness()\n",
-            "curtosis   <- kurtosis(datos$variable)   # kurtosis()  (retorna exceso de curtosis)\n",
-            "print(paste('Asimetría =', round(asimetria, 3)))\n",
-            "print(paste('Exceso de Curtosis =', round(curtosis, 3)))\n"
-          )
-        ),
-
-        # ---- Visualización de datos ----
-        tags$br(),
-        tags$h5("Visualización de distribuciones"),
-        tags$p("Para explorar la forma de la distribución se recomienda usar:"),
-        tags$ul(
-          tags$li(tags$b("Histograma:"), " identifica la forma general (normalidad, sesgos, multimodalidad)."),
-          tags$li(tags$b("Boxplot:"), " muestra mediana, cuartiles y outliers (<1.5×IQR)."),
-          tags$li(tags$b("Gráfico de densidad:"), " enfatiza colas y picos suavizados.")
-        ),
-
-        # Curtosis
-        tags$h5("Visualización interactiva de Curtosis"),
-        plotlyOutput(ns("kurtosisPlot"), height = "300px"),
-        tags$div(class = "plot-explanation",
-          tags$p(
-            "La curtosis mide el peso relativo de las colas de la distribución frente a su parte central. Aunque se pensó inicialmente que cuantificaba el \"pico\" de la curva, en realidad refleja la probabilidad de obtener valores extremos."
-          ),
-          tags$p(
-            "Una distribución normal tiene curtosis = 3. Muchos paquetes reportan el ",
-            tags$b("exceso de curtosis"),
-            " (kurtosis – 3), de modo que para la normal el exceso es 0."
-          ),
-          tags$ul(
-            tags$li(
-              tags$b("Mesocúrtica (Exceso = 0):"),
-              " igual a la normal; función ",
-              tags$code("dnorm(x, 0, 1)")
-            ),
-            tags$li(
-              tags$b("Leptocúrtica (Exceso > 0):"),
-              " colas pesadas, mayor probabilidad de valores extremos; ejemplo con ",
-              tags$code("dt(x, df = 2)")
-            ),
-            tags$li(
-              tags$b("Platicúrtica (Exceso < 0):"),
-              " colas ligeras, menor probabilidad de valores extremos; ejemplo con ",
-              tags$code("dunif(x, -3, 3)")
-            )
-          ),
-          tags$p(
-            "En este gráfico usamos un rango simétrico de ",
-            tags$code("x = -5"),
-            " a ",
-            tags$code("x = 5"),
-            " para comparar claramente la extensión y el peso de las colas en cada caso."
-          )
-        ),
-
-
-        # Asimetría
-        tags$h5("Visualización interactiva de Asimetría"),
-        tags$br(),
-        plotlyOutput(ns("skewnessPlot"), height = "400px"),
-        tags$div(class = "plot-explanation",
-          tags$p("Este gráfico interactivo muestra tres paneles con distribuciones de distinto sesgo:"),
-          tags$ul(
-            tags$li(tags$b("Sesgo Positivo (Gamma):"),
-                    " una distribución Gamma (shape = 2, scale = 2) con cola larga a la derecha;"),
-            tags$li(tags$b("Distribución Simétrica (Normal):"),
-                    " una curva normal estándar sin sesgo;"),
-            tags$li(tags$b("Sesgo Negativo (Gamma invertida):"),
-                    " el espejo de la Gamma, con cola larga a la izquierda.")
-          ),
-          tags$p("En cada panel se han añadido líneas verticales que señalan:"),
-          tags$ul(
-            tags$li(tags$span(style = "color:blue;", "Moda"), "(línea sólida azul)"),
-            tags$li(tags$span(style = "color:green;", "Mediana"), "(línea punteada verde)"),
-            tags$li(tags$span(style = "color:red;", "Media"), "(línea punteada roja)")
-          ),
-          tags$p("Los rangos en el eje X son:"),
-          tags$ul(
-            tags$li("0 a 14 para Sesgo Positivo,"),
-            tags$li("-6 a 6 para la Distribución Simétrica,"),
-            tags$li("-14 a 0 para Sesgo Negativo.")
-          ),
-        ),    
-
-        # ---- Tabla resumen ----
-        tags$br(),
-        h5(class = "section-header", "Tabla resumen"),
-        tags$div(class = "table-responsive",
-          tags$table(class = "table table-bordered",
-            tags$thead(
-              tags$tr(
-                tags$th("Medida"),
-                tags$th("Definición"),
-                tags$th("Interpretación"),
-                tags$th("Función en R (moments)")
-              )
-            ),
-            tags$tbody(
-              tags$tr(
-                tags$td("Curtosis"),
-                tags$td("Pesadez de las colas de la distribución"),
-                tags$td(
-                  tags$ul(
-                    tags$li("> 0: Leptocúrtica colas pesadas, pico agudo"),
-                    tags$li("< 0: Platicúrtica colas ligeras, pico plano"),
-                    tags$li("= 0: Mesocúrtica igual a normal")
-                  )
-                ),
-                tags$td(tags$code("kurtosis(x)"))
+          # --- SUB-PESTAÑA: LABORATORIO INTERACTIVO ---
+          nav_panel(
+            title = "Laboratorio Interactivo de `dplyr`",
+            p("Usa los controles para construir tu propio resumen descriptivo. Selecciona cómo agrupar los datos, qué variables resumir y qué estadísticas calcular."),
+            sidebarLayout(
+              sidebarPanel(
+                width = 4,
+                tags$h5("Controles de Agrupación y Resumen"),
+                
+                # Generar datos de ejemplo
+                actionButton(ns("gen_data_s2"), "Generar/Refrescar Datos de Ejemplo", icon=icon("sync")),
+                hr(),
+                
+                # Seleccionar variables para agrupar
+                selectizeInput(ns("group_vars_s2"), "1. Agrupar por:", 
+                              choices = c("Tratamiento", "Lote"), 
+                              multiple = TRUE, 
+                              options = list(placeholder = 'Selecciona una o más...')),
+                
+                # Seleccionar variables para resumir
+                selectizeInput(ns("summary_vars_s2"), "2. Resumir las variables:",
+                              choices = c("Rendimiento", "Calidad"),
+                              selected = "Rendimiento",
+                              multiple = TRUE),
+                
+                # Seleccionar funciones de resumen
+                checkboxGroupInput(ns("summary_funs_s2"), "3. Calcular estas estadísticas:",
+                                  choices = c("Media" = "mean", 
+                                              "Desv. Estándar" = "sd", 
+                                              "Coef. de Variación (%)" = "cv",
+                                              "Conteo (n)" = "n"),
+                                  selected = c("mean", "sd", "n"))
               ),
-              tags$tr(
-                tags$td("Asimetría"),
-                tags$td("Falta de simetría alrededor de la media"),
-                tags$td(
-                  tags$ul(
-                    tags$li("> 0: Sesgo positivo cola derecha alargada"),
-                    tags$li("< 0: Sesgo negativo cola izquierda alargada"),
-                    tags$li("≈ 0: Simétrica")
-                  )
-                ),
-                tags$td(tags$code("skewness(x)"))
+              mainPanel(
+                  width = 8,
+                  h6("Datos de Ejemplo Generados:"),
+                  DT::dataTableOutput(ns("df_preview_s2")),
+                  hr(),
+                  h6("Tabla de Resumen Dinámica:"),
+                  DT::dataTableOutput(ns("summary_table_s2")),
+                  hr(),
+                  h6("Visualización del Resumen (Media ± Error Estándar):"),
+                  plotOutput(ns("summary_plot_s2"))
               )
             )
           )
-        ),
-
-        # ---- Ejercicio práctico ----
-        tags$br(),
-        tags$h5("Ejercicio práctico"),
-        tags$ol(
-          tags$li("Importa tu propio conjunto de datos y calcula asimetría y curtosis con ", tags$code("skewness()"), " y ", tags$code("kurtosis()"), "."),
-          tags$li("Interpreta si tu variable presenta sesgo o colas pesadas/ligeras."),
-          tags$li("Compara los resultados entre dos grupos de tratamiento usando ", tags$code("group_by()"), " + ", tags$code("summarise()"), ".")
-        ),
-      ),
-
-      # ——————————————
-      # PESTAÑA: 3 Agrupación
-      # ——————————————
-
-      nav_panel(
-        title = "3 Agrupación",
-        h4(class = "section-header", "3 Agrupación – Análisis por grupos"),
-
-        # --- Texto teórico ---
-        tags$br(),
-        h5(class = "section-header", "Explicación teorica"),
-        tags$div(class = "theory-text",
-          tags$p(
-            "En experimentos agronómicos a menudo se compara la estadística descriptiva entre grupos —por ejemplo, tratamientos o lotes— para evaluar diferencias en rendimiento o calidad. 
-            El paquete ", tags$b("dplyr"), " (parte del tidyverse) ofrece dos funciones clave:",
-          ),
-          tags$ul(
-            tags$li(
-              tags$b("group_by():"), 
-              "agrupa filas de un data frame según una o más variables categóricas."
-            ),
-            tags$li(
-              tags$b("summarise():"), 
-              "calcula estadísticas resumen por cada grupo generado por group_by()."
-            )
-          ),
-          tags$p(
-            "Usamos el pipe nativo de R (`|>`) o (`%>%`) para encadenar pasos de forma legible:"
-          )
-        ),
-
-        # --- Tabla de funciones ---
-        tags$br(),
-        tags$h5("Funciones group_by() y summarise()"),
-        tags$table(class = "table table-bordered",
-          tags$thead(
-            tags$tr(
-              tags$th("Función"),
-              tags$th("Paquete"),
-              tags$th("Descripción"),
-              tags$th("Sintaxis Básica"),
-              tags$th("Ejemplo")
-            )
-          ),
-          tags$tbody(
-            tags$tr(
-              tags$td("group_by()"),
-              tags$td("dplyr"),
-              tags$td("Define las variables de agrupación."),
-              tags$td("data %>% group_by(var1, var2)"),
-              tags$td("df %>% group_by(Tratamiento)")
-            ),
-            tags$tr(
-              tags$td("summarise()"),
-              tags$td("dplyr"),
-              tags$td("Calcula estadísticas de resumen por grupo."),
-              tags$td("data_grp %>% summarise(nueva = fun(columna))"),
-              tags$td("df_grp %>% summarise(\n  media = mean(Rendimiento, na.rm=TRUE),\n  sd = sd(Rendimiento, na.rm=TRUE),\n  n = n()\n)")
-            )
-          )
-        ),
-
-        # Selección de número de datos
-        tags$div(class = "data-selection",
-          numericInput(
-            ns("n_registros"),
-            label   = "Número de registros a generar:",
-            value   = 20,
-            min     = 5,
-            max     = 100,
-            step    = 5
-          ),
-          actionButton(ns("genData"), "Generar datos aleatorios"),
-          tags$h5("Data frame generado"),
-          tableOutput(ns("dfPreview"))
-        ),
-
-        tags$hr(),
-
-        # --- Ejemplos prácticos ---
-        tags$br(),
-        tags$h5("Ejemplos prácticos en R"),
-        # Botón y salida para ejercicio 1: solo group_by()
-        tags$div(class = "exercise",
-          tags$pre(
-            class = "r-code",
-            htmltools::HTML(
-              "# Agrupamos por una variable (Tratamiento)\n",
-              "df <- data.frame(\n",
-              "  Lote = rep(1:5, each = 4),\n",
-              "  Tratamiento = rep(c('A', 'B'), each = 2, times = 5),\n",
-              "  Rendimiento = rnorm(20, mean = 5, sd = 1),\n",
-              "  Calidad = rnorm(20, mean = 7, sd = 0.5)\n",
-              ")\n",
-              "# Agrupamos por Tratamiento\n",
-              "df_grp <- df %>% group_by(Tratamiento)\n",
-            ),
-          ),
-          # Se presentará el resultado del ejercicio al hacer clic en el botón
-          actionButton(ns("run1"), "Ejercicio: group_by()"),
-          tableOutput(ns("res1")),
-          verbatimTextOutput(ns("exp1"))
-        ),
-
-        tags$hr(),
-
-        # Botón y salida para ejercicio 2: solo summarise()
-        tags$div(class = "exercise",
-          tags$pre(
-            class = "r-code",
-            htmltools::HTML(
-              "# Resumimos TODO el data frame (sin group_by prevía)\n",
-              "df_sum <- df %>% summarise(\n",
-              "  media_rend = mean(Rendimiento, na.rm = TRUE),\n",
-              "  sd_rend    = sd(Rendimiento, na.rm = TRUE),\n",
-              "  n          = n()\n",
-              "  )\n",
-              ),
-          ),
-          actionButton(ns("run2"), "Ejercicio: summarise()"),
-          tableOutput(ns("res2")),
-          verbatimTextOutput(ns("exp2"))
-        ),
-
-        tags$hr(),
-
-        # Botón y salida para ejercicio 3: group_by() + summarise() por dos variables
-        tags$div(class = "exercise",
-          tags$pre(
-            class = "r-code",
-            htmltools::HTML(
-              "# Agrupamos y resumimos por una variable (Tratamiento)\n",
-              "df_res <- df %>%\n",
-              "      group_by(Tratamiento) %>%\n",
-              "      summarise(\n",
-              "        media_rend = round(mean(Rendimiento, na.rm = TRUE), 2),\n",
-              "        sd_rend    = round(sd(Rendimiento, na.rm = TRUE), 2),\n",
-              "        n          = n(),\n",
-              "        .groups = 'drop'\n",
-              "      )\n"
-            ),
-          ),
-          actionButton(ns("run3"), "Ejercicio: group_by(Lote, Tratamiento)"),
-          tableOutput(ns("res3")),
-          verbatimTextOutput(ns("exp3"))
-        ),
-
-        tags$hr(),
-
-        # Botón y salida para ejercicio: solo across() con mutate()
-        tags$div(class = "exercise",
-          tags$pre(
-            class = "r-code",
-            htmltools::HTML(
-              "# across: aplicar funciones a múltiples columnas sin agrupar\n",
-              "df_across <- df |> \n",
-              "  summarise(\n",
-              "    across(\n",
-              "      c(Rendimiento, Calidad),\n",
-              "      list(\n",
-              "        media = ~round(mean(.x, na.rm = TRUE), 2),\n",
-              "        sd    = ~round(sd(.x,   na.rm = TRUE), 2)\n",
-              "      ),\n",
-              "      .names = '{.col}_{.fn}'\n",
-              "    ),\n",
-              "    n_total = n()\n",
-              "  )\n"
-            )
-          ),
-          actionButton(ns("runAcrossMut"), "Ejercicio: solo across() con mutate()"),
-          tableOutput(ns("resAcrossMut")),
-          verbatimTextOutput(ns("expAcrossMut"))
-        ),
-
-        tags$hr(),
-
-        # Botón y salida para ejercicio 5: solo summarise() con across()
-        tags$div(class = "exercise",
-          tags$pre(
-            class = "r-code",
-            htmltools::HTML(
-              "# across: aplicar funciones a múltiples columnas sin agrupar\n",
-              "df_across <- df |> \n",
-              "  summarise(\n",
-              "    across(\n",
-              "      c(Rendimiento, Calidad),\n",
-              "      list(\n",
-              "        media = ~round(mean(.x, na.rm = TRUE), 2),\n",
-              "        sd    = ~round(sd(.x,   na.rm = TRUE), 2)\n",
-              "      ),\n",
-              "      .names = '{.col}_{.fn}'\n",
-              "    ),\n",
-              "    n_total = n()\n",
-              "  )\n"
-            )
-          ),
-          actionButton(ns("runAcross"), "Ejercicio: summarise(), across()"),
-          tableOutput(ns("resAcross")),
-          verbatimTextOutput(ns("expAcross"))
-        ),
-
-        tags$hr(),
-
-        # Botón y salida para ejercicio 4: summarise() con across()
-        tags$div(class = "exercise",
-          tags$pre(
-            class = "r-code",
-            htmltools::HTML(
-              "# Agrupamos y resumimos usando summarise() con across() (para aplicar la misma función a varias columnas)\n",
-              "df_acr <- df %>%\n",
-              "  group_by(Tratamiento) %>%\n",
-              "  summarise(\n",
-              "    across(\n",
-              "      c(Rendimiento, Calidad),\n",
-              "      list(\n",
-              "        media = ~round(mean(.x, na.rm = TRUE), 2),\n",
-              "        sd    = ~round(sd(.x,   na.rm = TRUE), 2)\n",
-              "      ),\n",
-              "      .names = '{.col}_{.fn}'\n",
-              "    ),\n",
-              "    n = n(),\n",
-              "    .groups = 'drop'\n",
-              "  )\n"
-            )
-          ),
-          # Se presentará el resultado del ejercicio al hacer clic en el botón
-          actionButton(ns("run4"), "Ejercicio: group_by(), summarise(across())"),
-          tableOutput(ns("res4")),
-          verbatimTextOutput(ns("exp4"))
         )
       ),
 
@@ -739,147 +376,83 @@ session2UI <- function(id) {
       # PESTAÑA: 4 Visualización
       # ——————————————
       nav_panel(
-        title = "4 Visualización",
-        h4(class = "section-header", "4 Visualización de datos"),
-
-        # Teoría
-        tags$div(class = "theory-text",
-          tags$p(
-            "Esta actividad se centra en las técnicas gráficas para la exploración de datos. La visualización es una parte crucial del análisis estadístico, ya que facilita la comprensión de patrones, tendencias y anomalías que pueden no ser evidentes solo con números (Crawley, 2013)."
+        title = "4. Visualización",
+        
+        navset_card_pill(
+          header = h4(class="section-header", "El Arte de Ver los Datos: Guía y Laboratorio Práctico"),
+          
+          # --- SUB-PESTAÑA 1: GUÍA PARA ELEGIR GRÁFICOS ---
+          nav_panel(
+              title = "Guía para Elegir Gráficos",
+              
+              p(
+                  "La elección del gráfico correcto depende de la pregunta que quieras responder. ¿Quieres comparar valores? ¿Mostrar la distribución de una variable? ¿Explorar la relación entre dos variables? Este diagrama de flujo (basado en el trabajo de A. Abela) es una excelente guía para tomar esa decisión."
+              ),
+              
+              # --- La Imagen Guía como pieza central ---
+              tags$div(class = "text-center p-3 border rounded bg-light",
+                  tags$h5("Diagrama de Selección de Gráficos"),
+                  tags$img(
+                      src    = "images/elegir_graph.jpg", # Asegúrate de que tu imagen se llame así y esté en www/images/
+                      alt    = "Guía para la selección de gráficos",
+                      class  = "img-fluid" # 'img-fluid' la hace responsive
+                  ),
+                  tags$p(class="text-muted small mt-2", "Fuente: A. Abela. Una guía para la visualización de datos.")
+              ),
+              
+              hr(),
+              
+              h5("Tipos de Gráficos Clave en Agronomía"),
+              p("Basándonos en la guía, aquí están los gráficos que más usarás en este curso:"),
+              tags$ul(
+                  tags$li(strong("Para mostrar DISTRIBUCIÓN (1 variable):"), " El ", strong("Histograma"), " y el ", strong("Gráfico de Densidad"), " son tus herramientas principales para entender la forma de tus datos (ej. la distribución del rendimiento de todas tus parcelas)."),
+                  tags$li(strong("Para COMPARAR entre ítems (1 variable por categoría):"), " El ", strong("Boxplot"), " y el ", strong("Gráfico de Violín"), " son perfectos para comparar una variable numérica (ej. rendimiento) entre diferentes categorías (ej. tratamientos o variedades)."),
+                  tags$li(strong("Para mostrar RELACIÓN (2 variables):"), " El ", strong("Gráfico de Dispersión (Scatter Plot)"), " es esencial para ver si dos variables numéricas están correlacionadas (ej. dosis de fertilizante vs. contenido de nitrógeno en hoja).")
+              )
           ),
-          tags$ul(
-            tags$li(tags$b("Histogramas:"), " útiles para visualizar la distribución de frecuencias de una variable cuantitativa continua. Permiten identificar la forma de la distribución (normal, sesgada, multimodal, etc.), la presencia de valores extremos y la variabilidad general."),
-            tags$li(tags$b("Boxplots:"), " resumen la distribución de una variable mostrando la mediana, los cuartiles (Q1 y Q3), y cualquier valor atípico fuera de 1.5 veces el rango intercuartílico. Son especialmente útiles para comparar distribuciones entre varios grupos de tratamiento o categorías. En agricultura, por ejemplo, se pueden comparar los rendimientos de diferentes variedades o tratamientos fertilizantes mediante boxplots lado a lado."),
-            tags$li(tags$b("Gráficos de barras:"), " empleados principalmente para variables categóricas (por ejemplo, distribución de frecuencias de variedades sembradas en una región, o conteo de parcelas por tipo de tratamiento). Cada barra representa una categoría y su altura corresponde a la frecuencia o proporción."),
-            tags$li(tags$b("Scatter plots:"), " muestran la relación entre dos variables cuantitativas, trazando puntos en un plano cartesiano. Son muy útiles para detectar correlaciones; por ejemplo, relacionar la cantidad de fertilizante aplicada (eje X) con el rendimiento obtenido (eje Y) para ver si existe tendencia positiva (mayor fertilizante, mayor rendimiento) o alguna tendencia no lineal."),
-            tags$li(tags$b("Gráficos de líneas:"), " útiles cuando se analizan datos de series de tiempo o tendencia a lo largo de gradientes. Por ejemplo, rendimiento de un cultivo a través de los años, o crecimiento de una planta a lo largo de semanas.")
-          ),
-          tags$p(
-            "Buenas prácticas: incluir títulos descriptivos, etiquetar los ejes con nombres y unidades, y agregar leyendas cuando corresponda. Un gráfico bien diseñado debe ser claro y transmitir la información clave de forma comprensible sin ambigüedad (Crawley, 2013). También se menciona la importancia de escalar correctamente los ejes (no truncarlos inapropiadamente) y de elegir el tipo de gráfico adecuado para cada tipo de dato."
+          
+          # --- SUB-PESTAÑA 2: LABORATORIO INTERACTIVO ---
+          nav_panel(
+              title = "4. Laboratorio de Visualización",
+              
+              h4(class = "section-header", "Constructor de Gráficos Guiado"),
+              p(
+                  "Esta herramienta interactiva sigue la lógica del diagrama de selección de gráficos. Comienza eligiendo tu objetivo principal (el tipo de gráfico) y luego ajusta las variables para explorar los datos sintéticos con un enfoque agronómico."
+              ),
+              
+              sidebarLayout(
+                  sidebarPanel(
+                      width = 3,
+                      tags$h5("1. Elige tu Objetivo"),
+                      selectInput(
+                          ns("plot_type"), "Tipo de Gráfico:",
+                          choices = c(
+                              "Comparación (Columnas)",
+                              "Relación (Dispersión)",
+                              "Relación (Burbuja)",
+                              "Distribución (Histograma)",
+                              "Composición Estática (Torta)",
+                              "Composición en el Tiempo (Áreas Apiladas)"
+                          )
+                      ),
+                      hr(),
+                      tags$h5("2. Ajusta las Variables"),
+                      # Controles dinámicos según el tipo de gráfico
+                      uiOutput(ns("plot_controls_ui_lab"))
+                  ),
+                  
+                  mainPanel(
+                      width = 9,
+                      # Texto explicativo dinámico
+                      uiOutput(ns("plot_explanation_ui")),
+                      hr(),
+                      plotly::plotlyOutput(ns("dynamic_plot_output"), height = "450px"),
+                      h5(class = "mt-4", "Código `ggplot2` Utilizado:"),
+                      verbatimTextOutput(ns("dynamic_code_output"))
+                  )
+              )
           )
-        ),
-
-        tags$br(),
-        tags$div(class = "my-image-container",
-          tags$h5("Mi gráfico explicativo"),
-          # Ruta relativa: www/images/elegir_graph.jpg → src = "images/elegir_graph.jpg"
-          tags$img(
-            src    = "images/elegir_graph.jpg",
-            alt    = "Ilustración de como elegir el gráfico adecuado",
-            class  = "img-responsive",
-            width  = "50%",       # puedes controlar tamaño con width/height
-            height = NULL,
-            style  = "border: 1px solid #ddd; border-radius: 4px; padding: 5px;"
-          ),
-        ),
-        tags$br(),
-        tags$div(class = "my-image-container",
-          tags$h5("Grafico Boxplot"),
-          # Ruta relativa: www/images/boxplot_explanation.png → src = "images/boxplot_explanation.png"
-          tags$img(
-            src    = "images/boxplot_explanation.png",
-            alt    = "Ilustración de como elegir el gráfico adecuado",
-            class  = "img-responsive",
-            width  = "50%",       # puedes controlar tamaño con width/height
-            height = NULL,
-            style  = "border: 1px solid #ddd; border-radius: 4px; padding: 5px;"
-          )
-        ),
-
-
-        # Ejemplo 1: Boxplot comparativo
-        tags$br(),
-        h5(class = "section-header", "Ejemplos prácticos en R"),
-        tags$div(class = "example-text",
-          tags$p("A continuación, se presentan ejemplos de gráficos comunes en análisis de datos agronómicos. Se incluyen ejemplos de boxplots, histogramas, gráficos de barras, scatter plots y gráficos de líneas."),
-          tags$p("Los ejemplos son generados aleatoriamente y no representan datos reales.")
-        ),
-        tags$h6("Ejemplo 1: Boxplot comparativo"),
-        tags$pre(
-          class = "r-code",
-          htmltools::HTML(
-            "# Simular rendimientos de dos variedades (t/ha)\n",
-            "variedad <- factor(c(rep('A', 15), rep('B', 15)))\n",
-            "rend_frijol <- c(rnorm(15, mean = 2.1, sd = 0.3),\n",
-            "                 rnorm(15, mean = 2.5, sd = 0.3))\n",
-            "df_box <- data.frame(Variedad = variedad, Rendimiento = rend_frijol)\n"
-          )
-        ),
-        plotOutput(ns("vizBoxplot"), height = "400px"),
-        tags$p("Comparamos la mediana y dispersión de Rendimiento entre las variedades A y B."),
-
-        tags$hr(),
-
-        # Ejemplo 2: Histograma
-        tags$br(),
-        tags$h6("Ejemplo 2: Histograma"),
-        tags$pre(
-          class = "r-code",
-          htmltools::HTML(
-            "# Reusar rend_frijol de antes o simular nueva variable\n",
-            "hist_data <- rend_frijol\n"
-          )
-        ),
-        plotOutput(ns("vizHistogram"), height = "400px"),
-        tags$p("El histograma muestra la forma de la distribución de Rendimiento, identificando sesgos y outliers."),
-
-        tags$hr(),
-
-        # Ejemplo 3: Gráfico de barras con medias y barras de error
-        tags$br(),
-        tags$h6("Ejemplo 3: Gráfico de barras con error estándar"),
-        tags$pre(
-          class = "r-code",
-          htmltools::HTML(
-            "# Calcular medias y error estándar por Variedad\n",
-            "library(dplyr)\n",
-            "df_bar <- df_box |>\n",
-            "  group_by(Variedad) |>\n",
-            "  summarise(\n",
-            "    media = mean(Rendimiento),\n",
-            "    se    = sd(Rendimiento)/sqrt(n()),\n",
-            "    .groups = 'drop'\n",
-            "  )\n"
-          )
-        ),
-        plotOutput(ns("vizBarplot"), height = "400px"),
-        tags$p("Las barras muestran la media de Rendimiento y las líneas de error son ± 1 SE."),
-
-        tags$hr(),
-
-        # Ejemplo 4: Scatter plot (Fertilizante vs Rendimiento)
-        tags$br(),
-        tags$h6("Ejemplo 4: Scatter plot"),
-        tags$pre(
-          class = "r-code",
-          htmltools::HTML(
-            "# Simular dosis de fertilizante y rendimiento\n",
-            "set.seed(2025)\n",
-            "fert <- runif(50, 50, 150)                  # kg/ha\n",
-            "yield <- 0.02 * fert + rnorm(50, 5, 0.5)    # t/ha\n",
-            "df_scatter <- data.frame(Fertilizador = fert, Rendimiento = yield)\n"
-          )
-        ),
-        plotOutput(ns("vizScatter"), height = "400px"),
-        tags$p("Exploramos la relación lineal entre dosis de fertilizante y rendimiento."),
-
-        tags$hr(),
-
-        # Ejemplo 5: Gráfico de líneas (Serie temporal)
-        tags$br(),
-        tags$h6("Ejemplo 5: Gráfico de líneas"),
-        tags$pre(
-          class = "r-code",
-          htmltools::HTML(
-            "# Simular dosis de fertilizante y rendimiento\n",
-            "set.seed(2025)\n",
-            "fert <- runif(50, 50, 150)                  # kg/ha\n",
-            "yield <- 0.02 * fert + rnorm(50, 5, 0.5)    # t/ha\n",
-            "df_scatter <- data.frame(Fertilizador = fert, Rendimiento = yield)\n"
-          )
-        ),
-        plotOutput(ns("vizLine"), height = "400px"),
-        tags$p("La línea muestra la tendencia de rendimiento a lo largo del tiempo.")
+        )
       ),
 
       # ——————————————
@@ -1004,9 +577,13 @@ session2UI <- function(id) {
 }
 
 session2Server <- function(input, output, session) {
-  
+  ns <- session$ns
+
+  # =================================================================
   #-- PESTAÑA: 1 Medidas básicas
-  
+  # =================================================================
+
+  # --- LÓGICA PARA LA SUB-PESTAÑA "TEORÍA" ---
   # Gráfico de teoría: media, mediana y moda
   output$theoryPlot <- renderPlot({
     library(ggplot2)
@@ -1064,530 +641,567 @@ session2Server <- function(input, output, session) {
       theme_minimal()
   })
   
-  # Gráfico de escenarios de datos
-  library(ggplot2)
-  library(dplyr)
-  
+  # Reactive que genera los datos para ambos gráficos de dispersión
+  dispersion_data <- reactive({
+      req(input$sigma)
+      mu <- 10
+      sigma <- input$sigma
+      
+      # Datos para la curva de densidad
+      curve_df <- data.frame(x = seq(mu - 4*5, mu + 4*5, length.out=500)) %>%
+                  mutate(dens = dnorm(x, mean = mu, sd = sigma))
+      
+      # Simular puntos de datos individuales
+      points_df <- data.frame(
+          valor = rnorm(150, mean = mu, sd = sigma),
+          y_pos = 0 # Para el strip plot
+      )
+      
+      list(curve = curve_df, points = points_df, mu = mu, sigma = sigma)
+  })
+
+  # Gráfico de Densidad (Curva)
   output$densPlot <- renderPlot({
-    mu    <- 10
-    sigma <- input$sigma
-
-    # Cálculo de varianza y CV
-    varianza <- sigma^2                                # Varianza = σ²
-    cv_pct    <- (sigma / mu) * 100                    # CV en porcentaje
-
-    # Generar datos
-    x <- seq(mu - 4*sigma, mu + 4*sigma, length.out = 500)
-    y <- dnorm(x, mean = mu, sd = sigma)
-    df <- data.frame(x = x, dens = y)
-
-    validate(
-      need(nrow(df) > 0, "No hay datos para graficar")
-    )
-
-    ggplot(df, aes(x = x, y = dens)) +
-      # Área bajo la curva
-      geom_area(fill = "purple", alpha = 0.5) +
-      geom_line(color = "purple", size = 1) +
-
-      # Línea punteada en mu
-      geom_vline(xintercept = mu, linetype = "dashed", size = 0.7) +
-
-      # Flecha desde y = 0.45 hasta la curva en x = mu
-      annotate("segment",
-              x    = mu + 1, xend = mu,
-              y    = 0.45,  yend = dnorm(mu, mu, sigma),
-              arrow = grid::arrow(length = unit(0.2, "cm")),
-              colour = "black"
-      ) +
-
-      # Texto explicativo junto a la flecha
-      annotate("text",
-              x     = mu + 1.2,
-              y     = 0.45,
-              label = "Media~(mu==10)",
-              parse = TRUE,
-              hjust = 0, vjust = 0.5,
-              size  = 4
-      ) +
-
-      # Etiquetas y tema
-      labs(
-        title = paste0(
-        "Distribución Normal con σ ≈ ", round(sigma, 2),
-        "  |  CV ≈ ", round(cv_pct, 2), "%", 
-        "  |  Varianza ≈ ", round(varianza, 2)
-        ),
-        x     = "Valor",
-        y     = "Densidad"
-      ) +
-      theme_minimal() +
-
-      # Fijar el eje y hasta 0.5 sin recortar datos
-      coord_cartesian(ylim = c(0, 0.5))
-  })
-
-  datosAleatorios <- reactive({
-    switch(input$escenario,
-      "normal"         = rnorm(100, mean = 50, sd = 10),
-      "outliers"       = c(rnorm(100, 50, 10), 150, 160, 170),
-      "cv_alto"        = rnorm(100, mean = 10, sd = 20),
-      "sd_grande"      = rnorm(100, mean = 50, sd = 40),
-      "skew_right"     = rgamma(100, shape = 2, scale = 10),
-      "skew_left"      = -rgamma(100, shape = 2, scale = 10) + 100,
-      "bimodal"        = c(rnorm(50, mean = 30, sd = 5),
-                           rnorm(50, mean = 70, sd = 5))
-    ) %>% 
-    data.frame(value = .)
+      data <- dispersion_data()
+      
+      ggplot(data$curve, aes(x = x, y = dens)) +
+          geom_area(fill = "skyblue", alpha = 0.5) +
+          geom_line(color = "navy", size = 1) +
+          geom_vline(xintercept = data$mu, linetype = "dashed", color = "red") +
+          # FIJAR LOS LÍMITES DEL EJE Y
+          coord_cartesian(
+              xlim = c(data$mu - 20, data$mu + 20), 
+              ylim = c(0, 0.85) # Límite máximo basado en dnorm(0,0,0.5)
+          ) +
+          labs(
+              title = paste0("Forma de la Distribución (σ = ", round(data$sigma, 2), ")"),
+              x = "Valor", y = "Densidad"
+          ) +
+          theme_minimal(base_size = 14)
   })
   
-  # Histograma
-  output$histPlot <- renderPlot({
-    df <- datosAleatorios()
-    ggplot(df, aes(x = value)) +
-      geom_histogram(binwidth = diff(range(df$value))/30, 
-                     fill = "steelblue", alpha = 0.7, color = "white") +
-      labs(
-        title    = "Histograma de datos aleatorios",
-        subtitle = names(which(
-          c(
-            normal = "Normal",
-            outliers = "Con outliers",
-            cv_alto = "CV alto",
-            sd_grande = "SD muy grande",
-            skew_right = "Sesgo derecha",
-            skew_left = "Sesgo izquierda",
-            bimodal = "Bimodal"
-          ) == input$escenario
-        )),
-        x = "Valor", y = "Frecuencia"
-      ) +
-      theme_minimal()
+  # Gráfico de Puntos (Strip Plot)
+  output$stripPlot <- renderPlot({
+      data <- dispersion_data()
+      
+      ggplot(data$points, aes(x = valor, y = y_pos)) +
+          # geom_jitter añade dispersión vertical para evitar sobreposición
+          geom_jitter(color = "navy", alpha = 0.6, width = 0, height = 0.5) +
+          geom_vline(xintercept = data$mu, linetype = "dashed", color = "red") +
+          # Ocultar el eje Y ya que no tiene significado
+          theme_minimal(base_size = 14) +
+          theme(
+              axis.title.y = element_blank(),
+              axis.text.y = element_blank(),
+              axis.ticks.y = element_blank(),
+              panel.grid.major.y = element_blank(),
+              panel.grid.minor.y = element_blank()
+          ) +
+          coord_cartesian(xlim = c(data$mu - 20, data$mu + 20)) +
+          labs(
+              title = paste0("Dispersión de los Datos (σ = ", round(data$sigma, 2), ")"),
+              x = "Valor", y = ""
+          )
   })
   
-  # Boxplot
-  output$boxPlot <- renderPlot({
-    df <- datosAleatorios()
-    ggplot(df, aes(y = value, x = "")) +
-      geom_boxplot(outlier.color = "red", width = 0.3) +
-      labs(
-        title = "Boxplot de datos aleatorios",
-        x     = NULL,
-        y     = "Valor"
-      ) +
-      theme_minimal() +
-      theme(
-        axis.text.x = element_blank(),
-        axis.ticks.x = element_blank()
+  # Interpretación (ahora depende de dispersion_data())
+  output$dispersion_interpretation <- renderUI({
+      data <- dispersion_data()
+      cv_pct <- (data$sigma / data$mu) * 100
+      
+      interpret_text <- if (cv_pct < 15) {
+          "Un CV bajo indica que los datos son muy consistentes y están agrupados cerca de la media. ¡Ideal para un experimento controlado!"
+      } else if (cv_pct < 30) {
+          "Un CV moderado sugiere una variabilidad esperable en muchos ensayos de campo."
+      } else {
+          "Un CV alto indica una gran dispersión relativa. En agronomía, esto podría significar heterogeneidad en el suelo o un manejo inconsistente que debería investigarse."
+      }
+      HTML(paste("Con un CV de ", strong(paste0(round(cv_pct, 1), "%")), ",", interpret_text))
+  })
+
+  # --- LÓGICA PARA LA SUB-PESTAÑA "LABORATORIO DE DISTRIBUCIONES" ---
+
+  # Reactive que genera los datos del escenario seleccionado
+  datos_escenario <- reactive({
+      set.seed(123) # Usamos semilla fija para consistencia
+      switch(input$escenario,
+          "normal"     = rnorm(150, mean = 50, sd = 10),
+          "outliers"   = c(rnorm(147, 50, 8), 110, 125, -10),
+          "cv_alto"    = rnorm(150, mean = 10, sd = 5), # SD es 50% de la media
+          "skew_right" = rgamma(150, shape = 2, scale = 10),
+          "skew_left"  = max(rgamma(150, shape=3, scale=15)) - rgamma(150, shape=3, scale=15),
+          "bimodal"    = c(rnorm(75, mean = 30, sd = 5), rnorm(75, mean = 70, sd = 5))
+      )
+  })
+  
+  # Salida de la tabla de estadísticas
+  output$stats_table <- renderTable({
+      datos <- datos_escenario()
+      req(datos)
+      
+      data.frame(
+          Métrica = c("Media", "Mediana", "Desv. Estándar", "CV (%)", "Asimetría", "Exceso de Curtosis"),
+          Valor = round(c(
+              mean(datos),
+              median(datos),
+              sd(datos),
+              (sd(datos) / mean(datos)) * 100,
+              moments::skewness(datos),
+              moments::kurtosis(datos) - 3
+          ), 2)
+      )
+  }, bordered = TRUE)
+  
+  # Salida del histograma
+  output$histPlot_escenario <- renderPlot({
+      df <- data.frame(valor = datos_escenario())
+      ggplot(df, aes(x=valor)) +
+          geom_histogram(bins=20, fill="steelblue", alpha=0.8, color="white") +
+          geom_vline(aes(xintercept = mean(valor)), color="red", linetype="dashed", size=1) +
+          geom_vline(aes(xintercept = median(valor)), color="green", linetype="dotted", size=1) +
+          labs(title="Histograma (Media=Rojo, Mediana=Verde)") +
+          theme_bw()
+  })
+  
+  # Salida del boxplot
+  output$boxPlot_escenario <- renderPlot({
+      df <- data.frame(valor = datos_escenario())
+      ggplot(df, aes(y=valor)) +
+          geom_boxplot(fill="lightblue", outlier.color="red", outlier.shape=8) +
+          labs(title="Boxplot") +
+          theme_minimal() +
+          theme(axis.title.x=element_blank(), axis.text.x=element_blank())
+  })
+  
+  # Salida de la interpretación del escenario
+  output$scenario_interpretation <- renderUI({
+      texto <- switch(input$escenario,
+          "normal" = "Distribución simétrica y acampanada. La media y la mediana son casi idénticas. Cumple los supuestos para la mayoría de las pruebas paramétricas.",
+          "outliers" = "La mayoría de los datos son normales, pero hay valores extremos (puntos rojos). Estos outliers 'arrastran' la media (roja) lejos de la mediana (verde), que es más robusta.",
+          "cv_alto" = "Aunque la distribución puede ser simétrica, la dispersión (DE) es muy grande en comparación con la media. En agronomía, esto indica un ensayo con alta variabilidad, lo que dificulta detectar diferencias reales.",
+          "skew_right" = "La distribución tiene una cola larga a la derecha (sesgo positivo). La media es mayor que la mediana. Esto es común en datos de conteo (ej. número de plagas). Podría requerir una transformación (ej. logarítmica) para el análisis.",
+          "skew_left" = "La distribución tiene una cola larga a la izquierda (sesgo negativo). La media es menor que la mediana. Puede ocurrir en datos de porcentajes cercanos al 100% (ej. % de germinación).",
+          "bimodal" = "¡Se ven claramente dos picos! Esto sugiere que tus datos provienen de dos poblaciones mezcladas (ej. rendimiento de dos variedades diferentes analizadas juntas). El primer paso sería separar y analizar estos grupos."
+      )
+      HTML(texto)
+  })
+
+  # --- LÓGICA PARA LA SUB-PESTAÑA "EXPORTAR DATOS" ---
+  
+  # Reactive que genera los datos para exportar
+  datos_para_exportar <- reactive({
+      req(input$export_escenario)
+      set.seed(123) # Usamos la misma semilla para reproducibilidad
+      datos <- switch(input$export_escenario,
+          "normal"     = rnorm(150, mean = 50, sd = 10),
+          "outliers"   = c(rnorm(147, 50, 8), 110, 125, -10),
+          "cv_alto"    = rnorm(150, mean = 10, sd = 5),
+          "skew_right" = rgamma(150, shape = 2, scale = 10),
+          "skew_left"  = max(rgamma(150, shape=3, scale=15)) - rgamma(150, shape=3, scale=15),
+          "bimodal"    = c(rnorm(75, mean = 30, sd = 5), rnorm(75, mean = 70, sd = 5))
+      )
+      data.frame(valor_simulado = datos)
+  })
+  
+  # Handler para la descarga en CSV
+  output$download_data_csv <- downloadHandler(
+      filename = function() {
+          paste0("datos_", input$export_escenario, "_", Sys.Date(), ".csv")
+      },
+      content = function(file) {
+          write.csv(datos_para_exportar(), file, row.names = FALSE)
+      }
+  )
+  
+  # Handler para la descarga en XLSX
+  output$download_data_xlsx <- downloadHandler(
+      filename = function() {
+          paste0("datos_", input$export_escenario, "_", Sys.Date(), ".xlsx")
+      },
+      content = function(file) {
+          # Se necesita el paquete writexl
+          writexl::write_xlsx(datos_para_exportar(), file)
+      }
+  )
+
+  # =================================================================
+  # --- LÓGICA PARA LA PESTAÑA 2: ASIMETRÍA Y CURTOSIS ---
+  # =================================================================
+
+  # --- Laboratorio de Asimetría ---
+  
+  skew_dist_data <- reactive({
+      req(input$skew_shape)
+      shape <- input$skew_shape
+      scale <- 2 # Mantenemos la escala fija
+      
+      # Generar 10,000 puntos para una estimación estable
+      datos_sim <- rgamma(10000, shape = shape, scale = scale)
+      
+      # Calcular estadísticas
+      media <- mean(datos_sim)
+      mediana <- median(datos_sim)
+      dens <- density(datos_sim)
+      moda <- dens$x[which.max(dens$y)]
+      asimetria_val <- moments::skewness(datos_sim)
+      
+      list(
+          datos = data.frame(valor = datos_sim),
+          media = media,
+          mediana = mediana,
+          moda = moda,
+          asimetria = asimetria_val
+      )
+  })
+  
+  output$skew_plot <- renderPlot({
+      data <- skew_dist_data()
+      
+      ggplot(data$datos, aes(x = valor)) +
+          geom_density(fill="orange", color="darkred", alpha=0.6) +
+          geom_vline(xintercept = data$media, color = "red", linetype="dashed", size=1) +
+          geom_vline(xintercept = data$mediana, color = "darkgreen", linetype="dotted", size=1) +
+          geom_vline(xintercept = data$moda, color = "blue", linetype="solid", size=1) +
+          annotate("text", x = data$media, y = 0, label="Media", color="red", vjust=-0.5, fontface="bold") +
+          annotate("text", x = data$mediana, y = 0, label="Mediana", color="darkgreen", vjust=-1.5, fontface="bold") +
+          annotate("text", x = data$moda, y = 0, label="Moda", color="blue", vjust=-2.5, fontface="bold") +
+          labs(
+              title = "Efecto del Sesgo en las Medidas de Tendencia Central",
+              subtitle = paste("Asimetría Calculada ≈", round(data$asimetria, 2)),
+              x = "Valor", y = "Densidad"
+          ) +
+          theme_minimal(base_size = 14)
+  })
+  
+  output$skew_stats_text <- renderPrint({
+      data <- skew_dist_data()
+      cat(
+          "Media:    ", round(data$media, 2), "\n",
+          "Mediana:  ", round(data$mediana, 2), "\n",
+          "Moda:     ", round(data$moda, 2), "\n",
+          "Asimetría:", round(data$asimetria, 2)
       )
   })
 
-  #-- PESTAÑA: 2 Curtosis/Asimetría
-
-  # Gráfico de ilustración de sesgo y curtosis
-  output$skewKurtIllustration <- renderPlot({
-    library(ggplot2)
-    library(moments)
-
-    # Datos de ejemplo
-    datos <- c(4.8, 5.5, 5.0, 6.1, 4.9, 5.3, 5.8, 4.7, 5.0, 5.4, 4.6, 5.2)
-    m      <- mean(datos)
-    s      <- sd(datos)
-    gamma1 <- skewness(datos)
-    gamma2 <- kurtosis(datos)
-
-    df <- data.frame(x = datos)
-
-    ggplot(df, aes(x)) +
-      geom_histogram(aes(y = ..density..),
-                     bins = 6,
-                     fill = "lightgreen",
-                     color = "darkgreen") +
-      geom_density(color = "darkblue", size = 1) +
-      # Media
-      geom_vline(xintercept = m, linetype = "dashed", color = "red") +
-      annotate("text", x = m, y = 0.4,
-               label = "Media", color = "red", vjust = -0.5) +
-      # Sesgo
-      annotate("segment",
-               x = m + gamma1 * s, xend = m + gamma1 * s,
-               y = 0, yend = 0.3,
-               arrow = arrow(length = unit(0.1, "inches")),
-               color = "purple") +
-      annotate("text", x = m + gamma1 * s, y = 0.32,
-               label = paste0("Sesgo = ", round(gamma1, 2)),
-               color = "purple", hjust = 0) +
-      # Curtosis
-      annotate("segment",
-               x = m, xend = m,
-               y = 0, yend = 0.25,
-               arrow = arrow(length = unit(0.1, "inches")),
-               color = "brown") +
-      annotate("text", x = m, y = 0.27,
-               label = paste0("Curtosis = ", round(gamma2, 2)),
-               color = "brown", hjust = 1) +
-      labs(
-        title    = "Distribución de rendimientos de trigo",
-        subtitle = "Media (rojo), Sesgo (morado), Curtosis (marrón)",
-        x        = "Rendimiento (t/ha)",
-        y        = "Densidad"
-      ) +
-      theme_minimal()
+  # --- Laboratorio de Curtosis ---
+  
+  kurt_dist_data <- reactive({
+      req(input$kurt_df)
+      df <- input$kurt_df
+      
+      # Generar 10,000 puntos para estimar la curtosis
+      datos_t <- rt(10000, df = df)
+      
+      # Calcular exceso de curtosis
+      # Para t-dist, kurtosis teórica es 6/(df-4) para df > 4
+      curtosis_exceso <- if (df > 4) 6 / (df - 4) else Inf
+      
+      list(
+          df_t = data.frame(valor = datos_t),
+          df_norm = data.frame(valor = rnorm(10000)),
+          curtosis_exceso_teorica = curtosis_exceso,
+          curtosis_exceso_calculada = moments::kurtosis(datos_t) - 3
+      )
   })
-
-  # Gráfico de distribución de curtosis
-  # Curtosis: comparativa de mesocúrtica (normal), leptocúrtica (t df=2) y platicúrtica (uniforme)
-  output$kurtosisPlot <- renderPlotly({
-    library(plotly)
-    # dominio común
-    x <- seq(-5, 5, length.out = 400)
-    # densidades
-    y_norm <- dnorm(x, mean = 0, sd = 1)
-    y_t2   <- dt(x, df = 2)                       # colas pesadas
-    y_unif <- dunif(x, min = -3, max = 3)         # colas ligeras
-
-    plot_ly(x = ~x, y = ~y_norm, name = "Mesocúrtica (Normal)",
-            type = "scatter", mode = "lines") %>%
-      add_trace(y = ~y_t2,   name = "Leptocúrtica (t df=2)") %>%
-      add_trace(y = ~y_unif, name = "Platicúrtica (Uniforme)") %>%
-      layout(
-        title = "Distribuciones según curtosis",
-        xaxis = list(title = "x"),
-        yaxis = list(title = "Densidad")
+  
+  output$kurt_plot <- renderPlot({
+      data <- kurt_dist_data()
+      
+      ggplot() +
+          # Distribución t (Leptocúrtica)
+          geom_density(data = data$df_t, aes(x=valor, color="t de Student"), size=1.2) +
+          # Distribución Normal (Mesocúrtica) para comparación
+          geom_density(data = data$df_norm, aes(x=valor, color="Normal"), linetype="dashed", size=1) +
+          scale_color_manual(name="Distribución", values=c("t de Student"="red", "Normal"="black")) +
+          coord_cartesian(xlim=c(-5, 5)) +
+          labs(
+              title = paste("Comparación de Curtosis: t(df=", input$kurt_df, ") vs. Normal"),
+              subtitle = paste("Exceso de Curtosis Teórico de la t ≈", round(data$curtosis_exceso_teorica, 2)),
+              x = "Valor", y = "Densidad"
+          ) +
+          theme_minimal(base_size = 14) +
+          theme(legend.position = "bottom")
+  })
+  
+  output$kurt_stats_text <- renderPrint({
+      data <- kurt_dist_data()
+      cat(
+          "Exceso de Curtosis (t-student):\n",
+          "  - Teórico: ", round(data$curtosis_exceso_teorica, 2), "\n",
+          "  - Calculado:", round(data$curtosis_exceso_calculada, 2), "\n\n",
+          "Exceso de Curtosis (Normal):\n",
+          "  - Teórico: 0"
       )
   })
 
-  # Asimetría: simétrica (normal), sesgo a la derecha (exponencial) y a la izquierda (mirrored exp)
-  library(plotly)
+  # =================================================================
+  # --- LÓGICA PARA LA PESTAÑA 3: AGRUPACIÓN ---
+  # =================================================================
 
-  output$skewnessPlot <- renderPlotly({
-    # Parámetros Gamma para sesgo positivo
-    shape <- 2; scale <- 2
-    x_pos   <- seq(0, 14, length.out = 400)
-    dens_pos <- dgamma(x_pos, shape = shape, scale = scale)
-
-    # Normal estándar (simétrica)
-    x_sym   <- seq(-6, 6, length.out = 400)
-    dens_sym <- dnorm(x_sym, 0, 1)
-
-    # Espejo Gamma para sesgo negativo
-    x_neg   <- seq(-14, 0, length.out = 400)
-    dens_neg <- dgamma(-x_neg, shape = shape, scale = scale)
-
-    # Máximo global de densidad
-    y_max_global <- max(dens_pos, dens_sym, dens_neg) * 1.1
-
-    # Función auxiliar que fija range = y_max_global
-    make_panel <- function(x, y, mn, md, mo, title) {
-      plot_ly(x = ~x, y = ~y, type = 'scatter', mode = 'lines', name = title, hoverinfo = 'none') %>%
-        add_lines(name = "Densidad") %>%
-        add_lines(x = c(mo, mo), y = c(0, y_max_global),
-                  line = list(color = 'blue', width = 2),
-                  name = 'Moda') %>%
-        add_lines(x = c(md, md), y = c(0, y_max_global),
-                  line = list(color = 'green', dash = 'dash', width = 2),
-                  name = 'Mediana') %>%
-        add_lines(x = c(mn, mn), y = c(0, y_max_global),
-                  line = list(color = 'red', dash = 'dash', width = 2),
-                  name = 'Media') %>%
-        layout(
-          title  = title,
-          xaxis  = list(title = 'x'),
-          yaxis  = list(title = 'Densidad', range = c(0, y_max_global)),
-          showlegend = FALSE
-        )
-    }
-
-    # Cálculo de media, mediana y moda para cada distribución
-    mean_pos <- shape * scale
-    mode_pos <- if(shape > 1) (shape - 1) * scale else NA
-    med_pos  <- qgamma(0.5, shape = shape, scale = scale)
-
-    mean_sym <- 0; med_sym <- 0; mode_sym <- 0
-    mean_neg <- -mean_pos; mode_neg <- -mode_pos; med_neg <- -med_pos
-
-    # Generación de los tres paneles
-    p_pos <- make_panel(x_pos,   dens_pos, mean_pos,  med_pos,  mode_pos,  "Sesgo Positivo")
-    p_sym <- make_panel(x_sym,   dens_sym, mean_sym,  med_sym,  mode_sym,  "Distribución Simétrica")
-    p_neg <- make_panel(x_neg,   dens_neg, mean_neg,  med_neg,  mode_neg,  "Sesgo Negativo")
-
-    # Combinar manteniendo la misma escala Y
-    subplot(p_pos, p_sym, p_neg,
-            nrows = 1, shareY = TRUE, margin = 0.05) %>%
-      layout(
-        title = "Comparación de Sesgos: Positivo, Simétrico & Negativo",
-        legend = list(x = 0.1, y = -0.2, orientation = 'h')
+  # Reactive para los datos de ejemplo
+  datos_agrupacion <- eventReactive(input$gen_data_s2, {
+      set.seed(Sys.time()) # Nueva semilla cada vez
+      data.frame(
+          Lote        = factor(rep(1:4, each = 10)),
+          Tratamiento = factor(rep(c('Control', 'Fert_A', 'Fert_B', 'Organico'), times = 10)),
+          Rendimiento = rnorm(40, mean = 5, sd = 0.8),
+          Calidad     = rnorm(40, mean = 7, sd = 1.2)
       )
+  }, ignoreNULL = FALSE)
+  
+  # Mostrar la tabla de datos generados
+  output$df_preview_s2 <- DT::renderDataTable({
+      DT::datatable(datos_agrupacion(), options = list(pageLength = 5, scrollX = TRUE))
   })
 
-  # -- PESTAÑA: 3 Agrupación
-
-  # Función que genera datos según n
-  make_data <- function(n) {
-    set.seed(2025)
-    data.frame(
-      Lote        = rep(1:4, length.out = n),
-      Tratamiento = rep(c('Control','Fert A','Fert B','Orgánico'), length.out = n),
-      Rendimiento = rnorm(n, mean = 5, sd = 0.5),
-      Calidad     = rnorm(n, mean = 7, sd = 1)
-    )
-  }
-
-  # Reactivo: data frame generado al pulsar genData
-  datos_reactive <- eventReactive(input$genData, {
-    make_data(input$n_registros)
+  # Reactive que construye la tabla de resumen dinámicamente
+  resumen_dinamico <- reactive({
+      df <- datos_agrupacion()
+      req(df, input$summary_vars_s2, input$summary_funs_s2)
+      
+      # Iniciar la cadena de dplyr
+      resumen <- if (!is.null(input$group_vars_s2) && length(input$group_vars_s2) > 0) {
+          df %>% group_by(across(all_of(input$group_vars_s2)))
+      } else {
+          df
+      }
+      
+      # Definir la lista de funciones de resumen seleccionadas
+      funs_list <- list()
+      if ("mean" %in% input$summary_funs_s2) funs_list$media <- ~mean(.x, na.rm = TRUE)
+      if ("sd" %in% input$summary_funs_s2) funs_list$sd <- ~sd(.x, na.rm = TRUE)
+      if ("cv" %in% input$summary_funs_s2) funs_list$cv <- ~((sd(.x, na.rm=TRUE) / mean(.x, na.rm=TRUE)) * 100)
+      
+      # Aplicar summarise con las funciones seleccionadas
+      resumen <- resumen %>%
+          summarise(
+              across(all_of(input$summary_vars_s2), funs_list, .names = "{.col}_{.fn}"),
+              .groups = 'drop'
+          )
+          
+      # Añadir el conteo 'n' si está seleccionado
+      if ("n" %in% input$summary_funs_s2) {
+          # Necesitamos calcular 'n' por separado
+          n_counts <- if (!is.null(input$group_vars_s2) && length(input$group_vars_s2) > 0) {
+              df %>% group_by(across(all_of(input$group_vars_s2))) %>% summarise(n = n(), .groups = 'drop')
+          } else {
+              df %>% summarise(n = n())
+          }
+          # Unir los conteos con el resumen
+          if (!is.null(input$group_vars_s2) && length(input$group_vars_s2) > 0) {
+              resumen <- left_join(resumen, n_counts, by = input$group_vars_s2)
+          } else {
+              resumen <- bind_cols(resumen, n_counts)
+          }
+      }
+      
+      # Redondear todas las columnas numéricas para una mejor presentación
+      resumen %>% mutate(across(where(is.numeric), ~round(., 2)))
   })
 
-  # Mostrar preview del data.frame
-  output$dfPreview <- renderTable({
-    datos_reactive()
+  # Mostrar la tabla de resumen
+  output$summary_table_s2 <- DT::renderDataTable({
+      req(resumen_dinamico())
+      DT::datatable(resumen_dinamico(), options = list(pageLength = 10, scrollX = TRUE, searching = FALSE))
+  })
+  
+  # Mostrar el gráfico de resumen
+  output$summary_plot_s2 <- renderPlot({
+      df_resumen <- resumen_dinamico()
+      req(df_resumen)
+      
+      # El gráfico solo tiene sentido si se agrupa por una variable
+      # y se calculan media y sd
+      grouping_var <- input$group_vars_s2[1] # Tomar la primera variable de agrupación para el eje X
+      summary_var <- input$summary_vars_s2[1] # Tomar la primera variable resumida para el eje Y
+      
+      # Nombres de columna esperados
+      mean_col <- paste0(summary_var, "_media")
+      sd_col <- paste0(summary_var, "_sd")
+      n_col <- "n"
+      
+      # Validar que las columnas necesarias existan
+      validate(
+          need(!is.null(grouping_var), "Por favor, selecciona al menos una variable para agrupar."),
+          need(all(c(mean_col, sd_col, n_col) %in% names(df_resumen)), 
+                "Para graficar, por favor selecciona 'Media', 'Desv. Estándar' y 'Conteo (n)' como estadísticas a calcular.")
+      )
+      
+      # Calcular error estándar
+      df_plot <- df_resumen %>%
+          mutate(se = .data[[sd_col]] / sqrt(.data[[n_col]]))
+      
+      ggplot(df_plot, aes_string(x = grouping_var, y = mean_col, fill = grouping_var)) +
+          geom_col(alpha = 0.8, show.legend = FALSE) +
+          geom_errorbar(aes(ymin = .data[[mean_col]] - se, ymax = .data[[mean_col]] + se), width = 0.2, linewidth=0.8) +
+          labs(
+              title = paste("Media de", summary_var, "por", grouping_var),
+              subtitle = "Las barras de error representan ± 1 Error Estándar (SE)",
+              x = grouping_var,
+              y = paste("Media de", summary_var)
+          ) +
+          theme_minimal(base_size = 14)
   })
 
-  # Ejercicio 1: solo group_by()
-  observeEvent(input$run1, {
-    # Usamos el data frame generado por el botón "Generar datos aleatorios"
-    df <- datos_reactive()
-    # Agrupamos sin resumir aún
-    df_grp <- df %>% group_by(Tratamiento)
-    output$res1 <- renderTable({
-      as.data.frame(head(df_grp, 12))  # muestro primeras filas de cada grupo
-    })
-    output$exp1 <- renderText({
-      paste(
-        "Se agruparon los datos por Tratamiento con group_by().",
-        "Aquí ves las primeras filas dentro de cada grupo;",
-        "este paso prepara para calcular estadísticos agrupados."
-      )
-    })
-  })
-
-  # Ejercicio 2: solo summarise()
-  observeEvent(input$run2, {
-    # Usamos el data frame generado por el botón "Generar datos aleatorios"
-    df <- datos_reactive()
-    # Resumimos TODO el data frame (sin group_by prevía)
-    df_sum <- df %>% summarise(
-      media_rend = mean(Rendimiento, na.rm = TRUE),
-      sd_rend    = sd(Rendimiento, na.rm = TRUE),
-      n          = n()
-    )
-    output$res2 <- renderTable({ df_sum })
-    output$exp2 <- renderText({
-      paste(
-        "Se aplicó summarise() directamente al data frame",
-        "sin agrupar primero, por lo que se obtiene un único conjunto de estadísticas",
-        "(media, desviación y cuenta) para todo el data set."
-      )
-    })
-  })
-
-  # Ejercicio 3: group_by(Lote, Tratamiento) + summarise()
-  observeEvent(input$run3, {
-    # Usamos el data frame generado por el botón "Generar datos aleatorios"
-    df <- datos_reactive()
-    df_res <- df %>%
-      group_by(Lote, Tratamiento) %>%
-      summarise(
-        media_cal = round(mean(Calidad, na.rm = TRUE), 2),
-        sd_cal    = round(sd(Calidad, na.rm = TRUE), 2),
-        .groups = 'drop'
-      )
-    output$res3 <- renderTable({ df_res })
-    output$exp3 <- renderText({
-      paste(
-        "Aquí agrupamos por dos variables simultáneamente (Lote y Tratamiento) y",
-        "calculamos media y desviación de Calidad en cada combinación de grupo.",
-        "Es útil para comparar cómo varía la calidad entre lotes y tratamientos."
-      )
-    })
-  })
-
-  observeEvent(input$runAcrossMut, {
-    # Usamos el data frame generado por el botón "Generar datos aleatorios"
-    df <- datos_reactive()
-
-    # Aplicar mutate() con across() para estandarizar columnas
-    df_across_mut <- df |>
-      mutate(
-        across(
-          c(Rendimiento, Calidad),
-          ~ round((.x - mean(.x, na.rm = TRUE)) / sd(.x, na.rm = TRUE), 2),
-          .names = 'estandarizada_{.col}'
-        )
-      )
-
-    # Mostrar resultados
-    output$resAcrossMut <- renderTable({ head(df_across_mut, 10) })
-
-    # Explicación
-    output$expAcrossMut <- renderText({
-      paste(
-        "En este ejercicio usamos mutate() con across():",
-        "- seleccionamos las columnas Rendimiento y Calidad;",
-        "- para cada una restamos su media y dividimos por su sd (estandarización);",
-        "- guardamos el resultado en nuevas columnas 'estandarizada_Rendimiento' y 'estandarizada_Calidad';",
-        "- mostramos las primeras 10 filas para ver las transformaciones."
-      )
-    })
-  })
-
-  # Ejercicio 5: solo summarise() con across()
-  observeEvent(input$runAcross, {
-    # Usamos el data frame generado por el botón "Generar datos aleatorios"
-    df <- datos_reactive()
-
-    # Aplicamos summarise() con across() sin agrupar
-    df_across <- df |>
-      summarise(
-        across(
-          c(Rendimiento, Calidad),
-          list(
-            media = ~round(mean(.x, na.rm = TRUE), 2),
-            sd    = ~round(sd(.x,   na.rm = TRUE), 2)
+  # =================================================================
+  # LÓGICA COMPARTIDA: Datos Sintéticos para toda la Sesión
+  # =================================================================
+  # Generamos datos sintéticos una sola vez. Esto asegura que siempre
+  # haya datos disponibles y evita problemas de lectura de archivos.
+  
+  # 1. Crear varios dataframes sintéticos para distintos contextos agronómicos
+  # --- Datos Sintéticos para el Laboratorio ---
+  df_lab_data <- reactive({
+      set.seed(123)
+      list(
+          comparacion = data.frame(
+              tratamiento = factor(rep(c("Control", "N_Bajo", "N_Alto", "Compost"), each=10)),
+              rendimiento = c(rnorm(10, 5.0, 0.8), rnorm(10, 6.0, 0.7), rnorm(10, 7.5, 0.9), rnorm(10, 5.5, 0.6))
           ),
-          .names = '{.col}_{.fn}'
-        ),
-        n_total = n()
-      )
-
-    # Mostrar resultados
-    output$resAcross <- renderTable({ df_across })
-
-    # Explicación
-    output$expAcross <- renderText({
-      paste(
-        "En este ejercicio usamos sólo summarise() con across():",
-        "- aplicamos simultáneamente las funciones media y desviación estándar",
-        "a las columnas Rendimiento y Calidad;",
-        "el resultado es UN solo registro que resume TODO el data frame;",
-        "n_total muestra el tamaño del conjunto original."
-      )
-    })
-  })
-
-  # Ejercicio 4: summarise() con across()
-  observeEvent(input$run4, {
-    # Usamos el data frame generado por el botón "Generar datos aleatorios"
-    df <- datos_reactive()
-    df_acr <- df %>%
-      group_by(Tratamiento) %>%
-      summarise(
-        across(
-          c(Rendimiento, Calidad),
-          list(
-            media = ~round(mean(.x, na.rm = TRUE), 2),
-            sd    = ~round(sd(.x,   na.rm = TRUE), 2)
+          relacion = data.frame(
+              dosis_n = runif(50, 0, 200),
+              fosforo_ppm = runif(50, 10, 40),
+              rendimiento = 2 + 0.02 * runif(50, 0, 200) + 0.05 * runif(50, 10, 40) + rnorm(50, 0, 0.5),
+              n_frutos = rpois(50, lambda=20)
           ),
-          .names = "{.col}_{.fn}"
-        ),
-        n = n(),
-        .groups = 'drop'
+          distribucion = data.frame(
+              diametro_tuberculo = rgamma(200, shape=5, scale=10)
+          ),
+          composicion = data.frame(
+              anio = factor(rep(2020:2023, each=3)),
+              cultivo = factor(rep(c("Maíz", "Soja", "Trigo"), 4)),
+              area_sembrada = abs(rnorm(12, mean=100, sd=20))
+          )
       )
-    output$res4 <- renderTable({ df_acr })
-    output$exp4 <- renderText({
-      paste(
-        "Usamos across() dentro de summarise() para aplicar varias funciones",
-        "(media y sd) a múltiples columnas a la vez, generando nombres de columnas",
-        "automáticamente con el sufijo _media y _sd."
+  })
+  
+  # =================================================================
+  # --- LÓGICA PARA LA PESTAÑA 4: VISUALIZACIÓN ---
+  # =================================================================
+  
+  # --- B. Lógica para el Laboratorio Interactivo ---
+  # --- UI dinámico para los Controles ---
+  output$plot_controls_ui_lab <- renderUI({
+      ns <- session$ns # Importante para que ns esté disponible
+      req(input$plot_type)
+      
+      df_list <- df_lab_data()
+      
+      if (input$plot_type == "Comparación (Columnas)") {
+          df <- df_list$comparacion
+          tagList(
+              selectInput(ns("comp_x"), "Variable Categórica (X):", choices = names(df)[sapply(df, is.factor)]),
+              selectInput(ns("comp_y"), "Variable Numérica (Y):", choices = names(df)[sapply(df, is.numeric)])
+          )
+      } else if (input$plot_type %in% c("Relación (Dispersión)", "Relación (Burbuja)")) {
+          df <- df_list$relacion
+          numeric_cols <- names(df)[sapply(df, is.numeric)]
+          tagList(
+              selectInput(ns("rel_x"), "Variable Numérica (X):", choices = numeric_cols, selected="dosis_n"),
+              selectInput(ns("rel_y"), "Variable Numérica (Y):", choices = numeric_cols, selected="rendimiento"),
+              if (input$plot_type == "Relación (Burbuja)") {
+                  selectInput(ns("rel_size"), "Variable para Tamaño (Burbuja):", choices = numeric_cols, selected="n_frutos")
+              }
+          )
+      } else if (input$plot_type == "Distribución (Histograma)") {
+          df <- df_list$distribucion
+          tagList(
+              selectInput(ns("dist_var"), "Variable Numérica:", choices = names(df)),
+              sliderInput(ns("dist_bins"), "Número de Barras:", min=5, max=50, value=20)
+          )
+      }
+      # Dejamos los de composición sin controles adicionales por simplicidad
+  })
+
+  # --- Reactive Principal para generar todo ---
+  reactive_plot_bundle <- reactive({
+      df_list <- df_lab_data()
+      req(input$plot_type)
+      
+      plot_obj <- ggplot() + theme_void()
+      code_string <- "# Selecciona una opción en el panel de control."
+      explanation_string <- "Selecciona una opción para ver la explicación."
+      
+      try({
+          # --- LÓGICA DE COMPARACIÓN ---
+          if (input$plot_type == "Comparación (Columnas)") {
+              req(input$comp_x, input$comp_y)
+              df <- df_list$comparacion
+              x_var <- input$comp_x; y_var <- input$comp_y
+              df_summary <- df %>% group_by(!!sym(x_var)) %>% summarise(media = mean(!!sym(y_var)))
+              code_string <- glue::glue("df_summary <- df %>% \n  group_by({x_var}) %>% \n  summarise(media = mean({y_var}))\n\n",
+                                        "ggplot(df_summary, aes(x = {x_var}, y = media, fill = {x_var})) +\n  geom_col()")
+              plot_obj <- ggplot(df_summary, aes_string(x=x_var, y="media", fill=x_var)) + geom_col(show.legend=F)
+              explanation_string <- "Se usa un gráfico de columnas para comparar una cantidad numérica (rendimiento medio) entre diferentes categorías discretas (tratamientos). Es uno de los gráficos más comunes para visualizar los resultados de un ANOVA."
+          }
+          # --- LÓGICA DE RELACIÓN ---
+          else if (input$plot_type == "Relación (Dispersión)") {
+              req(input$rel_x, input$rel_y)
+              df <- df_list$relacion
+              code_string <- glue::glue("ggplot(df, aes(x = {input$rel_x}, y = {input$rel_y})) +\n  geom_point() + geom_smooth()")
+              plot_obj <- ggplot(df, aes_string(x=input$rel_x, y=input$rel_y)) + geom_point(alpha=0.7, color="blue") + geom_smooth(method="loess")
+              explanation_string <- "El gráfico de dispersión es esencial para visualizar la relación entre dos variables continuas. Ayuda a identificar tendencias (positivas, negativas, no lineales) y posibles correlaciones."
+          }
+          else if (input$plot_type == "Relación (Burbuja)") {
+              req(input$rel_x, input$rel_y, input$rel_size)
+              df <- df_list$relacion
+              code_string <- glue::glue("ggplot(df, aes(x = {input$rel_x}, y = {input$rel_y})) +\n  geom_point(aes(size = {input$rel_size}), alpha=0.6)")
+              plot_obj <- ggplot(df, aes_string(x=input$rel_x, y=input$rel_y)) + geom_point(aes_string(size=input$rel_size), alpha=0.6, color="darkred")
+              explanation_string <- "Un gráfico de burbujas añade una tercera dimensión (el tamaño del punto) a un gráfico de dispersión. Es útil para visualizar cómo tres variables numéricas interactúan."
+          }
+          # --- LÓGICA DE DISTRIBUCIÓN ---
+          else if (input$plot_type == "Distribución (Histograma)") {
+              req(input$dist_var, input$dist_bins)
+              df <- df_list$distribucion
+              code_string <- glue::glue("ggplot(df, aes(x = {input$dist_var})) +\n  geom_histogram(bins = {input$dist_bins})")
+              plot_obj <- ggplot(df, aes_string(x=input$dist_var)) + geom_histogram(bins=input$dist_bins, fill="seagreen", alpha=0.7)
+              explanation_string <- "El histograma es la herramienta fundamental para entender la distribución de una única variable numérica. Nos permite ver si los datos son simétricos, sesgados, o si tienen múltiples picos."
+          }
+          # --- LÓGICA DE COMPOSICIÓN ---
+          else if (input$plot_type == "Composición Estática (Torta)") {
+              df_comp <- df_list$comparacion %>% group_by(tratamiento) %>% summarise(total_rend = sum(rendimiento))
+              code_string <- "ggplot(df_comp, aes(x = '', y = total_rend, fill = tratamiento)) +\n  geom_col(width=1) + coord_polar(theta='y')"
+              plot_obj <- ggplot(df_comp, aes(x="", y=total_rend, fill=tratamiento)) + geom_col(width=1) + coord_polar(theta="y") + theme_void()
+              explanation_string <- "El gráfico de torta muestra la proporción de cada componente en un total estático. Aquí, muestra qué proporción del rendimiento total del ensayo aporta cada tratamiento."
+          }
+          else if (input$plot_type == "Composición en el Tiempo (Áreas Apiladas)") {
+              df <- df_list$composicion
+              code_string <- "ggplot(df, aes(x = anio, y = area_sembrada, fill = cultivo)) +\n  geom_area()"
+              plot_obj <- ggplot(df, aes(x=anio, y=area_sembrada, fill=cultivo)) + geom_area()
+              explanation_string <- "Un gráfico de áreas apiladas muestra cómo cambia la composición de un total a lo largo del tiempo. Es ideal para visualizar cómo ha evolucionado la proporción de diferentes cultivos en una región."
+          }
+          
+          plot_obj <- plot_obj + theme_bw(base_size = 14) + labs(title = input$plot_type)
+      })
+      
+      list(plot = plot_obj, code = code_string, explanation = explanation_string)
+  })
+  
+  # --- Renderizar las Salidas Finales ---
+  output$dynamic_plot_output <- plotly::renderPlotly({
+      # CORRECCIÓN: Llamar al reactive con paréntesis
+      res <- reactive_plot_bundle(); req(res, res$plot)
+      if(inherits(res$plot, "ggplot")) plotly::ggplotly(res$plot)
+  })
+  
+  output$dynamic_code_output <- renderText({
+      # CORRECCIÓN: Llamar al reactive con paréntesis
+      res <- reactive_plot_bundle(); req(res)
+      res$code
+  })
+  
+  output$plot_explanation_ui <- renderUI({
+      # CORRECCIÓN: Llamar al reactive con paréntesis
+      res <- reactive_plot_bundle(); req(res)
+      tags$div(class="alert alert-light",
+          tags$h6("Uso Agronómico:"),
+          p(res$explanation)
       )
-    })
   })
 
-  # -- PESTAÑA: 4 Visualización
-
-  # Ejemplo 1: Boxplot comparativo
-  output$vizBoxplot <- renderPlot({
-    df_box <- data.frame(
-      Variedad = factor(c(rep('A', 15), rep('B', 15))),
-      Rendimiento = c(rnorm(15, 2.1, 0.3), rnorm(15, 2.5, 0.3))
-    )
-    ggplot(df_box, aes(x = Variedad, y = Rendimiento, fill = Variedad)) +
-      geom_boxplot() +
-      labs(
-        title = "Rendimiento por Variedad",
-        x     = "Variedad",
-        y     = "Rendimiento (t/ha)"
-      ) +
-      theme_minimal() +
-      theme(legend.position = "none")
-  })
-
-  # Ejemplo 2: Histograma
-  output$vizHistogram <- renderPlot({
-    df_box <- data.frame(
-      Rendimiento = c(rnorm(15, 2.1, 0.3), rnorm(15, 2.5, 0.3))
-    )
-    ggplot(df_box, aes(x = Rendimiento)) +
-      geom_histogram(binwidth = 0.2, fill = "steelblue", color = "white") +
-      labs(
-        title = "Histograma de Rendimiento",
-        x     = "Rendimiento (t/ha)",
-        y     = "Frecuencia"
-      ) +
-      theme_minimal()
-  })
-
-  # Ejemplo 3: Gráfico de barras con error estándar
-  output$vizBarplot <- renderPlot({
-    df_bar <- data.frame(
-      Variedad = factor(c(rep('A', 15), rep('B', 15))),
-      Rendimiento = c(rnorm(15, 2.1, 0.3), rnorm(15, 2.5, 0.3))
-    ) |>
-      group_by(Variedad) |>
-      summarise(
-        media = mean(Rendimiento),
-        se    = sd(Rendimiento) / sqrt(n()),
-        .groups = 'drop'
-      )
-
-    ggplot(df_bar, aes(x = Variedad, y = media, fill = Variedad)) +
-      geom_col(width = 0.6) +
-      geom_errorbar(aes(ymin = media - se, ymax = media + se), width = 0.2) +
-      labs(
-        title = "Media de Rendimiento ± SE",
-        x     = "Variedad",
-        y     = "Media (t/ha)"
-      ) +
-      theme_minimal() +
-      theme(legend.position = "none")
-  })
-
-  # Ejemplo 4: Scatter plot
-  output$vizScatter <- renderPlot({
-    set.seed(2025)
-    df_scatter <- data.frame(
-      Fertilizante = runif(50, 50, 150),
-      Rendimiento  = 0.02 * runif(50, 50, 150) + rnorm(50, 5, 0.5)
-    )
-    ggplot(df_scatter, aes(x = Fertilizante, y = Rendimiento)) +
-      geom_point() +
-      geom_smooth(method = "lm", se = FALSE, color = "red") +
-      labs(
-        title = "Relación Fertilizante vs Rendimiento",
-        x     = "Dosis de fertilizante (kg/ha)",
-        y     = "Rendimiento (t/ha)"
-      ) +
-      theme_minimal()
-  })
-
-  # Ejemplo 5: Gráfico de líneas
-  output$vizLine <- renderPlot({
-    df_line <- data.frame(
-      Día         = 1:10,
-      Rendimiento = cumsum(rnorm(10, 0.5, 0.2)) + 5
-    )
-    ggplot(df_line, aes(x = Día, y = Rendimiento)) +
-      geom_line(size = 1) +
-      geom_point() +
-      labs(
-        title = "Tendencia de Rendimiento en 10 días",
-        x     = "Día",
-        y     = "Rendimiento (t/ha)"
-      ) +
-      theme_minimal()
-  })
-
+  # =================================================================
   # -- PESTAÑA: 5 Interpretación
+  # =================================================================
 
   datos_real <- eventReactive(input$runInterp, {
     path <- file.path("data", "data_session2.csv")
