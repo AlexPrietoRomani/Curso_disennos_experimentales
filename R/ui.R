@@ -68,6 +68,13 @@ ui <- fluidPage(
           font-size: 0.8em;
           color: #e0e0e0;
       }
+      .decision-box {
+          border: 1px solid #7f8c8d;
+          background-color: #ecf0f1;
+          padding: 10px;
+          border-radius: 5px;
+          display: inline-block;
+      }
       .content-row {
           display: grid;
           grid-template-columns: 3fr 1fr;
