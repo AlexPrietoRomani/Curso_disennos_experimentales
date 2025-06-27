@@ -18,6 +18,8 @@ library(broom)
 library(emmeans)
 library(DT)
 library(pwr)
+library(dunn.test)
+library(rstatix)
 
 # Cargar módulos
 mod_files <- list.files("R/modules", full.names = TRUE, pattern = "\\.R$")
