@@ -464,7 +464,290 @@ session4UI <- function(id) {
           )
         ),
       ),
-      # ===== PESTAÑA 5: Referencias =====
+
+      # ===== PESTAÑA 5: PRUEBAS NO PARAMÉTRICAS =====
+      nav_panel(
+          title = "5. Pruebas No Paramétricas",
+          h4(class = "section-header", "5.1 ¿Cuándo y por qué usar pruebas no paramétricas?"),
+          tags$p("Las pruebas paramétricas como el ANOVA son potentes, pero dependen de supuestos estrictos, principalmente que los residuos del modelo sigan una distribución normal y que las varianzas entre grupos sean homogéneas. Cuando estos supuestos se violan gravemente, los resultados del ANOVA pueden no ser fiables."),
+          tags$p("Las ", tags$b("pruebas no paramétricas"), " son la alternativa. No asumen una distribución específica para los datos y, en su lugar, trabajan con los ", tags$b("rangos"), " de las observaciones. Son ideales para:"),
+          tags$ul(
+            tags$li("Datos que no siguen una distribución normal (ej. datos muy asimétricos)."),
+            tags$li("Datos donde se viola la homogeneidad de varianzas (aunque algunas pruebas no paramétricas también son sensibles a esto)."),
+            tags$li("Datos ordinales (ej. escalas de severidad de una enfermedad: 'leve', 'moderada', 'severa')."),
+            tags$li("Muestras pequeñas donde es difícil verificar la normalidad.")
+          ),
+          tags$p(tags$strong("La desventaja:"), " Generalmente, si los supuestos del ANOVA se cumplen, las pruebas no paramétricas son menos potentes, lo que significa que tienen una menor probabilidad de detectar una diferencia real entre los grupos."),
+
+          tags$hr(),
+
+          h4(class = "section-header", "5.2 La Prueba de Kruskal-Wallis: El 'ANOVA no paramétrico'"),
+          tags$p("La prueba de Kruskal-Wallis es la alternativa no paramétrica al ANOVA de una vía. Se utiliza para determinar si existen diferencias estadísticamente significativas entre dos o más grupos independientes en una variable continua o ordinal."),
+          tags$div(class = "content-row",
+            tags$div(class = "main-content",
+              tags$p("La lógica de la prueba es la siguiente:"),
+              tags$ol(
+                tags$li("Se combinan todos los datos de todos los grupos en una sola lista."),
+                tags$li("Se ordenan los datos de menor a mayor y se les asigna un rango (1 para el más pequeño, 2 para el siguiente, etc.). En caso de empates, se asigna el rango promedio."),
+                tags$li("Se calcula la suma de los rangos para cada grupo."),
+                tags$li("El estadístico de prueba \\(H\\) evalúa si la suma de rangos observada en cada grupo es significativamente diferente de lo que se esperaría por puro azar si todos los grupos provinieran de la misma población.")
+              ),
+              tags$b("Hipótesis de la prueba de Kruskal-Wallis:"),
+              tags$ul(
+                tags$li(tags$strong("\\(H_0\\):"), " Las medianas de todos los grupos son iguales (o, más formalmente, todas las muestras provienen de la misma distribución)."),
+                tags$li(tags$strong("\\(H_1\\):"), " Al menos una mediana de grupo es diferente.")
+              )
+            ),
+            tags$div(class = "note-cloud",
+              tags$strong("Analogía Conceptual:"),
+              tags$p("Piensa en el ANOVA como una prueba sobre las medias, asumiendo una campana de Gauss. Kruskal-Wallis es una prueba sobre las medianas (o la localización central), sin asumir ninguna forma particular para la distribución de los datos.")
+            )
+          ),
+          tags$pre(class = "r-code",
+            htmltools::HTML(
+              "# Ejemplo de Kruskal-Wallis en R\n",
+              "# (Crearemos datos no normales para ilustrar)\n",
+              "set.seed(456)\n",
+              "datos_no_normales <- data.frame(\n",
+              "  respuesta = c(rexp(30, rate = 1), rexp(30, rate = 0.5), rexp(30, rate = 1.2)),\n",
+              "  tratamiento = factor(rep(c('A', 'B', 'C'), each = 30))\n",
+              ")\n",
+              "kruskal.test(respuesta ~ tratamiento, data = datos_no_normales)\n"
+            )
+          ),
+          tags$h5("Interpretación de la Salida de `kruskal.test`"),
+          tags$p("La salida de `kruskal.test()` es concisa y te proporcionará:"),
+          tags$ul(
+            tags$li(
+              tags$code("Kruskal-Wallis chi-squared"),
+              ": Es el valor del estadístico de prueba \\(H\\). Un valor más grande indica una mayor diferencia entre los rangos de los grupos."
+            ),
+            tags$li(
+              tags$code("df"),
+              ": Grados de libertad, que es el número de grupos menos 1 (\\(k-1\\))."
+            ),
+            tags$li(
+              tags$code("p-value"), 
+              ": El resultado más importante. Si este valor es menor que tu nivel de significancia (ej., 0.05), rechazas la hipótesis nula y concluyes que hay una diferencia significativa en las medianas de al menos dos grupos."
+            )
+          ),
+          tags$pre(class = "r-output",
+            htmltools::HTML(
+              "        Kruskal-Wallis rank sum test\n\n",
+              "data:  respuesta by tratamiento\n",
+              "Kruskal-Wallis chi-squared = 7.1869, df = 2, p-value = 0.0275\n",
+              "\n",
+              "-> Interpretación: Con un p-valor de 0.0275 (< 0.05), rechazamos H0. Hay evidencia\n",
+              "   estadística para afirmar que no todas las medianas de los tratamientos son iguales.\n"
+            )
+          ),
+
+          tags$hr(),
+
+          h4(class = "section-header", "5.3 Pruebas Post-Hoc No Paramétricas"),
+          tags$p("Un resultado significativo en Kruskal-Wallis nos obliga a preguntar: ¿pero qué grupos son diferentes entre sí? Para esto, usamos pruebas post-hoc no paramétricas."),
+          tags$p("Una excelente opción es la ", tags$b("Prueba de Dunn"), ", que realiza comparaciones por pares de las sumas de rangos ajustando los p-valores. Usaremos el paquete ", tags$code("rstatix"), " que nos da una salida clara y ordenada."),
+          tags$pre(class = "r-code",
+            htmltools::HTML(
+              "# Prueba Post-Hoc de Dunn con el paquete 'rstatix'\n",
+              "# install.packages('rstatix')\n",
+              "library(rstatix)\n",
+              "\n",
+              "# Aplicar la prueba de Dunn a nuestros datos\n",
+              "# La sintaxis es similar a una fórmula\n",
+              "dunn_test(respuesta ~ tratamiento, data = datos_no_normales, p.adjust.method = 'bonferroni')\n"
+            )
+          ),
+          tags$h5("Interpretación de la Salida de `rstatix::dunn_test`"),
+          tags$p("La salida de `rstatix` es un `data.frame` (tibble) muy fácil de leer:"),
+          tags$ul(
+            tags$li(tags$code("group1"), " y ", tags$code("group2"), ": El par de grupos que se está comparando."),
+            tags$li(
+              tags$code("p"), # Usar coma en lugar de dos puntos
+              ": El p-valor sin ajustar."
+            ),
+            tags$li(
+              tags$code("p.adj"), # Usar coma en lugar de dos puntos
+              ": El p-valor ajustado. ", tags$b("Este es el que debes interpretar.")
+            ),
+            tags$li(
+              tags$code("p.adj.signif"), # Usar coma en lugar de dos puntos
+              ": Una columna de conveniencia que muestra asteriscos de significancia (ej., '*' si p.adj < 0.05)."
+            )
+          ),
+          tags$pre(class = "r-output",
+            htmltools::HTML(
+              "# A tibble: 3 × 9\n",
+              "  .y.       group1 group2    n1    n2 statistic        p      p.adj p.adj.signif\n",
+              "* <chr>     <chr>  <chr>  <int> <int>     <dbl>    <dbl>      <dbl> <chr>       \n",
+              "1 respuesta A      B         30    30     -2.68 0.00739   0.0222     *           \n",
+              "2 respuesta A      C         30    30      0.376 0.707     1          ns          \n",
+              "3 respuesta B      C         30    30      2.30  0.0213    0.0640     ns          \n",
+              "\n",
+              "-> Interpretación: El p-valor ajustado ('p.adj') para la comparación A - B es 0.0222 (*),\n",
+              "   lo que indica una diferencia significativa. Las otras comparaciones no son\n",
+              "   significativas (ns).\n"
+            )
+          ),
+
+          tags$hr(),
+          
+          h4(class = "section-header", "5.4 Análisis Interactivo No Paramétrico"),
+          tags$p("Ahora, aplica estos conceptos. Selecciona un tipo de dato y compara los resultados de Kruskal-Wallis con un ANOVA tradicional. Observa cómo cada prueba maneja diferentes tipos de datos."),
+          sidebarLayout(
+              sidebarPanel(width=3,
+                  tags$h5("1. Seleccionar Tipo de Datos"),
+                  radioButtons(ns("np_dataset_choice"), "Tipo de Dataset:",
+                      choices = c("Numérico (Rendimiento)" = "numeric",
+                                  "Ordinal (Severidad de Enfermedad)" = "ordinal"),
+                      selected = "numeric"
+                  ),
+                  tags$h5("2. Seleccionar Tipo de Prueba"),
+                  radioButtons(ns("np_paso_analisis"), "Prueba a Realizar:",
+                      choiceNames = list(tags$span(icon("chart-line"), "ANOVA (Paramétrica)"),
+                                          tags$span(icon("sort-amount-up"), "Kruskal-Wallis (No Paramétrica)")),
+                      choiceValues = c("anova", "kruskal")
+                  )
+              ),
+              mainPanel(width=9,
+                  uiOutput(ns("np_salida_analisis"))
+              )
+          )
+      ),
+
+      # ===== PESTAÑA 6: ANOVA vs. KRUSKAL-WALLIS: GUÍA DE DECISIÓN
+      nav_panel(
+        title = "6. ANOVA vs. Kruskal-Wallis",
+        h4(class = "section-header", "6.1 Comparación Directa: ¿Cuándo usar cada prueba?"),
+        p("Hemos visto dos formas de comparar más de dos grupos: el ANOVA (paramétrico) y la prueba de Kruskal-Wallis (no paramétrica). La elección entre ellas es una de las decisiones más comunes y cruciales en el análisis de datos. Aquí resumimos sus diferencias clave."),
+
+        tags$table(class = "table table-bordered",
+          tags$thead(
+            tags$tr(
+              tags$th("Característica"),
+              tags$th("ANOVA de una vía"),
+              tags$th("Prueba de Kruskal-Wallis")
+            )
+          ),
+          tags$tbody(
+            tags$tr(
+              tags$td(tags$strong("Parámetro de Interés")),
+              tags$td("Compara las ", tags$b("medias"), " (\\(\\mu\\)) de los grupos."),
+              tags$td("Compara las ", tags$b("medianas"), " o, más generalmente, la localización central de las distribuciones.")
+            ),
+            tags$tr(
+              tags$td(tags$strong("Supuestos Clave")),
+              tags$td(tags$ul(
+                  tags$li("Los residuos siguen una distribución ", tags$b("normal"), "."),
+                  tags$li("Las varianzas entre grupos son ", tags$b("homogéneas"), " (homocedasticidad)."),
+                  tags$li("Las observaciones son independientes.")
+              )),
+              tags$td(tags$ul(
+                  tags$li("No asume una distribución específica (libre de distribución)."),
+                  tags$li("Asume que las distribuciones de cada grupo tienen la ", tags$b("misma forma"), " (aunque pueden tener diferente localización)."),
+                  tags$li("Las observaciones son independientes.")
+              ))
+            ),
+            tags$tr(
+              tags$td(tags$strong("Tipo de Datos")),
+              tags$td("Numéricos (continuos o discretos)."),
+              tags$td("Numéricos y también ", tags$b("ordinales"), " (ej. escalas de severidad).")
+            ),
+            tags$tr(
+              tags$td(tags$strong("Potencia Estadística")),
+              tags$td("Más potente (mayor probabilidad de detectar una diferencia real) ", tags$b("si se cumplen los supuestos"), "."),
+              tags$td("Menos potente que el ANOVA si los datos son normales, pero ", tags$b("más potente si los supuestos del ANOVA son violados"), " severamente (ej. por outliers).")
+            ),
+            tags$tr(
+              tags$td(tags$strong("Pruebas Post-Hoc Comunes")),
+              tags$td("Tukey HSD, Scheffé, Duncan (si hay homocedasticidad). Games-Howell (si no hay homocedasticidad)."),
+              tags$td("Prueba de Dunn, Conover-Iman.")
+            )
+          )
+        ),
+        
+        h4(class = "section-header", "6.2 El Concepto de Potencia Estadística"),
+        tags$div(class = "content-row",
+            tags$div(class = "main-content",
+                p("Cuando decimos que el ANOVA es 'más potente', nos referimos a la ", tags$b("potencia estadística (\\(1 - \beta\\))"), ", que es la probabilidad de rechazar correctamente una hipótesis nula falsa. En otras palabras, es la capacidad de la prueba para detectar un efecto o diferencia cuando realmente existe."),
+                p("Imagina que un nuevo fertilizante realmente aumenta el rendimiento. Una prueba potente tendrá una alta probabilidad de detectar este aumento y dar un p-valor significativo. Una prueba menos potente podría pasar por alto esta diferencia y dar un p-valor no significativo."),
+                p(tags$strong("La regla general es:"), " usa siempre la prueba más potente para la cual tus datos cumplan los supuestos. Si tus datos son normales y las varianzas son homogéneas, el ANOVA es la mejor opción. Si no, pierdes potencia y credibilidad, y Kruskal-Wallis se convierte en la alternativa más potente y adecuada.")
+            ),
+            tags$div(class = "note-cloud",
+                tags$strong("Analogía Agronómica:"),
+                p("La potencia es como la sensibilidad de un sensor de humedad del suelo. Un sensor potente (alta sensibilidad) puede detectar pequeños cambios en la humedad. Un sensor poco potente (baja sensibilidad) podría no registrar un cambio a menos que sea muy grande. Al elegir una prueba estadística, queremos el 'sensor' más sensible y apropiado para nuestras condiciones (nuestros datos).")
+            )
+        ),
+
+        h4(class = "section-header", "6.3 Árbol de Decisión: ¿Qué prueba elijo?"),
+        div(class="image-box", style="text-align: center;",
+            p(strong("1. ¿Cuál es tu variable de respuesta?")),
+            p(icon("arrow-down")),
+            div(class="decision-box", "Numérica (continua/discreta) u Ordinal"),
+            br(),
+            div(class="row",
+                div(class="col-md-6", style="border-right: 1px solid #ccc;",
+                    p(strong("Si es Numérica...")),
+                    p(icon("arrow-down")),
+                    div(class="decision-box", "2. ¿Se cumple el supuesto de Normalidad de Residuos?"),
+                    p("(Evaluar con QQ-plot, Shapiro-Wilk)"),
+                    br(),
+                    div(class="row",
+                        div(class="col-md-6", style="border-right: 1px solid #eee;",
+                            p(strong("SÍ")),
+                            p(icon("arrow-down")),
+                            div(class="decision-box", "3. ¿Se cumple la Homocedasticidad?"),
+                            p("(Evaluar con Levene)"),
+                            br(),
+                            p(strong("SÍ ->"), span(class="text-success", "ANOVA + Tukey HSD")),
+                            p(strong("NO ->"), span(class="text-warning", "ANOVA + Games-Howell"))
+                        ),
+                        div(class="col-md-6",
+                            p(strong("NO")),
+                            p(icon("arrow-down")),
+                            span(class="text-info", strong("Kruskal-Wallis + Dunn"))
+                        )
+                    )
+                ),
+                div(class="col-md-6",
+                    p(strong("Si es Ordinal...")),
+                    p(icon("arrow-down")),
+                    span(class="text-info", strong("Kruskal-Wallis + Dunn")),
+                    p("(El ANOVA no es apropiado)")
+                )
+            )
+        ),
+
+        tags$hr(),
+        
+        h4(class = "section-header", "6.4 Laboratorio Comparativo Interactivo"),
+        p("Selecciona un conjunto de datos simulados y observa los resultados de ambas pruebas lado a lado. Presta atención a los p-valores. ¿Coinciden las conclusiones? ¿Cuándo difieren?"),
+        sidebarLayout(
+            sidebarPanel(width=3,
+                tags$h5("Control del Laboratorio"),
+                radioButtons(ns("comp_dataset"), "Seleccionar Dataset Simulado:",
+                    choices = c("Datos Normales (ANOVA ideal)" = "normal",
+                                "Datos Asimétricos (K-W ideal)" = "skewed",
+                                "Datos con Outliers" = "outliers")
+                )
+            ),
+            mainPanel(width=9,
+                plotOutput(ns("comp_plot")),
+                fluidRow(
+                    column(6,
+                        h5(class="text-primary", "Resultados ANOVA"),
+                        verbatimTextOutput(ns("comp_anova_output"))
+                    ),
+                    column(6,
+                        h5(class="text-success", "Resultados Kruskal-Wallis"),
+                        verbatimTextOutput(ns("comp_kruskal_output"))
+                    )
+                )
+            )
+        )
+      ),
+
+      # ===== PESTAÑA 7: Referencias =====
       nav_panel(
         title = "Referencia Bibliograficas",
         tags$h4(class = "section-header", "Referencia Bibliograficas"),
@@ -474,7 +757,10 @@ session4UI <- function(id) {
           tags$li("Field, A. (2013). ", tags$em("Discovering statistics using IBM SPSS statistics"), " (4th ed.). Sage."),
           tags$li("Montgomery, D. C. (2017). ", tags$em("Design and analysis of experiments"), " (9th ed.). John Wiley & Sons."),
           tags$li("Kassambara, A. (2023). ", tags$em("rstatix: Pipe-Friendly Framework for Basic Statistical Tests"), ". R package version 0.7.2. ", tags$a(href="https://CRAN.R-project.org/package=rstatix", "https://CRAN.R-project.org/package=rstatix")),
-          tags$li("Bakdash, J.Z. & Marusich, L.R. (2017). ", tags$em("effectsize: Estimation of Effect Size and Standardized Parameters"), ". R package. Ver también documentación de `effectsize` para R: ", tags$a(href="https://easystats.github.io/effectsize/", "https://easystats.github.io/effectsize/"))
+          tags$li("Bakdash, J.Z. & Marusich, L.R. (2017). ", tags$em("effectsize: Estimation of Effect Size and Standardized Parameters"), ". R package. Ver también documentación de `effectsize` para R: ", tags$a(href="https://easystats.github.io/effectsize/", "https://easystats.github.io/effectsize/")),
+            tags$li("Hollander, M., Wolfe, D. A., & Chicken, E. (2013). ", tags$em("Nonparametric statistical methods"), " (3rd ed.). John Wiley & Sons."),
+            tags$li("Dunn, O. J. (1964). Multiple comparisons using rank sums. ", tags$em("Technometrics, 6"),"(3), 241-252."),
+            tags$li("Cousineau, D., & Chartier, S. (2010). Outliers detection and treatment: a review. ", tags$em("International Journal of Psychological Research, 3"),"(1), 58-67.")
         )
       )
     )
@@ -710,5 +996,242 @@ session4Server <- function(input, output, session) {
     # Usar qqnorm y qqline de stats
     qqnorm(model_res, main = "Normal Q-Q Plot de Residuos", pch = 19, cex=0.8)
     qqline(model_res, col = "red", lwd = 2)
+  })
+
+  # ===== LÓGICA PARA LA PESTAÑA 5: ANÁLISIS NO PARAMÉTRICO =====
+
+  # Reactivo para generar los datos según la elección del usuario
+  np_datos_analisis <- reactive({
+      req(input$np_dataset_choice)
+      set.seed(123) # Para consistencia en los datos generados
+      
+      if (input$np_dataset_choice == "numeric") {
+          # Datos numéricos continuos con violación de normalidad (distribución exponencial)
+          # T simula 3 tratamientos de control de plagas y la respuesta es el % de daño foliar
+          df <- data.frame(
+            respuesta = c(rexp(25, rate = 1.5), rexp(25, rate = 0.8), rexp(25, rate = 1.6)),
+            tratamiento = factor(rep(c('Control', 'Tratamiento_A', 'Tratamiento_B'), each = 25))
+          )
+          attr(df, "tipo") <- "Numérico: % Daño Foliar"
+          return(df)
+      } else { # "ordinal"
+          # Datos ordinales: escala de severidad de una enfermedad (ej. roya)
+          # Los factores ordenados son clave aquí.
+          niveles_severidad <- c("Ninguna", "Leve", "Moderada", "Severa")
+          
+          df <- data.frame(
+              respuesta = factor(
+                  c(sample(niveles_severidad, 20, replace = TRUE, prob = c(0.6, 0.3, 0.1, 0.0)), # Grupo Control
+                    sample(niveles_severidad, 20, replace = TRUE, prob = c(0.1, 0.5, 0.3, 0.1)), # Fungicida A
+                    sample(niveles_severidad, 20, replace = TRUE, prob = c(0.2, 0.6, 0.15, 0.05)) # Fungicida B
+                  ),
+                  levels = niveles_severidad,
+                  ordered = TRUE # MUY IMPORTANTE: indicar que es una variable ordinal
+              ),
+              tratamiento = factor(rep(c('Control', 'Fungicida_A', 'Fungicida_B'), each = 20))
+          )
+          attr(df, "tipo") <- "Ordinal: Severidad de Roya"
+          return(df)
+      }
+  })
+
+  # --- UI Dinámico para mostrar los resultados del análisis no paramétrico ---
+  output$np_salida_analisis <- renderUI({
+      tipo_prueba <- input$np_paso_analisis
+      req(tipo_prueba)
+      datos <- np_datos_analisis()
+      
+      # Boxplot o Barplot dependiendo del tipo de datos
+      plot_ui <- if (is.numeric(datos$respuesta)) {
+          plotOutput(ns("np_boxplot_datos"))
+      } else {
+          plotOutput(ns("np_barplot_datos"))
+      }
+      
+      # Título principal basado en el tipo de datos
+      titulo_principal <- h5(paste("Análisis para Dataset:", attr(datos, "tipo")))
+      
+      # Lógica para ANOVA (advertencia para datos ordinales)
+      if (tipo_prueba == "anova") {
+          advertencia_anova <- if (is.ordered(datos$respuesta)) {
+              div(class="alert alert-danger", "ADVERTENCIA: Aplicar ANOVA a datos ordinales es metodológicamente incorrecto. Los resultados (medias, varianzas) no tienen una interpretación clara. Se muestra solo con fines de comparación.")
+          } else { NULL }
+
+          # Convertir ordinal a numérico para poder correr ANOVA (con advertencia)
+          if(is.ordered(datos$respuesta)) datos$respuesta <- as.numeric(datos$respuesta)
+          
+          modelo_anova <- aov(respuesta ~ tratamiento, data = datos)
+          p_val_anova <- broom::tidy(modelo_anova)$p.value[1]
+          
+          post_hoc_ui <- if (p_val_anova < 0.05) {
+              tagList(h6("Prueba Post-Hoc Paramétrica (Tukey HSD):"), verbatimTextOutput(ns("np_posthoc_tukey")))
+          } else {
+              div(class="alert alert-warning", "ANOVA no significativo, no se realiza post-hoc.")
+          }
+          
+          tagList(
+              titulo_principal,
+              h5(class="text-primary", "Resultados del Análisis Paramétrico (ANOVA)"),
+              advertencia_anova,
+              plot_ui,
+              h6("Tabla ANOVA:"), verbatimTextOutput(ns("np_tabla_anova")),
+              post_hoc_ui
+          )
+      } else if (tipo_prueba == "kruskal") { # Lógica para Kruskal-Wallis
+          modelo_kruskal <- kruskal.test(respuesta ~ tratamiento, data = datos)
+          p_val_kruskal <- modelo_kruskal$p.value
+          
+          post_hoc_np_ui <- if (p_val_kruskal < 0.05) {
+              tagList(h6("Prueba Post-Hoc No Paramétrica (Prueba de Dunn):"), verbatimTextOutput(ns("np_posthoc_dunn")))
+          } else {
+              div(class="alert alert-warning", "Kruskal-Wallis no significativo, no se realiza post-hoc.")
+          }
+
+          tagList(
+              titulo_principal,
+              h5(class="text-success", "Resultados del Análisis No Paramétrico (Kruskal-Wallis)"),
+              plot_ui,
+              h6("Resultados de Kruskal-Wallis:"), verbatimTextOutput(ns("np_prueba_kruskal")),
+              post_hoc_np_ui
+          )
+      }
+  })
+
+  # --- Salidas para la sección no paramétrica ---
+  # Gráficos (boxplot para numérico, barplot para ordinal)
+  output$np_boxplot_datos <- renderPlot({
+      ggplot(np_datos_analisis(), aes(x=tratamiento, y=respuesta, fill=tratamiento)) +
+          geom_boxplot(alpha=0.7) + theme_minimal(base_size = 12) + 
+          labs(title="Distribución de la Respuesta Numérica por Tratamiento", y = "Respuesta")
+  })
+  
+  output$np_barplot_datos <- renderPlot({
+      df <- np_datos_analisis() %>% count(tratamiento, respuesta) %>%
+            group_by(tratamiento) %>% mutate(proporcion = n / sum(n))
+            
+      ggplot(df, aes(x = respuesta, y = proporcion, fill = respuesta)) +
+          geom_bar(stat = "identity", position="dodge") +
+          facet_wrap(~tratamiento) +
+          theme_minimal(base_size = 12) +
+          labs(title="Distribución de la Severidad Ordinal por Tratamiento", 
+               x = "Nivel de Severidad", y = "Proporción") +
+          theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.position = "none")
+  })
+  
+  # Salidas de pruebas
+  output$np_tabla_anova <- renderPrint({
+      datos <- np_datos_analisis()
+      if(is.ordered(datos$respuesta)) datos$respuesta <- as.numeric(datos$respuesta)
+      modelo <- aov(respuesta ~ tratamiento, data = datos)
+      summary(modelo)
+  })
+  
+  output$np_posthoc_tukey <- renderPrint({
+      datos <- np_datos_analisis()
+      if(is.ordered(datos$respuesta)) datos$respuesta <- as.numeric(datos$respuesta)
+      modelo <- aov(respuesta ~ tratamiento, data = datos)
+      TukeyHSD(modelo)
+  })
+  
+  output$np_prueba_kruskal <- renderPrint({
+      kruskal.test(respuesta ~ tratamiento, data = np_datos_analisis())
+  })
+  
+  output$np_posthoc_dunn <- renderPrint({
+      datos <- np_datos_analisis()
+      
+      # Usar rstatix::dunn_test que maneja factores ordinales y da una salida limpia
+      # y es más robusto que dunn.test::dunn.test.
+      if (!requireNamespace("rstatix", quietly = TRUE)) {
+          "Paquete 'rstatix' no instalado. Por favor, ejecute: install.packages('rstatix')"
+      } else {
+          # rstatix maneja la fórmula directamente, incluso con factores ordinales
+          rstatix::dunn_test(data = datos, 
+                             formula = respuesta ~ tratamiento, 
+                             p.adjust.method = "bonferroni")
+      }
+  })
+
+  # ===== LÓGICA PARA LA PESTAÑA 6: LABORATORIO COMPARATIVO =====
+  # Reactivo para generar los datos para la comparación
+  comp_datos_analisis <- reactive({
+      req(input$comp_dataset)
+      set.seed(321) # Para consistencia
+      
+      n_per_group <- 30
+      tratamientos <- factor(rep(c('Trat_A', 'Trat_B', 'Trat_C'), each = n_per_group))
+      
+      if (input$comp_dataset == "normal") {
+          # Datos ideales para ANOVA
+          respuesta <- c(rnorm(n_per_group, mean = 20, sd = 4),
+                         rnorm(n_per_group, mean = 25, sd = 4),
+                         rnorm(n_per_group, mean = 20, sd = 4))
+          titulo <- "Dataset Normal con Diferencia Real (B > A,C)"
+      } else if (input$comp_dataset == "skewed") {
+          # Datos con asimetría, donde K-W puede ser más apropiado
+          respuesta <- c(rgamma(n_per_group, shape = 2, rate = 0.1),
+                         rgamma(n_per_group, shape = 4, rate = 0.1),
+                         rgamma(n_per_group, shape = 2, rate = 0.1))
+          titulo <- "Dataset Asimétrico (Gamma)"
+      } else { # "outliers"
+          # Datos normales pero con outliers que violan el supuesto
+          base <- c(rnorm(n_per_group, mean = 20, sd = 4),
+                    rnorm(n_per_group, mean = 25, sd = 4),
+                    rnorm(n_per_group, mean = 20, sd = 4))
+          # Añadir outliers
+          base[5] <- 50  # Outlier en el grupo A
+          base[35] <- 5   # Outlier en el grupo B
+          respuesta <- base
+          titulo <- "Dataset con Outliers"
+      }
+      
+      df <- data.frame(respuesta = respuesta, tratamiento = tratamientos)
+      attr(df, "titulo") <- titulo
+      return(df)
+  })
+
+  # Gráfico para la sección de comparación
+  output$comp_plot <- renderPlot({
+      datos <- comp_datos_analisis()
+      ggplot(datos, aes(x=tratamiento, y=respuesta, fill=tratamiento)) +
+          geom_boxplot() +
+          geom_jitter(width=0.1, alpha=0.4) +
+          theme_minimal(base_size = 14) +
+          labs(title = attr(datos, "titulo"), y = "Valor de Respuesta")
+  })
+  
+  # Salida para los resultados del ANOVA
+  output$comp_anova_output <- renderPrint({
+      datos <- comp_datos_analisis()
+      modelo_anova <- aov(respuesta ~ tratamiento, data = datos)
+      
+      # Verificar supuestos para informar
+      shapiro_res <- shapiro.test(residuals(modelo_anova))
+      levene_res <- car::leveneTest(respuesta ~ tratamiento, data = datos)
+      
+      cat("--- Prueba ANOVA ---\n")
+      print(summary(modelo_anova))
+      
+      cat("\n--- Diagnóstico de Supuestos ---\n")
+      cat("Shapiro-Wilk (Normalidad de Residuos):\n")
+      cat("  p-valor =", round(shapiro_res$p.value, 4), "\n")
+      cat("Levene (Homocedasticidad):\n")
+      cat("  p-valor =", round(levene_res$`Pr(>F)`[1], 4), "\n")
+  })
+
+  # Salida para los resultados de Kruskal-Wallis
+  output$comp_kruskal_output <- renderPrint({
+      datos <- comp_datos_analisis()
+      
+      cat("--- Prueba Kruskal-Wallis ---\n")
+      print(kruskal.test(respuesta ~ tratamiento, data = datos))
+      
+      # Realizar prueba de Dunn si K-W es significativo
+      kruskal_res <- kruskal.test(respuesta ~ tratamiento, data = datos)
+      if (kruskal_res$p.value < 0.05) {
+          cat("\n--- Post-Hoc (Prueba de Dunn) ---\n")
+          dunn_res <- rstatix::dunn_test(data = datos, formula = respuesta ~ tratamiento, p.adjust.method = "bonferroni")
+          print(dunn_res[, c("group1", "group2", "p.adj", "p.adj.signif")])
+      }
   })
 }
