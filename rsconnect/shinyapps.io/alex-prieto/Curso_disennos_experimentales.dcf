@@ -5,7 +5,7 @@ account: alex-prieto
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 14647147
-bundleId: 10527423
+bundleId: 10557106
 url: https://alex-prieto.shinyapps.io/Curso_disennos_experimentales/
 version: 1
 asMultiple: FALSE
