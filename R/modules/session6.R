@@ -63,21 +63,44 @@ session6UI <- function(id) {
                     )
                 ),
                 
-                # --- Parte 3: Constructor Interactivo de Diseños Factoriales ---
-                h4(class = "section-header", "1.3 Constructor de Diseños Factoriales"),
-                p("Usa las siguientes herramientas para diseñar tu propio experimento factorial y ver todas las combinaciones de tratamiento que necesitarías probar. Esto te ayudará a entender la escala de estos diseños."),
+                # --- Parte 3: Constructor y Visualizador de Diseños Factoriales ---
+                h4(class = "section-header", "1.3 Constructor y Visualizador de Diseños Factoriales"),
+                p("Usa las siguientes herramientas para diseñar tu experimento factorial, visualizarlo en un layout de campo aleatorizado y descargar el croquis para su uso práctico."),
+
                 sidebarLayout(
                     sidebarPanel(
                         width = 4,
-                        tags$h5("Define tus Factores"),
-                        numericInput(ns("num_niveles_A"), "Niveles del Factor A (ej. Fertilizante):", value = 2, min = 2, max = 10),
-                        numericInput(ns("num_niveles_B"), "Niveles del Factor B (ej. Variedad):", value = 3, min = 2, max = 10),
-                        actionButton(ns("generar_diseno_factorial"), "Generar Combinaciones", icon = icon("cogs"), class = "btn-info w-100 mt-3")
+                        tags$h5("1. Define tus Factores"),
+                        numericInput(ns("num_niveles_A"), "Niveles del Factor A:", value = 2, min = 2, max = 10),
+                        numericInput(ns("num_niveles_B"), "Niveles del Factor B:", value = 3, min = 2, max = 10),
+                        
+                        tags$h5("2. Define tu Diseño Experimental"),
+                        # Añadimos un input para las replicaciones
+                        numericInput(ns("num_replicaciones"), "Número de Replicaciones:", value = 4, min = 1, max = 20),
+                        
+                        tags$h5("3. Define el Layout del Campo"),
+                        # Añadimos inputs para las dimensiones del campo
+                        p("Define las dimensiones de tu campo para la aleatorización. El producto de filas x columnas debe ser al menos el total de parcelas."),
+                        numericInput(ns("field_rows"), "Número de Filas en el Campo:", value = 5, min = 1, max = 50),
+                        numericInput(ns("field_cols"), "Número de Columnas en el Campo:", value = 5, min = 1, max = 50),
+
+                        # Botón para generar y aleatorizar
+                        actionButton(ns("generar_diseno_aleatorizado"), "Generar y Aleatorizar Diseño", icon = icon("random"), class = "btn-info w-100 mt-3"),
+                        
+                        # Botón de descarga, que aparecerá condicionalmente
+                        uiOutput(ns("download_button_ui"))
                     ),
                     mainPanel(
                         width = 8,
-                        # uiOutput para la salida dinámica
-                        uiOutput(ns("salida_diseno_factorial"))
+                        # Salida para el resumen del diseño
+                        uiOutput(ns("resumen_diseno_factorial")),
+                        
+                        # Salida para el gráfico del layout del campo
+                        plotOutput(ns("plot_layout_campo")),
+                        
+                        # Salida para la tabla con el croquis del campo
+                        tags$h6("Tabla del Croquis del Campo (Aleatorizado):"),
+                        DT::dataTableOutput(ns("tabla_croquis_campo"))
                     )
                 ),
                 
@@ -399,75 +422,127 @@ session6Server <- function(input, output, session) {
     # Definir el namespace para usarlo en el server
     ns <- session$ns 
 
-    # --- LÓGICA PARA LA PESTAÑA 1: CONSTRUCTOR DE DISEÑOS FACTORIALES ---
+    # --- LÓGICA PARA LA PESTAÑA 1: CONSTRUCTOR Y VISUALIZADOR DE DISEÑOS FACTORIALES ---
         
-    # eventReactive para el constructor de diseños
-    diseno_factorial_generado <- eventReactive(input$generar_diseno_factorial, {
+    # Usamos un `reactiveVal` para almacenar el diseño final.
+    # Esto nos permite acceder a él desde múltiples outputs (tabla, gráfico, descarga).
+    diseno_final_rv <- reactiveVal(NULL)
+
+    # El `observeEvent` se activa cuando el usuario presiona el botón.
+    # Es mejor que `eventReactive` cuando queremos realizar acciones (como actualizar un reactiveVal).
+    observeEvent(input$generar_diseno_aleatorizado, {
         
-        req(input$num_niveles_A, input$num_niveles_B)
+        req(input$num_niveles_A, input$num_niveles_B, input$num_replicaciones, input$field_rows, input$field_cols)
         
-        # Crear los niveles para cada factor
+        # Calcular el número total de parcelas necesarias
+        num_trat_combinados <- input$num_niveles_A * input$num_niveles_B
+        total_parcelas_necesarias <- num_trat_combinados * input$num_replicaciones
+        
+        # Validar que las dimensiones del campo sean suficientes
+        total_parcelas_campo <- input$field_rows * input$field_cols
+        if (total_parcelas_campo < total_parcelas_necesarias) {
+            showModal(modalDialog(
+                title = "Error en Dimensiones del Campo",
+                "El número de parcelas en el campo (Filas x Columnas) es menor que el número total de unidades experimentales requeridas (Tratamientos x Replicaciones). Por favor, aumenta las dimensiones del campo."
+            ))
+            return() # Detener la ejecución
+        }
+
+        # 1. Crear las combinaciones de tratamiento
         niveles_A <- paste0("A", 1:input$num_niveles_A)
         niveles_B <- paste0("B", 1:input$num_niveles_B)
-        
-        # Usar expand.grid para obtener todas las combinaciones
-        combinaciones <- expand.grid(
-            FactorA = factor(niveles_A),
-            FactorB = factor(niveles_B)
-        )
-        
-        # Añadir un ID para cada tratamiento combinado y reordenar
-        combinaciones <- combinaciones %>%
-            mutate(TratamientoID = row_number()) %>%
-            # ===== CORRECCIÓN APLICADA AQUÍ =====
-            dplyr::select(TratamientoID, everything())
+        combinaciones <- expand.grid(FactorA = niveles_A, FactorB = niveles_B) %>%
+                         unite("Tratamiento", FactorA, FactorB, sep = "-", remove = FALSE)
 
-        list(
-            combinaciones = combinaciones,
-            num_A = input$num_niveles_A,
-            num_B = input$num_niveles_B
-        )
+        # 2. Replicar los tratamientos
+        lista_tratamientos <- rep(combinaciones$Tratamiento, times = input$num_replicaciones)
         
-    }, ignoreNULL = FALSE)
-
-    # DEFINIR EL OUTPUT PARA LA TABLA DT POR SEPARADO
-    output$tabla_combinaciones_dt <- DT::renderDataTable({
-        diseno <- diseno_factorial_generado()
-        req(diseno)
+        # 3. Aleatorizar y asignar a las parcelas del campo
+        # Creamos un grid para todo el campo
+        layout_campo <- expand.grid(Fila = 1:input$field_rows, Columna = 1:input$field_cols)
         
-        DT::datatable(
-            diseno$combinaciones,
-            options = list(pageLength = 10, searching = FALSE, lengthChange = FALSE, info = FALSE),
-            rownames = FALSE,
-            class = 'table table-hover table-striped'
-        )
+        # Tomamos una muestra aleatoria de las parcelas disponibles en el campo
+        posiciones_aleatorias <- sample(1:nrow(layout_campo), size = total_parcelas_necesarias)
+        
+        # Creamos el dataframe final del diseño
+        diseno_final <- layout_campo
+        diseno_final$Tratamiento <- NA # Inicializar con NA
+        diseno_final$Tratamiento[posiciones_aleatorias] <- lista_tratamientos
+        
+        # Añadir las columnas de factores originales para referencia
+        diseno_final <- diseno_final %>%
+          left_join(combinaciones %>% select(Tratamiento, FactorA, FactorB), by = "Tratamiento")
+        
+        # Almacenar el resultado en el reactiveVal
+        diseno_final_rv(diseno_final)
     })
 
-    # renderUI para mostrar los resultados del constructor
-    output$salida_diseno_factorial <- renderUI({
+    # Renderizar el texto de resumen dinámico
+    output$resumen_diseno_factorial <- renderUI({
+        req(diseno_final_rv()) # Depender del reactiveVal
         
-        diseno <- diseno_factorial_generado()
-        req(diseno)
-        
-        num_combinaciones <- nrow(diseno$combinaciones)
+        num_combinaciones <- input$num_niveles_A * input$num_niveles_B
+        total_parcelas <- num_combinaciones * input$num_replicaciones
         
         tagList(
-            # Resumen del diseño
             tags$div(class = "alert alert-success",
-                tags$h5("Diseño Generado: Factorial ", strong(paste0(diseno$num_A, "x", diseno$num_B))),
-                p("Este diseño tiene ", strong(diseno$num_A), " niveles para el Factor A y ", strong(diseno$num_B), 
-                  " niveles para el Factor B, resultando en un total de ", strong(num_combinaciones), 
-                  " combinaciones de tratamiento únicas que deben ser probadas.")
+                tags$h5("Diseño Factorial Generado: ", strong(paste0(input$num_niveles_A, "x", input$num_niveles_B))),
+                p("Se han generado ", strong(num_combinaciones), " combinaciones de tratamiento únicas."),
+                p("Con ", strong(input$num_replicaciones), " replicaciones, se requieren un total de ", strong(total_parcelas), " parcelas experimentales.")
             ),
-            
-            # Tabla con las combinaciones
-            tags$h6("Tabla de Combinaciones de Tratamiento:"),
-            tags$div(style="max-height: 300px; overflow-y: auto;",
-                # AHORA LLAMAMOS AL *Output CORRESPONDIENTE
-                DT::dataTableOutput("tabla_combinaciones_dt")
-            )
+            # Mensaje sobre el layout
+            p(strong("A continuación se muestra una posible aleatorización de estas parcelas en un campo de ", input$field_rows, "x", input$field_cols, " (las celdas grises son parcelas vacías o bordes)."))
         )
     })
+    
+    # Renderizar el gráfico del layout del campo
+    output$plot_layout_campo <- renderPlot({
+        req(diseno_final_rv())
+        df_plot <- diseno_final_rv()
+        
+        ggplot(df_plot, aes(x = Columna, y = Fila, fill = Tratamiento)) +
+            geom_tile(color = "white", lwd = 1.5, na.rm = FALSE) +
+            geom_text(aes(label = Tratamiento), na.rm = TRUE, color="black", size=3.5) +
+            # Invertir el eje Y para que la Fila 1 esté arriba
+            scale_y_reverse(breaks = 1:input$field_rows) + 
+            scale_x_continuous(breaks = 1:input$field_cols) +
+            labs(title = "Layout Aleatorizado del Campo Experimental", fill = "Tratamiento") +
+            theme_minimal() +
+            coord_fixed() # Asegura que las celdas sean cuadradas
+    })
+
+    # Renderizar la tabla con el croquis
+    output$tabla_croquis_campo <- DT::renderDataTable({
+        req(diseno_final_rv())
+        df_tabla <- diseno_final_rv() %>% 
+                    # Mostrar solo las parcelas asignadas y las columnas importantes
+                    filter(!is.na(Tratamiento)) %>%
+                    dplyr::select(Fila, Columna, Tratamiento, FactorA, FactorB)
+        
+        DT::datatable(df_tabla, options = list(pageLength = 10, searching = TRUE), rownames = FALSE)
+    })
+
+    # Renderizar el botón de descarga condicionalmente
+    output$download_button_ui <- renderUI({
+        req(diseno_final_rv())
+        downloadButton(ns("download_design_csv"), "Descargar Croquis (CSV)", class = "btn-success w-100 mt-2")
+    })
+
+    # Lógica para el manejador de descarga
+    output$download_design_csv <- downloadHandler(
+        filename = function() {
+            paste0(
+                "diseno_factorial_", input$num_niveles_A, "x", input$num_niveles_B,
+                "_reps", input$num_replicaciones, "_",
+                Sys.Date(), ".csv"
+            )
+        },
+        content = function(file) {
+            # Escribir el dataframe del croquis (solo parcelas asignadas) al archivo CSV
+            df_descarga <- diseno_final_rv() %>% filter(!is.na(Tratamiento))
+            write.csv(df_descarga, file, row.names = FALSE)
+        }
+    )
 
     # --- LÓGICA PARA LA PESTAÑA 2: INTERACCIONES ---
 
