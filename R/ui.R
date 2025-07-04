@@ -75,6 +75,13 @@ ui <- fluidPage(
           border-radius: 5px;
           display: inline-block;
       }
+      .decision-box-option {
+        border: 2px dashed #0d6efd; /* Borde azul de Bootstrap 'primary' */
+        padding: 8px;
+        border-radius: 8px;
+        font-weight: bold;
+        background-color: #f8f9fa; /* Fondo gris claro */
+      }
       .content-row {
           display: grid;
           grid-template-columns: 3fr 1fr;
