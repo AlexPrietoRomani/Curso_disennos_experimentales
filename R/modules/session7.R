@@ -399,6 +399,242 @@ session7UI <- function(id) {
                     strong("Pregunta Final: ¿Cómo decidir?"),
                     p("La elección del diseño es un balance entre el ideal estadístico y la realidad logística. Comienza con la pregunta más simple: '¿Cuántos factores estoy estudiando?' Si es uno, piensa en DCA o DBCA. Si son más de uno, piensa en Factorial. Luego, haz la pregunta logística: '¿Puedo aleatorizar todas las combinaciones fácilmente?' Si la respuesta es no, piensa en Split-Plot. Finalmente, considera la escala: '¿Tengo demasiados tratamientos para un bloque normal?' Si es así, explora diseños en bloques incompletos o aumentados.")
                 )
+            ),
+
+            # ===== PESTAÑA 5: BLOQUES INCOMPLETOS Y ANVA AUXILIAR =====
+            nav_panel(
+                title = "5. Eficiencia de Diseños",
+                
+                h4(class = "section-header", "5.1 La Pregunta del Experimentador Eficiente: ¿Mi Diseño Valió la Pena?"),
+                p(
+                    "A lo largo de este curso, hemos ascendido en la escala de complejidad de los diseños experimentales. Cada paso, desde un DCA a un DBCA, y de un DBCA a un Alfa-Látice o un Split-Plot, se justifica por un intento de controlar una fuente específica de 'ruido' o variabilidad. El bloqueo controla gradientes espaciales, las parcelas divididas manejan factores logísticamente difíciles, y los bloques incompletos manejan un gran número de tratamientos."
+                ),
+                p(
+                    "Sin embargo, esta complejidad tiene un costo: en la planificación, en la ejecución y en el análisis. La pregunta fundamental que todo buen experimentador debe hacerse es: ", strong("¿La ganancia en precisión justificó la complejidad añadida?"), " Para responder a esta pregunta de manera cuantitativa, utilizamos la técnica del ", strong("Análisis de Varianza Auxiliar (ANVA Auxiliar).")
+                ),
+
+                tags$hr(),
+
+                h4(class = "section-header", "5.2 Desmitificando el ANVA Auxiliar: El Principio del '¿Qué Hubiera Pasado?'"),
+
+                # --- Sección de Aclaración: ANVA vs. ANOVA ---
+                tags$div(class = "card bg-light mb-4", # 'mb-4' para un margen inferior
+                    tags$div(class = "card-body",
+                        tags$div(class = "row align-items-center",
+                            tags$div(class = "col-md-2 text-center",
+                                p(icon("language", class="fa-4x text-info"))
+                            ),
+                            tags$div(class = "col-md-10",
+                                tags$h5(class = "card-title", "Aclaración Terminológica: ¿ANVA o ANOVA?"),
+                                p(
+                                    "A lo largo de la literatura estadística y en diferentes regiones, te encontrarás con dos acrónimos que parecen distintos pero significan exactamente lo mismo: ", strong("ANVA"), " y ", strong("ANOVA.")
+                                ),
+                                tags$ul(
+                                    tags$li(strong("ANOVA:"), " Es el acrónimo en inglés para ", tags$em(strong("ANalysis Of VAriance.")), " Es el término más utilizado a nivel internacional, en software estadístico (como R) y en la mayoría de las publicaciones científicas."),
+                                    tags$li(strong("ANVA:"), " Es el acrónimo en español para ", tags$em(strong("ANálisis de la VArianza.")), " Es la traducción directa y correcta, comúnmente utilizada en textos académicos y enseñanza en español.")
+                                )
+                            )
+                        )
+                    ),
+                    tags$div(class="card-footer text-center bg-info text-white",
+                        strong("Conclusión: ANVA = ANOVA. Son sinónimos. En este curso, usaremos ambos términos indistintamente, pero recuerda que al escribir código en R, las funciones siempre usarán la terminología en inglés (ej. `aov`, `anova`).")
+                    )
+                ),
+
+                tags$hr(),
+                
+                p(
+                    "Para entender el valor de un diseño complejo, debemos compararlo con una alternativa más simple. El ANVA Auxiliar es nuestra 'máquina del tiempo' estadística: nos permite tomar los resultados de nuestro experimento real y responder a la pregunta: ", strong("¿Qué nivel de 'ruido' o error experimental habríamos tenido si hubiéramos optado por un diseño más básico?")
+                ),
+
+                tags$div(class = "row align-items-center", # 'align-items-center' para centrar verticalmente el contenido
+                    # Columna para el ANVA Real
+                    tags$div(class = "col-md-5 text-center",
+                        tags$div(class="card border-success shadow-sm",
+                            tags$div(class="card-header bg-success text-white", strong("ANVA del Diseño Real (Complejo)")),
+                            tags$div(class="card-body",
+                                p(icon("microscope", class="fa-3x text-success")),
+                                p("Se analiza el experimento usando el ", strong("modelo matemático completo"), " que describe con precisión cómo se realizó el ensayo en campo (ej. reconociendo bloques incompletos, parcelas divididas, etc.)."),
+                                p("El resultado es el ", code("CME_Real"), ", que representa la varianza residual o el 'ruido' después de haber controlado todas las fuentes de variación posibles con nuestro diseño sofisticado. Es nuestra medida de la ", strong("precisión alcanzada.")),
+                                tags$p(class="card-text small text-muted", "Modelo: Y ~ Bloques + Tratamientos + (Términos del Diseño Complejo)")
+                            )
+                        )
+                    ),
+                    
+                    # Columna central para la flecha de comparación
+                    tags$div(class = "col-md-2 text-center",
+                        p(icon("exchange-alt", class="fa-4x text-primary")),
+                        tags$p(strong("VS"))
+                    ),
+                    
+                    # Columna para el ANVA Auxiliar
+                    tags$div(class = "col-md-5 text-center",
+                        tags$div(class="card border-info shadow-sm",
+                            tags$div(class="card-header bg-info text-white", strong("ANVA Auxiliar (Simple)")),
+                            tags$div(class="card-body",
+                                p(icon("ruler-combined", class="fa-3x text-info")),
+                                p("Se analizan los ", strong("mismos datos"), ", pero se ", strong("ignora deliberadamente"), " la estructura compleja. Se utiliza un modelo más simple como punto de referencia (generalmente, el siguiente diseño más simple en la jerarquía)."),
+                                p("El resultado es el ", code("CME_Auxiliar"), ", que representa la varianza residual que habríamos obtenido. Este CME inevitablemente contendrá el 'ruido' que nuestro diseño complejo logró aislar. Es nuestra medida de la ", strong("precisión base.")),
+                                tags$p(class="card-text small text-muted", "Modelo: Y ~ Bloques + Tratamientos")
+                            )
+                        )
+                    )
+                ),
+
+                tags$div(class = "card mt-4",
+                    tags$div(class = "card-header", strong("Una Analogía Agronómica más Profunda: El Sistema de Riego de Precisión")),
+                    tags$div(class = "card-body",
+                        tags$p(
+                            "Imagina que instalas un costoso sistema de ", strong("riego por goteo de precisión (Diseño Complejo)"), " en tu campo, donde cada planta recibe la cantidad exacta de agua que necesita. Al final de la temporada, mides la variabilidad en el crecimiento de las plantas y obtienes un 'error' muy bajo (", code("CME_Real"), ")."
+                        ),
+                        p(
+                            "Ahora, para justificar la inversión, realizas un análisis 'auxiliar'. Tomas los mismos datos de crecimiento, pero en tu modelo asumes que regaste todo el campo con un ", strong("aspersor gigante (Diseño Simple)."), " Sabes que el aspersor no riega de manera uniforme; algunas áreas reciben más agua que otras. Al analizarlo de esta forma, el 'error' que calculas (", code("CME_Auxiliar"), ") será mucho mayor, porque ahora incluye la variabilidad debida al riego desigual."
+                        ),
+                        tags$blockquote(class="blockquote text-center",
+                            p(class="mb-0", "La ", strong("Eficiencia Relativa"), " es simplemente la razón entre el 'error' del aspersor gigante y el 'error' del riego por goteo. Te dice exactamente cuánto mejor fue tu sistema de precisión.")
+                        )
+                    )
+                ),
+
+                tags$hr(),
+
+                h4(class = "section-header", "5.3 La Matemática de la Precisión: La Eficiencia Relativa (ER)"),
+                p(
+                    "La comparación cuantitativa se realiza mediante la ", strong("Eficiencia Relativa (ER)."), " La fórmula es una simple razón de los Cuadrados Medios del Error (CME), donde un CME más bajo indica un experimento más preciso."
+                ),
+                withMathJax(helpText(
+                    "$$ER = \\frac{CME_{Auxiliar \\; (Simple)}}{CME_{Real \\; (Complejo)}}$$"
+                )),
+                p("La ER tiene una interpretación muy práctica y poderosa:"),
+                tags$ul(
+                    tags$li(
+                        "Un ER de 1.25 significa que el diseño complejo fue un 25% más preciso que el diseño simple. Para decirlo de otra manera, ", strong("por cada 100 repeticiones que necesitarías en el diseño simple para alcanzar una cierta precisión, el diseño complejo solo necesita 80 repeticiones"), " (100 / 1.25 = 80). Esto representa un ahorro masivo de recursos."
+                    ),
+                    tags$li(
+                        "La ER cuantifica directamente el retorno de la inversión de haber elegido un diseño más sofisticado. Es la justificación numérica de tu pericia como experimentador."
+                    )
+                ),
+                p(strong("Ajuste por Grados de Libertad:"), " Una fórmula más precisa de la ER, especialmente para muestras pequeñas, también considera los grados de libertad (gl) del error de cada modelo, ya que el diseño complejo 'gasta' más gl. Sin embargo, para fines prácticos, la razón de los CME es la más utilizada e intuitiva."),
+                withMathJax(helpText(
+                    "$$ER_{ajustada} = \\frac{(gl_{Real} + 1)(gl_{Auxiliar} + 3)}{(gl_{Real} + 3)(gl_{Auxiliar} + 1)} \\times \\frac{CME_{Auxiliar}}{CME_{Real}}$$"
+                )),
+                
+                tags$hr(),
+
+                h4(class = "section-header", "5.4 Guía de Aplicación: Escenarios Comunes del ANVA Auxiliar"),
+                p(
+                    "La evaluación de la eficiencia es una práctica que valida nuestras decisiones de diseño y guía la planificación futura. A continuación, se desglosan los escenarios más comunes en fichas técnicas para entender cuándo y por qué se aplica esta comparación."
+                ),
+
+                # --- Escenario 1: Bloques Incompletos ---
+                tags$div(class="card mb-4", # Aumentar el margen inferior
+                    tags$div(class="card-header bg-primary text-white",
+                        strong("Escenario 1: Justificando Diseños en Bloques Incompletos (ej. Alfa-Látice)")
+                    ),
+                    tags$div(class="card-body",
+                        tags$h5(class="card-title", "Contexto Agronómico Típico:"),
+                        p(class="card-text", em("Un programa de mejoramiento genético necesita evaluar 64 líneas nuevas de trigo. Un bloque completo de 64 parcelas sería demasiado grande y estaría afectado por la variabilidad del suelo (heterogeneidad). Se opta por un diseño Alfa-Látice con 8 bloques incompletos de 8 parcelas cada uno, dentro de cada replicación.")),
+                        tags$hr(),
+                        
+                        tags$h6(strong("La Comparación Analítica:")),
+                        tags$table(class="table table-sm",
+                            tags$tbody(
+                                tags$tr(
+                                    tags$td(icon("check-circle", class="text-success"), strong("ANVA Real:")),
+                                    tags$td("Se usa el modelo Alfa-Látice que reconoce las replicaciones y los bloques incompletos anidados: ", code("aov(Y ~ Trat + Rep + Rep:BloqueIncompleto)"))
+                                ),
+                                tags$tr(
+                                    tags$td(icon("balance-scale", class="text-info"), strong("ANVA Auxiliar:")),
+                                    tags$td("Se usa un modelo DBCA simple que ignora los bloques incompletos: ", code("aov(Y ~ Trat + Rep)"))
+                                )
+                            )
+                        ),
+
+                        tags$div(class="alert alert-light",
+                            strong("Pregunta que Responde la Eficiencia Relativa (ER):"), br(),
+                            em("¿Valió la pena el esfuerzo de crear y analizar los bloques pequeños? ¿La heterogeneidad a micro-escala era lo suficientemente grande como para justificar el diseño Látice sobre un simple DBCA?")
+                        ),
+
+                        tags$h6(strong("Conclusión Guiada por la ER:")),
+                        tags$ul(
+                            tags$li(strong("Si ER > 1.10:"), " ¡Decisión Acertada! El Látice fue significativamente más preciso. El suelo tenía variabilidad a pequeña escala que fue controlada con éxito, limpiando el error y aumentando la potencia para detectar diferencias reales entre los genotipos."),
+                            tags$li(strong("Si ER ≈ 1.00:"), " Decisión Neutral. Los bloques incompletos no aportaron un beneficio claro. El campo era probablemente más homogéneo de lo esperado. Para futuros ensayos, un DBCA sería suficiente y más simple.")
+                        )
+                    )
+                ),
+
+                # --- Escenario 2: Parcelas Divididas ---
+                tags$div(class="card mb-4",
+                    tags$div(class="card-header bg-info text-white",
+                        strong("Escenario 2: Justificando un Diseño en Parcelas Divididas (Split-Plot)")
+                    ),
+                    tags$div(class="card-body",
+                        tags$h5(class="card-title", "Contexto Agronómico Típico:"),
+                        p(class="card-text", em("Se quiere estudiar el efecto de 3 métodos de riego (Factor A, difícil de cambiar) y 4 dosis de un fungicida (Factor B, fácil de cambiar). Aleatorizar las 12 combinaciones es impráctico. Se implementa un Split-Plot con el riego en las parcelas grandes y el fungicida en las sub-parcelas.")),
+                        tags$hr(),
+                        
+                        tags$h6(strong("La Comparación Analítica:")),
+                        tags$table(class="table table-sm",
+                            tags$tbody(
+                                tags$tr(
+                                    tags$td(icon("check-circle", class="text-success"), strong("ANVA Real:")),
+                                    tags$td("Se usa el modelo Split-Plot con dos errores: ", code("aov(Y ~ Bloque + Riego + Error(Bloque:Riego) + Fungicida + Riego:Fungicida)"))
+                                ),
+                                tags$tr(
+                                    tags$td(icon("balance-scale", class="text-info"), strong("ANVA Auxiliar:")),
+                                    tags$td("Se analiza como un factorial convencional en DBCA: ", code("aov(Y ~ Bloque + Riego * Fungicida)"))
+                                )
+                            )
+                        ),
+                        
+                        tags$div(class="alert alert-light",
+                            strong("Pregunta que Responde la Eficiencia Relativa (ER):"), br(),
+                            em("Considerando la precisión para el factor secundario y la interacción (usando el CMEb), ¿la estructura Split-Plot fue una estrategia eficiente? ¿La ganancia en viabilidad logística y precisión en las sub-parcelas compensó la pérdida de precisión en el factor principal?")
+                        ),
+
+                        tags$h6(strong("Conclusión Guiada por la ER:")),
+                        tags$ul(
+                            tags$li(strong("Si ER alta:"), " Justificado. El diseño fue logísticamente viable y proporcionó alta precisión para las preguntas más importantes (efecto del fungicida y su interacción con el riego). La homogeneidad dentro de las parcelas de riego era alta."),
+                            tags$li(strong("Si ER baja:"), " Cuestionable. Si la variabilidad dentro de las parcelas grandes era casi tan alta como entre ellas, la ventaja del Split-Plot se pierde y las conclusiones sobre el factor principal son muy poco fiables.")
+                        )
+                    )
+                ),
+
+                # --- Escenario 3: DBCA ---
+                tags$div(class="card mb-4",
+                    tags$div(class="card-header bg-secondary text-white",
+                        strong("Escenario 3: Evaluando la Efectividad del Bloqueo (DBCA vs. DCA)")
+                    ),
+                    tags$div(class="card-body",
+                        tags$h5(class="card-title", "Contexto Agronómico Típico:"),
+                        p(class="card-text", em("Se evalúan 5 fungicidas. El campo tiene una ligera pendiente de norte a sur, por lo que se establecen bloques perpendiculares a esa pendiente. Quiero cuantificar si el bloqueo realmente funcionó.")),
+                        tags$hr(),
+                        
+                        tags$h6(strong("La Comparación Analítica:")),
+                        tags$table(class="table table-sm",
+                            tags$tbody(
+                                tags$tr(
+                                    tags$td(icon("check-circle", class="text-success"), strong("ANVA Real:")),
+                                    tags$td("Se usa el modelo DBCA, que extrae la variación debida a los bloques: ", code("aov(Y ~ Bloque + Tratamiento)"))
+                                ),
+                                tags$tr(
+                                    tags$td(icon("balance-scale", class="text-info"), strong("ANVA Auxiliar:")),
+                                    tags$td("Se usa un modelo DCA, que agrupa toda la variación no explicada por el tratamiento en el error: ", code("aov(Y ~ Tratamiento)"))
+                                )
+                            )
+                        ),
+
+                        tags$div(class="alert alert-light",
+                            strong("Pregunta que Responde la Eficiencia Relativa (ER):"), br(),
+                            em("¿El gradiente de campo que yo sospechaba era real y lo suficientemente fuerte? ¿Cuánto 'ruido' (varianza) logré sacar del error experimental y atribuirlo correctamente a los bloques?")
+                        ),
+
+                        tags$h6(strong("Conclusión Guiada por la ER:")),
+                        p(
+                            "En este caso, aunque se puede calcular la ER, la forma más directa de evaluar la efectividad del bloqueo es simplemente mirar el ", strong("p-valor del factor 'Bloque' en la tabla ANOVA del DBCA."), " Si ese p-valor es significativo (ej. < 0.10 o < 0.05), significa que el bloqueo fue efectivo y no es necesario calcular la ER. Si no es significativo, significa que el campo era homogéneo y un DCA habría sido suficiente."
+                        )
+                    )
+                )
             )
         )
     )
