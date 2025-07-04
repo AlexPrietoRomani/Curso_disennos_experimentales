@@ -94,9 +94,9 @@ session7UI <- function(id) {
             nav_panel(
                 title = "2. El Modelo y los Dos Errores",
                 
-                tags$h4(class = "section-header", "2.1 El Concepto Clave: Dos Tamaños, Dos Errores"),
-                tags$p(
-                    "Para entender el análisis de un Split-Plot, debemos abandonar la idea de un único 'error experimental'. Debido a su estructura jerárquica, este diseño tiene ", strong("dos unidades experimentales de diferente tamaño"), " y, por lo tanto, ", strong("dos varianzas de error distintas"), "."
+                h4(class = "section-header", "2.1 El Concepto Clave: Dos Tamaños de Parcela, Dos Errores Experimentales"),
+                p(
+                    "Para entender el análisis de un Split-Plot, debemos abandonar la idea de un único 'error experimental'. Debido a su estructura física jerárquica, este diseño tiene inherentemente ", strong("dos unidades experimentales de diferente tamaño"), " y, por lo tanto, la variabilidad aleatoria (el 'ruido') se mide a dos escalas distintas. Esto da lugar a ", strong("dos varianzas de error distintas."), " Este es el concepto más importante y diferenciador del diseño."
                 ),
                 
                 # --- Analogía visual y desglose ---
@@ -145,6 +145,27 @@ session7UI <- function(id) {
                 tags$hr(),
 
                 tags$h4(class = "section-header", "2.3 El Modelo Lineal Desglosado"),
+
+                tags$hr(),
+
+                p("El modelo matemático es lo que formaliza esta estructura. Comparemos directamente un Factorial en DBCA con un Split-Plot en DBCA para ver la diferencia fundamental."),
+                fluidRow(
+                    # Modelo Factorial Convencional
+                    column(6, style="border-right: 1px solid #ddd;",
+                        h5("Modelo Factorial en DBCA"),
+                        withMathJax(helpText("$$Y_{ijk} = \\mu + \\rho_k + \\alpha_i + \\beta_j + (\\alpha\\beta)_{ij} + \\epsilon_{ijk}$$")),
+                        p("Este modelo tiene ", strong("UN SOLO TÉRMINO DE ERROR (\\(\\epsilon_{ijk}\\))"), ". Asume que la variabilidad aleatoria es la misma para todas las observaciones, sin importar el tamaño de la parcela, porque todas las combinaciones se aleatorizan de la misma manera.")
+                    ),
+                    # Modelo Split-Plot
+                    column(6,
+                        h5("Modelo Split-Plot en DBCA"),
+                        withMathJax(helpText("$$Y_{ijk} = \\mu + \\rho_k + \\alpha_i + \\mathbf{\\delta_{ik}} + \\beta_j + (\\alpha\\beta)_{ij} + \\mathbf{\\epsilon_{ijk}}$$")),
+                        p("Este modelo tiene ", strong("DOS TÉRMINOS DE ERROR:"), " el ", strong("Error (a) (\\(\\delta_{ik}\\))"), " asociado a la parcela principal, y el ", strong("Error (b) (\\(\\epsilon_{ijk}\\))"), " asociado a la sub-parcela. ¡Este término adicional es la diferencia clave!")
+                    )
+                ),
+
+                tags$hr(),
+
                 tags$p("El modelo matemático formaliza esta estructura. Para un Split-Plot en DBCA, el modelo es:"),
                 withMathJax(helpText(
                     "$$Y_{ijk} = \\mu + \\rho_k + \\alpha_i + \\delta_{ik} + \\beta_j + (\\alpha\\beta)_{ij} + \\epsilon_{ijk}$$"
@@ -284,120 +305,243 @@ session7UI <- function(id) {
             nav_panel(
                 title = "4. Post-Hoc y Resumen de Diseños",
                 
-                tags$h4(class = "section-header", "4.1 Estrategias Avanzadas para Post-Hoc en Split-Plots"),
-                tags$p(
-                    "Como vimos en el análisis interactivo, realizar comparaciones múltiples en un Split-Plot requiere cuidado para usar el término de error correcto. Si bien ", code("agricolae"),
-                    " es una herramienta clásica, el paquete ", code("emmeans"), " ofrece un enfoque más moderno y a menudo más seguro, ya que intenta detectar automáticamente la estructura de error del modelo."
+                h4(class = "section-header", "4.1 Estrategias Post-Hoc para Diseños Complejos (Split-Plot)"),
+                p(
+                    "Realizar comparaciones múltiples en un diseño Split-Plot es más complejo que en un DBCA, ya que debemos respetar la estructura de dos errores del modelo. La elección del método post-hoc es crucial para obtener conclusiones válidas."
                 ),
-                
-                tags$h5(tags$strong("Enfoque recomendado con `emmeans`:")),
-                tags$p(
-                    "`emmeans` puede manejar la estructura `aovlist` directamente, lo que simplifica el código y reduce el riesgo de errores."
-                ),
-                tags$pre(class="r-code",
-                    htmltools::HTML(
-                        "# Asumiendo que 'modelo_sp' es el resultado de aov() con Error()\n",
-                        "library(emmeans)\n\n",
-                        "# 1. Verificar primero la interacción\n",
-                        "emm_int <- emmeans(modelo_sp, ~ nitrogeno * variedad)\n",
-                        "joint_tests(emm_int) # Esto da una prueba F para la interacción\n\n",
-                        "# 2. Si la interacción es significativa, analizar efectos simples:\n",
-                        "comparaciones_simples <- emmeans(modelo_sp, pairwise ~ nitrogeno | variedad)\n",
-                        "print(comparaciones_simples)\n\n",
-                        "# 3. Si la interacción NO es significativa, analizar efectos principales:\n",
-                        "emm_nitrogeno <- emmeans(modelo_sp, ~ nitrogeno)\n",
-                        "pairs(emm_nitrogeno) # Compara los niveles de nitrógeno\n\n",
-                        "emm_variedad <- emmeans(modelo_sp, ~ variedad)\n",
-                        "pairs(emm_variedad) # Compara los niveles de variedad"
+
+                navset_card_pill(
+                    header = tags$h5("Elige un enfoque para las comparaciones múltiples:"),
+                    
+                    # --- Enfoque Clásico con `agricolae` ---
+                    nav_panel(
+                        "Enfoque Clásico (agricolae)",
+                        tags$div(class="alert alert-info",
+                            strong("Ideal para:"), " Obtener rápidamente grupos de letras (a, b, ab) y cuando se necesita usar un error específico de forma manual."
+                        ),
+                        p("El paquete ", code("agricolae"), " es un estándar en la investigación agrícola. Su función ", code("LSD.test"), " (o `HSD.test`, `duncan.test`, etc.) es muy flexible, pero requiere que el usuario especifique manualmente los grados de libertad (`DFerror`) y el Cuadrado Medio del Error (`MSerror`) correctos para cada comparación."),
+                        tags$h6("Flujo de Trabajo Manual:"),
+                        tags$ol(
+                            tags$li("Extraer el `Df` y `Mean Sq` del ", strong("Error (a)"), " de la tabla ANOVA para probar el factor principal."),
+                            tags$li("Extraer el `Df` y `Mean Sq` del ", strong("Error (b)"), " de la tabla ANOVA para probar el factor secundario y la interacción."),
+                            tags$li("Alimentar estos valores a la función de prueba post-hoc correspondiente.")
+                        ),
+                        tags$pre(class="r-code",
+                            htmltools::HTML(
+                                "# Ejemplo para el Factor Principal (Nitrógeno) usando Error (a)\n",
+                                "out_N <- with(datos, agricolae::LSD.test(rendimiento, nitrogeno, DFerror = error_a_df, MSerror = error_a_ms))\n\n",
+                                "# Ejemplo para el Factor Secundario (Variedad) usando Error (b)\n",
+                                "out_V <- with(datos, agricolae::LSD.test(rendimiento, variedad, DFerror = error_b_df, MSerror = error_b_ms))"
+                            )
+                        ),
+                        tags$div(class="alert alert-danger", strong("¡Cuidado!"), " La principal desventaja de este método es el riesgo de error humano. Si se elige el CME incorrecto para una comparación, las conclusiones serán inválidas.")
+                    ),
+                    
+                    # --- Enfoque Moderno con `emmeans` ---
+                    nav_panel(
+                        "Enfoque Moderno (emmeans)",
+                        tags$div(class="alert alert-success",
+                            strong("Ideal para:"), " Un análisis más robusto, seguro y flexible, especialmente al desglosar interacciones."
+                        ),
+                        p("El paquete ", code("emmeans"), " (Medias Marginales Estimadas) es la herramienta moderna preferida. Su gran ventaja es que ", strong("es consciente de la estructura del modelo"), ". Puede leer directamente el objeto `aovlist` que produce el análisis Split-Plot y utilizar automáticamente el término de error correcto para cada comparación."),
+                        tags$h6("Flujo de Trabajo Automatizado:"),
+                        p("La sintaxis es más simple y menos propensa a errores. Simplemente pasamos el objeto del modelo y especificamos las comparaciones que queremos."),
+                        tags$pre(class="r-code",
+                            htmltools::HTML(
+                                "# Asumiendo que 'modelo_sp' es el resultado de aov() con Error()\n",
+                                "library(emmeans)\n\n",
+                                "# emmeans detecta y usa el Error (a) para esta comparación\n",
+                                "pairs(emmeans(modelo_sp, ~ nitrogeno))\n\n",
+                                "# emmeans detecta y usa el Error (b) para esta comparación\n",
+                                "pairs(emmeans(modelo_sp, ~ variedad))\n\n",
+                                "# Desglosar la interacción (usa Error b automáticamente)\n",
+                                "pairs(emmeans(modelo_sp, ~ variedad | nitrogeno))"
+                            )
+                        ),
+                        tags$div(class="note-cloud",
+                            strong("¿Por qué `emmeans` es más seguro?"),
+                            "Elimina la necesidad de extraer manualmente los CME y los grados de libertad, reduciendo drásticamente el riesgo de usar el error incorrecto. Su sintaxis es más intuitiva y se alinea mejor con la pregunta de investigación."
+                        )
                     )
                 ),
-                tags$div(class="note-cloud",
-                    strong("¿Por qué `emmeans` es a menudo preferible?"),
-                    " `emmeans` es consciente de la estructura del modelo. Al analizar el efecto principal del nitrógeno, sabe que debe promediar sobre las variedades y usar la estructura de error correcta (derivada del Error a) para las comparaciones, haciendo el análisis menos propenso a errores manuales."
-                ),
-                
+
                 tags$hr(),
 
-                tags$h4(class = "section-header", "4.2 Tabla Comparativa: Guía para la Elección del Diseño Experimental"),
-                tags$p(
+                h4(class = "section-header", "4.2 Guía Comparativa de Diseños Experimentales"),
+                p(
                     "La elección del diseño correcto es una de las decisiones más críticas en la investigación. No existe un 'mejor' diseño; existe el diseño ", em("más apropiado"),
-                    " para tu pregunta de investigación, tus recursos y las condiciones de tu campo. Esta tabla resume los diseños que hemos visto y otros comunes para ayudarte a decidir."
+                    " para tu pregunta de investigación, tus recursos y las condiciones de tu campo. Esta tabla resume los diseños clave, sus objetivos, estructura, fortalezas, limitaciones y el modelo matemático que los describe."
                 ),
-                
+
                 tags$div(class = "table-responsive",
-                    tags$table(class = "table table-bordered table-hover",
-                        tags$thead(class="table-light",
+                    tags$table(class = "table table-bordered table-hover", style="font-size: 0.9em; vertical-align: middle;", # Letra más pequeña y alineación vertical
+                        tags$thead(class="table-light text-center",
                             tags$tr(
                                 tags$th("Diseño Experimental"),
                                 tags$th("Objetivo Principal"),
-                                tags$th("Estructura Clave"),
+                                tags$th("Estructura y Modelo Matemático"),
                                 tags$th("Fortaleza Principal"),
                                 tags$th("Limitación Principal")
                             )
                         ),
                         tags$tbody(
+                            # --- DCA ---
                             tags$tr(
                                 tags$td(strong("DCA")),
-                                tags$td("Comparar tratamientos en condiciones totalmente homogéneas."),
-                                tags$td("Aleatorización completa de todos los tratamientos."),
-                                tags$td("Máxima simplicidad y flexibilidad. Mayor número de g.l. para el error."),
-                                tags$td("Muy sensible a la heterogeneidad del campo. Rara vez aplicable fuera del laboratorio/invernadero.")
+                                tags$td("Comparar 't' tratamientos en condiciones totalmente homogéneas."),
+                                tags$td(
+                                    p(strong("Estructura:"), " Aleatorización completa de todos los tratamientos."),
+                                    withMathJax(helpText("$$Y_{ij} = \\mu + \\tau_i + \\epsilon_{ij}$$"))
+                                ),
+                                tags$td("Máxima simplicidad y flexibilidad. El mayor número de grados de libertad para el error, lo que aumenta la potencia si la homogeneidad es real."),
+                                tags$td("Muy sensible a cualquier gradiente o heterogeneidad. Su uso en campo es muy arriesgado y poco común.")
                             ),
+                            # --- DBCA ---
                             tags$tr(
                                 tags$td(strong("DBCA")),
-                                tags$td("Comparar tratamientos controlando UNA fuente de variación (gradiente)."),
-                                tags$td("Todos los tratamientos están en cada bloque. Aleatorización dentro de bloques."),
-                                tags$td("Aumenta drásticamente la precisión si el bloqueo es efectivo."),
-                                tags$td("Ineficaz si el gradiente es irregular o si hay más de una fuente de variación.")
+                                tags$td("Comparar 't' tratamientos controlando UNA fuente de variación (gradiente)."),
+                                tags$td(
+                                    p(strong("Estructura:"), " Todos los 't' tratamientos están en cada uno de los 'r' bloques. Aleatorización dentro de cada bloque."),
+                                    withMathJax(helpText("$$Y_{ij} = \\mu + \\rho_i + \\tau_j + \\epsilon_{ij}$$"))
+                                ),
+                                tags$td("Aumenta drásticamente la precisión al remover la variación entre bloques del error experimental. Es el diseño más común en agronomía."),
+                                tags$td("Ineficaz si el gradiente es complejo o si hay más de una fuente de variación. Puede ser ineficiente si los bloques son muy grandes.")
                             ),
+                            # --- DCL ---
                             tags$tr(
-                                tags$td(strong("Cuadrado Latino (DCL)")),
-                                tags$td("Comparar tratamientos controlando DOS fuentes de variación perpendiculares."),
-                                tags$td("Nº Tratamientos = Nº Filas = Nº Columnas. Cada tratamiento aparece una vez por fila/columna."),
-                                tags$td("Extremadamente eficiente para controlar doble gradiente (ej. pendiente y exposición solar)."),
-                                tags$td("Muy rígido. El número de tratamientos está restringido y no es práctico para > 8 tratamientos.")
+                                tags$td(strong("Cuadrado Latino")),
+                                tags$td("Controlar DOS fuentes de variación perpendiculares (ej. filas y columnas)."),
+                                tags$td(
+                                    p(strong("Estructura:"), " Cuadrícula t x t. Cada tratamiento aparece una vez por fila y columna."),
+                                    withMathJax(helpText("$$Y_{ijk} = \\mu + \\alpha_i + \\beta_j + \\tau_k + \\epsilon_{ijk}$$"))
+                                ),
+                                tags$td("Extremadamente eficiente para controlar doble gradiente (ej. pendiente e irrigación)."),
+                                tags$td("Muy rígido. El número de tratamientos debe ser igual al de filas y columnas. No práctico para > 8 tratamientos.")
                             ),
+                            # --- Factorial ---
                             tags$tr(
                                 tags$td(strong("Factorial")),
-                                tags$td("Estudiar los efectos de dos o más factores y, crucialmente, sus INTERACCIONES."),
-                                tags$td("Todas las combinaciones de los niveles de los factores son probadas."),
-                                tags$td("Es el único diseño que permite descubrir sinergias o antagonismos entre factores."),
-                                tags$td("El número de tratamientos combinados crece exponencialmente, puede volverse muy grande.")
+                                tags$td("Estudiar los efectos de dos o más factores (A, B) y sus INTERACCIONES."),
+                                tags$td(
+                                    p(strong("Estructura:"), " Se prueban todas las 'a x b' combinaciones de niveles. Se implementa sobre un DCA o DBCA."),
+                                    withMathJax(helpText("$$Y_{ijk} = \\mu + \\alpha_i + \\beta_j + (\\alpha\\beta)_{ij} + \\epsilon_{ijk}$$"))
+                                ),
+                                tags$td("Es el único diseño que permite descubrir y cuantificar sinergias o antagonismos entre factores, revelando la complejidad real del sistema."),
+                                tags$td("El número de tratamientos combinados crece exponencialmente (ej. 3x4x3 = 36 trats), pudiendo volverse muy grande y costoso de implementar.")
                             ),
+                            # --- Split-Plot ---
                             tags$tr(
-                                tags$td(strong("Parcelas Divididas (Split-Plot)")),
-                                tags$td("Implementar un diseño factorial cuando un factor requiere parcelas mucho más grandes que el otro."),
-                                tags$td("Estructura jerárquica: Factor A en parcelas grandes, Factor B en sub-parcelas dentro de A."),
-                                tags$td("Logísticamente práctico para factores como labranza o riego. Alta precisión para el factor secundario y la interacción."),
-                                tags$td("Baja precisión para el factor principal. Análisis y post-hoc más complejos (dos errores).")
+                                tags$td(strong("Parcelas Divididas")),
+                                tags$td("Implementar un factorial cuando un factor (A) requiere parcelas mucho más grandes que el otro (B)."),
+                                tags$td(
+                                    p(strong("Estructura:"), " Jerárquica. Factor A en parcelas grandes, Factor B en sub-parcelas dentro de A."),
+                                    withMathJax(helpText("$$Y_{ijk} = \\mu + \\rho_k + \\alpha_i + \\delta_{ik} + \\beta_j + (\\alpha\\beta)_{ij} + \\epsilon_{ijk}$$"))
+                                ),
+                                tags$td("Solución logística práctica. Alta precisión para el factor secundario (B) y la interacción (AxB)."),
+                                tags$td("Baja precisión para el factor principal (A). Análisis más complejo debido a sus dos términos de error (\\(\\delta_{ik}\\) y \\(\\epsilon_{ijk}\\)).")
                             ),
+                            # --- Strip-Plot ---
                             tags$tr(
-                                tags$td(strong("Parcelas en Franjas (Strip-Plot)")),
+                                tags$td(strong("Parcelas en Franjas")),
                                 tags$td("Implementar un factorial donde AMBOS factores requieren parcelas grandes."),
-                                tags$td("Factor A aplicado en franjas en una dirección, Factor B en franjas perpendiculares."),
-                                tags$td("Soluciona el problema logístico de dos factores 'difíciles de cambiar' (ej. labranza y método de siembra)."),
-                                tags$td("Análisis muy complejo (tres errores). La precisión para la interacción es alta, pero para ambos efectos principales es baja.")
+                                tags$td(
+                                    p(strong("Estructura:"), " Factor A en franjas en una dirección, Factor B en franjas perpendiculares."),
+                                    p(em("Modelo complejo con 3 errores."))
+                                ),
+                                tags$td("Soluciona el problema logístico de dos factores 'difíciles de cambiar' (ej. labranza y método de siembra). Alta precisión para la interacción."),
+                                tags$td("Análisis muy complejo (tres errores). La precisión para ambos efectos principales (A y B) es baja.")
                             ),
+                            # --- Bloques Incompletos ---
                             tags$tr(
-                                tags$td(strong("Bloques Incompletos (BIBD)")),
+                                tags$td(strong("Bloques Incompletos")),
                                 tags$td("Comparar muchos tratamientos cuando el tamaño del bloque es demasiado pequeño para contenerlos a todos."),
-                                tags$td("Cada bloque contiene solo un subconjunto de los tratamientos, pero el diseño está balanceado."),
-                                tags$td("Permite controlar la variabilidad en ensayos con muchísimos tratamientos (ej. mejoramiento genético)."),
-                                tags$td("Requiere que se cumplan condiciones combinatorias específicas. El análisis es más complejo (ajuste inter-bloque).")
+                                tags$td(
+                                    p(strong("Estructura:"), " Cada bloque contiene un subconjunto de los tratamientos, de forma balanceada."),
+                                    withMathJax(helpText("$$Y_{ij} = \\mu + \\tau_i + \\beta_j + \\epsilon_{ij}$$"), "(con ajuste inter-bloque)")
+                                ),
+                                tags$td("Permite controlar la variabilidad en ensayos con un gran número de tratamientos. Esencial en mejoramiento genético."),
+                                tags$td("Requiere que se cumplan condiciones combinatorias. El análisis es más complejo (requiere recuperación de información inter-bloque).")
                             ),
+                            # --- Diseños Aumentados ---
                             tags$tr(
                                 tags$td(strong("Diseños Aumentados")),
                                 tags$td("Evaluar un gran número de tratamientos nuevos (no replicados) junto a unos pocos controles (replicados)."),
-                                tags$td("Los controles se repiten en cada bloque para estimar la variabilidad, mientras que los tratamientos nuevos aparecen solo una vez."),
-                                tags$td("Extremadamente eficiente en recursos para fases tempranas de mejoramiento genético."),
-                                tags$td("Baja precisión para los tratamientos nuevos. Las comparaciones dependen fuertemente de los controles.")
+                                tags$td(
+                                    p(strong("Estructura:"), " Los controles se distribuyen en cada bloque para estimar el error, mientras que los tratamientos nuevos no se replican."),
+                                    p(em("Análisis basado en el ajuste por el efecto de bloque estimado a partir de los controles."))
+                                ),
+                                tags$td("Extremadamente eficiente en recursos para fases tempranas de mejoramiento (screening de miles de líneas)."),
+                                tags$td("Baja precisión para los tratamientos nuevos. Las comparaciones dependen fuertemente del rendimiento de los controles.")
                             )
                         )
                     )
                 ),
-                tags$div(class="question mt-4",
-                    strong("Pregunta Final: ¿Cómo decidir?"),
-                    p("La elección del diseño es un balance entre el ideal estadístico y la realidad logística. Comienza con la pregunta más simple: '¿Cuántos factores estoy estudiando?' Si es uno, piensa en DCA o DBCA. Si son más de uno, piensa en Factorial. Luego, haz la pregunta logística: '¿Puedo aleatorizar todas las combinaciones fácilmente?' Si la respuesta es no, piensa en Split-Plot. Finalmente, considera la escala: '¿Tengo demasiados tratamientos para un bloque normal?' Si es así, explora diseños en bloques incompletos o aumentados.")
+
+                tags$hr(),
+
+                # --- Árbol de Decisión Visual ---
+                h4(class="section-header", "4.3 Guía de Decisión Práctica: Navegando la Elección del Diseño"),
+                tags$div(class="card border-primary",
+                    tags$div(class="card-header bg-primary text-white", strong("Punto de Partida: Tu Pregunta de Investigación")),
+                    tags$div(class="card-body text-center",
+                        
+                        # --- PREGUNTA 1 ---
+                        tags$h5("1. ¿Cuántos factores de tratamiento quieres estudiar?"),
+                        p(icon("arrow-down"), " (Independientemente de los factores de bloqueo) ", icon("arrow-down")),
+                        
+                        fluidRow(
+                            # --- CAMINO A: UN FACTOR ---
+                            column(6, style="border-right: 1px solid #ddd; padding: 15px;",
+                                tags$div(class="decision-box-option", icon("tag"), strong(" UN FACTOR")),
+                                p(class="mt-3", icon("arrow-down")),
+                                
+                                tags$h5("2. ¿Cómo es tu área experimental?"),
+                                p(icon("arrow-down"), " (¿Hay gradientes de suelo, sombra, etc.?) ", icon("arrow-down")),
+                                
+                                fluidRow(
+                                    column(6,
+                                        tags$div(class="decision-box-option", icon("check-circle"), " Homogénea"),
+                                        p(class="mt-2", icon("arrow-down")),
+                                        tags$div(class="alert alert-success", strong("DCA"))
+                                    ),
+                                    column(6,
+                                        tags$div(class="decision-box-option", icon("exclamation-triangle"), " Heterogénea"),
+                                        p(class="mt-2", icon("arrow-down")),
+                                        tags$div(class="alert alert-info", strong("DBCA / DCL / Bloques Incompletos"))
+                                    )
+                                ),
+                                
+                                p(class="mt-3", icon("arrow-down")),
+                                tags$h5("3. ¿Tus bloques pueden contener todos los tratamientos?"),
+                                p(class="mt-2", strong("NO ->"), " ", span(class="text-danger", strong("Bloques Incompletos")))
+                            ),
+                            
+                            # --- CAMINO B: DOS O MÁS FACTORES ---
+                            column(6, style="padding: 15px;",
+                                tags$div(class="decision-box-option", icon("tags"), strong(" DOS O MÁS FACTORES (FACTORIAL)")),
+                                p(class="mt-3", icon("arrow-down")),
+                                
+                                tags$h5("2. ¿Puedes aplicar todos los niveles de todos los factores con la misma facilidad y tamaño de parcela?"),
+                                p(icon("arrow-down"), " (Consideraciones logísticas) ", icon("arrow-down")),
+                                
+                                fluidRow(
+                                    column(6,
+                                        tags$div(class="decision-box-option", icon("check-circle"), " SÍ"),
+                                        p(class="mt-2", icon("arrow-down")),
+                                        tags$div(class="alert alert-success", strong("Factorial sobre DCA o DBCA"))
+                                    ),
+                                    column(6,
+                                        tags$div(class="decision-box-option", icon("truck-loading"), " NO"),
+                                        p(class="mt-2", icon("arrow-down")),
+                                        tags$div(class="alert alert-info", strong("Parcelas Divididas / Strip-Plot"))
+                                    )
+                                )
+                            )
+                        )
+                    ),
+                    tags$div(class="card-footer",
+                        p(strong("Resumen del Flujo Mental:"), " Primero define el ", strong("qué"), " (factores), luego el ", strong("dónde"), " (heterogeneidad del campo), y finalmente el ", strong("cómo"), " (logística de aplicación).")
+                    )
                 )
             ),
 
