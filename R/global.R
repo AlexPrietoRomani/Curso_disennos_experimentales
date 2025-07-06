@@ -21,6 +21,7 @@ library(pwr)
 library(dunn.test)
 library(rstatix)
 library(ggfortify)
+library(scatterplot3d)
 
 # Cargar módulos
 mod_files <- list.files("R/modules", full.names = TRUE, pattern = "\\.R$")
