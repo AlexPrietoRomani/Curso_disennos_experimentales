@@ -7,11 +7,299 @@ session8UI <- function(id) {
         tags$h3(class = "session-title", "Sesión 8: Poder Estadístico y Tamaño de Muestra"),
         
         navset_tab(
-            # ===== PESTAÑA 1: ¿Por qué Planificar? =====
+            # ===== PESTAÑA 1: Introducción a Diseños Avanzados =====
             nav_panel(
-                title = "1. ¿Por qué Planificar?",
+                title = "1. Diseño en Cuadrado Latino (DCL)",
                 
-                tags$h4(class = "section-header", "1.1 Más Allá del P-valor: La Anatomía de una Decisión Estadística"),
+                h4(class = "section-header", "1.1 El Desafío del Campo Real: Heterogeneidad Bidireccional"),
+                p(
+                    "El Diseño en Bloques Completos al Azar (DBCA) es una herramienta poderosa que aprendimos para controlar ", strong("una"), " fuente de variación predecible, como una pendiente. Bloqueamos perpendicularmente a ese gradiente para crear mini-experimentos más homogéneos. Pero, ¿qué ocurre cuando la realidad del campo es más compleja?"
+                ),
+
+                # --- Presentación del Problema ---
+                tags$div(class="card mb-4",
+                    tags$div(class="card-body",
+                        h5(class = "card-title text-center", "El Escenario del Doble Gradiente"),
+                        p(
+                            "Imagina un campo de ensayo en una ladera (lo que crea un gradiente de fertilidad de arriba hacia abajo) que, además, recibe un viento secante constante desde el oeste (creando un gradiente de humedad de izquierda a derecha). En este escenario, la productividad del suelo no es uniforme ni en una sola dirección; varía en dos dimensiones."
+                        ),
+                        # Usaremos una fila para poner los dos gráficos comparativos lado a lado
+                        fluidRow(
+                            # Columna para el DBCA y su problema
+                            column(6, style="border-right: 1px solid #ddd;",
+                                h6(strong("Intento 1: Usando un DBCA")),
+                                p(class="text-muted", "Decidimos bloquear por filas para controlar el gradiente de fertilidad de la ladera."),
+                                # El plotOutput para el DBCA
+                                plotOutput(ns("plot_dbca_problema"), height = "300px")
+                            ),
+                            # Columna para el DCL y su solución
+                            column(6,
+                                h6(strong("La Solución: Bloqueo Bidireccional")),
+                                p(class="text-muted", "Necesitamos un diseño que controle AMBOS gradientes simultáneamente."),
+                                # El plotOutput para el DCL
+                                plotOutput(ns("plot_doble_gradiente"), height = "300px")
+                            )
+                        )
+                    )
+                ),
+
+                p(
+                    "Como muestra el gráfico de la izquierda, si solo bloqueamos por filas (DBCA), la variación debida al gradiente de humedad (horizontal) sigue presente ", em("dentro"), " de nuestros bloques, inflando el error experimental. No hemos controlado todo el 'ruido' posible."
+                ),
+                p(
+                    strong("La pregunta clave es:"), "¿Existe un diseño que pueda particionar la variación en tres componentes: Filas, Columnas y Tratamientos? La respuesta es sí: el ", strong("Diseño en Cuadrado Latino (DCL).")
+                ),
+
+                tags$hr(),
+
+                h4(class = "section-header", "1.2 Anatomía del Diseño en Cuadrado Latino (DCL)"),
+                p(
+                    "El DCL es un diseño elegante y muy eficiente que impone una estructura de bloqueo en dos direcciones. Su poder reside en una regla de construcción simple pero muy estricta, que define toda su estructura."
+                ),
+
+                # --- Regla Fundamental ---
+                tags$div(class="alert alert-info text-center", style="font-size: 1.2em;",
+                    strong("Número de Tratamientos (t) = Número de Filas (r) = Número de Columnas (c)")
+                ),
+
+                # --- Explicación y Ejemplo Visual ---
+                tags$div(class = "content-row",
+                    # Columna principal para el ejemplo
+                    tags$div(class = "main-content",
+                        p(
+                            "Esta regla significa que si tienes 4 tratamientos (A, B, C, D), necesitarás un campo experimental con exactamente 4 filas y 4 columnas. La asignación de estos tratamientos a las 16 parcelas resultantes no es completamente aleatoria; debe cumplir una restricción crucial:"
+                        ),
+                        tags$blockquote(class="blockquote",
+                            p(class="mb-0", em("Cada tratamiento debe aparecer exactamente una vez en cada fila y exactamente una vez en cada columna."))
+                        ),
+                        p("Veamos un ejemplo de un Cuadrado Latino 4x4 aleatorizado:"),
+                        
+                        # Tabla visual del DCL
+                        tags$table(class="table table-bordered text-center dcl-example-table",
+                            tags$thead(
+                                tags$tr(
+                                    tags$th(""),
+                                    tags$th("Columna 1"),
+                                    tags$th("Columna 2"),
+                                    tags$th("Columna 3"),
+                                    tags$th("Columna 4")
+                                )
+                            ),
+                            tags$tbody(
+                                tags$tr(
+                                    tags$th("Fila 1"),
+                                    tags$td(class="dcl-A", "A"),
+                                    tags$td(class="dcl-D", "D"),
+                                    tags$td(class="dcl-B", "B"),
+                                    tags$td(class="dcl-C", "C")
+                                ),
+                                tags$tr(
+                                    tags$th("Fila 2"),
+                                    tags$td(class="dcl-B", "B"),
+                                    tags$td(class="dcl-A", "A"),
+                                    tags$td(class="dcl-C", "C"),
+                                    tags$td(class="dcl-D", "D")
+                                ),
+                                tags$tr(
+                                    tags$th("Fila 3"),
+                                    tags$td(class="dcl-C", "C"),
+                                    tags$td(class="dcl-B", "B"),
+                                    tags$td(class="dcl-D", "D"),
+                                    tags$td(class="dcl-A", "A")
+                                ),
+                                tags$tr(
+                                    tags$th("Fila 4"),
+                                    tags$td(class="dcl-D", "D"),
+                                    tags$td(class="dcl-C", "C"),
+                                    tags$td(class="dcl-A", "A"),
+                                    tags$td(class="dcl-B", "B")
+                                )
+                            )
+                        )
+                    ),
+                    
+                    # Nube lateral para la verificación de la regla
+                    tags$div(class = "note-cloud",
+                        tags$strong("Verificando la Regla del DCL:"),
+                        p("Toma cualquier tratamiento, por ejemplo el ", strong("Tratamiento A"), ":"),
+                        tags$ul(
+                            tags$li(icon("check", class="text-success"), "Aparece en la Fila 1, Columna 1."),
+                            tags$li(icon("check", class="text-success"), "Aparece en la Fila 2, Columna 2."),
+                            tags$li(icon("check", class="text-success"), "Aparece en la Fila 3, Columna 4."),
+                            tags$li(icon("check", class="text-success"), "Aparece en la Fila 4, Columna 3.")
+                        ),
+                        p("Cumple la regla: una vez por fila y una vez por columna. ¡Puedes verificarlo para B, C y D!"),
+                        tags$hr(),
+                        p(strong("La consecuencia:"), " Esta restricción doble es lo que permite al modelo estadístico aislar y eliminar la variabilidad asociada tanto a las filas como a las columnas, limpiando el error experimental de forma muy eficiente.")
+                    )
+                ),
+
+                tags$hr(),
+
+                h4(class = "section-header", "1.3 El Modelo Matemático y la Partición de la Varianza"),
+                p(
+                    "La elegancia del Diseño en Cuadrado Latino se refleja en su modelo estadístico. Para entenderlo, comparémoslo con el modelo del DBCA que ya conocemos."
+                ),
+
+                # --- Comparación de Modelos Lado a Lado ---
+                fluidRow(
+                    # Tarjeta para el Modelo DBCA (el conocido)
+                    column(6, style="padding-right: 10px;",
+                        tags$div(class="card h-100",
+                            tags$div(class="card-header", strong("Recordatorio: Modelo del DBCA")),
+                            tags$div(class="card-body",
+                                withMathJax(helpText("$$Y_{ij} = \\mu + \\rho_i + \\tau_j + \\epsilon_{ij}$$")),
+                                tags$p("Aquí, la variación total de los datos se descompone en:"),
+                                tags$ul(
+                                    tags$li(strong("Efecto del Bloque (\\(\\rho_i\\)):"), " La variación que logramos controlar."),
+                                    tags$li(strong("Efecto del Tratamiento (\\(\\tau_j\\)):"), " La variación que nos interesa estudiar."),
+                                    tags$li(strong("Error Aleatorio (\\(\\epsilon_{ij}\\)):"), " Toda la variación restante, el 'ruido'.")
+                                )
+                            )
+                        )
+                    ),
+                    # Tarjeta para el Modelo DCL (el nuevo)
+                    column(6, style="padding-left: 10px;",
+                        tags$div(class="card h-100 border-primary",
+                            tags$div(class="card-header bg-primary text-white", strong("El Modelo del DCL")),
+                            tags$div(class="card-body",
+                                withMathJax(helpText("$$Y_{ijk} = \\mu + \\rho_i + \\gamma_j + \\tau_k + \\epsilon_{ijk}$$")),
+                                p("El modelo DCL da un paso más. Descompone la variación en:"),
+                                tags$ul(
+                                    tags$li(strong("Efecto de Fila (\\(\\rho_i\\)):"), " Variación del 1er gradiente."),
+                                    tags$li(strong("Efecto de Columna (\\(\\gamma_j\\)):"), " ", span(class="text-primary", strong("¡Nuevo!"), " Variación del 2do gradiente.")),
+                                    tags$li(strong("Efecto del Tratamiento (\\(\\tau_k\\)):"), " La variación de interés."),
+                                    tags$li(strong("Error Aleatorio (\\(\\epsilon_{ijk}\\)):"), " El 'ruido' restante, ahora mucho más pequeño.")
+                                )
+                            )
+                        )
+                    )
+                ),
+
+                # --- Explicación Visual de la Partición de Varianza ---
+                tags$div(class="card mt-4",
+                    tags$div(class="card-body text-center",
+                        h5("El Superpoder del DCL: 'Limpiar' el Error"),
+                        p("La principal ventaja se ve al comparar cómo se particiona el Error. El DCL toma el error grande de un DBCA y le extrae la variación debida a las columnas."),
+                        # Usando iconos para un diagrama de flujo simple
+                        tags$div(class="d-flex justify-content-center align-items-center flex-wrap",
+                            tags$div(class="alert alert-secondary m-2", strong("Varianza Total")),
+                            tags$i(class="bi bi-arrow-right-short fa-2x mx-2"),
+                            tags$div(class="alert alert-info m-2", strong("Var. por Tratamiento")),
+                            tags$i(class="bi bi-plus fa-2x mx-2"),
+                            tags$div(class="alert alert-info m-2", strong("Var. por Fila")),
+                            tags$i(class="bi bi-plus fa-2x mx-2"),
+                            tags$div(class="alert alert-info m-2", strong("Var. por Columna")),
+                            tags$i(class="bi bi-plus fa-2x mx-2"),
+                            tags$div(class="alert alert-success m-2", strong("Error 'Limpio' (más pequeño)"))
+                        )
+                    )
+                ),
+
+                # --- La Tabla ANOVA Esperada ---
+                h4(class="section-header mt-4", "La Tabla ANOVA del DCL"),
+                p("Esta partición de la varianza se refleja directamente en la tabla del Análisis de Varianza. A diferencia del DBCA, ahora tendremos una fila adicional para las 'Columnas'."),
+                tags$table(class="table table-bordered table-sm text-center",
+                    tags$thead(class="table-light",
+                        tags$tr(
+                            tags$th("Fuente de Variación"),
+                            tags$th("Grados de Libertad (gl)"),
+                            tags$th("Cuadrado Medio (CM)"),
+                            tags$th("Estadístico F"),
+                            tags$th("Interpretación de la Prueba F")
+                        )
+                    ),
+                    tags$tbody(
+                        tags$tr(
+                            tags$td("Filas"),
+                            tags$td("t - 1"),
+                            tags$td("CM(Filas)"),
+                            tags$td(code("CM(Filas) / CME")),
+                            tags$td("¿Fue efectivo el bloqueo por filas?")
+                        ),
+                        tags$tr(
+                            tags$td("Columnas"),
+                            tags$td("t - 1"),
+                            tags$td("CM(Columnas)"),
+                            tags$td(code("CM(Columnas) / CME")),
+                            tags$td("¿Fue efectivo el bloqueo por columnas?")
+                        ),
+                        tags$tr(
+                            tags$td(strong("Tratamientos")),
+                            tags$td(strong("t - 1")),
+                            tags$td(strong("CM(Trats)")),
+                            tags$td(strong(code("CM(Trats) / CME"))),
+                            tags$td(strong("¿Hay diferencias significativas entre los tratamientos?"))
+                        ),
+                        tags$tr(
+                            tags$td("Error"),
+                            tags$td("(t - 1)(t - 2)"),
+                            tags$td("CME"),
+                            tags$td(""),
+                            tags$td("Varianza residual no explicada.")
+                        )
+                    )
+                ),
+                p(strong("Punto Crítico:"), " Observa los grados de libertad para el error: ", code("(t - 1)(t - 2)"), ". En un cuadrado pequeño (ej. 4x4), los g.l. del error son solo (3)(2) = 6. Este es un número muy bajo, lo que hace que la prueba para los tratamientos tenga menos potencia. Esta es la principal desventaja del DCL: se 'paga' por el control del doble gradiente con una pérdida de grados de libertad para el error."),
+
+                tags$hr(),
+
+                h4(class = "section-header", "1.4 Constructor Interactivo de un DCL"),
+                p("Usa los controles para generar un layout aleatorizado de un Diseño en Cuadrado Latino. Observa cómo se cumple la regla de que cada tratamiento aparece solo una vez por fila y columna."),
+                
+                sidebarLayout(
+                    sidebarPanel(
+                        width = 3,
+                        tags$h5("Define tu Diseño"),
+                        sliderInput(ns("dcl_size"), "Tamaño del Cuadrado (Nº Tratamientos):", 
+                                    min = 3, max = 8, value = 4, step = 1),
+                        actionButton(ns("generar_dcl"), "Generar Nuevo Layout DCL", icon=icon("table-cells"), class = "btn-success w-100 mt-3")
+                    ),
+                    mainPanel(
+                        width = 9,
+                        h5(textOutput(ns("dcl_titulo"))),
+                        plotOutput(ns("plot_layout_dcl"), height="500px")
+                    )
+                ),
+                
+                tags$hr(),
+                
+                h4(class = "section-header", "1.5 Ventajas y Desventajas del DCL"),
+                fluidRow(
+                    column(6,
+                        tags$div(class="card h-100 border-success",
+                            tags$div(class="card-header bg-success text-white", strong("Ventajas")),
+                            tags$div(class="card-body",
+                                tags$ul(
+                                    tags$li(strong("Máxima Eficiencia:"), " Es el diseño más eficiente para controlar dos fuentes de variación direccionales."),
+                                    tags$li(strong("Reducción de Error:"), " Si los gradientes de fila y columna son reales, la reducción del CME es sustancial, aumentando enormemente la potencia."),
+                                    tags$li(strong("Menos Unidades:"), " Requiere menos unidades experimentales (t²) que un factorial completo de tres factores (Tratamiento, Fila, Columna).")
+                                )
+                            )
+                        )
+                    ),
+                    column(6,
+                        tags$div(class="card h-100 border-danger",
+                            tags$div(class="card-header bg-danger text-white", strong("Desventajas")),
+                            tags$div(class="card-body",
+                                tags$ul(
+                                    tags$li(strong("Muy Rígido:"), " La restricción 'Nº Tratamientos = Nº Filas = Nº Columnas' es muy limitante."),
+                                    tags$li(strong("Pocos Grados de Libertad para el Error:"), " Especialmente en cuadrados pequeños (3x3, 4x4), quedan muy pocos grados de libertad para estimar el error, lo que reduce la potencia si los gradientes no son fuertes."),
+                                    tags$li(strong("No hay Interacción:"), " El modelo asume que no hay interacción entre los efectos de fila, columna y tratamiento. Si existe, se confunde con el error experimental.")
+                                )
+                            )
+                        )
+                    )
+                ),
+
+                tags$hr(),
+            ),
+
+            # ===== PESTAÑA 2: ¿Por qué Planificar? =====
+            nav_panel(
+                title = "2. Poder Estadístico y Anatomía de una Decisión Estadística",
+                
+                tags$h4(class = "section-header", "2.1 Más Allá del P-valor: La Anatomía de una Decisión Estadística"),
                 tags$p(
                     "Durante todo el curso, hemos aprendido a analizar datos para llegar a una decisión: 'rechazar' o 'no rechazar' la hipótesis nula \\(\\(H_0\\)). Sin embargo, esta decisión se toma con información incompleta (una muestra) y siempre existe el riesgo de equivocarse. La calidad de nuestro experimento determinará cuán a menudo tomamos la decisión correcta."
                 ),
@@ -101,7 +389,7 @@ session8UI <- function(id) {
                     )
                 ),
                 
-                tags$h4(class = "section-header", "1.3 Las Consecuencias de un Experimento con Bajo Poder"),
+                tags$h4(class = "section-header", "2.3 Las Consecuencias de un Experimento con Bajo Poder"),
                 tags$p(
                     "Realizar un análisis de poder ", em("a priori"), " (antes de empezar) no es un lujo, es una responsabilidad ética y científica. Un experimento con bajo poder (ej. menos del 80%) es problemático porque:",
                     tags$ul(
@@ -112,11 +400,11 @@ session8UI <- function(id) {
                 )
             ),
 
-            # ===== PESTAÑA 2: Los 4 Ingredientes del Poder (VERSIÓN MEJORADA) =====
+            # ===== PESTAÑA 3: Los 4 Ingredientes del Poder (VERSIÓN MEJORADA) =====
             nav_panel(
-                title = "2. Los 4 Ingredientes del Poder",
+                title = "3. Los 4 Ingredientes del Poder",
                 
-                tags$h4(class = "section-header", "2.1 La Ecuación del Poder: Un Juego de Equilibrio"),
+                tags$h4(class = "section-header", "3.1 La Ecuación del Poder: Un Juego de Equilibrio"),
                 tags$p(
                     "El poder estadístico no es un valor fijo, sino el resultado de un delicado equilibrio entre cuatro componentes. Imagina una balanza: si cambias el peso de un lado, debes ajustar los otros para mantener el equilibrio. De la misma forma, en la planificación de un experimento, si fijas tres de estos componentes, el cuarto queda determinado. Estos son los cuatro 'pesos' de nuestra balanza:"
                 ),
@@ -135,7 +423,7 @@ session8UI <- function(id) {
 
                 tags$hr(),
 
-                tags$h4(class = "section-header", "2.2 El Reto Central: Estimar el Tamaño del Efecto (", em("f"), " de Cohen)"),
+                tags$h4(class = "section-header", "3.2 El Reto Central: Estimar el Tamaño del Efecto (", em("f"), " de Cohen)"),
                 tags$p(
                     "De los cuatro ingredientes, el tamaño del efecto es el más abstracto y el más difícil de determinar antes de realizar el experimento. Representa qué tan 'fuerte' es la señal que esperamos encontrar. Un efecto grande es como un grito en una biblioteca (fácil de oír), mientras que un efecto pequeño es como un susurro en un concierto (difícil de oír). Para ANOVA, usamos la métrica ", strong("f de Cohen."), " Hay dos enfoques prácticos para estimarlo:"
                 ),
@@ -180,7 +468,7 @@ session8UI <- function(id) {
                 ),
 
                 tags$hr(),
-                tags$h4(class="section-header", "2.3 Puntos de Referencia para el Tamaño del Efecto"),
+                tags$h4(class="section-header", "3.3 Puntos de Referencia para el Tamaño del Efecto"),
                 tags$p("Cuando no hay información previa, Jacob Cohen (1988) propuso unas guías convencionales para la 'f' en ANOVA, que deben usarse con precaución pero sirven como un punto de partida:"),
                 tags$table(class="table table-bordered text-center",
                     tags$thead(tags$tr(tags$th("Tamaño del Efecto"), tags$th("Valor de 'f' de Cohen"), tags$th("Interpretación Práctica"))),
@@ -192,9 +480,9 @@ session8UI <- function(id) {
                 )
             ),
 
-            # ===== PESTAÑA 3: Calculadora de Poder y Muestra =====
+            # ===== PESTAÑA 4: Calculadora de Poder y Muestra =====
             nav_panel(
-                title = "3. Calculadora de Poder y Muestra",
+                title = "4. Calculadora de Poder y Muestra",
                 tags$h4(class = "section-header", "Planificación Interactiva para ANOVA de una vía (DCA)"),
                 tags$p(
                     "Esta calculadora te permite realizar un análisis de poder ", em("a priori"), " para determinar el tamaño de muestra necesario para tu experimento. Manipula los 'ingredientes' del poder y observa el impacto directo en tus requerimientos de replicaciones y en la curva de poder."
@@ -261,11 +549,11 @@ session8UI <- function(id) {
                 )
             ),
             
-            # ===== PESTAÑA 4: Poder para Diseños Avanzados =====
+            # ===== PESTAÑA 5: Poder para Diseños Avanzados =====
             nav_panel(
-                title = "4. Poder para Diseños Avanzados",
+                title = "5. Poder para Diseños Avanzados",
                 
-                tags$h4(class = "section-header", "4.1 Limitaciones de las Fórmulas Simples"),
+                tags$h4(class = "section-header", "5.1 Limitaciones de las Fórmulas Simples"),
                 tags$p(
                     "La calculadora que exploramos en la pestaña anterior es perfecta para un ANOVA de una vía (DCA). Sin embargo, en cuanto introducimos bloques (DBCA) o múltiples factores (Factoriales, Split-Plot), la ecuación del poder se complica enormemente. ¿Por qué? Porque ahora la varianza se particiona en más componentes, y el 'error' que se usa como denominador en las pruebas F cambia dependiendo del efecto que se esté probando (Stroup, 1989)."
                 ),
@@ -276,7 +564,7 @@ session8UI <- function(id) {
                 hr(),
                 
                 # --- G*Power ---
-                tags$h4(class = "section-header", "4.2 Solución 1: Software Especializado (G*Power)"),
+                tags$h4(class = "section-header", "5.2 Solución 1: Software Especializado (G*Power)"),
                 tags$p(
                     "G*Power es un programa gratuito y el estándar de facto en muchas disciplinas para realizar análisis de poder. Su gran ventaja es que tiene menús pre-configurados para una gran variedad de pruebas estadísticas, incluyendo ANOVA con múltiples factores."
                 ),
@@ -310,7 +598,7 @@ session8UI <- function(id) {
                 tags$hr(),
 
                 # --- Simulaciones ---
-                tags$h4(class = "section-header", "4.3 Solución 2: Simulaciones de Monte Carlo (El Enfoque Universal)"),
+                tags$h4(class = "section-header", "5.3 Solución 2: Simulaciones de Monte Carlo (El Enfoque Universal)"),
                 tags$p(
                     "Para los diseños más complejos, como los Split-Plot o modelos con efectos aleatorios, a menudo ni siquiera G*Power es suficiente. En estos casos, el enfoque más flexible y potente es ", strong("estimar el poder mediante simulación."), " La lógica es sorprendentemente intuitiva:"
                 ),
@@ -363,7 +651,7 @@ session8UI <- function(id) {
                 
                 # --- Tabla Resumen ---
                 tags$hr(),
-                tags$h4(class="section-header", "4.4 Guía Rápida: ¿Qué Herramienta Usar?"),
+                tags$h4(class="section-header", "5.4 Guía Rápida: ¿Qué Herramienta Usar?"),
                 tags$table(class="table table-striped", 
                     tags$thead(
                         tags$tr(tags$th("Diseño Experimental"), tags$th("Herramienta de Poder Recomendada"))
@@ -377,7 +665,317 @@ session8UI <- function(id) {
                 )
             ),
 
-            # ===== PESTAÑA 5: Referencias =====
+            # ===== PESTAÑA 6: ANÁLISIS MULTIVARIADO =====
+            nav_panel(
+                title = "6. MANOVA: Análisis Multivariado",
+                
+                h4(class = "section-header", "6.1 La Realidad Agronómica: Múltiples Respuestas Correlacionadas"),
+                p(
+                    "Hasta ahora, nuestro enfoque ha sido ", strong("univariado"), ": hemos analizado una única variable de respuesta a la vez (rendimiento, altura, etc.). Sin embargo, la agronomía es un sistema complejo. Un solo tratamiento, como la aplicación de un bioestimulante, no solo afecta el rendimiento, sino que puede influir simultáneamente en la calidad del fruto, la resistencia a enfermedades y la eficiencia en el uso del agua."
+                ),
+                p(
+                    "Cuando medimos múltiples variables en la misma unidad experimental, entramos en el dominio del ", strong("análisis multivariado.")
+                ),
+
+                # Usaremos content-row para alinear el texto principal y la nota lateral
+                tags$div(class = "content-row",
+                    
+                    # Columna principal con el texto y los problemas
+                    tags$div(class = "main-content",
+                        p(
+                            "El problema fundamental es que estas variables de respuesta a menudo están ", strong("correlacionadas."), " Ignorar esta estructura de interdependencia y analizar cada variable por separado con un ANOVA individual es una práctica tentadora pero peligrosa, que conduce a dos problemas graves:"
+                        ),
+                        
+                        # Tarjetas para los dos problemas principales
+                        fluidRow(
+                            column(6,
+                                tags$div(class="card border-danger h-100",
+                                    tags$div(class="card-header bg-danger text-white", strong("Problema 1: Inflación del Error Tipo I")),
+                                    tags$div(class="card-body",
+                                        p(class="card-text", "Imagina que realizas 20 ANOVAs separados, uno para cada variable, con un \\(\\alpha = 0.05\\). Por pura probabilidad, esperarías que uno de esos análisis (5% de 20) salga 'significativo' por azar, incluso si no hay ningún efecto real. Esto se llama ", strong("problema de las comparaciones múltiples."), " Aumentas drásticamente el riesgo de una 'falsa alarma'.")
+                                    )
+                                )
+                            ),
+                            column(6,
+                                tags$div(class="card border-warning h-100",
+                                    tags$div(class="card-header bg-warning text-dark", strong("Problema 2: Pérdida de Poder y de Información")),
+                                    tags$div(class="card-body",
+                                        p(class="card-text", "Un tratamiento podría tener un efecto sutil pero consistente en ", em("varias"), " variables a la vez. Cada efecto individual podría no ser lo suficientemente fuerte como para ser detectado por un ANOVA, pero el ", strong("efecto combinado"), " sí es significativo. Al analizar por separado, perdemos la capacidad de ver el patrón completo y podríamos descartar un tratamiento prometedor (un 'falso negativo').")
+                                    )
+                                )
+                            )
+                        ),
+                        p(class="mt-3", "La solución es utilizar un enfoque que analice todas las variables de respuesta de forma conjunta, teniendo en cuenta su estructura de correlación: el ", strong("Análisis Multivariado."))
+                    ),
+                    
+                    # Columna lateral (note-cloud) con el ejemplo práctico
+                    tags$div(class = "note-cloud",
+                        tags$strong("Ejemplo: Caracterización de Variedades"),
+                        p("En un ensayo para comparar 5 variedades de quinua, medimos simultáneamente:"),
+                        tags$ul(
+                            tags$li("Rendimiento (kg/ha)"),
+                            tags$li("Contenido de proteína (%)"),
+                            tags$li("Peso de mil granos (g)"),
+                            tags$li("Altura de la planta (cm)"),
+                            tags$li("Días a la madurez")
+                        ),
+                        p(strong("Correlaciones esperadas:"), " Es probable que el rendimiento esté negativamente correlacionado con el contenido de proteína (efecto de dilución) y positivamente con la altura de la planta. Un análisis multivariado puede capturar estas relaciones.")
+                    )
+                ),
+
+                tags$hr(),
+
+                h4(class = "section-header", "6.2 MANOVA: El Análisis de Varianza Multivariado"),
+
+                # --- Tarjeta de Aclaración: MANOVA vs. ANCOVA ---
+                tags$div(class="card border-warning mb-4",
+                    tags$div(class="card-body",
+                        tags$div(class="row align-items-center",
+                            tags$div(class="col-md-2 text-center",
+                                p(icon("project-diagram", class="fa-4x text-warning"))
+                            ),
+                            tags$div(class="col-md-10",
+                                h5(class="card-title", "Aclaración Crucial: MANOVA no es ANCOVA"),
+                                p(
+                                    "Es muy fácil confundir estos dos acrónimos, pero representan análisis fundamentalmente diferentes:"
+                                ),
+                                tags$ul(
+                                    tags$li(strong("ANCOVA (Análisis de Covarianza):"), " Tiene ", strong("UNA"), " variable de respuesta continua y utiliza una o más covariables (continuas) para ", strong("AJUSTAR"), " esa respuesta y reducir el error. El objetivo es limpiar el 'ruido'."),
+                                    tags$li(strong("MANOVA (Análisis Multivariado de Varianza):"), " Tiene ", strong("MÚLTIPLES"), " variables de respuesta continuas y las analiza ", strong("SIMULTÁNEAMENTE"), " para ver si los grupos son diferentes en general. El objetivo es controlar la inflación del Error Tipo I.")
+                                )
+                            )
+                        )
+                    )
+                ),
+
+                p(
+                    "El MANOVA es la extensión directa del ANOVA al caso multivariado. Mientras que el ANOVA compara una media a la vez entre grupos, el MANOVA compara el ", strong("centro de gravedad multidimensional"), " de los grupos, conocido como ", strong("vector de medias") ," o ", strong("centroide.")
+                ),
+
+                # --- Visualización del Concepto ---
+                tags$div(class="content-row",
+                    tags$div(class="main-content",
+                        p(strong("La Pregunta Clave del MANOVA:")),
+                        tags$blockquote(class="blockquote",
+                            p(class="mb-0", em("Considerando todas mis variables de respuesta juntas, ¿los centroides de los grupos de tratamiento están en la misma ubicación en el espacio multivariado, o al menos un tratamiento ha desplazado significativamente su centroide?"))
+                        ),
+                        p(strong("Hipótesis del MANOVA:")),
+                        tags$ul(
+                            tags$li(strong("\\(H_0\\):"), " Los vectores de medias son iguales en todos los grupos. ", withMathJax(helpText("$$\\mathbf{\\mu}_1 = \\mathbf{\\mu}_2 = \\dots = \\mathbf{\\mu}_k$$"))),
+                            tags$li(strong("\\(H_1\\):"), " Al menos un vector de medias es diferente.")
+                        ),
+                        p(
+                            "En lugar de calcular un único estadístico F, MANOVA calcula estadísticos de prueba multivariados (como la ", strong("Traza de Pillai,"), " Lambda de Wilks, Traza de Hotelling-Lawley, o la Raíz Máxima de Roy) que evalúan la separación entre estos centroides, teniendo en cuenta la correlación entre las variables."
+                        )
+                    ),
+                    tags$div(class = "note-cloud",
+                        tags$strong("¿Cuándo usar MANOVA? (Lista de Chequeo)"),
+                        tags$ol(
+                            tags$li("Tienes un diseño experimental claro (DCA, DBCA, Factorial)."),
+                            tags$li("Has medido ", strong("dos o más"), " variables de respuesta continuas."),
+                            tags$li("Tienes una razón teórica para creer que estas respuestas están ", strong("correlacionadas"), " (ej. rendimiento y calidad)."),
+                            tags$li("Quieres una prueba 'ómnibus' (general) protegida antes de realizar ANOVAs individuales. Si el MANOVA es significativo (p < 0.05), te da luz verde para explorar cada variable por separado para ver cuál contribuyó a la diferencia global.")
+                        )
+                    )
+                ),
+
+                # --- Ejemplo Visual y de Código ---
+                h5(class="section-header", "Ejemplo Práctico: Diferencias entre Especies de Iris"),
+                p("Usaremos el dataset `iris` para preguntar: ¿El 'perfil del sépalo', definido por su Largo y Ancho, es diferente entre las tres especies?"),
+
+                fluidRow(
+                    # Columna para el gráfico conceptual
+                    column(6,
+                        h6(class="text-center", strong("Visualización del Concepto de Centroides")),
+                        plotOutput(ns("manova_centroids_plot"))
+                    ),
+                    # Columna para el código y la interpretación
+                    column(6, style="border-left: 1px solid #ddd; padding-left: 20px;",
+                        h6(strong("Implementación en R")),
+                        tags$pre(class="r-code",
+                            htmltools::HTML(
+                                "# El modelo se especifica uniendo las respuestas con cbind()\n",
+                                "modelo_manova <- manova(cbind(Sepal.Length, Sepal.Width) ~ Species, data = iris)\n\n",
+                                "# Ver el resumen de la prueba multivariada\n",
+                                "summary(modelo_manova, test = 'Pillai')"
+                            )
+                        ),
+                        h6(strong("Interpretación de la Salida")),
+                        p("La salida de `summary()` nos dará una tabla. Nos fijamos en la fila del factor (`Species`) y en su p-valor (`Pr(>F)`)."),
+                        p(strong("Si p < 0.05:"), " Concluimos que existe una diferencia significativa en el perfil combinado de los sépalos entre al menos dos de las especies. Esto nos justifica para proceder con análisis de seguimiento, como ANOVAs individuales para `Sepal.Length` y `Sepal.Width`.")
+                    )
+                ),
+
+                tags$hr(),
+
+                h4(class = "section-header", "6.3 Modelo, Supuestos y Análisis de Seguimiento del MANOVA"),
+                p(
+                    "Una vez que el MANOVA nos da una 'luz verde' (un resultado significativo), nuestro trabajo no ha terminado. Debemos entender qué variables impulsaron esa diferencia y verificar que nuestro análisis sea válido. Esto implica comprender los supuestos del MANOVA y cómo realizar los análisis de seguimiento."
+                ),
+
+                h4(class = "section-header", "Supuestos del MANOVA"),
+                p(
+                    "El MANOVA es una prueba paramétrica y, como tal, se basa en varios supuestos. Su robustez varía, pero es crucial tenerlos en cuenta:"
+                ),
+                tags$ul(
+                    tags$li(strong("Independencia de las Observaciones:"), " Al igual que en el ANOVA, este es el supuesto más crítico. Debe ser garantizado por un diseño experimental y una aleatorización adecuados."),
+                    tags$li(strong("Normalidad Multivariada:"), " Este es el análogo multivariado de la normalidad. Asume que los vectores de los residuos siguen una distribución normal multivariada dentro de cada grupo. Es un supuesto difícil de verificar directamente. Afortunadamente, MANOVA es relativamente robusto a violaciones si cada variable individual tiene una distribución aproximadamente normal y los tamaños de muestra no son muy pequeños."),
+                    tags$li(strong("Homogeneidad de las Matrices de Varianza-Covarianza (Homocedasticidad Multivariada):"), " Este es el análogo de la homogeneidad de varianzas del ANOVA. Asume que la matriz de varianza-covarianza es la misma en todos los grupos. Se puede probar con la ", strong("Prueba M de Box."), " Violaciones de este supuesto pueden ser problemáticas, especialmente si los tamaños de grupo son desiguales. La Traza de Pillai es el estadístico de MANOVA más robusto a esta violación.")
+                ),
+
+                tags$hr(),
+
+                h4(class = "section-header", "El Flujo de Análisis Post-MANOVA"),
+                p(
+                    "Un p-valor significativo en el MANOVA es solo el comienzo. Nos dice que hay una diferencia en algún lugar, pero no dónde. El siguiente paso es un análisis de 'seguimiento' para identificar la fuente de la significancia."
+                ),
+
+                # --- Diagrama de Flujo del Análisis ---
+                tags$div(class="card",
+                    tags$div(class="card-body",
+                        h5(class="text-center", "Ruta de Análisis después de un MANOVA Significativo"),
+                        tags$div(class="d-flex justify-content-center align-items-center flex-wrap",
+                            tags$div(class="alert alert-success m-2", strong("MANOVA p < 0.05")),
+                            tags$i(class="bi bi-arrow-right-short fa-2x mx-2"),
+                            tags$div(class="alert alert-info m-2", strong("Paso 1: ANOVAs de Seguimiento")),
+                            tags$i(class="bi bi-arrow-right-short fa-2x mx-2"),
+                            tags$div(class="alert alert-primary m-2", strong("Paso 2: Pruebas Post-Hoc (Tukey, etc.)"))
+                        )
+                    )
+                ),
+
+                tags$div(class="content-row mt-4",
+                    tags$div(class="main-content",
+                        p(strong("Paso 1: ANOVAs de Seguimiento (Follow-up ANOVAs)")),
+                        p(
+                            "Una vez que el MANOVA confirma una diferencia global, procedemos a realizar ANOVAs individuales para cada una de las variables de respuesta. El propósito es identificar qué variable(s) específica(s) contribuyen a la diferencia multivariada."
+                        ),
+                        p(
+                            strong("Ajuste por Comparaciones Múltiples:"), " Dado que ahora estamos realizando múltiples pruebas (un ANOVA por cada variable de respuesta), corremos el riesgo de inflar el Error Tipo I. Para controlar esto, se debe usar un nivel de significancia más estricto, comúnmente el ", strong("ajuste de Bonferroni."), " Si tienes 3 variables de respuesta, tu nuevo nivel de alfa para cada ANOVA sería: \\(0.05 / 3 = 0.0167\\)."
+                        ),
+                        
+                        p(strong("Paso 2: Pruebas Post-Hoc (si el ANOVA de seguimiento es significativo)")),
+                        p(
+                            "Si un ANOVA individual (ej. para 'Rendimiento') resulta significativo después del ajuste de Bonferroni, entonces procedemos como de costumbre con una prueba post-hoc (como Tukey HSD) sobre esa variable para ver qué pares de tratamientos son diferentes."
+                        )
+                    ),
+                    tags$div(class="note-cloud",
+                        tags$strong("¿Por qué no hacer solo los ANOVAs?"),
+                        p("La protección del MANOVA es clave. Si el MANOVA inicial no es significativo, no deberíamos proceder con los ANOVAs individuales. Hacerlo sería 'pescar' resultados significativos ('fishing for significance'), lo que aumenta enormemente la probabilidad de reportar un falso positivo.")
+                    )
+                ),
+
+                h4(class = "section-header", "Ejemplo Práctico en R: Análisis Completo"),
+                p("Continuemos con el ejemplo de `iris`. Ya vimos que el MANOVA fue significativo. Ahora, realicemos el análisis de seguimiento."),
+                tags$pre(class="r-code",
+                    htmltools::HTML(
+                        "# Paso 0: El MANOVA (ya lo hicimos)\n",
+                        "modelo_manova <- manova(cbind(Sepal.Length, Sepal.Width) ~ Species, data = iris)\n",
+                        "summary(modelo_manova, test = 'Pillai') # Confirmamos que p < 0.05\n\n",
+                        
+                        "# Paso 1: ANOVAs de Seguimiento\n",
+                        "# Podemos obtenerlos directamente del resumen del objeto MANOVA\n",
+                        "summary.aov(modelo_manova)\n\n",
+                        
+                        "# --- Interpretación del summary.aov() ---\n",
+                        "# La salida nos dará dos tablas ANOVA, una para Sepal.Length y otra para Sepal.Width.\n",
+                        "# Debemos comparar el p-valor de 'Species' en cada tabla con nuestro alfa ajustado.\n",
+                        "# Como tenemos 2 variables, el alfa de Bonferroni es 0.05 / 2 = 0.025.\n",
+                        "# Vemos que para AMBAS variables, el p-valor es <<< 0.025. Ambas contribuyen a la diferencia.\n\n",
+
+                        "# Paso 2: Pruebas Post-Hoc para cada variable significativa\n",
+                        "# Como ambas fueron significativas, necesitamos una prueba de Tukey para cada una.\n",
+                        "# Creamos modelos ANOVA individuales para pasarlos a TukeyHSD().\n",
+                        "modelo_largo <- aov(Sepal.Length ~ Species, data = iris)\n",
+                        "modelo_ancho <- aov(Sepal.Width ~ Species, data = iris)\n\n",
+                        
+                        "cat('--- Comparaciones Post-Hoc para Largo del Sépalo ---\\n')\n",
+                        "TukeyHSD(modelo_largo)\n\n",
+                        
+                        "cat('--- Comparaciones Post-Hoc para Ancho del Sépalo ---\\n')\n",
+                        "TukeyHSD(modelo_ancho)\n"
+                    )
+                ),
+
+                tags$hr(),
+
+                h4(class = "section-header", "6.4 Laboratorio Interactivo: El Poder del MANOVA con Datos Correlacionados"),
+
+                # --- Usaremos navset_card_pill para organizar la explicación y el laboratorio ---
+                navset_card_pill(
+                    header = tags$h5("Guía del Laboratorio y Simulación"),
+                    
+                    # Pestaña con la explicación del escenario
+                    nav_panel(
+                        "El Escenario Simulado",
+                        tags$h5("Contexto del Experimento"),
+                        p(
+                            "Vamos a simular un ensayo para evaluar el efecto de ", strong("dos nuevas variedades (Var_A, Var_B)"), " en comparación con un ", strong("Control"), " sobre un cultivo de papa. En cada parcela, medimos dos variables de respuesta que a menudo están correlacionadas:"
+                        ),
+                        tags$ul(
+                            tags$li(strong("Respuesta Y₁:"), " Número de Tubérculos por Planta."),
+                            tags$li(strong("Respuesta Y₂:"), " Peso Promedio por Tubérculo (g).")
+                        ),
+                        
+                        tags$hr(),
+                        
+                        tags$h5("El Desafío: El 'Trade-off' Biológico"),
+                        p(
+                            "Existe un conocido 'trade-off' o compensación en muchos cultivos: si una planta produce ", strong("más"), " tubérculos, a menudo estos son más ", strong("pequeños"), " y viceversa. Esto crea una ", strong("correlación negativa"), " entre Y₁ e Y₂. Un tratamiento podría aumentar el número de tubérculos pero disminuir su tamaño promedio. Si analizamos cada variable por separado con un ANOVA, podríamos no ver un efecto claro. Sin embargo, el tratamiento sí está cambiando el 'perfil productivo' general de la planta."
+                        ),
+                        
+                        tags$h5("Guía de los Controles de la Simulación"),
+                        tags$dl(
+                            tags$dt("Correlación (Número ↔ Peso):"),
+                            tags$dd("Controla qué tan fuerte es esta compensación biológica. Un valor negativo fuerte (ej. -0.8) simula un trade-off muy pronunciado. Un valor cercano a cero simula variables casi independientes."),
+                            tags$dt("Magnitud del Efecto del Tratamiento:"),
+                            tags$dd("Controla qué tan diferentes son las variedades. Un valor bajo simula un efecto sutil donde Var_A aumenta ligeramente el número de tubérculos y Var_B aumenta ligeramente el tamaño.")
+                        ),
+                        
+                        tags$div(class="alert alert-info", icon("lightbulb"),
+                            strong("Tu Misión:"), " Encuentra un escenario donde los dos ANOVAs individuales den p-valores > 0.05 (no significativos), pero el MANOVA global dé un p-valor < 0.05 (significativo). Esto demuestra que el MANOVA puede detectar un efecto combinado que los análisis univariados pasarían por alto. ", em("Pista: necesitas un efecto de tratamiento sutil y una correlación negativa moderada a fuerte.")
+                        )
+                    ),
+                    
+                    # Pestaña con la herramienta interactiva
+                    nav_panel(
+                        "Laboratorio de Simulación",
+                        sidebarLayout(
+                            sidebarPanel(
+                                width = 3,
+                                tags$h5("Control de la Simulación"),
+                                # Slider para la correlación entre las respuestas
+                                sliderInput(ns("manova_cor_resp"), "Correlación (Número ↔ Peso):",
+                                            min = -0.95, max = 0.95, value = -0.6, step = 0.05),
+                                sliderInput(ns("manova_trat_effect_2"), "Magnitud del Efecto de la Variedad:", # Renombrado para evitar conflictos
+                                            min = 0, max = 5, value = 2, step = 0.2),
+                                actionButton(ns("run_manova_sim_2"), "Correr Simulación", icon=icon("play"), class="btn-primary w-100")
+                            ),
+                            mainPanel(
+                                width = 9,
+                                plotOutput(ns("manova_corr_plot")),
+                                hr(),
+                                fluidRow(
+                                    column(6,
+                                        h5("Resultados de ANOVAs Univariados"),
+                                        verbatimTextOutput(ns("univar_anovas_output")),
+                                        uiOutput(ns("univar_anovas_interpretation"))
+                                    ),
+                                    column(6,
+                                        h5("Resultados del MANOVA (Análisis Conjunto)"),
+                                        verbatimTextOutput(ns("multivar_manova_output")),
+                                        uiOutput(ns("multivar_manova_interpretation"))
+                                    )
+                                )
+                            )
+                        )
+                    )
+                ),
+
+                tags$hr(),
+            ),
+
+            # ===== PESTAÑA 7: Referencias =====
             nav_panel(
                 title = "Referencias",
                 tags$ul(
@@ -396,7 +994,129 @@ session8UI <- function(id) {
 # Server para la Sesión 6
 session8Server <- function(input, output, session) {
     ns <- session$ns
-    # --- LÓGICA PARA LA PESTAÑA 1: GRÁFICO CONCEPTUAL DE PODER ---
+
+    # --- LÓGICA PARA LA PESTAÑA 1 ---
+    ### ---- Subsección 1 ----
+    # Gráfico conceptual de un campo con doble gradiente
+    output$plot_doble_gradiente <- renderPlot({
+        
+        # Crear una cuadrícula de datos para el campo
+        campo_grid <- expand.grid(Columna = 1:10, Fila = 1:10)
+        
+        # Simular los gradientes
+        # El valor combinado será más alto en la esquina superior izquierda
+        campo_grid$valor_combinado <- (11 - campo_grid$Fila) + (11 - campo_grid$Columna)
+        
+        ggplot(campo_grid, aes(x = Columna, y = Fila, fill = valor_combinado)) +
+            geom_tile(color = "white") +
+            
+            # Añadir flechas y texto para indicar los gradientes
+            annotate("segment", x = 5.5, xend = 5.5, y = 10.5, yend = 0.5,
+                    arrow = arrow(length = unit(0.3, "cm")), color = "black", linewidth = 1.2) +
+            annotate("text", x = 5.5, y = 0, label = "Gradiente de Fertilidad", fontface = "bold") +
+            
+            annotate("segment", x = 10.5, xend = 0.5, y = 5.5, yend = 5.5,
+                    arrow = arrow(length = unit(0.3, "cm")), color = "black", linewidth = 1.2) +
+            annotate("text", x = 0, y = 5.5, label = "Gradiente de Humedad", angle = 90, fontface = "bold", vjust = -0.5) +
+            
+            scale_fill_viridis_c(option = "cividis", guide = "none") + # Usar una paleta de colores perceptualmente uniforme
+            scale_y_reverse() + # Poner la fila 1 arriba
+            theme_void() + # Tema limpio sin ejes
+            labs(title = "Campo Experimental con Doble Gradiente") +
+            theme(plot.title = element_text(hjust = 0.5, face = "bold"))
+    })
+
+    # Gráfico conceptual de un campo con doble gradiente y cómo un DBCA lo manejaría
+    output$plot_dbca_problema <- renderPlot({
+        
+        campo_grid <- expand.grid(Columna = 1:5, Fila = 1:5)
+        campo_grid$valor_combinado <- (6 - campo_grid$Fila) + (6 - campo_grid$Columna)
+        
+        ggplot(campo_grid, aes(x = Columna, y = Fila, fill = valor_combinado)) +
+            geom_tile(color = "white") +
+            # Rectángulos que simulan los bloques de un DBCA
+            geom_rect(aes(xmin=0.5, xmax=5.5, ymin=0.5, ymax=1.5), fill=NA, color="red", linewidth=1.5) +
+            geom_rect(aes(xmin=0.5, xmax=5.5, ymin=1.5, ymax=2.5), fill=NA, color="red", linewidth=1.5) +
+            geom_rect(aes(xmin=0.5, xmax=5.5, ymin=2.5, ymax=3.5), fill=NA, color="red", linewidth=1.5) +
+            geom_rect(aes(xmin=0.5, xmax=5.5, ymin=3.5, ymax=4.5), fill=NA, color="red", linewidth=1.5) +
+            geom_rect(aes(xmin=0.5, xmax=5.5, ymin=4.5, ymax=5.5), fill=NA, color="red", linewidth=1.5) +
+            annotate("text", x = 0, y = 3, label = "Gradiente de Humedad No Controlado", angle = 90, fontface = "bold", color="blue", size=4) +
+            scale_fill_viridis_c(option = "cividis", guide = "none") +
+            scale_y_reverse() +
+            theme_void() +
+            labs(title = "DBCA: Bloqueo por Filas",
+                subtitle = "El gradiente horizontal sigue afectando dentro de cada bloque (líneas rojas).") +
+            theme(plot.title = element_text(hjust = 0.5, face = "bold"),
+                plot.subtitle = element_text(hjust = 0.5, size=9))
+    })
+
+    ### ---- Subsección 2 ----
+    dcl_design_rv <- eventReactive(input$generar_dcl, {
+
+        req(input$dcl_size)
+        t <- input$dcl_size
+        
+        nombres_tratamientos_vector <- paste0("T", 1:t)
+        
+        # Llamamos a la función con el vector de nombres
+        design_obj <- try(agricolae::design.lsd(nombres_tratamientos_vector), silent = TRUE)
+        
+        if (inherits(design_obj, "try-error")) {
+            showModal(modalDialog(
+                title = "Error",
+                "Asegúrate de que el paquete 'agricolae' está instalado para generar el diseño."
+            ))
+            return(NULL)
+        }
+        
+        plan_campo <- design_obj$book
+        
+        # Convertir el plan a un data frame y renombrar las columnas
+        df_plot <- plan_campo %>%
+            rename(
+                Fila = row, 
+                Columna = col,
+                Tratamiento = nombres_tratamientos_vector # Referencia directa al nombre de la columna
+            ) %>%
+            mutate(
+                # Asegurarse de que los tipos de datos son correctos para ggplot
+                Fila = as.factor(Fila),
+                Columna = as.factor(Columna),
+                Tratamiento = as.factor(Tratamiento)
+            )
+        
+        return(df_plot)
+        
+    }, ignoreNULL = FALSE)
+
+    # Título dinámico para el gráfico del DCL
+    output$dcl_titulo <- renderText({
+        req(dcl_design_rv())
+        paste0("Ejemplo de un Diseño en Cuadrado Latino ", input$dcl_size, "x", input$dcl_size)
+    })
+
+    # Gráfico del layout del DCL
+    output$plot_layout_dcl <- renderPlot({
+        df_plot <- dcl_design_rv()
+        req(df_plot)
+        
+        ggplot(df_plot, aes(x = Columna, y = Fila, fill = Tratamiento)) +
+            geom_tile(color = "black", lwd = 1.5) +
+            geom_text(aes(label = Tratamiento), color = "white", fontface = "bold", size = 6) +
+            # Invertir el eje Y para que la Fila 1 esté arriba
+            scale_y_discrete(limits = rev) + 
+            labs(
+                title = "Layout Aleatorizado de un DCL",
+                subtitle = "Cada tratamiento aparece exactamente una vez por fila y por columna",
+                x = "Columnas (Segunda Fuente de Bloqueo)",
+                y = "Filas (Primera Fuente de Bloqueo)"
+            ) +
+            theme_minimal(base_size = 14) +
+            coord_fixed() + # Celdas cuadradas
+            theme(legend.position = "none") # La leyenda es redundante, los colores lo muestran
+    })
+
+    # --- LÓGICA PARA LA PESTAÑA 2: GRÁFICO CONCEPTUAL DE PODER ---
     output$power_concept_plot <- renderPlot({
         
         # Parámetros para la visualización
@@ -447,7 +1167,7 @@ session8Server <- function(input, output, session) {
             theme(axis.text.y = element_blank(), axis.ticks.y = element_blank())
     })
 
-    # --- LÓGICA PARA LA PESTAÑA 3: CALCULADORA DE PODER ---
+    # --- LÓGICA PARA LA PESTAÑA 4: CALCULADORA DE PODER ---
     
     # Reactive para calcular 'f' de Cohen
     f_calculada <- reactive({
@@ -553,5 +1273,201 @@ session8Server <- function(input, output, session) {
                 y = "Poder Estadístico (Prob. de detectar el efecto)"
             ) +
             theme_bw(base_size = 14)
+    })
+
+    # --- LÓGICA PARA LA PESTAÑA 6: ANÁLISIS MULTIVARIADO ---
+    ### ---- Subsección 2 ----
+
+    # Gráfico conceptual de los centroides para MANOVA
+    output$manova_centroids_plot <- renderPlot({
+        
+        # Calcular los centroides (vectores de medias) para cada especie
+        centroides <- iris %>%
+            group_by(Species) %>%
+            summarise(
+                mean_length = mean(Sepal.Length),
+                mean_width = mean(Sepal.Width)
+            )
+
+        ggplot(iris, aes(x = Sepal.Length, y = Sepal.Width, color = Species)) +
+            # Puntos de datos individuales con transparencia
+            geom_point(alpha = 0.4) +
+            # Añadir los centroides como puntos grandes y sólidos
+            geom_point(data = centroides, aes(x = mean_length, y = mean_width), 
+                    shape = 18, size = 8, stroke = 1.5) +
+            # Elipses de confianza (asumiendo normalidad multivariada)
+            stat_ellipse(type = "t", level = 0.95, linetype = "dashed") +
+            labs(
+                title = "Espacio Multivariado de los Sépalos",
+                subtitle = "MANOVA compara la ubicación de los centroides (♦)",
+                x = "Largo del Sépalo (cm)",
+                y = "Ancho del Sépalo (cm)"
+            ) +
+            theme_minimal(base_size = 14) +
+            theme(legend.position = "bottom")
+    })
+
+    ### ---- Subsección 3 ----
+    # Gráfico conceptual de datos 3D para la analogía del PCA
+    output$pca_concept_3d <- renderPlot({
+        # install.packages("scatterplot3d") si no está instalado
+        req(scatterplot3d)
+        set.seed(123)
+        
+        # Simular una nube de puntos 3D con estructura
+        nube_3d <- data.frame(
+            x = rnorm(100, 0, 2),
+            y = rnorm(100, 0, 2),
+            z = rnorm(100, 0, 0.5)
+        )
+        nube_3d$y <- nube_3d$y + nube_3d$x * 0.5
+        nube_3d$z <- nube_3d$z + nube_3d$x * 0.2
+
+        # Crear el gráfico 3D
+        scatterplot3d::scatterplot3d(
+            x = nube_3d$x, y = nube_3d$y, z = nube_3d$z,
+            pch = 19, color = "steelblue",
+            angle = 40,
+            grid = TRUE, box = FALSE,
+            xlab = "Variable 1", ylab = "Variable 2", zlab = "Variable 3"
+        )
+    })
+
+    # Gráfico conceptual de la proyección 2D (la 'sombra')
+    output$pca_concept_2d <- renderPlot({
+        set.seed(123) # Usar la misma semilla para consistencia
+        
+        # Simular los mismos datos
+        nube_3d <- data.frame(
+            x = rnorm(100, 0, 2),
+            y = rnorm(100, 0, 2),
+            z = rnorm(100, 0, 0.5)
+        )
+        nube_3d$y <- nube_3d$y + nube_3d$x * 0.5
+        nube_3d$z <- nube_3d$z + nube_3d$x * 0.2
+        
+        # Realizar el PCA sobre los datos 3D
+        pca_result <- prcomp(nube_3d, scale. = TRUE)
+        df_pca <- as.data.frame(pca_result$x)
+        
+        # Graficar los dos primeros componentes
+        ggplot(df_pca, aes(x = PC1, y = PC2)) +
+            geom_point(color = "steelblue", alpha = 0.7, size = 3) +
+            labs(
+                x = "Componente Principal 1 (Máxima Variación)",
+                y = "Componente Principal 2 (Segunda Variación)"
+            ) +
+            theme_minimal(base_size = 12) +
+            coord_fixed()
+    })
+
+    ### ---- Subsección 4 ----
+    manova_corr_sim_results <- eventReactive(input$run_manova_sim_2, {
+        
+        set.seed(as.integer(Sys.time()))
+        n_rep <- 25; n_trat <- 3
+        
+        # Parámetros de la simulación
+        cor_resp <- input$manova_cor_resp
+        efecto_mag <- input$manova_trat_effect_2
+        
+        # Crear el dataframe base
+        df_base <- data.frame(
+            tratamiento = factor(rep(c('Control', 'Var_A', 'Var_B'), each = n_rep))
+        )
+        
+        # Definir el efecto del tratamiento
+        # Var_A aumenta Y1 (número) y disminuye ligeramente Y2 (tamaño)
+        # Var_B aumenta Y2 (tamaño) y disminuye ligeramente Y1 (número)
+        efecto_y1 <- c(rep(0, n_rep), rep(efecto_mag, n_rep), rep(efecto_mag * -0.2, n_rep))
+        efecto_y2 <- c(rep(0, n_rep), rep(efecto_mag * -0.2, n_rep), rep(efecto_mag, n_rep))
+
+        # Generar errores correlacionados usando una matriz de covarianza
+        matriz_cov <- matrix(c(1, cor_resp, cor_resp, 1), nrow = 2)
+        errores <- MASS::mvrnorm(n = n_rep * n_trat, mu = c(0, 0), Sigma = matriz_cov)
+        
+        # Generar las variables de respuesta
+        df_sim <- df_base %>%
+        mutate(
+            Num_Tubérculos = 10 + efecto_y1 + errores[, 1] * 3, # DE de 3 para el error de Y1
+            Peso_Promedio = 80 + efecto_y2 + errores[, 2] * 8   # DE de 8 para el error de Y2
+        )
+        
+        # Ajustar los tres modelos
+        modelo_manova <- manova(cbind(Num_Tubérculos, Peso_Promedio) ~ tratamiento, data = df_sim)
+        modelo_anova1 <- aov(Num_Tubérculos ~ tratamiento, data = df_sim)
+        modelo_anova2 <- aov(Peso_Promedio ~ tratamiento, data = df_sim)
+        
+        list(
+            datos = df_sim,
+            manova_summary = summary(modelo_manova, test = "Pillai"),
+            anova1_summary = summary(modelo_anova1),
+            anova2_summary = summary(modelo_anova2)
+        )
+    }, ignoreNULL = FALSE)
+
+    # Gráfico de dispersión para visualizar la correlación y los centroides
+    output$manova_corr_plot <- renderPlot({
+        res <- manova_corr_sim_results(); req(res)
+        
+        centroides <- res$datos %>%
+            group_by(tratamiento) %>%
+            summarise(across(c(Num_Tubérculos, Peso_Promedio), mean))
+
+        ggplot(res$datos, aes(x = Num_Tubérculos, y = Peso_Promedio, color = tratamiento)) +
+            geom_point(alpha = 0.5, size = 2.5) +
+            geom_point(data = centroides, shape = 18, size = 8, stroke = 1.5) +
+            labs(
+                title = "Espacio de Respuesta: Número vs. Peso Promedio de Tubérculos",
+                subtitle = "Los puntos grandes representan los centroides de cada tratamiento",
+                x = "Número de Tubérculos por Planta",
+                y = "Peso Promedio por Tubérculo (g)"
+            ) +
+            theme_minimal(base_size = 14) +
+            theme(legend.position = "bottom")
+    })
+
+    # Salida para los ANOVAs univariados
+    output$univar_anovas_output <- renderPrint({
+        res <- manova_corr_sim_results(); req(res)
+        cat("--- ANOVA para Número de Tubérculos ---\n")
+        print(res$anova1_summary)
+        cat("\n--- ANOVA para Peso Promedio ---\n")
+        print(res$anova2_summary)
+    })
+
+    # Salida para el MANOVA
+    output$multivar_manova_output <- renderPrint({
+        res <- manova_corr_sim_results(); req(res)
+        cat("--- Prueba Global MANOVA ---\n")
+        print(res$manova_summary)
+    })
+
+    # Interpretaciones dinámicas
+    output$univar_anovas_interpretation <- renderUI({
+        res <- manova_corr_sim_results(); req(res)
+        p_val1 <- res$anova1_summary[[1]]["tratamiento", "Pr(>F)"]
+        p_val2 <- res$anova2_summary[[1]]["tratamiento", "Pr(>F)"]
+        
+        if (p_val1 < 0.05 || p_val2 < 0.05) {
+            div(class="alert alert-success mt-2", icon("check-circle"),
+                strong("Conclusión: Significativo."), " Al menos uno de los ANOVAs individuales encontró una diferencia.")
+        } else {
+            div(class="alert alert-danger mt-2", icon("times-circle"),
+                strong("Conclusión: No Significativo."), " Ningún ANOVA individual fue capaz de detectar un efecto significativo del tratamiento en las variables por separado.")
+        }
+    })
+
+    output$multivar_manova_interpretation <- renderUI({
+        res <- manova_corr_sim_results(); req(res)
+        p_val_manova <- res$manova_summary$stats["tratamiento", "Pr(>F)"]
+        
+        if (p_val_manova < 0.05) {
+            div(class="alert alert-success mt-2", icon("check-circle"),
+                strong("Conclusión: Significativo."), " El MANOVA detectó una diferencia significativa en el 'perfil productivo' combinado (Número y Peso). Tuvo el poder de ver el efecto que los ANOVAs individuales pudieron haber omitido.")
+        } else {
+            div(class="alert alert-danger mt-2", icon("times-circle"),
+                strong("Conclusión: No Significativo."), " Incluso considerando las variables conjuntamente, no hay evidencia de un efecto del tratamiento.")
+        }
     })
 }
