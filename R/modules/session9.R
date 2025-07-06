@@ -579,19 +579,89 @@ session9UI <- function(id) {
                 ),
                 tags$hr(),
 
-                # ---------------------------------------------------------------
-                # Subsección 3: Ejemplo Práctico en R
-                # ---------------------------------------------------------------
-                h4(class = "section-header", "2.3 Ejemplo Práctico en R: `iris` con Covariable"),
-                p("Usemos el dataset `iris`. Pregunta: ", em("Después de ajustar por el ", strong("Ancho del Sépalo"), " (nuestra covariable), ¿el perfil del pétalo (Largo y Ancho) sigue siendo diferente entre las Especies?")),
-                tags$pre(class="r-code",
-                    htmltools::HTML(
-                        "# La sintaxis es una extensión natural de lo que ya conocemos:\n",
-                        "modelo_mancova <- manova(cbind(Petal.Length, Petal.Width) ~ Sepal.Width + Species, data = iris)\n\n",
-                        "# Ver el resumen de la prueba multivariada\n",
-                        "summary(modelo_mancova, test = 'Pillai')\n\n",
-                        "# Ver el efecto de cada término con summary.aov()\n",
-                        "summary.aov(modelo_mancova)"
+                # --------------------------------------------------------------------------------------
+                # Subsección 3: Caso de Estudio en R - Análisis de un Ensayo de Biofertilizantes
+                # --------------------------------------------------------------------------------------
+                h4(class = "section-header", "2.3 Caso de Estudio en R: Análisis de un Ensayo de Biofertilizantes"),
+                p(
+                    "Vamos a aplicar el MANCOVA a un caso práctico. Simularemos los datos de un experimento agronómico y seguiremos el flujo de análisis completo en R."
+                ),
+
+                # --- Contexto y Datos del Caso ---
+                tags$div(class="card mb-3",
+                    tags$div(class="card-body",
+                        h5(class="card-title", "Contexto del Experimento"),
+                        p(
+                            "Se evaluaron ", strong("dos nuevos biofertilizantes (BioF_A, BioF_B)"), " contra un ", strong("Control"), " en un cultivo de pimientos. Se midieron dos variables de respuesta importantes: el ", strong("Número de Frutos"), " por planta y el ", strong("Contenido de Vitamina C"), " (mg/100g) en los frutos. Adicionalmente, se midió el ", strong("pH inicial del suelo"), " en cada parcela, ya que se sospecha que puede influir en la disponibilidad de nutrientes y, por tanto, en ambas respuestas."
+                        ),
+                        p(strong("Pregunta de Investigación:"), em(" Después de ajustar por las diferencias iniciales en el pH del suelo, ¿los biofertilizantes afectan el perfil combinado de [Número de Frutos y Vitamina C]?"))
+                    )
+                ),
+
+                # --- Descarga de Datos ---
+                tags$div(class="text-center mb-4",
+                    p("Para seguir este ejemplo en tu propia consola de R, primero descarga el conjunto de datos simulado:"),
+                    downloadButton(ns("download_mancova_data"), "Descargar Datos de Ejemplo (CSV)", icon=icon("download"), class="btn-success")
+                ),
+
+                # --- Análisis Paso a Paso ---
+                h5("Flujo de Análisis en R"),
+
+                # Paso 1: Verificación de Supuestos Clave
+                tags$details(
+                    class="card mb-2",
+                    tags$summary(class="card-header", strong("Paso 1: Verificar el Supuesto de Homogeneidad de Pendientes")),
+                    tags$div(class="card-body",
+                        p("Antes de correr el MANCOVA, debemos verificar su supuesto más importante. Ajustamos un modelo que incluye la interacción entre la covariable y el tratamiento."),
+                        tags$pre(class="r-code",
+                            htmltools::HTML(
+                                "# Cargar los datos (asumiendo que los descargaste)\n",
+                                "datos_biof <- read.csv('datos_biofertilizantes.csv')\n\n",
+                                "# Ajustar un modelo MANOVA con interacción para probar el supuesto\n",
+                                "modelo_supuesto <- manova(cbind(Num_Frutos, Vit_C) ~ pH_Inicial * Tratamiento, data = datos_biof)\n\n",
+                                "# Ver el resumen. Nos interesa el p-valor de la interacción 'pH_Inicial:Tratamiento'\n",
+                                "summary(modelo_supuesto, test='Pillai')"
+                            )
+                        ),
+                        p(strong("Interpretación del Resultado (Salida no mostrada):"), " Si el p-valor para el término de interacción es > 0.05, el supuesto se cumple y podemos proceder con el MANCOVA. Asumiremos que se cumple para este ejemplo.")
+                    )
+                ),
+
+                # Paso 2: Ejecución del MANCOVA
+                tags$details(
+                    class="card mb-2",
+                    tags$summary(class="card-header", strong("Paso 2: Ejecutar y Interpretar el MANCOVA")),
+                    tags$div(class="card-body",
+                        p("Ahora que el supuesto principal está verificado, corremos el modelo MANCOVA aditivo (sin la interacción)."),
+                        tags$pre(class="r-code",
+                            htmltools::HTML(
+                                "# Modelo MANCOVA aditivo\n",
+                                "modelo_mancova <- manova(cbind(Num_Frutos, Vit_C) ~ pH_Inicial + Tratamiento, data = datos_biof)\n\n",
+                                "# Ver la prueba multivariada para el efecto del tratamiento\n",
+                                "summary(modelo_mancova, test='Pillai')"
+                            )
+                        ),
+                        p(strong("Salida de R y su Interpretación:")),
+                        verbatimTextOutput(ns("mancova_case_study_output")),
+                        p("El p-valor para `Tratamiento` es significativo. Esto nos da 'luz verde' para investigar qué variables de respuesta individuales son responsables de esta diferencia global.")
+                    )
+                ),
+
+                # Paso 3: Análisis de Seguimiento
+                tags$details(
+                    class="card mb-2",
+                    tags$summary(class="card-header", strong("Paso 3: Análisis de Seguimiento (ANCOVAs Univariados)")),
+                    tags$div(class="card-body",
+                        p("Para ver el efecto del tratamiento en cada respuesta ajustada, usamos ", code("summary.aov()"), " sobre nuestro modelo MANCOVA."),
+                        tags$pre(class="r-code",
+                            htmltools::HTML(
+                                "# Obtener los ANCOVAs univariados para cada respuesta\n",
+                                "summary.aov(modelo_mancova)"
+                            )
+                        ),
+                        p(strong("Salida de R y su Interpretación:")),
+                        verbatimTextOutput(ns("ancova_followup_output")),
+                        p("Vemos que, después de ajustar por el pH, el `Tratamiento` tiene un efecto significativo tanto en el `Num_Frutos` como en la `Vit_C`. Ahora podemos proceder con pruebas post-hoc para cada una.")
                     )
                 ),
                 
@@ -1197,6 +1267,64 @@ session9Server  <- function(input, output, session) {
     })
     
     # --- LÓGICA PARA LA PESTAÑA 2: MANCOVA ---
+    ### ---- Subsección 2.3 ---
+    # Reactive para generar los datos del caso de estudio
+    case_study_mancova_data <- reactive({
+        set.seed(123) # Semilla fija para consistencia
+        n_rep <- 25
+        
+        # Crear datos base
+        df <- data.frame(
+            Tratamiento = factor(rep(c('Control', 'BioF_A', 'BioF_B'), each = n_rep))
+        ) %>%
+        mutate(
+            # Covariable: pH inicial del suelo
+            pH_Inicial = rnorm(n(), mean = 6.5, sd = 0.4),
+            
+            # Efectos del tratamiento
+            efecto_frutos = case_when(
+                Tratamiento == 'Control' ~ 0,
+                Tratamiento == 'BioF_A'  ~ 5,
+                Tratamiento == 'BioF_B'  ~ 2
+            ),
+            efecto_vitc = case_when(
+                Tratamiento == 'Control' ~ 0,
+                Tratamiento == 'BioF_A'  ~ -1.5,
+                Tratamiento == 'BioF_B'  ~ 3
+            ),
+            
+            # Respuestas finales, influenciadas por tratamiento, covariable y error
+            Num_Frutos = 20 + efecto_frutos + (pH_Inicial - 6.5) * 5 + rnorm(n(), 0, 4),
+            Vit_C = 40 + efecto_vitc - (pH_Inicial - 6.5) * 3 + rnorm(n(), 0, 5)
+        )
+        
+        return(df)
+    })
+
+    # Lógica para el botón de descarga
+    output$download_mancova_data <- downloadHandler(
+        filename = function() {
+            "datos_biofertilizantes_ejemplo.csv"
+        },
+        content = function(file) {
+            write.csv(case_study_mancova_data(), file, row.names = FALSE)
+        }
+    )
+
+    # Salida para el resultado del MANCOVA principal
+    output$mancova_case_study_output <- renderPrint({
+        datos <- case_study_mancova_data()
+        modelo_mancova <- manova(cbind(Num_Frutos, Vit_C) ~ pH_Inicial + Tratamiento, data = datos)
+        summary(modelo_mancova, test = 'Pillai')
+    })
+
+    # Salida para los ANCOVAs de seguimiento
+    output$ancova_followup_output <- renderPrint({
+        datos <- case_study_mancova_data()
+        modelo_mancova <- manova(cbind(Num_Frutos, Vit_C) ~ pH_Inicial + Tratamiento, data = datos)
+        summary.aov(modelo_mancova)
+    })
+
     ### ---- Subsección 2.4 ----
     mancova_sim_results <- eventReactive(input$run_mancova_sim, {
         
