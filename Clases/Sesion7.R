@@ -67,6 +67,8 @@ cat("--- Paso 2: Análisis Exploratorio Visual ---\n\n")
 # Buscamos líneas que NO sean paralelas.
 cat("2.1. Creando el gráfico de interacción...\n")
 
+esquisser(datos_avena_limpios)
+
 plot_interaccion <- ggplot(datos_avena_limpios, 
                            aes(x = nitrogeno, y = rendimiento, group = variedad, color = variedad)) +
   stat_summary(fun = mean, geom = "line", linewidth = 1.2) + # Une las medias
