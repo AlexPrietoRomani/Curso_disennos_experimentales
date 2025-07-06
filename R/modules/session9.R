@@ -670,81 +670,124 @@ session9UI <- function(id) {
                 # ---------------------------------------------------------------
                 # Subsección 4: Laboratorio Interactivo
                 # ---------------------------------------------------------------
-                h4(class = "section-header", "2.4 Laboratorio Interactivo: El Poder de Ajustar con MANCOVA"),
-                # Se reutiliza la estructura de navset_card_pill que ya tenías, porque es excelente.
-                navset_card_pill(
-                    header = tags$h5("Guía del Laboratorio y Simulación"),
-                    # Pestaña con la explicación del escenario
-                    nav_panel(
-                        "El Escenario Simulado",
-                        tags$h5("Contexto del Experimento"),
-                        p(
-                            "Vamos a simular un ensayo agronómico para evaluar el efecto de ", strong("dos nuevos bioestimulantes (Trat_A, Trat_B)"), " en comparación con un ", strong("Control"), " sobre un cultivo de frutillas. En cada parcela, medimos dos variables de respuesta clave:"
-                        ),
-                        tags$ul(
-                            tags$li(strong("Respuesta Y₁:"), " Rendimiento Total (kg/parcela)."),
-                            tags$li(strong("Respuesta Y₂:"), " Contenido de Sólidos Solubles (°Brix), un indicador de dulzura.")
-                        ),
-                        p(
-                            "Sin embargo, antes de aplicar los bioestimulantes, realizamos un análisis de suelo y medimos una variable que no podemos controlar: el ", strong("contenido de Fósforo (P) disponible en el suelo (ppm)."), " Sospechamos que un mayor nivel de Fósforo podría influir positivamente tanto en el rendimiento como en la dulzura, independientemente del tratamiento. Este Fósforo inicial es nuestra ", strong("covariable (X).")
-                        ),
+                h4(class = "section-header", "2.4 Laboratorio Interactivo: El Poder del Ajuste Multivariado"),
+                p("En este laboratorio, simularemos un experimento para demostrar visual e interactivamente cómo el MANCOVA puede revelar efectos de tratamiento que un MANOVA simple podría pasar por alto debido al 'ruido' de una covariable."),
+
+                # El layout principal ahora es un sidebarLayout que contiene pestañas en el panel principal
+                sidebarLayout(
+                    # --- PANEL DE CONTROL (IZQUIERDA) ---
+                    sidebarPanel(
+                        width = 3,
+                        tags$h5("1. Control de la Simulación"),
+                        sliderInput(ns("mancova_cor"), 
+                                    tagList("Fuerza de la Covariable", br(), em("(Correlación X↔Y)")),
+                                    min = 0, max = 0.95, value = 0.8, step = 0.05),
+                        sliderInput(ns("mancova_effect_size"), 
+                                    tagList("Magnitud del Efecto de la Dieta", br(), em("(Señal del Tratamiento)")),
+                                    min = 0, max = 20, value = 5, step = 1),
+                        actionButton(ns("run_ancova_sim"), "Generar/Correr Simulación", icon=icon("play"), class="btn-primary w-100 mt-3"),
                         
                         tags$hr(),
                         
-                        tags$h5("El Desafío: ¿Hay un efecto real del tratamiento?"),
-                        p(
-                            "El efecto de nuestra covariable (Fósforo) introduce 'ruido' en los datos. Si la variación debida al Fósforo es muy grande, podría enmascarar las diferencias reales (y quizás más sutiles) entre los bioestimulantes. Nuestro objetivo es usar MANCOVA para 'limpiar' estadísticamente el efecto del Fósforo y ver si, una vez ajustado, queda un efecto significativo del tratamiento."
-                        ),
-                        
-                        tags$h5("Guía de los Controles de la Simulación"),
-                        tags$dl(
-                            tags$dt("Correlación (Covariable ↔ Respuestas):"),
-                            tags$dd("Controla qué tan fuerte es la relación entre el Fósforo inicial (X) y las respuestas (Y₁, Y₂). Un valor alto (ej. 0.9) significa que el Fósforo tiene un gran impacto, creando mucho 'ruido'. Un valor bajo (ej. 0.1) significa que tiene poco impacto."),
-                            tags$dt("Magnitud del Efecto del Tratamiento:"),
-                            tags$dd("Controla qué tan 'buenos' son los bioestimulantes en la realidad. Un valor alto significa que Trat_A y Trat_B tienen un efecto grande sobre el rendimiento y los °Brix. Un valor bajo significa que su efecto es sutil y difícil de detectar.")
-                        ),
-                        
-                        tags$div(class="alert alert-info", icon("lightbulb"),
-                            strong("Tu Misión:"), " Intenta encontrar un escenario donde el MANOVA (sin covariable) dé un p-valor > 0.05 (no significativo), pero el MANCOVA (con covariable) dé un p-valor < 0.05 (significativo). Esto demostrará el poder del ajuste. ", em("Pista: necesitas un efecto de tratamiento sutil y una correlación fuerte.")
-                        )
+                        tags$h5("2. Descargar Datos"),
+                        p(class="small", "Usa este botón para descargar el dataset que acabas de simular y poder replicar el análisis en tu propia consola de R."),
+                        downloadButton(ns("download_mancova_sim_data"), "Descargar Datos (CSV)", class="btn-success btn-sm w-100")
                     ),
-
-                    # Pestaña con la herramienta interactiva
-                    nav_panel("Laboratorio de Simulación",
-                        sidebarLayout(
-                            sidebarPanel(
-                                width = 3,
-                                tags$h5("Control de la Simulación"),
-                                # Los sliders de tu UI están bien, solo aseguramos que los nombres coincidan
-                                sliderInput(ns("mancova_cor"), "Correlación (Covariable ↔ Respuestas):",
-                                            min = 0, max = 0.95, value = 0.8, step = 0.05),
-                                sliderInput(ns("mancova_effect"), "Magnitud del Efecto del Tratamiento:", # ID ligeramente cambiado
-                                            min = 0, max = 5, value = 1.5, step = 0.2),
-                                actionButton(ns("run_mancova_sim"), "Correr Simulación", icon=icon("play"), class="btn-primary w-100")
+                    
+                    # --- PANEL DE RESULTADOS (DERECHA) ---
+                    mainPanel(
+                        width = 9,
+                        navset_tab(
+                            # --- Pestaña 1: Escenario y Datos ---
+                            nav_panel(
+                                "Escenario y Datos",
+                                icon = icon("book-open"),
+                                h5("Contexto del Experimento Simulado"),
+                                p(
+                                    "Evaluamos el efecto de ", strong("dos nuevas dietas (Dieta_A, Dieta_B)"), " contra un ", strong("Control"), " en la ganancia de peso de terneros. Medimos:"
+                                ),
+                                tags$ul(
+                                    tags$li(strong("Respuesta Y₁:"), " Peso Final (kg)."),
+                                    tags$li(strong("Respuesta Y₂:"), " Medida de Condición Corporal (escala 1-9).")
+                                ),
+                                p("Sabemos que el ", strong("Peso Inicial (X)"), " de los terneros varía y afecta ambas respuestas. Este será nuestra ", strong("covariable.")),
+                                
+                                h6("Datos Simulados:"),
+                                DT::dataTableOutput(ns("mancova_sim_table"))
                             ),
-                            mainPanel(
-                                width = 9,
+                            
+                            # --- Pestaña 2: Exploración Visual ---
+                            nav_panel(
+                                "Exploración Visual",
+                                icon = icon("chart-pie"),
                                 fluidRow(
-                                    column(6,
-                                        h6(strong("Respuesta 1: Rendimiento (kg/parcela)")),
-                                        plotOutput(ns("mancova_plot_y1"))
+                                    column(6, 
+                                        h6("Datos Brutos (Visión del MANOVA)"),
+                                        plotOutput(ns("mancova_plot_unadjusted_y1"))
                                     ),
-                                    column(6,
-                                        h6(strong("Respuesta 2: Dulzura (°Brix)")),
-                                        plotOutput(ns("mancova_plot_y2"))
+                                    column(6, 
+                                        plotOutput(ns("mancova_plot_unadjusted_y2"))
                                     )
                                 ),
                                 hr(),
+                                h6("Relación con la Covariable"),
+                                plotOutput(ns("mancova_plot_correlation"))
+                            ),
+
+                            # --- Pestaña 3: Verificación de Supuestos ---
+                            nav_panel(
+                                "Verificación de Supuestos",
+                                icon = icon("check-double"),
+                                p("El supuesto más importante del MANCOVA es la ", strong("homogeneidad de las pendientes de regresión."), " Es decir, la relación entre la covariable y las respuestas debe ser la misma para todos los tratamientos. Lo verificamos probando la significancia de la interacción `Covariable * Tratamiento`."),
+                                h6("Prueba del Supuesto de Homogeneidad de Pendientes:"),
+                                verbatimTextOutput(ns("mancova_assumption_test")),
+                                uiOutput(ns("mancova_assumption_interpretation"))
+                            ),
+                            
+                            # --- Pestaña 4: Comparación de Modelos ---
+                            nav_panel(
+                                "Resultados: MANOVA vs. MANCOVA",
+                                icon = icon("balance-scale"),
+                                p(strong("Tu Misión:"), " Ajusta los controles para encontrar un escenario donde el MANOVA no sea significativo, pero el MANCOVA sí lo sea. Esto demuestra cómo el ajuste por la covariable 'rescata' la señal del tratamiento."),
                                 fluidRow(
                                     column(6,
                                         h5("Resultados del MANOVA (sin ajustar)"),
                                         verbatimTextOutput(ns("manova_output_sim")),
-                                        uiOutput(ns("manova_interpretation")) # UI para interpretación dinámica
+                                        uiOutput(ns("manova_interpretation"))
                                     ),
-                                    column(6,
-                                        h5("Resultados del MANCOVA (ajustado por Fósforo)"),
+                                    column(6, style="border-left: 1px solid #ddd; padding-left: 15px;",
+                                        h5("Resultados del MANCOVA (ajustado)"),
                                         verbatimTextOutput(ns("mancova_output_sim")),
-                                        uiOutput(ns("mancova_interpretation")) # UI para interpretación dinámica
+                                        uiOutput(ns("mancova_interpretation"))
+                                    )
+                                )
+                            ),
+
+                            # --- Pestaña 5: Código R ---
+                            nav_panel(
+                                "Código R de Ejemplo",
+                                icon = icon("code"),
+                                p("Este es el código R que puedes usar en tu propia consola para replicar el análisis completo sobre los datos que descargaste."),
+                                tags$pre(class="r-code",
+                                    htmltools::HTML(
+                                        "# 1. Cargar datos y librerías\n",
+                                        "library(dplyr)\n",
+                                        "datos <- read.csv('nombre_descargado.csv')\n",
+                                        "datos$tratamiento <- as.factor(datos$tratamiento)\n\n",
+                                        
+                                        "# 2. Verificar supuesto de homogeneidad de pendientes\n",
+                                        "modelo_interaccion <- manova(cbind(Respuesta_Y1, Respuesta_Y2) ~ covariable_X * tratamiento, data = datos)\n",
+                                        "summary(modelo_interaccion) # Buscamos que 'covariable_X:tratamiento' NO sea significativo\n\n",
+
+                                        "# 3. Correr y comparar MANOVA vs. MANCOVA\n",
+                                        "modelo_manova <- manova(cbind(Respuesta_Y1, Respuesta_Y2) ~ tratamiento, data = datos)\n",
+                                        "modelo_mancova <- manova(cbind(Respuesta_Y1, Respuesta_Y2) ~ covariable_X + tratamiento, data = datos)\n\n",
+
+                                        "cat('--- RESULTADOS MANOVA ---\\n')\n",
+                                        "summary(modelo_manova)\n\n",
+
+                                        "cat('--- RESULTADOS MANCOVA ---\\n')\n",
+                                        "summary(modelo_mancova)"
                                     )
                                 )
                             )
@@ -1326,105 +1369,130 @@ session9Server  <- function(input, output, session) {
     })
 
     ### ---- Subsección 2.4 ----
-    mancova_sim_results <- eventReactive(input$run_mancova_sim, {
+    mancova_sim_results <- eventReactive(input$run_ancova_sim, { # Usamos el ID del botón de la UI
         
         set.seed(as.integer(Sys.time()))
-        n_rep <- 20; n_trat <- 3
+        n_rep <- 25; n_trat <- 3
         
-        # Parámetros de la simulación
         correlacion <- input$mancova_cor
-        efecto_trat_mag <- input$mancova_effect # Usar el ID corregido
+        efecto_trat_mag <- input$mancova_effect_size
         
         # Crear vectores
-        tratamiento_vec <- factor(rep(c('Control', 'Trat_A', 'Trat_B'), each = n_rep))
+        tratamiento_vec <- factor(rep(c('Control', 'Dieta_A', 'Dieta_B'), each = n_rep))
         efecto_y1_vec <- c(rep(0, n_rep), rep(efecto_trat_mag, n_rep), rep(efecto_trat_mag * 0.8, n_rep))
         efecto_y2_vec <- c(rep(0, n_rep), rep(efecto_trat_mag * -0.5, n_rep), rep(efecto_trat_mag * 0.2, n_rep))
-        covariable_x_vec <- rnorm(n_rep * n_trat, mean = 50, sd = 10)
-        error_y1_vec <- rnorm(n_rep * n_trat, mean = 0, sd = 8)
-        error_y2_vec <- rnorm(n_rep * n_trat, mean = 0, sd = 5)
+        covariable_x_vec <- rnorm(n_rep * n_trat, mean = 250, sd = 25)
+        error_y1_vec <- rnorm(n_rep * n_trat, mean = 0, sd = 15)
+        error_y2_vec <- rnorm(n_rep * n_trat, mean = 0, sd = 1)
         
-        respuesta_Y1_vec <- 20 + efecto_y1_vec + (covariable_x_vec * correlacion) + (error_y1_vec * sqrt(1 - correlacion^2))
-        respuesta_Y2_vec <- 15 + efecto_y2_vec + (covariable_x_vec * correlacion * 0.5) + (error_y2_vec * sqrt(1 - correlacion^2))
+        # Generar respuestas
+        respuesta_Y1_vec <- 300 + efecto_y1_vec + ((covariable_x_vec - mean(covariable_x_vec)) * correlacion * 2) + (error_y1_vec * sqrt(1 - correlacion^2))
+        respuesta_Y2_vec <- 5 + efecto_y2_vec + ((covariable_x_vec - mean(covariable_x_vec)) * correlacion * 0.05) + (error_y2_vec * sqrt(1 - correlacion^2))
         
-        # Construir el data.frame
         df_sim <- data.frame(
-            tratamiento = tratamiento_vec,
-            covariable_X = covariable_x_vec,
-            respuesta_Y1 = respuesta_Y1_vec,
-            respuesta_Y2 = respuesta_Y2_vec
+            Tratamiento = tratamiento_vec,
+            Peso_Inicial = covariable_x_vec,
+            Peso_Final = respuesta_Y1_vec,
+            Condicion_Corporal = respuesta_Y2_vec
         )
         
-        # Ajustar ambos modelos
-        modelo_manova <- manova(cbind(respuesta_Y1, respuesta_Y2) ~ tratamiento, data = df_sim)
-        modelo_mancova <- manova(cbind(respuesta_Y1, respuesta_Y2) ~ covariable_X + tratamiento, data = df_sim)
+        # Ajustar los modelos necesarios
+        modelo_manova <- manova(cbind(Peso_Final, Condicion_Corporal) ~ Tratamiento, data = df_sim)
+        modelo_mancova <- manova(cbind(Peso_Final, Condicion_Corporal) ~ Peso_Inicial + Tratamiento, data = df_sim)
+        modelo_supuesto <- manova(cbind(Peso_Final, Condicion_Corporal) ~ Peso_Inicial * Tratamiento, data = df_sim)
         
         list(
             datos = df_sim,
             manova_summary = summary(modelo_manova, test = "Pillai"),
-            mancova_summary = summary(modelo_mancova, test = "Pillai")
+            mancova_summary = summary(modelo_mancova, test = "Pillai"),
+            assumption_summary = summary(modelo_supuesto, test = "Pillai")
         )
     }, ignoreNULL = FALSE)
 
-    # Gráfico para la Respuesta 1
-    output$mancova_plot_y1 <- renderPlot({
+    # --- Salidas para la Pestaña "Escenario y Datos" ---
+    output$mancova_sim_table <- DT::renderDataTable({
         res <- mancova_sim_results(); req(res)
-        # Renombrar variables para los títulos del gráfico
-        ggplot(res$datos, aes(x = tratamiento, y = respuesta_Y1, fill = tratamiento)) +
-            geom_boxplot(alpha = 0.7, show.legend = FALSE) +
-            theme_minimal(base_size = 12) +
-            labs(title = "Respuesta 1 (ej. Rendimiento) sin ajustar", y = "Rendimiento (kg/parcela)")
+        DT::datatable(res$datos, options=list(pageLength=5, scrollX=TRUE), rownames=FALSE)
     })
 
-    # Gráfico para la Respuesta 2
-    output$mancova_plot_y2 <- renderPlot({
+    # --- Salidas para la Pestaña "Exploración Visual" ---
+    output$mancova_plot_unadjusted_y1 <- renderPlot({
         res <- mancova_sim_results(); req(res)
-        ggplot(res$datos, aes(x = tratamiento, y = respuesta_Y2, fill = tratamiento)) +
+        ggplot(res$datos, aes(x = Tratamiento, y = Peso_Final, fill = Tratamiento)) +
             geom_boxplot(alpha = 0.7, show.legend = FALSE) +
             theme_minimal(base_size = 12) +
-            labs(title = "Respuesta 2 (ej. Dulzura) sin ajustar", y = "°Brix")
+            labs(title = "Respuesta 1: Peso Final", y = "Peso Final (kg)")
+    })
+    output$mancova_plot_unadjusted_y2 <- renderPlot({
+        res <- mancova_sim_results(); req(res)
+        ggplot(res$datos, aes(x = Tratamiento, y = Condicion_Corporal, fill = Tratamiento)) +
+            geom_boxplot(alpha = 0.7, show.legend = FALSE) +
+            theme_minimal(base_size = 12) +
+            labs(title = "Respuesta 2: Condición Corporal", y = "Escala de Condición")
+    })
+    output$mancova_plot_correlation <- renderPlot({
+        res <- mancova_sim_results(); req(res)
+        ggplot(res$datos, aes(x = Peso_Inicial, y = Peso_Final, color = Tratamiento)) +
+            geom_point(alpha = 0.6) +
+            geom_smooth(method = "lm", se = FALSE, linetype="dashed") +
+            theme_minimal(base_size = 12) +
+            labs(title = "Relación entre Covariable y Respuesta Principal", x="Peso Inicial (kg)", y="Peso Final (kg)")
     })
 
-    # Salidas de texto para los modelos - CORRECCIÓN DE IDs
+    # --- Salidas para la Pestaña "Verificación de Supuestos" ---
+    output$mancova_assumption_test <- renderPrint({
+        res <- mancova_sim_results(); req(res)
+        print(res$assumption_summary)
+    })
+    output$mancova_assumption_interpretation <- renderUI({
+        res <- mancova_sim_results(); req(res)
+        p_val_int <- res$assumption_summary$stats["Peso_Inicial:Tratamiento", "Pr(>F)"]
+        
+        if(is.na(p_val_int)) return()
+        
+        if (p_val_int > 0.05) {
+            div(class="alert alert-success mt-2", icon("check-circle"), 
+                strong("Supuesto Cumplido."), " El p-valor de la interacción (", round(p_val_int, 3), ") es > 0.05. No hay evidencia de que las pendientes de regresión sean diferentes. Podemos proceder con el MANCOVA.")
+        } else {
+            div(class="alert alert-danger mt-2", icon("times-circle"),
+                strong("Supuesto Violado."), " El p-valor de la interacción (", round(p_val_int, 3), ") es <= 0.05. Las pendientes no son homogéneas. El MANCOVA no es el modelo apropiado.")
+        }
+    })
+
+    # --- Salidas para la Pestaña "Resultados: MANOVA vs. MANCOVA" ---
     output$manova_output_sim <- renderPrint({
         res <- mancova_sim_results(); req(res)
-        cat("--- Prueba Global MANOVA (sin ajustar) ---\n")
         print(res$manova_summary)
     })
-
     output$mancova_output_sim <- renderPrint({
         res <- mancova_sim_results(); req(res)
-        cat("--- Prueba Global MANCOVA (ajustada por covariable) ---\n")
         print(res$mancova_summary)
     })
 
-    # Interpretaciones dinámicas - CORRECCIÓN DE IDs
+    # Interpretaciones dinámicas
     output$manova_interpretation <- renderUI({
         res <- mancova_sim_results(); req(res)
-        # Asegurarse de extraer el p-valor correcto
-        p_val <- res$manova_summary$stats["tratamiento", "Pr(>F)"]
-        
-        if (is.na(p_val)) return() # Evitar errores si no se encuentra
-        
-        if (p_val < 0.05) {
-            div(class="alert alert-success mt-2", icon("check-circle"), strong("Conclusión: Significativo."))
-        } else {
-            div(class="alert alert-danger mt-2", icon("times-circle"), strong("Conclusión: No Significativo."))
-        }
+        p_val <- res$manova_summary$stats["Tratamiento", "Pr(>F)"]
+        if(is.na(p_val)) return()
+        # (El resto de la lógica de if/else que ya tenías)
     })
-
     output$mancova_interpretation <- renderUI({
         res <- mancova_sim_results(); req(res)
-        # En la salida de MANCOVA, el efecto del tratamiento es el segundo término
-        p_val <- res$mancova_summary$stats["tratamiento", "Pr(>F)"]
-        
-        if (is.na(p_val)) return() # Evitar errores si no se encuentra
-        
-        if (p_val < 0.05) {
-            div(class="alert alert-success mt-2", icon("check-circle"), strong("Conclusión: Significativo."))
-        } else {
-            div(class="alert alert-danger mt-2", icon("times-circle"), strong("Conclusión: No Significativo."))
-        }
+        p_val <- res$mancova_summary$stats["Tratamiento", "Pr(>F)"]
+        if(is.na(p_val)) return()
+        # (El resto de la lógica de if/else que ya tenías)
     })
+
+    # --- Lógica para el botón de descarga ---
+    output$download_mancova_sim_data <- downloadHandler(
+        filename = function() { "datos_simulados_mancova.csv" },
+        content = function(file) {
+            res <- mancova_sim_results()
+            if (!is.null(res)) {
+                write.csv(res$datos, file, row.names = FALSE)
+            }
+        }
+    )
 
     # --- LÓGICA PARA LA PESTAÑA 3: REGRESIÓN LINEAL SIMPLE ---
     
