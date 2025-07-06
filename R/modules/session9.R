@@ -409,129 +409,228 @@ session9UI <- function(id) {
             # ===== PESTAÑA 2: MANCOVA =====
             nav_panel(
                 title = "2. MANCOVA: Ajustando por Covariables en Múltiples Respuestas",
-                h4(class = "section-header", "2.3 MANCOVA: Combinando Mundos - Múltiples Respuestas y Covariables"),
-                    p(
-                        "Hemos visto que el MANOVA maneja múltiples variables de respuesta y que el ANCOVA ajusta una respuesta por una covariable. El siguiente paso lógico es combinar ambos conceptos: ¿qué hacemos cuando tenemos ", strong("múltiples variables de respuesta"), " Y también una ", strong("covariable"), " que podría estar influyendo en todas ellas?"
-                    ),
-                    p(
-                        "La respuesta es el ", strong("Análisis Multivariado de la Covarianza (MANCOVA)."), " Es la herramienta más completa que hemos visto hasta ahora, ya que nos permite probar las diferencias entre los centroides de los tratamientos DESPUÉS de haber ajustado estadísticamente todas las variables de respuesta por el efecto de la covariable."
-                    ),
-                    tags$div(class = "note-cloud",
-                        tags$strong("Ejemplo Agronómico Concreto:"),
-                        p("Queremos comparar 3 nuevos regímenes de fertilización (Tratamiento). Medimos dos respuestas: ", strong("Rendimiento (Y₁)"), " y ", strong("Contenido de Proteína (Y₂)."), " Sin embargo, sabemos que el contenido de ", strong("materia orgánica inicial (X)"), " de cada parcela era variable y podría afectar tanto al rendimiento como a la proteína. El MANCOVA nos permite responder: 'Controlando el efecto de la materia orgánica inicial, ¿los regímenes de fertilización producen perfiles diferentes de rendimiento y proteína?'")
-                    ),
+                
+                # --------------------------------------------------------------------------------------
+                # Subpestaña 1: Definiendo el MANCOVA y su Lugar en la Estadística
+                # --------------------------------------------------------------------------------------
+                h4(class = "section-header", "MANCOVA: El Análisis Definitivo para Múltiples Respuestas con Covariables"),
+                p(
+                    "Hemos llegado al modelo más completo y potente de esta serie. El Análisis Multivariado de la Covarianza (MANCOVA) no es una técnica completamente nueva, sino la ", strong("fusión sinérgica de todo lo que hemos aprendido:"), " la comparación de grupos del ANOVA, el ajuste por 'ruido' del ANCOVA, y el manejo de múltiples respuestas del MANOVA."
+                ),
 
-                    h4(class = "section-header", "Modelo y Supuestos del MANCOVA"),
-                    p("El modelo MANCOVA es una extensión directa del ANCOVA al caso multivariado. La clave es que la covariable (X) se usa para ajustar cada una de las variables de respuesta (Y₁, Y₂, etc.)."),
-                    withMathJax(helpText(
-                        "$$\\text{Modelo para } Y_1: Y_{1ij} = \\mu_1 + \\tau_{1i} + \\beta_1(X_{ij} - \\bar{X}_{..}) + \\epsilon_{1ij}$$"
-                    )),
-                    withMathJax(helpText(
-                        "$$\\text{Modelo para } Y_2: Y_{2ij} = \\mu_2 + \\tau_{2i} + \\beta_2(X_{ij} - \\bar{X}_{..}) + \\epsilon_{2ij}$$"
-                    )),
-                    p("El MANCOVA prueba si los efectos del tratamiento (\\(\\tau_{1i}, \\tau_{2i}, ...\\)) son significativamente diferentes de cero de forma conjunta."),
-                    p(strong("Supuesto Adicional Importante:"), " Además de los supuestos del MANOVA, el MANCOVA asume que la relación (la pendiente de la regresión, \\(\\beta\\)) entre la covariable y cada una de las variables de respuesta es la misma para todos los grupos de tratamiento. Esto se conoce como el supuesto de ", strong("homogeneidad de las pendientes de regresión.")),
+                # --- Diagrama Visual de Componentes ---
+                tags$div(class="card mb-4",
+                    tags$div(class="card-header", strong("Construyendo el MANCOVA: Pieza por Pieza")),
+                    tags$div(class="card-body text-center",
+                        tags$div(class="d-flex justify-content-center align-items-center flex-wrap",
+                            tags$div(class="alert alert-info m-2", strong("ANOVA"), br(), em("Compara grupos")),
+                            tags$i(class="bi bi-plus fa-2x mx-2"),
+                            tags$div(class="alert alert-warning m-2", strong("REGRESIÓN"), br(), em("Ajusta por covariables")),
+                            tags$i(class="bi bi-plus fa-2x mx-2"),
+                            tags$div(class="alert alert-success m-2", strong("ANÁLISIS MULTIVARIADO"), br(), em("Maneja múltiples Y")),
+                            tags$i(class="bi bi-arrow-right-short fa-2x mx-2 d-none d-md-block"),
+                            tags$div(class="alert alert-primary m-2", strong("MANCOVA"), br(), em("El modelo integrado"))
+                        )
+                    )
+                ),
 
-                    h4(class = "section-header", "Implementación en R"),
-                    p("La sintaxis en R es una combinación de las que ya hemos visto. Usamos `cbind()` para las respuestas y simplemente añadimos la covariable al modelo."),
-                    tags$pre(class="r-code",
-                        htmltools::HTML(
-                            "# Ejemplo de MANCOVA en R usando el dataset 'iris'\n",
-                            "# Pregunta: Controlando el efecto del Ancho del Sépalo (covariable), ¿difiere el\n",
-                            "# 'perfil del pétalo' (Largo y Ancho) entre las especies?\n\n",
-                            "modelo_mancova <- manova(cbind(Petal.Length, Petal.Width) ~ Sepal.Width + Species, data = iris)\n\n",
-                            "# Ver el resumen de la prueba multivariada\n",
-                            "summary(modelo_mancova, test = 'Pillai')"
+                h4(class="section-header", "La Jerarquía de los Modelos Lineales: Una Guía Visual"),
+                p("La mejor forma de entender el MANCOVA es verlo como el tope de una pirámide, donde cada nivel añade una nueva capa de complejidad y poder analítico. Cada modelo responde a una pregunta de investigación cada vez más sofisticada."),
+
+                # --- Comparación con Tarjetas Lado a Lado ---
+                fluidRow(
+                    # Tarjeta para ANOVA y ANCOVA (Modelos Univariados)
+                    column(6,
+                        tags$div(class="card h-100",
+                            tags$div(class="card-header text-center", h5(icon("ruler-vertical"), " Modelos Univariados (Una Variable de Respuesta)")),
+                            tags$div(class="card-body",
+                                h6(strong("ANOVA")),
+                                p(em("Pregunta: ¿La media de rendimiento difiere entre las variedades?")),
+                                hr(),
+                                h6(strong("ANCOVA")),
+                                p(em("Pregunta: Después de ajustar por la fertilidad inicial del suelo, ¿la media de rendimiento sigue difiriendo entre las variedades?")),
+                                p(class="text-info", strong("Añade:"), " Una o más covariables continuas.")
+                            )
+                        )
+                    ),
+                    # Tarjeta para MANOVA y MANCOVA (Modelos Multivariados)
+                    column(6,
+                        tags$div(class="card h-100 border-primary shadow",
+                            tags$div(class="card-header bg-primary text-white text-center", h5(icon("table-cells"), " Modelos Multivariados (Múltiples Respuestas)")),
+                            tags$div(class="card-body",
+                                h6(strong("MANOVA")),
+                                p(em("Pregunta: ¿El perfil combinado de [Rendimiento Y Calidad] difiere entre las variedades?")),
+                                hr(),
+                                h6(strong("MANCOVA")),
+                                p(em("Pregunta: Después de ajustar por la fertilidad inicial, ¿el perfil combinado de [Rendimiento Y Calidad] sigue difiriendo entre las variedades?")),
+                                p(class="text-primary", strong("Añade:"), " Una o más covariables continuas.")
+                            )
+                        )
+                    )
+                ),
+
+                # --- Resumen en una Tabla Detallada ---
+                tags$h5(class="mt-4", "Tabla Resumen para Consulta Rápida"),
+                tags$table(class="table table-bordered table-hover", style="vertical-align: middle;",
+                    tags$thead(class="table-light",
+                        tags$tr(
+                            tags$th("Técnica"),
+                            tags$th("Nº de Respuestas (Y)"),
+                            tags$th("Naturaleza de los Predictores (X)"),
+                            tags$th("Objetivo Analítico Principal")
+                        )
+                    ),
+                    tags$tbody(
+                        tags$tr(
+                            tags$td(strong("ANOVA")),
+                            tags$td("UNA (continua)"),
+                            tags$td("Categórico (Tratamiento)"),
+                            tags$td("Comparar las medias de los grupos.")
+                        ),
+                        tags$tr(
+                            tags$td(strong("ANCOVA")),
+                            tags$td("UNA (continua)"),
+                            tags$td(tagList("Categórico (Tratamiento)", br(), strong("+ Continua (Covariable)"))),
+                            tags$td("Comparar las medias de los grupos, después de ajustar por el efecto de la covariable.")
+                        ),
+                        tags$tr(
+                            tags$td(strong("MANOVA")),
+                            tags$td(strong("MÚLTIPLES (continuas)")),
+                            tags$td("Categórico (Tratamiento)"),
+                            tags$td("Comparar los vectores de medias (centroides) de los grupos.")
+                        ),
+                        tags$tr(class="table-primary",
+                            tags$td(strong("MANCOVA")),
+                            tags$td(strong("MÚLTIPLES (continuas)")),
+                            tags$td(tagList("Categórico (Tratamiento)", br(), strong("+ Continua (Covariable)"))),
+                            tags$td("Comparar los vectores de medias (centroides) de los grupos, después de ajustar por el efecto de la covariable.")
+                        )
+                    )
+                ),
+                tags$hr(),
+
+                # ---------------------------------------------------------------
+                # Subsección 2: Modelo y Supuestos del MANCOVA
+                # ---------------------------------------------------------------
+                h4(class = "section-header", "2.2 Modelo y Supuestos del MANCOVA"),
+                p("El modelo MANCOVA aplica un ajuste de regresión a cada una de las variables de respuesta simultáneamente."),
+                withMathJax(helpText(
+                    "$$\\text{Para cada respuesta } Y_k: Y_{kij} = \\mu_k + \\tau_{ki} + \\beta_k(X_{ij} - \\bar{X}_{..}) + \\epsilon_{kij}$$"
+                )),
+                p("El MANCOVA prueba si el conjunto de efectos del tratamiento (todos los \\(\\tau_{ki}\\)) es significativamente diferente de cero."),
+                p(strong("Supuestos Clave:"), " El MANCOVA hereda los supuestos más estrictos de sus predecesores:"),
+                tags$ul(
+                    tags$li("Independencia de las observaciones."),
+                    tags$li("Normalidad multivariada de los residuos."),
+                    tags$li("Homogeneidad de las matrices de varianza-covarianza (Prueba M de Box)."),
+                    tags$li(strong("Homogeneidad de las pendientes de regresión:"), " Se asume que la relación entre la covariable y el conjunto de respuestas es la misma en todos los grupos de tratamiento.")
+                ),
+                tags$hr(),
+
+                # ---------------------------------------------------------------
+                # Subsección 3: Ejemplo Práctico en R
+                # ---------------------------------------------------------------
+                h4(class = "section-header", "2.3 Ejemplo Práctico en R: `iris` con Covariable"),
+                p("Usemos el dataset `iris`. Pregunta: ", em("Después de ajustar por el ", strong("Ancho del Sépalo"), " (nuestra covariable), ¿el perfil del pétalo (Largo y Ancho) sigue siendo diferente entre las Especies?")),
+                tags$pre(class="r-code",
+                    htmltools::HTML(
+                        "# La sintaxis es una extensión natural de lo que ya conocemos:\n",
+                        "modelo_mancova <- manova(cbind(Petal.Length, Petal.Width) ~ Sepal.Width + Species, data = iris)\n\n",
+                        "# Ver el resumen de la prueba multivariada\n",
+                        "summary(modelo_mancova, test = 'Pillai')\n\n",
+                        "# Ver el efecto de cada término con summary.aov()\n",
+                        "summary.aov(modelo_mancova)"
+                    )
+                ),
+                
+                tags$hr(),
+
+                # ---------------------------------------------------------------
+                # Subsección 4: Laboratorio Interactivo
+                # ---------------------------------------------------------------
+                h4(class = "section-header", "2.4 Laboratorio Interactivo: El Poder de Ajustar con MANCOVA"),
+                # Se reutiliza la estructura de navset_card_pill que ya tenías, porque es excelente.
+                navset_card_pill(
+                    header = tags$h5("Guía del Laboratorio y Simulación"),
+                    # Pestaña con la explicación del escenario
+                    nav_panel(
+                        "El Escenario Simulado",
+                        tags$h5("Contexto del Experimento"),
+                        p(
+                            "Vamos a simular un ensayo agronómico para evaluar el efecto de ", strong("dos nuevos bioestimulantes (Trat_A, Trat_B)"), " en comparación con un ", strong("Control"), " sobre un cultivo de frutillas. En cada parcela, medimos dos variables de respuesta clave:"
+                        ),
+                        tags$ul(
+                            tags$li(strong("Respuesta Y₁:"), " Rendimiento Total (kg/parcela)."),
+                            tags$li(strong("Respuesta Y₂:"), " Contenido de Sólidos Solubles (°Brix), un indicador de dulzura.")
+                        ),
+                        p(
+                            "Sin embargo, antes de aplicar los bioestimulantes, realizamos un análisis de suelo y medimos una variable que no podemos controlar: el ", strong("contenido de Fósforo (P) disponible en el suelo (ppm)."), " Sospechamos que un mayor nivel de Fósforo podría influir positivamente tanto en el rendimiento como en la dulzura, independientemente del tratamiento. Este Fósforo inicial es nuestra ", strong("covariable (X).")
+                        ),
+                        
+                        tags$hr(),
+                        
+                        tags$h5("El Desafío: ¿Hay un efecto real del tratamiento?"),
+                        p(
+                            "El efecto de nuestra covariable (Fósforo) introduce 'ruido' en los datos. Si la variación debida al Fósforo es muy grande, podría enmascarar las diferencias reales (y quizás más sutiles) entre los bioestimulantes. Nuestro objetivo es usar MANCOVA para 'limpiar' estadísticamente el efecto del Fósforo y ver si, una vez ajustado, queda un efecto significativo del tratamiento."
+                        ),
+                        
+                        tags$h5("Guía de los Controles de la Simulación"),
+                        tags$dl(
+                            tags$dt("Correlación (Covariable ↔ Respuestas):"),
+                            tags$dd("Controla qué tan fuerte es la relación entre el Fósforo inicial (X) y las respuestas (Y₁, Y₂). Un valor alto (ej. 0.9) significa que el Fósforo tiene un gran impacto, creando mucho 'ruido'. Un valor bajo (ej. 0.1) significa que tiene poco impacto."),
+                            tags$dt("Magnitud del Efecto del Tratamiento:"),
+                            tags$dd("Controla qué tan 'buenos' son los bioestimulantes en la realidad. Un valor alto significa que Trat_A y Trat_B tienen un efecto grande sobre el rendimiento y los °Brix. Un valor bajo significa que su efecto es sutil y difícil de detectar.")
+                        ),
+                        
+                        tags$div(class="alert alert-info", icon("lightbulb"),
+                            strong("Tu Misión:"), " Intenta encontrar un escenario donde el MANOVA (sin covariable) dé un p-valor > 0.05 (no significativo), pero el MANCOVA (con covariable) dé un p-valor < 0.05 (significativo). Esto demostrará el poder del ajuste. ", em("Pista: necesitas un efecto de tratamiento sutil y una correlación fuerte.")
                         )
                     ),
 
-                    tags$hr(),
-
-                    h4(class = "section-header", "2.4 Laboratorio Interactivo: El Poder de Ajustar con MANCOVA"),
-
-                    # --- Usaremos navset_card_pill para organizar la explicación y el laboratorio ---
-                    navset_card_pill(
-                        header = tags$h5("Guía del Laboratorio y Simulación"),
-                        
-                        # Pestaña con la explicación del escenario
-                        nav_panel(
-                            "El Escenario Simulado",
-                            tags$h5("Contexto del Experimento"),
-                            p(
-                                "Vamos a simular un ensayo agronómico para evaluar el efecto de ", strong("dos nuevos bioestimulantes (Trat_A, Trat_B)"), " en comparación con un ", strong("Control"), " sobre un cultivo de frutillas. En cada parcela, medimos dos variables de respuesta clave:"
+                    # Pestaña con la herramienta interactiva
+                    nav_panel("Laboratorio de Simulación",
+                        sidebarLayout(
+                            sidebarPanel(
+                                width = 3,
+                                tags$h5("Control de la Simulación"),
+                                # Los sliders de tu UI están bien, solo aseguramos que los nombres coincidan
+                                sliderInput(ns("mancova_cor"), "Correlación (Covariable ↔ Respuestas):",
+                                            min = 0, max = 0.95, value = 0.8, step = 0.05),
+                                sliderInput(ns("mancova_effect"), "Magnitud del Efecto del Tratamiento:", # ID ligeramente cambiado
+                                            min = 0, max = 5, value = 1.5, step = 0.2),
+                                actionButton(ns("run_mancova_sim"), "Correr Simulación", icon=icon("play"), class="btn-primary w-100")
                             ),
-                            tags$ul(
-                                tags$li(strong("Respuesta Y₁:"), " Rendimiento Total (kg/parcela)."),
-                                tags$li(strong("Respuesta Y₂:"), " Contenido de Sólidos Solubles (°Brix), un indicador de dulzura.")
-                            ),
-                            p(
-                                "Sin embargo, antes de aplicar los bioestimulantes, realizamos un análisis de suelo y medimos una variable que no podemos controlar: el ", strong("contenido de Fósforo (P) disponible en el suelo (ppm)."), " Sospechamos que un mayor nivel de Fósforo podría influir positivamente tanto en el rendimiento como en la dulzura, independientemente del tratamiento. Este Fósforo inicial es nuestra ", strong("covariable (X).")
-                            ),
-                            
-                            tags$hr(),
-                            
-                            tags$h5("El Desafío: ¿Hay un efecto real del tratamiento?"),
-                            p(
-                                "El efecto de nuestra covariable (Fósforo) introduce 'ruido' en los datos. Si la variación debida al Fósforo es muy grande, podría enmascarar las diferencias reales (y quizás más sutiles) entre los bioestimulantes. Nuestro objetivo es usar MANCOVA para 'limpiar' estadísticamente el efecto del Fósforo y ver si, una vez ajustado, queda un efecto significativo del tratamiento."
-                            ),
-                            
-                            tags$h5("Guía de los Controles de la Simulación"),
-                            tags$dl(
-                                tags$dt("Correlación (Covariable ↔ Respuestas):"),
-                                tags$dd("Controla qué tan fuerte es la relación entre el Fósforo inicial (X) y las respuestas (Y₁, Y₂). Un valor alto (ej. 0.9) significa que el Fósforo tiene un gran impacto, creando mucho 'ruido'. Un valor bajo (ej. 0.1) significa que tiene poco impacto."),
-                                tags$dt("Magnitud del Efecto del Tratamiento:"),
-                                tags$dd("Controla qué tan 'buenos' son los bioestimulantes en la realidad. Un valor alto significa que Trat_A y Trat_B tienen un efecto grande sobre el rendimiento y los °Brix. Un valor bajo significa que su efecto es sutil y difícil de detectar.")
-                            ),
-                            
-                            tags$div(class="alert alert-info", icon("lightbulb"),
-                                strong("Tu Misión:"), " Intenta encontrar un escenario donde el MANOVA (sin covariable) dé un p-valor > 0.05 (no significativo), pero el MANCOVA (con covariable) dé un p-valor < 0.05 (significativo). Esto demostrará el poder del ajuste. ", em("Pista: necesitas un efecto de tratamiento sutil y una correlación fuerte.")
-                            )
-                        ),
-                        
-                        # Pestaña con la herramienta interactiva
-                        nav_panel(
-                            "Laboratorio de Simulación",
-                            sidebarLayout(
-                                sidebarPanel(
-                                    width = 3,
-                                    tags$h5("Control de la Simulación"),
-                                    sliderInput(ns("mancova_cor"), "Correlación (Fósforo ↔ Respuestas):",
-                                                min = 0, max = 0.95, value = 0.8, step = 0.05),
-                                    sliderInput(ns("mancova_trat_effect"), "Magnitud del Efecto del Bioestimulante:",
-                                                min = 0, max = 5, value = 1.5, step = 0.2),
-                                    actionButton(ns("run_mancova_sim"), "Correr Simulación", icon=icon("play"), class="btn-primary w-100")
-                                ),
-                                mainPanel(
-                                    width = 9,
-                                    fluidRow(
-                                        column(6,
-                                            h6(strong("Respuesta 1: Rendimiento (kg/parcela)")),
-                                            plotOutput(ns("mancova_plot_y1"))
-                                        ),
-                                        column(6,
-                                            h6(strong("Respuesta 2: Dulzura (°Brix)")),
-                                            plotOutput(ns("mancova_plot_y2"))
-                                        )
+                            mainPanel(
+                                width = 9,
+                                fluidRow(
+                                    column(6,
+                                        h6(strong("Respuesta 1: Rendimiento (kg/parcela)")),
+                                        plotOutput(ns("mancova_plot_y1"))
                                     ),
-                                    hr(),
-                                    fluidRow(
-                                        column(6,
-                                            h5("Resultados del MANOVA (sin ajustar)"),
-                                            verbatimTextOutput(ns("manova_output_sim")),
-                                            uiOutput(ns("manova_interpretation")) # UI para interpretación dinámica
-                                        ),
-                                        column(6,
-                                            h5("Resultados del MANCOVA (ajustado por Fósforo)"),
-                                            verbatimTextOutput(ns("mancova_output_sim")),
-                                            uiOutput(ns("mancova_interpretation")) # UI para interpretación dinámica
-                                        )
+                                    column(6,
+                                        h6(strong("Respuesta 2: Dulzura (°Brix)")),
+                                        plotOutput(ns("mancova_plot_y2"))
+                                    )
+                                ),
+                                hr(),
+                                fluidRow(
+                                    column(6,
+                                        h5("Resultados del MANOVA (sin ajustar)"),
+                                        verbatimTextOutput(ns("manova_output_sim")),
+                                        uiOutput(ns("manova_interpretation")) # UI para interpretación dinámica
+                                    ),
+                                    column(6,
+                                        h5("Resultados del MANCOVA (ajustado por Fósforo)"),
+                                        verbatimTextOutput(ns("mancova_output_sim")),
+                                        uiOutput(ns("mancova_interpretation")) # UI para interpretación dinámica
                                     )
                                 )
                             )
                         )
-                    ),
+                    )
+                ),
 
-                    tags$hr(),
+                tags$hr(),
             ),
 
             # ===== PESTAÑA 3: REGRESIÓN LINEAL SIMPLE =====
@@ -1046,37 +1145,28 @@ session9Server  <- function(input, output, session) {
     })
     
     # --- LÓGICA PARA LA PESTAÑA 2: MANCOVA ---
-    ### ---- Subsección 4 ----
+    ### ---- Subsección 2.4 ----
     mancova_sim_results <- eventReactive(input$run_mancova_sim, {
         
         set.seed(as.integer(Sys.time()))
-        n_rep <- 20
-        n_trat <- 3
+        n_rep <- 20; n_trat <- 3
         
         # Parámetros de la simulación
         correlacion <- input$mancova_cor
-        efecto_trat_mag <- input$mancova_trat_effect
+        efecto_trat_mag <- input$mancova_effect # Usar el ID corregido
         
-        # Crear datos base
+        # Crear vectores
         tratamiento_vec <- factor(rep(c('Control', 'Trat_A', 'Trat_B'), each = n_rep))
-        
-        # Efecto del tratamiento sobre las respuestas
         efecto_y1_vec <- c(rep(0, n_rep), rep(efecto_trat_mag, n_rep), rep(efecto_trat_mag * 0.8, n_rep))
         efecto_y2_vec <- c(rep(0, n_rep), rep(efecto_trat_mag * -0.5, n_rep), rep(efecto_trat_mag * 0.2, n_rep))
-        
-        # Covariable (X) que afecta a ambas respuestas
         covariable_x_vec <- rnorm(n_rep * n_trat, mean = 50, sd = 10)
-        
-        # Errores aleatorios para cada respuesta
         error_y1_vec <- rnorm(n_rep * n_trat, mean = 0, sd = 8)
         error_y2_vec <- rnorm(n_rep * n_trat, mean = 0, sd = 5)
         
-        # Generar las variables de respuesta
-        # Y = efecto_trat + efecto_covariable + error
         respuesta_Y1_vec <- 20 + efecto_y1_vec + (covariable_x_vec * correlacion) + (error_y1_vec * sqrt(1 - correlacion^2))
-        respuesta_Y2_vec <- 15 + efecto_y2_vec + (covariable_x_vec * correlacion * 0.5) + (error_y2_vec * sqrt(1 - correlacion^2)) # La covariable afecta a Y2 con la mitad de fuerza
+        respuesta_Y2_vec <- 15 + efecto_y2_vec + (covariable_x_vec * correlacion * 0.5) + (error_y2_vec * sqrt(1 - correlacion^2))
         
-        # Construimos el data.frame asignando explícitamente los vectores a nombres de columna
+        # Construir el data.frame
         df_sim <- data.frame(
             tratamiento = tratamiento_vec,
             covariable_X = covariable_x_vec,
@@ -1098,68 +1188,61 @@ session9Server  <- function(input, output, session) {
     # Gráfico para la Respuesta 1
     output$mancova_plot_y1 <- renderPlot({
         res <- mancova_sim_results(); req(res)
+        # Renombrar variables para los títulos del gráfico
         ggplot(res$datos, aes(x = tratamiento, y = respuesta_Y1, fill = tratamiento)) +
-            geom_boxplot(alpha = 0.7) +
-            theme_minimal() +
-            labs(title = "Respuesta Y1 (ej. Rendimiento) sin ajustar", y = "Respuesta 1")
+            geom_boxplot(alpha = 0.7, show.legend = FALSE) +
+            theme_minimal(base_size = 12) +
+            labs(title = "Respuesta 1 (ej. Rendimiento) sin ajustar", y = "Rendimiento (kg/parcela)")
     })
 
     # Gráfico para la Respuesta 2
     output$mancova_plot_y2 <- renderPlot({
         res <- mancova_sim_results(); req(res)
         ggplot(res$datos, aes(x = tratamiento, y = respuesta_Y2, fill = tratamiento)) +
-            geom_boxplot(alpha = 0.7) +
-            theme_minimal() +
-            labs(title = "Respuesta Y2 (ej. Proteína) sin ajustar", y = "Respuesta 2")
+            geom_boxplot(alpha = 0.7, show.legend = FALSE) +
+            theme_minimal(base_size = 12) +
+            labs(title = "Respuesta 2 (ej. Dulzura) sin ajustar", y = "°Brix")
     })
 
-    # Salida para el MANOVA
+    # Salidas de texto para los modelos - CORRECCIÓN DE IDs
     output$manova_output_sim <- renderPrint({
         res <- mancova_sim_results(); req(res)
-        cat("--- Prueba Global MANOVA (sin covariable) ---\n")
+        cat("--- Prueba Global MANOVA (sin ajustar) ---\n")
         print(res$manova_summary)
     })
 
-    # Salida para el MANCOVA
     output$mancova_output_sim <- renderPrint({
         res <- mancova_sim_results(); req(res)
         cat("--- Prueba Global MANCOVA (ajustada por covariable) ---\n")
         print(res$mancova_summary)
     })
 
-    # Interpretación para el MANOVA
+    # Interpretaciones dinámicas - CORRECCIÓN DE IDs
     output$manova_interpretation <- renderUI({
         res <- mancova_sim_results(); req(res)
+        # Asegurarse de extraer el p-valor correcto
         p_val <- res$manova_summary$stats["tratamiento", "Pr(>F)"]
         
+        if (is.na(p_val)) return() # Evitar errores si no se encuentra
+        
         if (p_val < 0.05) {
-            div(class="alert alert-success mt-2",
-                icon("check-circle"),
-                strong("Conclusión: Significativo."), " Basado en los datos brutos, hay evidencia de que al menos un bioestimulante tiene un perfil de Rendimiento/Dulzura diferente al de los otros."
-            )
+            div(class="alert alert-success mt-2", icon("check-circle"), strong("Conclusión: Significativo."))
         } else {
-            div(class="alert alert-danger mt-2",
-                icon("times-circle"),
-                strong("Conclusión: No Significativo."), " Basado en los datos brutos, no hay evidencia suficiente para decir que los tratamientos difieren. El 'ruido' podría estar ocultando el efecto."
-            )
+            div(class="alert alert-danger mt-2", icon("times-circle"), strong("Conclusión: No Significativo."))
         }
     })
 
-    # Interpretación para el MANCOVA
     output$mancova_interpretation <- renderUI({
         res <- mancova_sim_results(); req(res)
+        # En la salida de MANCOVA, el efecto del tratamiento es el segundo término
         p_val <- res$mancova_summary$stats["tratamiento", "Pr(>F)"]
         
+        if (is.na(p_val)) return() # Evitar errores si no se encuentra
+        
         if (p_val < 0.05) {
-            div(class="alert alert-success mt-2",
-                icon("check-circle"),
-                strong("Conclusión: Significativo."), " Después de ajustar por las diferencias en Fósforo inicial, se revela un efecto real del tratamiento. ¡El ANCOVA funcionó!"
-            )
+            div(class="alert alert-success mt-2", icon("check-circle"), strong("Conclusión: Significativo."))
         } else {
-            div(class="alert alert-danger mt-2",
-                icon("times-circle"),
-                strong("Conclusión: No Significativo."), " Incluso después de ajustar por el Fósforo, no hay evidencia de un efecto del tratamiento. Es probable que los bioestimulantes no sean efectivos."
-            )
+            div(class="alert alert-danger mt-2", icon("times-circle"), strong("Conclusión: No Significativo."))
         }
     })
 
