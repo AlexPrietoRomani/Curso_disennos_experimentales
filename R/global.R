@@ -20,6 +20,7 @@ library(DT)
 library(pwr)
 library(dunn.test)
 library(rstatix)
+library(ggfortify)
 
 # Cargar módulos
 mod_files <- list.files("R/modules", full.names = TRUE, pattern = "\\.R$")
