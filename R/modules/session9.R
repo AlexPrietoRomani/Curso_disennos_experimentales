@@ -136,23 +136,90 @@ session9UI <- function(id) {
                     )
                 ),
                 tags$hr(),
-                # ---------------------------------------------------------------
-                # Subsección 1.3: Modelo y Supuestos del ANCOVA
-                # ---------------------------------------------------------------
-                h4(class = "section-header", "1.3 Modelo y Supuestos del ANCOVA"),
-                p("El modelo ANCOVA extiende el del ANOVA añadiendo un término de regresión para la covariable."),
-                p(strong("Modelo Matemático (ANCOVA sobre un DCA):")),
-                withMathJax(helpText(
-                    "$$Y_{ij} = \\mu + \\tau_i + \\beta(X_{ij} - \\bar{X}_{..}) + \\epsilon_{ij}$$"
-                )),
-                p("Donde ", strong("\\(\\beta\\)"), " es el coeficiente de regresión (la pendiente) que describe la relación lineal entre la covariable \\(X\\) y la respuesta \\(Y\\)."),
-                
-                p(strong("Supuestos Clave del ANCOVA:")),
-                tags$ol(
-                    tags$li("Los supuestos del ANOVA se mantienen (independencia, normalidad y homocedasticidad de los residuos)."),
-                    tags$li("Existe una ", strong("relación lineal"), " entre la covariable (X) y la respuesta (Y). Si la relación no es lineal, el ANCOVA no será efectivo."),
-                    tags$li("La covariable (X) ", strong("no es afectada por los tratamientos."), " Por eso se mide antes de aplicarlos."),
-                    tags$li(strong("Homogeneidad de las pendientes de regresión:"), " Este es el supuesto más importante y específico del ANCOVA. Asume que la relación lineal (la pendiente \\(\\beta\\)) entre X e Y es la ", strong("misma para todos los grupos de tratamiento."), " Si las pendientes son diferentes, significa que hay una interacción entre el tratamiento y la covariable, y el ANCOVA no es el modelo adecuado.")
+                # --------------------------------------------------------------------------------------
+                # Subsección 1.3: El Modelo ANCOVA y su 'Contrato' de Supuestos
+                # --------------------------------------------------------------------------------------
+                h4(class = "section-header", "1.3 El Modelo ANCOVA y su 'Contrato' de Supuestos"),
+                p(
+                    "Para 'restar' el efecto del ruido, el ANCOVA utiliza un modelo lineal que incorpora la covariable. Entender este modelo y sus 'cláusulas' (los supuestos) es esencial para usarlo correctamente."
+                ),
+
+                # --- El Modelo Matemático ---
+                tags$div(class = "card mb-4",
+                    tags$div(class = "card-header", strong("El Modelo Matemático del ANCOVA")),
+                    tags$div(class = "card-body",
+                        p("El modelo ANCOVA extiende el del ANOVA al añadir un término de regresión lineal para la covariable \\(X\\):"),
+                        withMathJax(helpText(
+                            "$$Y_{ij} = \\mu + \\tau_i + \\beta(X_{ij} - \\bar{X}_{..}) + \\epsilon_{ij}$$"
+                        )),
+                        p("Desglosando los componentes:"),
+                        tags$ul(
+                            tags$li("\\(\\mu + \\tau_i\\): Representa la ", strong("media ajustada"), " para el tratamiento i. Es la media que tendría el tratamiento si todas las unidades experimentales hubieran tenido el mismo valor promedio de la covariable (\\(\\bar{X}_{..}\\))."),
+                            tags$li(strong("\\(\\beta(X_{ij} - \\bar{X}_{..})\\)"),": Este es el término de ajuste. Para cada observación, calcula cuánto se desvía su covariable \\(X_{ij}\\) de la media general y ajusta su valor de respuesta \\(Y_{ij}\\) en proporción a la pendiente \\(\\beta\\)."),
+                            tags$li(strong("\\(\\beta\\)"), " es el coeficiente de regresión. Nos dice cuánto cambia Y por cada unidad de cambio en X.")
+                        )
+                    )
+                ),
+
+                # --- Los Supuestos del ANCOVA ---
+                h4(class = "section-header", "Los Supuestos: Las Reglas del Juego"),
+                p("Como todo modelo estadístico, el ANCOVA solo funciona si se cumplen ciertas condiciones. Violar estos supuestos puede llevar a conclusiones incorrectas."),
+
+                # Usaremos una estructura de fila para mostrar los supuestos con gráficos
+                fluidRow(
+                    # Supuesto 1: Linealidad
+                    column(6,
+                        tags$div(class="card h-100",
+                            tags$div(class="card-body",
+                                h5(class="card-title", "1. Linealidad entre Covariable y Respuesta"),
+                                p("El modelo asume que la relación entre la covariable (X) y la respuesta (Y) es una línea recta. Si la relación es curva (ej. cuadrática), el ajuste lineal será incorrecto y no eliminará el ruido eficazmente."),
+                                plotOutput(ns("ancova_assumption_linearity"), height="200px")
+                            )
+                        )
+                    ),
+                    # Supuesto 2: Independencia de la Covariable
+                    column(6,
+                        tags$div(class="card h-100",
+                            tags$div(class="card-body",
+                                h5(class="card-title", "2. La Covariable es Independiente del Tratamiento"),
+                                p("Este es un supuesto lógico, no estadístico. Los tratamientos NO deben afectar a la covariable. Si lo hacen, al ajustar por la covariable, estaríamos eliminando parte del efecto real del tratamiento."),
+                                p(strong("Regla práctica:"), " Mide siempre la covariable ", em("antes"), " de asignar y aplicar los tratamientos.")
+                            )
+                        )
+                    )
+                ),
+                fluidRow(class="mt-4",
+                    # Supuesto 3: Homogeneidad de Pendientes
+                    column(6,
+                        tags$div(class="card h-100",
+                            tags$div(class="card-body",
+                                h5(class="card-title", "3. Homogeneidad de las Pendientes de Regresión"),
+                                p(strong("¡El supuesto más importante del ANCOVA!"), " Asume que la relación (la pendiente) entre X e Y es la ", strong("misma"), " para todos los grupos de tratamiento. Las líneas de regresión deben ser paralelas."),
+                                plotOutput(ns("ancova_assumption_slopes"), height="200px")
+                            )
+                        )
+                    ),
+                    # Supuesto 4: Supuestos del ANOVA
+                    column(6,
+                        tags$div(class="card h-100",
+                            tags$div(class="card-body",
+                                h5(class="card-title", "4. Supuestos Clásicos del ANOVA"),
+                                p("Finalmente, los ", strong("residuos"), " del modelo ANCOVA (la parte que queda después del ajuste) deben cumplir los supuestos que ya conocemos:"),
+                                tags$ul(
+                                    tags$li("Independencia"),
+                                    tags$li("Normalidad"),
+                                    tags$li("Homogeneidad de Varianzas (Homocedasticidad)")
+                                ),
+                                p("Estos se verifican con los mismos gráficos de diagnóstico que usamos para el ANOVA.")
+                            )
+                        )
+                    )
+                ),
+
+                tags$div(class="alert alert-danger mt-4",
+                    icon("exclamation-triangle"),
+                    strong("¿Qué pasa si las pendientes no son homogéneas?"),
+                    p("Si las líneas de regresión no son paralelas, significa que existe una ", strong("interacción significativa entre la covariable y el tratamiento."), " Esto es un resultado interesante por sí mismo. Significa que el efecto de la condición inicial (ej. fósforo en el suelo) es diferente para cada tratamiento. En este caso, el ANCOVA tradicional no es el modelo adecuado, y se deben usar modelos más complejos que incluyan explícitamente este término de interacción.")
                 ),
                 tags$hr(),
                 # ---------------------------------------------------------------
@@ -617,6 +684,61 @@ session9Server  <- function(input, output, session) {
                 y = "Respuesta Final (Y)",
                 title = "Efecto del Tratamiento 'Oculto' por el Ruido"
             )
+    })
+
+    ### ---- Subsección 1.3 ----
+    # Gráfico conceptual para el supuesto de Linealidad
+    output$ancova_assumption_linearity <- renderPlot({
+        set.seed(1)
+        x <- 1:100
+        y_linear <- 10 + 0.5*x + rnorm(100, 0, 10)
+        y_nonlinear <- 10 + 0.01*(x-50)^2 + rnorm(100, 0, 10)
+        
+        df <- data.frame(
+            X = rep(x, 2),
+            Y = c(y_linear, y_nonlinear),
+            Tipo = rep(c("Relación Lineal (Válido)", "Relación No Lineal (Inválido)"), each=100)
+        )
+        
+        ggplot(df, aes(x=X, y=Y)) +
+            geom_point(alpha=0.5, color="gray50") +
+            geom_smooth(method="lm", se=FALSE, color="red", linetype="dashed") +
+            geom_smooth(method="loess", se=FALSE, color="blue") +
+            facet_wrap(~Tipo) +
+            theme_minimal(base_size = 11) +
+            labs(x="Covariable (X)", y="Respuesta (Y)",
+                caption="La línea azul (tendencia real) debe coincidir con la roja (ajuste lineal).") +
+            theme(strip.text = element_text(face="bold"))
+    })
+
+    # Gráfico conceptual para el supuesto de Homogeneidad de Pendientes
+    output$ancova_assumption_slopes <- renderPlot({
+        set.seed(2)
+        x <- 1:50
+        # Escenario válido: pendientes paralelas
+        df_valid <- data.frame(
+            X = rep(x, 2),
+            Y = c(10 + 0.8*x + rnorm(50,0,5), 20 + 0.8*x + rnorm(50,0,5)),
+            Grupo = rep(c("Trat A", "Trat B"), each=50),
+            Escenario = "Pendientes Homogéneas (Válido)"
+        )
+        # Escenario inválido: pendientes diferentes
+        df_invalid <- data.frame(
+            X = rep(x, 2),
+            Y = c(10 + 0.5*x + rnorm(50,0,5), 20 + 1.2*x + rnorm(50,0,5)),
+            Grupo = rep(c("Trat A", "Trat B"), each=50),
+            Escenario = "Pendientes Heterogéneas (Inválido)"
+        )
+        
+        df <- rbind(df_valid, df_invalid)
+        
+        ggplot(df, aes(x=X, y=Y, color=Grupo)) +
+            geom_point(alpha=0.4) +
+            geom_smooth(method="lm", se=FALSE, linewidth=1.2) +
+            facet_wrap(~Escenario) +
+            theme_minimal(base_size = 11) +
+            labs(x="Covariable (X)", y="Respuesta (Y)") +
+            theme(strip.text = element_text(face="bold"), legend.position = "bottom")
     })
 
     ### ---- Subsección 1.5 ----
