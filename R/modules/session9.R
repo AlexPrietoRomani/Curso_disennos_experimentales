@@ -304,13 +304,13 @@ session9UI <- function(id) {
                 # ---------------------------------------------------------------
                 # Subsección 1.5: Laboratorio Interactivo
                 # ---------------------------------------------------------------
-                h4(class = "section-header", "1.5 Laboratorio Interactivo: El Poder del Ajuste"),
+                h4(class = "section-header", "1.5 Laboratorio Interactivo: El Poder del Ajuste Estadístico"),
 
                 # --- Usaremos navset_card_pill para organizar la explicación y el laboratorio ---
                 navset_card_pill(
                     header = tags$h5("Guía del Laboratorio y Simulación"),
                     
-                    # Pestaña con la explicación del escenario
+                    # Pestaña con la explicación del escenario (la misma que antes, está perfecta)
                     nav_panel(
                         "El Escenario Simulado",
                         tags$h5("Contexto del Experimento"),
@@ -351,32 +351,52 @@ session9UI <- function(id) {
                             sidebarPanel(
                                 width = 3,
                                 tags$h5("Control de la Simulación"),
-                                sliderInput(ns("ancova_cor"), "Correlación (Peso Inicial ↔ Final):",
+                                # Slider para controlar la fuerza de la covariable
+                                sliderInput(ns("ancova_cor"), 
+                                            tagList("Fuerza de la Covariable (Correlación X↔Y)", icon("link")),
                                             min = 0, max = 0.95, value = 0.8, step = 0.05),
-                                sliderInput(ns("ancova_effect_size"), "Magnitud del Efecto de la Dieta:", # Nuevo ID para el efecto
+                                # Slider para controlar la "señal" del tratamiento
+                                sliderInput(ns("ancova_effect_size"), 
+                                            tagList("Magnitud del Efecto de la Dieta", icon("chart-line")),
                                             min = 0, max = 20, value = 5, step = 1),
-                                actionButton(ns("run_ancova_sim"), "Correr Simulación", icon=icon("play"), class="btn-primary w-100")
+                                # Slider para controlar el "ruido" general
+                                sliderInput(ns("ancova_sd_error"), 
+                                            tagList("Error Aleatorio Residual (Ruido)", icon("wave-square")),
+                                            min = 5, max = 30, value = 15, step = 1),
+                                
+                                actionButton(ns("run_ancova_sim"), "Correr Simulación", icon=icon("play"), class="btn-primary w-100 mt-3")
                             ),
                             mainPanel(
                                 width = 9,
-                                # Gráfico principal que muestra la relación
-                                plotOutput(ns("ancova_plot")),
+                                # Fila para los gráficos comparativos
+                                fluidRow(
+                                    column(6,
+                                        h6(strong("Visión del ANOVA: Datos Brutos")),
+                                        plotOutput(ns("ancova_plot_unadjusted"))
+                                    ),
+                                    column(6, style="border-left: 1px solid #ddd; padding-left: 15px;",
+                                        h6(strong("Visión del ANCOVA: Datos Ajustados")),
+                                        plotOutput(ns("ancova_plot_adjusted"))
+                                    )
+                                ),
+                                p(class="text-center small text-muted mt-2", "El gráfico de la derecha muestra cómo se verían los datos si todos los terneros hubieran comenzado con el mismo peso inicial. Observa cómo el ajuste 'alinea' los grupos, haciendo las diferencias más claras."),
                                 hr(),
                                 
-                                # Fila con los resultados comparativos
+                                # Fila para los resultados numéricos
                                 fluidRow(
                                     column(6,
                                         h5(icon("balance-scale-left"), "Análisis SIN Ajuste (ANOVA)"),
                                         verbatimTextOutput(ns("anova_output_sim")),
-                                        uiOutput(ns("anova_interpretation_ui")) # UI para interpretación
+                                        uiOutput(ns("anova_interpretation_ui"))
                                     ),
-                                    column(6, style="border-left: 1px solid #ddd; padding-left: 20px;",
+                                    column(6, style="border-left: 1px solid #ddd; padding-left: 15px;",
                                         h5(icon("balance-scale-right"), "Análisis CON Ajuste (ANCOVA)"),
                                         verbatimTextOutput(ns("ancova_output_sim")),
-                                        uiOutput(ns("ancova_interpretation_ui")) # UI para interpretación
+                                        uiOutput(ns("ancova_interpretation_ui"))
                                     )
                                 ),
                                 hr(),
+                                
                                 # Panel para la Eficiencia Relativa
                                 uiOutput(ns("ancova_efficiency_ui"))
                             )
@@ -895,26 +915,19 @@ session9Server  <- function(input, output, session) {
         set.seed(as.integer(Sys.time()))
         n_rep <- 20; n_trat <- 3
         
-        # Parámetros de la simulación
+        # Parámetros de la simulación desde la UI
         correlacion <- input$ancova_cor
-        efecto_trat_mag <- input$ancova_effect_size # Usar el nuevo ID
-        sd_error_residual <- 15 # Fijamos un error residual para simplificar
+        efecto_trat_mag <- input$ancova_effect_size
+        sd_error_residual <- input$ancova_sd_error # Nuevo slider
         
-        # Crear datos base
+        # Crear vectores
         dieta <- factor(rep(c('Control', 'Dieta_A', 'Dieta_B'), each = n_rep))
-        
-        # Simular el efecto del tratamiento
         efecto_trat <- c(rep(0, n_rep), rep(efecto_trat_mag, n_rep), rep(efecto_trat_mag * 0.5, n_rep))
-        
-        # Simular la covariable (Peso Inicial)
         peso_inicial_x <- rnorm(n_rep * n_trat, mean = 250, sd = 20)
-        
-        # Simular el error aleatorio puro
         error_y <- rnorm(n_rep * n_trat, mean = 0, sd = sd_error_residual)
         
         # Generar la variable de respuesta (Peso Final)
-        # Y = Peso_Base + Efecto_Dieta + Efecto_Peso_Inicial + Error
-        peso_final_y <- 300 + efecto_trat + ((peso_inicial_x - mean(peso_inicial_x)) * correlacion * 2) + (error_y * sqrt(1 - correlacion^2))
+        peso_final_y <- 300 + efecto_trat + ((peso_inicial_x - mean(peso_inicial_x)) * 1.1 * correlacion) + (error_y * sqrt(1 - correlacion^2))
         
         df_sim <- data.frame(
             Dieta = dieta,
@@ -926,12 +939,22 @@ session9Server  <- function(input, output, session) {
         modelo_anova <- aov(Peso_Final ~ Dieta, data = df_sim)
         modelo_ancova <- aov(Peso_Final ~ Peso_Inicial + Dieta, data = df_sim)
         
-        # Extraer CME y calcular ER
+        # Calcular CME y ER
         cme_anova <- anova(modelo_anova)['Residuals', 'Mean Sq']
         cme_ancova <- anova(modelo_ancova)['Residuals', 'Mean Sq']
         
-        if (is.na(cme_ancova) || cme_ancova == 0) return(NULL)
+        validate(need(!is.na(cme_ancova) && cme_ancova > 0, "Error en el cálculo del modelo."))
         eficiencia_relativa <- cme_anova / cme_ancova
+        
+        # --- INICIO DE LA MEJORA: Calcular Medias Ajustadas ---
+        # Usamos emmeans para obtener las medias ajustadas por la covariable
+        medias_ajustadas_obj <- emmeans(modelo_ancova, ~ Dieta)
+        medias_ajustadas_df <- as.data.frame(medias_ajustadas_obj)
+        
+        # Creamos una columna de "datos ajustados" para el gráfico
+        # El valor ajustado es el residuo + la media ajustada del grupo
+        df_sim$Peso_Ajustado <- residuals(modelo_ancova) + medias_ajustadas_df$emmean[match(df_sim$Dieta, medias_ajustadas_df$Dieta)]
+        # --- FIN DE LA MEJORA ---
         
         list(
             datos = df_sim,
@@ -943,20 +966,31 @@ session9Server  <- function(input, output, session) {
         )
     }, ignoreNULL = FALSE)
 
-    # Gráfico principal
-    output$ancova_plot <- renderPlot({
+    # Gráfico 1: Datos Brutos (Visión del ANOVA)
+    output$ancova_plot_unadjusted <- renderPlot({
         res <- ancova_sim_results(); req(res)
-        ggplot(res$datos, aes(x = Peso_Inicial, y = Peso_Final, color = Dieta)) +
-            geom_point(size = 3, alpha = 0.7) +
-            geom_smooth(method = "lm", se = FALSE, linewidth = 1, linetype = "dashed") +
-            labs(
-                title = "Relación entre Peso Inicial (Covariable) y Peso Final (Respuesta)",
-                subtitle = "Las líneas discontinuas muestran la tendencia para cada dieta",
-                x = "Peso Inicial (kg)",
-                y = "Peso Final (kg)"
-            ) +
-            theme_minimal(base_size = 14)
+        ggplot(res$datos, aes(x = Dieta, y = Peso_Final, fill = Dieta)) +
+            geom_boxplot(alpha = 0.7, show.legend = FALSE) +
+            geom_jitter(width = 0.2, alpha = 0.4) +
+            theme_minimal(base_size = 12) +
+            labs(y = "Peso Final (kg)", x = "Dieta", 
+                subtitle = "Alta superposición debido al 'ruido' del peso inicial")
     })
+
+    # Gráfico 2: Datos Ajustados (Visión del ANCOVA)
+    output$ancova_plot_adjusted <- renderPlot({
+        res <- ancova_sim_results(); req(res)
+        ggplot(res$datos, aes(x = Dieta, y = Peso_Ajustado, fill = Dieta)) +
+            geom_boxplot(alpha = 0.7, show.legend = FALSE) +
+            geom_jitter(width = 0.2, alpha = 0.4) +
+            theme_minimal(base_size = 12) +
+            labs(y = "Peso Final Ajustado (kg)", x = "Dieta",
+                subtitle = "Menor superposición al eliminar el efecto del peso inicial")
+    })
+
+    # El resto del código del servidor (renderPrints y renderUIs para las tablas e interpretaciones)
+    # puede permanecer como estaba, pero asegúrate de que los IDs de output sean únicos
+    # si los tienes duplicados. Corrijo esto aquí:
 
     # Salidas de texto para los modelos
     output$anova_output_sim <- renderPrint({
@@ -968,7 +1002,6 @@ session9Server  <- function(input, output, session) {
     output$ancova_output_sim <- renderPrint({
         res <- ancova_sim_results(); req(res)
         cat("--- Tabla ANCOVA ---\n")
-        # Usamos anova() en lugar de summary() para ver la tabla Tipo I secuencial, que es más clara aquí
         anova(res$modelo_ancova)
     })
 
@@ -978,13 +1011,9 @@ session9Server  <- function(input, output, session) {
         p_val <- summary(res$modelo_anova)[[1]]["Dieta", "Pr(>F)"]
         
         if (p_val < 0.05) {
-            div(class="alert alert-success mt-2",
-                icon("check-circle"),
-                strong("Conclusión: Significativo."), " El ANOVA simple fue capaz de detectar una diferencia entre las dietas.")
+            div(class="alert alert-success mt-2", icon("check-circle"), strong("Significativo."))
         } else {
-            div(class="alert alert-danger mt-2",
-                icon("times-circle"),
-                strong("Conclusión: No Significativo."), " El 'ruido' causado por la variación en el Peso Inicial es tan grande que oculta el efecto de las dietas.")
+            div(class="alert alert-danger mt-2", icon("times-circle"), strong("No Significativo."))
         }
     })
 
@@ -993,13 +1022,9 @@ session9Server  <- function(input, output, session) {
         p_val <- anova(res$modelo_ancova)["Dieta", "Pr(>F)"]
         
         if (p_val < 0.05) {
-            div(class="alert alert-success mt-2",
-                icon("check-circle"),
-                strong("Conclusión: Significativo."), " Después de 'limpiar' el efecto del Peso Inicial, el ANCOVA revela que sí existe un efecto real de las dietas. ¡El ajuste funcionó!")
+            div(class="alert alert-success mt-2", icon("check-circle"), strong("Significativo."))
         } else {
-            div(class="alert alert-danger mt-2",
-                icon("times-circle"),
-                strong("Conclusión: No Significativo."), " Incluso después de ajustar por el Peso Inicial, no hay evidencia de un efecto de las dietas. Probablemente no son efectivas.")
+            div(class="alert alert-danger mt-2", icon("times-circle"), strong("No Significativo."))
         }
     })
 
