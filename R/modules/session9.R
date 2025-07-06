@@ -413,7 +413,7 @@ session9UI <- function(id) {
                 # --------------------------------------------------------------------------------------
                 # Subpestaña 1: Definiendo el MANCOVA y su Lugar en la Estadística
                 # --------------------------------------------------------------------------------------
-                h4(class = "section-header", "MANCOVA: El Análisis Definitivo para Múltiples Respuestas con Covariables"),
+                h4(class = "section-header", "2.1 MANCOVA: El Análisis Definitivo para Múltiples Respuestas con Covariables"),
                 p(
                     "Hemos llegado al modelo más completo y potente de esta serie. El Análisis Multivariado de la Covarianza (MANCOVA) no es una técnica completamente nueva, sino la ", strong("fusión sinérgica de todo lo que hemos aprendido:"), " la comparación de grupos del ANOVA, el ajuste por 'ruido' del ANCOVA, y el manejo de múltiples respuestas del MANOVA."
                 ),
@@ -510,20 +510,72 @@ session9UI <- function(id) {
                 tags$hr(),
 
                 # ---------------------------------------------------------------
-                # Subsección 2: Modelo y Supuestos del MANCOVA
+                # Subsección 2: El Modelo y su 'Contrato' de Supuestos
                 # ---------------------------------------------------------------
-                h4(class = "section-header", "2.2 Modelo y Supuestos del MANCOVA"),
-                p("El modelo MANCOVA aplica un ajuste de regresión a cada una de las variables de respuesta simultáneamente."),
-                withMathJax(helpText(
-                    "$$\\text{Para cada respuesta } Y_k: Y_{kij} = \\mu_k + \\tau_{ki} + \\beta_k(X_{ij} - \\bar{X}_{..}) + \\epsilon_{kij}$$"
-                )),
-                p("El MANCOVA prueba si el conjunto de efectos del tratamiento (todos los \\(\\tau_{ki}\\)) es significativamente diferente de cero."),
-                p(strong("Supuestos Clave:"), " El MANCOVA hereda los supuestos más estrictos de sus predecesores:"),
-                tags$ul(
-                    tags$li("Independencia de las observaciones."),
-                    tags$li("Normalidad multivariada de los residuos."),
-                    tags$li("Homogeneidad de las matrices de varianza-covarianza (Prueba M de Box)."),
-                    tags$li(strong("Homogeneidad de las pendientes de regresión:"), " Se asume que la relación entre la covariable y el conjunto de respuestas es la misma en todos los grupos de tratamiento.")
+                h4(class = "section-header", "2.2 Modelo y Supuestos del MANCOVA: Las Reglas del Juego"),
+                p(
+                    "El MANCOVA es una herramienta poderosa porque su modelo estadístico es capaz de manejar una complejidad que se acerca a la realidad agronómica. Vamos a desglosarlo para entender cómo funciona y qué condiciones ('supuestos') deben cumplirse para que sus resultados sean válidos."
+                ),
+
+                # --- El Modelo Matemático Desglosado ---
+                tags$div(class="card mb-4",
+                    tags$div(class="card-header", strong("Anatomía del Modelo MANCOVA")),
+                    tags$div(class="card-body",
+                        p("El modelo MANCOVA esencialmente ajusta un modelo ANCOVA por separado para cada variable de respuesta, pero los analiza de forma conjunta. Para una respuesta \\(Y_k\\) cualquiera, el modelo se ve así:"),
+                        withMathJax(helpText(
+                            "$$Y_{kij} = \\underbrace{\\mu_k + \\tau_{ki}}_{\\text{Media Ajustada del Tratamiento}} + \\underbrace{\\beta_k(X_{ij} - \\bar{X}_{..})}_{\\text{Ajuste por Covariable}} + \\underbrace{\\epsilon_{kij}}_{\\text{Error Aleatorio}}$$")),
+                        p(strong("La prueba multivariada del MANCOVA evalúa la hipótesis nula de que todos los efectos del tratamiento (todos los \\(\\tau_{ki}\\) para todas las respuestas) son conjuntamente cero.")),
+                        tags$ul(
+                            tags$li(strong("Media Ajustada:"), " Es el corazón de la comparación. Representa cuál sería la media del tratamiento 'i' si todas las parcelas hubieran tenido un valor promedio de la covariable \\(X\\)."),
+                            tags$li(strong("Ajuste por Covariable:"), " Para cada observación, este término 'corrige' el valor de Y hacia arriba o hacia abajo, dependiendo de si su valor de la covariable \\(X_{ij}\\) estaba por encima o por debajo de la media general. La fuerza de esta corrección depende de la pendiente \\(\\beta_k\\).")
+                        )
+                    )
+                ),
+
+                # --- Los Supuestos del MANCOVA ---
+                h4(class = "section-header", "Lista de Chequeo de Supuestos del MANCOVA"),
+                p("El MANCOVA es el modelo más exigente que hemos visto y hereda los supuestos de todos sus predecesores. Verificar estos 'puntos de control' es fundamental."),
+
+                fluidRow(
+                    # Supuestos Clásicos del ANOVA
+                    column(6,
+                        tags$div(class="card h-100",
+                            tags$div(class="card-header", h6(strong("1. Supuestos Básicos (Heredados del ANOVA)"))),
+                            tags$div(class="card-body",
+                                tags$ul(
+                                    tags$li(strong("Independencia de las Observaciones:"), " El más importante. Garantizado por un buen diseño y aleatorización."),
+                                    tags$li(strong("Normalidad Multivariada de los Residuos:"), " Los residuos de cada variable de respuesta deben ser normales. MANOVA/MANCOVA son robustos a desviaciones leves si n es grande."),
+                                    tags$li(strong("Linealidad:"), " Debe existir una relación lineal entre la covariable y cada una de las variables de respuesta.")
+                                )
+                            )
+                        )
+                    ),
+                    # Supuestos Específicos Multivariados
+                    column(6,
+                        tags$div(class="card h-100",
+                            tags$div(class="card-header", h6(strong("2. Supuestos Específicamente Multivariados"))),
+                            tags$div(class="card-body",
+                                tags$ul(
+                                    tags$li(strong("Homogeneidad de Matrices de Covarianza:"), " Se asume que la estructura de varianzas y covarianzas de las respuestas es la misma en todos los grupos. Se verifica con la ", code("Prueba M de Box."), " (Sensible a la falta de normalidad)."),
+                                    tags$li(strong("Ausencia de Multicolinealidad:"), " Las variables de respuesta no deben estar perfectamente o muy altamente correlacionadas entre sí. Si una Y es una combinación casi perfecta de otras, es redundante y puede causar problemas matemáticos.")
+                                )
+                            )
+                        )
+                    )
+                ),
+                fluidRow(class="mt-4",
+                    # El supuesto más importante del ANCOVA
+                    column(12,
+                        tags$div(class="card border-danger",
+                            tags$div(class="card-header bg-danger text-white", h6(strong("3. El Supuesto CRÍTICO del ANCOVA/MANCOVA: Homogeneidad de las Pendientes de Regresión"))),
+                            tags$div(class="card-body",
+                                p("Este supuesto es tan importante que tiene su propia sección. Asume que la relación lineal (la pendiente) entre la covariable (X) y las respuestas (Y) es la ", strong("misma para todos los grupos de tratamiento."), " En otras palabras, las líneas de regresión para cada tratamiento deben ser paralelas."),
+                                # Gráfico conceptual que ya tenías
+                                plotOutput(ns("ancova_assumption_slopes"), height="200px"),
+                                p(strong("¿Cómo verificarlo?"), " Se ajusta un modelo que incluya el término de interacción entre la covariable y el tratamiento (ej. ", code("aov(Y ~ X * Tratamiento)"), "). Si este término de interacción es ", strong("NO significativo (p > 0.05)"), ", entonces el supuesto se cumple y podemos proceder con el MANCOVA. Si es significativo, el MANCOVA no es el modelo adecuado.")
+                            )
+                        )
+                    )
                 ),
                 tags$hr(),
 
