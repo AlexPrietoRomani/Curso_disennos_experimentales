@@ -7,54 +7,333 @@ session9UI <- function(id) {
         tags$h3(class = "session-title", "Sesión 9: Modelando Relaciones - ANCOVA y Regresión"),
         
         navset_tab(
-            # ===== PESTAÑA 1: ANCOVA =====
+            # ===== PESTAÑA 1: ANÁLISIS DE COVARIANZA (ANCOVA) =====
             nav_panel(
                 title = "1. ANCOVA: Ajustando por Covariables",
                 
-                h4(class = "section-header", "1.1 El Problema del 'Ruido' Inicial"),
+                # ---------------------------------------------------------------
+                # Subsección 1.1: ¿Qué es ANCOVA y cómo se diferencia?
+                # ---------------------------------------------------------------
+                h4(class = "section-header", "1.1 ¿Qué es ANCOVA y cómo se diferencia de ANOVA y MANOVA?"),
                 p(
-                    "El bloqueo controla la variación espacial, pero ¿qué pasa con la variación inherente a las propias unidades experimentales? Por ejemplo, una ligera diferencia en la población inicial de plantas o en el peso inicial de los animales. Si esta variación inicial (que podemos medir) está correlacionada con nuestra respuesta final, actúa como 'ruido', dificultando la detección de los efectos del tratamiento. La solución es el ", strong("Análisis de Covarianza (ANCOVA).")
+                    "El Análisis de Covarianza (ANCOVA) es una poderosa técnica híbrida que fusiona la comparación de medias del ANOVA con la modelización de relaciones de la regresión lineal. Su objetivo principal es ", strong("aumentar la precisión de un experimento al reducir el error experimental.")
                 ),
                 
-                h4(class = "section-header", "1.2 La Lógica y Modelo del ANCOVA"),
-                p("El ANCOVA combina ANOVA y regresión para 'limpiar' estadísticamente este ruido inicial. Ajusta la variable de respuesta por el efecto de una variable continua, llamada ", strong("covariable."), " La condición clave es que la covariable no debe ser afectada por los tratamientos."),
+                tags$div(class="card border-primary mb-4",
+                    tags$div(class="card-body",
+                        h5(class="card-title text-center", "La Idea Central: Aislar el Efecto del Tratamiento"),
+                        p(class="text-center", "Imagina que el rendimiento total que observas (Y) es una mezcla de tres cosas: el ", strong("efecto real de tu tratamiento,"), " el ", strong("efecto de una condición inicial medible"), " (la covariable, ej. humedad del suelo), y el ", strong("ruido aleatorio."), " El ANCOVA es la herramienta que nos permite 'restar' matemáticamente el efecto de la covariable para poder ver el efecto del tratamiento de forma mucho más clara.")
+                    )
+                ),
+                
+                tags$h5("Diferencias Clave con ANOVA y MANOVA"),
+                tags$table(class="table table-bordered table-hover", style="vertical-align: middle;",
+                    tags$thead(class="table-light",
+                        tags$tr(
+                            tags$th("Técnica"),
+                            tags$th("Variables de Respuesta (Y)"),
+                            tags$th("Variables Predictoras"),
+                            tags$th("Pregunta Principal que Responde")
+                        )
+                    ),
+                    tags$tbody(
+                        tags$tr(
+                            tags$td(strong("ANOVA")),
+                            tags$td("UNA (continua)"),
+                            tags$td("Un factor categórico (Tratamiento)"),
+                            tags$td(em("¿Son diferentes las medias de los grupos?"))
+                        ),
+                        tags$tr(
+                            tags$td(strong("ANCOVA")),
+                            tags$td("UNA (continua)"),
+                            tags$td(tagList("Un factor categórico (Tratamiento)", br(), strong("+ UNA o más covariables (continuas)"))),
+                            tags$td(em("Después de ajustar por la covariable, ¿son diferentes las medias de los grupos?"))
+                        ),
+                        tags$tr(
+                            tags$td(strong("MANOVA")),
+                            tags$td(strong("MÚLTIPLES (continuas)")),
+                            tags$td("Un factor categórico (Tratamiento)"),
+                            tags$td(em("¿Son diferentes los vectores de medias (centroides) de los grupos?"))
+                        )
+                    )
+                ),
+                tags$hr(),
+                # ---------------------------------------------------------------
+                # Subsección 1.2: El Problema del 'Ruido' Inicial
+                # ---------------------------------------------------------------
+                h4(class = "section-header", "1.2 El Problema del 'Ruido' Inicial y el Rol de la Covariable"),
+                p(
+                    "El bloqueo controla la variación espacial, pero la variación inherente a las unidades experimentales persiste. Si esta variación inicial está correlacionada con nuestra respuesta final, actúa como 'ruido' estadístico."
+                ),
+                tags$div(class = "note-cloud",
+                    tags$strong("Ejemplos de Covariables en Agronomía:"),
+                    tags$ul(
+                        tags$li(strong("Rendimiento del cultivo (Y):"), " La covariable (X) podría ser la población de plantas al inicio, la altura inicial, o el contenido de materia orgánica del suelo."),
+                        tags$li(strong("Ganancia de peso en animales (Y):"), " La covariable (X) es casi siempre el peso inicial del animal."),
+                        tags$li(strong("Control de plagas (Y):"), " La covariable (X) sería la infestación basal de la plaga antes de aplicar los insecticidas.")
+                    )
+                ),
+                tags$hr(),
+                # ---------------------------------------------------------------
+                # Subsección 1.3: Modelo y Supuestos del ANCOVA
+                # ---------------------------------------------------------------
+                h4(class = "section-header", "1.3 Modelo y Supuestos del ANCOVA"),
+                p("El modelo ANCOVA extiende el del ANOVA añadiendo un término de regresión para la covariable."),
                 p(strong("Modelo Matemático (ANCOVA sobre un DCA):")),
                 withMathJax(helpText(
                     "$$Y_{ij} = \\mu + \\tau_i + \\beta(X_{ij} - \\bar{X}_{..}) + \\epsilon_{ij}$$"
                 )),
-                p("Donde \\(\\beta\\) es la pendiente que describe la relación entre la covariable \\(X\\) y la respuesta \\(Y\\)."),
+                p("Donde ", strong("\\(\\beta\\)"), " es el coeficiente de regresión (la pendiente) que describe la relación lineal entre la covariable \\(X\\) y la respuesta \\(Y\\)."),
                 
-                h4(class = "section-header", "1.3 Laboratorio Interactivo de ANCOVA"),
-                p("Usa el deslizador para simular diferentes niveles de correlación entre una covariable (ej. 'Plantas por metro lineal al inicio') y la respuesta final (ej. 'Rendimiento'). Observa cómo cambia la eficiencia del ANCOVA."),
-                sidebarLayout(
-                    sidebarPanel(
-                        width = 3,
-                        tags$h5("Control de la Simulación"),
-                        sliderInput(ns("ancova_cor"), "Correlación entre Covariable (X) y Respuesta (Y):",
-                                    min = 0, max = 0.95, value = 0.7, step = 0.05),
-                        sliderInput(ns("ancova_sd"), "Error Experimental Residual (σ):",
-                                    min = 1, max = 10, value = 5, step = 0.5),
-                        actionButton(ns("run_ancova_sim"), "Correr Simulación", icon=icon("play"), class="btn-primary w-100")
-                    ),
-                    mainPanel(
-                        width = 9,
-                        plotOutput(ns("ancova_plot")),
-                        fluidRow(
-                            column(6,
-                                h5("Resultados del ANOVA (sin covariable)"),
-                                verbatimTextOutput(ns("anova_output_sim"))
-                            ),
-                            column(6,
-                                h5("Resultados del ANCOVA (con covariable)"),
-                                verbatimTextOutput(ns("ancova_output_sim"))
-                            )
-                        ),
-                        uiOutput(ns("ancova_efficiency_ui"))
+                p(strong("Supuestos Clave del ANCOVA:")),
+                tags$ol(
+                    tags$li("Los supuestos del ANOVA se mantienen (independencia, normalidad y homocedasticidad de los residuos)."),
+                    tags$li("Existe una ", strong("relación lineal"), " entre la covariable (X) y la respuesta (Y). Si la relación no es lineal, el ANCOVA no será efectivo."),
+                    tags$li("La covariable (X) ", strong("no es afectada por los tratamientos."), " Por eso se mide antes de aplicarlos."),
+                    tags$li(strong("Homogeneidad de las pendientes de regresión:"), " Este es el supuesto más importante y específico del ANCOVA. Asume que la relación lineal (la pendiente \\(\\beta\\)) entre X e Y es la ", strong("misma para todos los grupos de tratamiento."), " Si las pendientes son diferentes, significa que hay una interacción entre el tratamiento y la covariable, y el ANCOVA no es el modelo adecuado.")
+                ),
+                tags$hr(),
+                # ---------------------------------------------------------------
+                # Subsección 1.4: Ejemplo Práctico en R
+                # ---------------------------------------------------------------
+                h4(class = "section-header", "1.4 Ejemplo Práctico: Ajustando el Crecimiento de Plantas"),
+                p("Usaremos el dataset `weight` del paquete `agricolae`, que contiene datos del peso de plantas bajo diferentes tratamientos. Usaremos la altura inicial (`cov1`) como covariable para ajustar el peso final (`yield`)."),
+                tags$pre(class="r-code",
+                    htmltools::HTML(
+                        "library(agricolae)\n",
+                        "data(growth)\n\n",
+                        "# Modelo ANOVA simple (sin covariable)\n",
+                        "modelo_anova <- aov(yield ~ treat, data = growth)\n",
+                        "cat('--- Tabla ANOVA ---\\n')\n",
+                        "print(summary(modelo_anova))\n\n",
+                        
+                        "# Modelo ANCOVA (ajustando por altura inicial 'cov1')\n",
+                        "modelo_ancova <- aov(yield ~ cov1 + treat, data = growth)\n",
+                        "cat('--- Tabla ANCOVA ---\\n')\n",
+                        "print(summary(modelo_ancova))\n\n",
+                        
+                        "# Cálculo de la Eficiencia Relativa\n",
+                        "cme_anova <- anova(modelo_anova)['Residuals', 'Mean Sq']\n",
+                        "cme_ancova <- anova(modelo_ancova)['Residuals', 'Mean Sq']\n",
+                        "eficiencia_relativa <- cme_anova / cme_ancova\n",
+                        "cat(paste0('\\nEficiencia Relativa (ER): ', round(eficiencia_relativa, 2)))"
                     )
-                )
+                ),
+                tags$hr(),
+                # ---------------------------------------------------------------
+                # Subsección 1.5: Laboratorio Interactivo
+                # ---------------------------------------------------------------
+                h4(class = "section-header", "1.5 Laboratorio Interactivo: El Poder del Ajuste"),
+
+                # --- Usaremos navset_card_pill para organizar la explicación y el laboratorio ---
+                navset_card_pill(
+                    header = tags$h5("Guía del Laboratorio y Simulación"),
+                    
+                    # Pestaña con la explicación del escenario
+                    nav_panel(
+                        "El Escenario Simulado",
+                        tags$h5("Contexto del Experimento"),
+                        p(
+                            "Vamos a simular un ensayo para evaluar el efecto de ", strong("dos nuevas dietas (Dieta A, Dieta B)"), " en comparación con una ", strong("Dieta Control"), " sobre la ganancia de peso en terneros. La variable de respuesta principal es el ", strong("Peso Final (Y).")
+                        ),
+                        p(
+                            "Sin embargo, los terneros no comienzan el ensayo con el mismo peso. Existe una variabilidad natural en su ", strong("Peso Inicial (X)."), " Es lógico suponer que los terneros más pesados al inicio también tenderán a ser más pesados al final, independientemente de la dieta. Este Peso Inicial es nuestra ", strong("covariable.")
+                        ),
+                        
+                        tags$hr(),
+                        
+                        tags$h5("El Desafío: Aislar el Efecto de la Dieta"),
+                        p(
+                            "Si la variación en el Peso Inicial es muy grande, podría crear tanto 'ruido' en los datos del Peso Final que enmascare las diferencias reales (y quizás sutiles) entre las dietas. Un simple ANOVA sobre el Peso Final podría no detectar nada."
+                        ),
+                        p(
+                            "El objetivo de este laboratorio es usar el ANCOVA para 'restar' estadísticamente el efecto del Peso Inicial y ver si, una vez hecho este ajuste, queda un efecto significativo de la dieta."
+                        ),
+                        
+                        tags$h5("Guía de los Controles de la Simulación"),
+                        tags$dl(
+                            tags$dt("Correlación (Peso Inicial ↔ Peso Final):"),
+                            tags$dd("Controla qué tan fuerte es la relación entre el peso de un ternero al inicio y al final. Un valor alto (ej. 0.9) significa que el peso inicial es un predictor muy fuerte del peso final, creando mucho 'ruido' que el ANCOVA puede limpiar."),
+                            tags$dt("Magnitud del Efecto de la Dieta:"),
+                            tags$dd("Controla qué tan 'buenas' son las dietas nuevas. Un valor bajo simula un efecto sutil y difícil de detectar para un ANOVA simple.")
+                        ),
+                        
+                        tags$div(class="alert alert-info", icon("lightbulb"),
+                            strong("Tu Misión:"), " Ajusta los controles para encontrar un escenario donde el ANOVA del Peso Final dé un p-valor > 0.05, pero el ANCOVA (ajustado por Peso Inicial) dé un p-valor < 0.05. Esto demuestra cómo el ANCOVA aumenta nuestro poder para detectar efectos reales."
+                        )
+                    ),
+                    
+                    # Pestaña con la herramienta interactiva
+                    nav_panel(
+                        "Laboratorio de Simulación",
+                        sidebarLayout(
+                            sidebarPanel(
+                                width = 3,
+                                tags$h5("Control de la Simulación"),
+                                sliderInput(ns("ancova_cor"), "Correlación (Peso Inicial ↔ Final):",
+                                            min = 0, max = 0.95, value = 0.8, step = 0.05),
+                                sliderInput(ns("ancova_effect_size"), "Magnitud del Efecto de la Dieta:", # Nuevo ID para el efecto
+                                            min = 0, max = 20, value = 5, step = 1),
+                                actionButton(ns("run_ancova_sim"), "Correr Simulación", icon=icon("play"), class="btn-primary w-100")
+                            ),
+                            mainPanel(
+                                width = 9,
+                                # Gráfico principal que muestra la relación
+                                plotOutput(ns("ancova_plot")),
+                                hr(),
+                                
+                                # Fila con los resultados comparativos
+                                fluidRow(
+                                    column(6,
+                                        h5(icon("balance-scale-left"), "Análisis SIN Ajuste (ANOVA)"),
+                                        verbatimTextOutput(ns("anova_output_sim")),
+                                        uiOutput(ns("anova_interpretation_ui")) # UI para interpretación
+                                    ),
+                                    column(6, style="border-left: 1px solid #ddd; padding-left: 20px;",
+                                        h5(icon("balance-scale-right"), "Análisis CON Ajuste (ANCOVA)"),
+                                        verbatimTextOutput(ns("ancova_output_sim")),
+                                        uiOutput(ns("ancova_interpretation_ui")) # UI para interpretación
+                                    )
+                                ),
+                                hr(),
+                                # Panel para la Eficiencia Relativa
+                                uiOutput(ns("ancova_efficiency_ui"))
+                            )
+                        )
+                    )
+                ),
+                tags$hr(),
             ),
 
-            # ===== PESTAÑA 2: REGRESIÓN LINEAL SIMPLE =====
+            # ===== PESTAÑA 2: MANCOVA =====
+            nav_panel(
+                title = "2. MANCOVA: Ajustando por Covariables en Múltiples Respuestas",
+                h4(class = "section-header", "2.3 MANCOVA: Combinando Mundos - Múltiples Respuestas y Covariables"),
+                    p(
+                        "Hemos visto que el MANOVA maneja múltiples variables de respuesta y que el ANCOVA ajusta una respuesta por una covariable. El siguiente paso lógico es combinar ambos conceptos: ¿qué hacemos cuando tenemos ", strong("múltiples variables de respuesta"), " Y también una ", strong("covariable"), " que podría estar influyendo en todas ellas?"
+                    ),
+                    p(
+                        "La respuesta es el ", strong("Análisis Multivariado de la Covarianza (MANCOVA)."), " Es la herramienta más completa que hemos visto hasta ahora, ya que nos permite probar las diferencias entre los centroides de los tratamientos DESPUÉS de haber ajustado estadísticamente todas las variables de respuesta por el efecto de la covariable."
+                    ),
+                    tags$div(class = "note-cloud",
+                        tags$strong("Ejemplo Agronómico Concreto:"),
+                        p("Queremos comparar 3 nuevos regímenes de fertilización (Tratamiento). Medimos dos respuestas: ", strong("Rendimiento (Y₁)"), " y ", strong("Contenido de Proteína (Y₂)."), " Sin embargo, sabemos que el contenido de ", strong("materia orgánica inicial (X)"), " de cada parcela era variable y podría afectar tanto al rendimiento como a la proteína. El MANCOVA nos permite responder: 'Controlando el efecto de la materia orgánica inicial, ¿los regímenes de fertilización producen perfiles diferentes de rendimiento y proteína?'")
+                    ),
+
+                    h4(class = "section-header", "Modelo y Supuestos del MANCOVA"),
+                    p("El modelo MANCOVA es una extensión directa del ANCOVA al caso multivariado. La clave es que la covariable (X) se usa para ajustar cada una de las variables de respuesta (Y₁, Y₂, etc.)."),
+                    withMathJax(helpText(
+                        "$$\\text{Modelo para } Y_1: Y_{1ij} = \\mu_1 + \\tau_{1i} + \\beta_1(X_{ij} - \\bar{X}_{..}) + \\epsilon_{1ij}$$"
+                    )),
+                    withMathJax(helpText(
+                        "$$\\text{Modelo para } Y_2: Y_{2ij} = \\mu_2 + \\tau_{2i} + \\beta_2(X_{ij} - \\bar{X}_{..}) + \\epsilon_{2ij}$$"
+                    )),
+                    p("El MANCOVA prueba si los efectos del tratamiento (\\(\\tau_{1i}, \\tau_{2i}, ...\\)) son significativamente diferentes de cero de forma conjunta."),
+                    p(strong("Supuesto Adicional Importante:"), " Además de los supuestos del MANOVA, el MANCOVA asume que la relación (la pendiente de la regresión, \\(\\beta\\)) entre la covariable y cada una de las variables de respuesta es la misma para todos los grupos de tratamiento. Esto se conoce como el supuesto de ", strong("homogeneidad de las pendientes de regresión.")),
+
+                    h4(class = "section-header", "Implementación en R"),
+                    p("La sintaxis en R es una combinación de las que ya hemos visto. Usamos `cbind()` para las respuestas y simplemente añadimos la covariable al modelo."),
+                    tags$pre(class="r-code",
+                        htmltools::HTML(
+                            "# Ejemplo de MANCOVA en R usando el dataset 'iris'\n",
+                            "# Pregunta: Controlando el efecto del Ancho del Sépalo (covariable), ¿difiere el\n",
+                            "# 'perfil del pétalo' (Largo y Ancho) entre las especies?\n\n",
+                            "modelo_mancova <- manova(cbind(Petal.Length, Petal.Width) ~ Sepal.Width + Species, data = iris)\n\n",
+                            "# Ver el resumen de la prueba multivariada\n",
+                            "summary(modelo_mancova, test = 'Pillai')"
+                        )
+                    ),
+
+                    tags$hr(),
+
+                    h4(class = "section-header", "2.4 Laboratorio Interactivo: El Poder de Ajustar con MANCOVA"),
+
+                    # --- Usaremos navset_card_pill para organizar la explicación y el laboratorio ---
+                    navset_card_pill(
+                        header = tags$h5("Guía del Laboratorio y Simulación"),
+                        
+                        # Pestaña con la explicación del escenario
+                        nav_panel(
+                            "El Escenario Simulado",
+                            tags$h5("Contexto del Experimento"),
+                            p(
+                                "Vamos a simular un ensayo agronómico para evaluar el efecto de ", strong("dos nuevos bioestimulantes (Trat_A, Trat_B)"), " en comparación con un ", strong("Control"), " sobre un cultivo de frutillas. En cada parcela, medimos dos variables de respuesta clave:"
+                            ),
+                            tags$ul(
+                                tags$li(strong("Respuesta Y₁:"), " Rendimiento Total (kg/parcela)."),
+                                tags$li(strong("Respuesta Y₂:"), " Contenido de Sólidos Solubles (°Brix), un indicador de dulzura.")
+                            ),
+                            p(
+                                "Sin embargo, antes de aplicar los bioestimulantes, realizamos un análisis de suelo y medimos una variable que no podemos controlar: el ", strong("contenido de Fósforo (P) disponible en el suelo (ppm)."), " Sospechamos que un mayor nivel de Fósforo podría influir positivamente tanto en el rendimiento como en la dulzura, independientemente del tratamiento. Este Fósforo inicial es nuestra ", strong("covariable (X).")
+                            ),
+                            
+                            tags$hr(),
+                            
+                            tags$h5("El Desafío: ¿Hay un efecto real del tratamiento?"),
+                            p(
+                                "El efecto de nuestra covariable (Fósforo) introduce 'ruido' en los datos. Si la variación debida al Fósforo es muy grande, podría enmascarar las diferencias reales (y quizás más sutiles) entre los bioestimulantes. Nuestro objetivo es usar MANCOVA para 'limpiar' estadísticamente el efecto del Fósforo y ver si, una vez ajustado, queda un efecto significativo del tratamiento."
+                            ),
+                            
+                            tags$h5("Guía de los Controles de la Simulación"),
+                            tags$dl(
+                                tags$dt("Correlación (Covariable ↔ Respuestas):"),
+                                tags$dd("Controla qué tan fuerte es la relación entre el Fósforo inicial (X) y las respuestas (Y₁, Y₂). Un valor alto (ej. 0.9) significa que el Fósforo tiene un gran impacto, creando mucho 'ruido'. Un valor bajo (ej. 0.1) significa que tiene poco impacto."),
+                                tags$dt("Magnitud del Efecto del Tratamiento:"),
+                                tags$dd("Controla qué tan 'buenos' son los bioestimulantes en la realidad. Un valor alto significa que Trat_A y Trat_B tienen un efecto grande sobre el rendimiento y los °Brix. Un valor bajo significa que su efecto es sutil y difícil de detectar.")
+                            ),
+                            
+                            tags$div(class="alert alert-info", icon("lightbulb"),
+                                strong("Tu Misión:"), " Intenta encontrar un escenario donde el MANOVA (sin covariable) dé un p-valor > 0.05 (no significativo), pero el MANCOVA (con covariable) dé un p-valor < 0.05 (significativo). Esto demostrará el poder del ajuste. ", em("Pista: necesitas un efecto de tratamiento sutil y una correlación fuerte.")
+                            )
+                        ),
+                        
+                        # Pestaña con la herramienta interactiva
+                        nav_panel(
+                            "Laboratorio de Simulación",
+                            sidebarLayout(
+                                sidebarPanel(
+                                    width = 3,
+                                    tags$h5("Control de la Simulación"),
+                                    sliderInput(ns("mancova_cor"), "Correlación (Fósforo ↔ Respuestas):",
+                                                min = 0, max = 0.95, value = 0.8, step = 0.05),
+                                    sliderInput(ns("mancova_trat_effect"), "Magnitud del Efecto del Bioestimulante:",
+                                                min = 0, max = 5, value = 1.5, step = 0.2),
+                                    actionButton(ns("run_mancova_sim"), "Correr Simulación", icon=icon("play"), class="btn-primary w-100")
+                                ),
+                                mainPanel(
+                                    width = 9,
+                                    fluidRow(
+                                        column(6,
+                                            h6(strong("Respuesta 1: Rendimiento (kg/parcela)")),
+                                            plotOutput(ns("mancova_plot_y1"))
+                                        ),
+                                        column(6,
+                                            h6(strong("Respuesta 2: Dulzura (°Brix)")),
+                                            plotOutput(ns("mancova_plot_y2"))
+                                        )
+                                    ),
+                                    hr(),
+                                    fluidRow(
+                                        column(6,
+                                            h5("Resultados del MANOVA (sin ajustar)"),
+                                            verbatimTextOutput(ns("manova_output_sim")),
+                                            uiOutput(ns("manova_interpretation")) # UI para interpretación dinámica
+                                        ),
+                                        column(6,
+                                            h5("Resultados del MANCOVA (ajustado por Fósforo)"),
+                                            verbatimTextOutput(ns("mancova_output_sim")),
+                                            uiOutput(ns("mancova_interpretation")) # UI para interpretación dinámica
+                                        )
+                                    )
+                                )
+                            )
+                        )
+                    ),
+
+                    tags$hr(),
+            ),
+
+            # ===== PESTAÑA 3: REGRESIÓN LINEAL SIMPLE =====
             nav_panel(
                 title = "2. Regresión Lineal Simple",
                 
@@ -94,7 +373,7 @@ session9UI <- function(id) {
                 )
             ),
             
-            # ===== PESTAÑA 3: REGRESIÓN LINEAL MÚLTIPLE =====
+            # ===== PESTAÑA 4: REGRESIÓN LINEAL MÚLTIPLE =====
             nav_panel(
                 title = "3. Regresión Lineal Múltiple",
                 h4(class = "section-header", "3.1 La Realidad es Multifactorial"),
@@ -131,7 +410,113 @@ session9UI <- function(id) {
                         plotOutput(ns("rlm_diagnostic_plot"))
                     )
                 )
-            )
+            ),
+
+            # ===== PESTAÑA 5: PCA =====
+            nav_panel(
+                title = "4. PCA: Explorando la Complejidad",
+                h4(class = "section-header", "6.3 PCA: El Arte de Simplificar la Complejidad"),
+                    p(
+                        "Mientras que MANOVA prueba una hipótesis formal, a menudo nuestro primer objetivo es simplemente ", strong("explorar"), " un conjunto de datos complejo. Si hemos medido 10, 20 o 50 variables en nuestras parcelas, ¿cómo podemos 'ver' la estructura general de los datos? ¿Qué tratamientos se parecen entre sí? ¿Qué variables se comportan de forma similar? Aquí es donde brilla el ", strong("Análisis de Componentes Principales (PCA).")
+                    ),
+
+                    # --- Analogía y Concepto Visual ---
+                    tags$div(class="card mb-4",
+                        tags$div(class="card-body",
+                            h5(class="card-title text-center", "La Analogía de la Sombra: Reduciendo Dimensiones"),
+                            p("Imagina que tienes una escultura 3D compleja (tus datos multivariados). Es difícil capturar su forma completa en una foto 2D. El PCA es como un fotógrafo experto que busca el ángulo perfecto para proyectar una sombra de esa escultura sobre una pared. Esa sombra (un plano 2D) pierde algunos detalles, pero si se elige el ángulo correcto, puede capturar la mayor parte de la forma y estructura esencial de la escultura original."),
+                            
+                            fluidRow(
+                                column(5, class="text-center",
+                                    p(strong("Datos Originales (Espacio Multidimensional)")),
+                                    # Gráfico que simula datos 3D
+                                    plotOutput(ns("pca_concept_3d"), height="300px")
+                                ),
+                                column(2, class="text-center align-self-center",
+                                    p(icon("compress-arrows-alt", class="fa-4x text-primary")),
+                                    p(strong("PCA 'Proyecta' la Sombra"))
+                                ),
+                                column(5, class="text-center",
+                                    p(strong("Biplot 2D (Espacio Reducido)")),
+                                    # Gráfico que simula la proyección 2D
+                                    plotOutput(ns("pca_concept_2d"), height="300px")
+                                )
+                            )
+                        )
+                    ),
+
+                    p(
+                        "Técnicamente, el PCA es una técnica de ", strong("reducción de dimensionalidad."), " Toma un conjunto de datos con muchas variables (posiblemente correlacionadas) y las re-expresa como un nuevo conjunto de variables sintéticas, no correlacionadas, llamadas ", strong("Componentes Principales (PCs)."), " Estos PCs se construyen con dos objetivos:"
+                    ),
+                    tags$ul(
+                        tags$li(strong("PC1 (Primera Componente Principal):"), " Es un nuevo eje (una combinación lineal de las variables originales) que se orienta en la dirección de la ", em("máxima variabilidad"), " de los datos. Captura la mayor cantidad posible de la 'dispersión' total."),
+                        tags$li(strong("PC2 (Segunda Componente Principal):"), " Es un segundo eje, ", strong("perpendicular (no correlacionado)"), " al PC1, que captura la mayor cantidad posible de la variabilidad ", em("restante.")),
+                        tags$li("...y así sucesivamente para PC3, PC4, etc.")
+                    ),
+                    p(
+                        "El resultado es asombroso: a menudo, los dos primeros componentes (PC1 y PC2) pueden capturar el 70%, 80% o incluso más del 90% de la información total contenida en docenas de variables originales. Esto nos permite visualizar la estructura principal de los datos en un simple gráfico 2D llamado ", strong("biplot,"), " que muestra tanto las observaciones (ej. genotipos) como las variables originales (ej. rendimiento, altura) en este nuevo espacio reducido."
+                    ),
+
+                    tags$hr(),
+                    
+                    h4(class = "section-header", "6.4 Laboratorio Interactivo: Explorando el PCA con `iris`"),
+                    p(
+                        "Ahora, usemos el PCA de forma interactiva para explorar el clásico dataset `iris`. Tu objetivo es actuar como un científico de datos: selecciona diferentes combinaciones de variables y observa cómo cambia la visualización de la estructura de los datos."
+                    ),
+
+                    sidebarLayout(
+                        sidebarPanel(
+                            width = 3,
+                            tags$h5("Control del Análisis PCA"),
+                            checkboxGroupInput(ns("pca_vars"), "1. Seleccionar Variables para el PCA:",
+                                choices = c("Largo Sépalo" = "Sepal.Length", 
+                                            "Ancho Sépalo" = "Sepal.Width", 
+                                            "Largo Pétalo" = "Petal.Length",
+                                            "Ancho Pétalo" = "Petal.Width"),
+                                selected = c("Sepal.Length", "Sepal.Width", "Petal.Length", "Petal.Width")
+                            ),
+                            checkboxInput(ns("pca_scale"), "Escalar Variables (Recomendado)", value = TRUE),
+                            hr(),
+                            tags$div(class="note-cloud",
+                                strong("¿Por qué escalar?"),
+                                p("Si las variables tienen escalas muy diferentes (ej. altura en cm vs. peso en kg), la variable con la mayor varianza dominará el PC1. Escalar (estandarizar) las variables asegura que todas contribuyan por igual al análisis, basándose en sus correlaciones, no en su escala.")
+                            )
+                        ),
+                        mainPanel(
+                            width = 9,
+                            # Usaremos pestañas para organizar la salida
+                            navset_card_pill(
+                                # Pestaña para el Biplot
+                                nav_panel(
+                                    "Biplot",
+                                    plotOutput(ns("pca_biplot")),
+                                    tags$hr(),
+                                    h6(strong("¿Cómo interpretar este Biplot?")),
+                                    tags$ul(
+                                        tags$li(strong("Puntos (Observaciones):"), " Cada punto es una flor. Puntos cercanos representan flores con características similares. Observa cómo las especies forman conglomerados (clusters) distintos."),
+                                        tags$li(strong("Flechas (Variables):"), " Cada flecha representa una de las variables originales."),
+                                        tags$ul(
+                                            tags$li(strong("Dirección:"), " Flechas que apuntan en direcciones similares indican variables que están positivamente correlacionadas (ej. Largo y Ancho del Pétalo). Flechas en direcciones opuestas están negativamente correlacionadas."),
+                                            tags$li(strong("Largo:"), " Flechas más largas indican variables que tienen una mayor contribución a la variación capturada en estos dos componentes.")
+                                        )
+                                    )
+                                ),
+                                # Pestaña para el Resumen Numérico
+                                nav_panel(
+                                    "Resumen Numérico",
+                                    h6("Resumen de la Importancia de los Componentes"),
+                                    verbatimTextOutput(ns("pca_summary")),
+                                    hr(),
+                                    h6("Loadings (Cargas de los Componentes)"),
+                                    p("Esta tabla muestra cómo cada variable original 'carga' o contribuye a la construcción de cada Componente Principal. Valores grandes (cercanos a 1 o -1) indican una fuerte contribución."),
+                                    verbatimTextOutput(ns("pca_loadings"))
+                                )
+                            )
+                        )
+                    ),
+
+                    tags$hr()
+            ),
         )
     )
 }
@@ -144,63 +529,255 @@ session9Server  <- function(input, output, session) {
     
     # --- LÓGICA PARA LA PESTAÑA 1: ANCOVA ---
     
-    # Este código es el que ya tenías para el ANCOVA, renombrado a 's9' para el namespace
-    ancova_sim_results_s9 <- eventReactive(input$run_ancova_sim, {
+    ancova_sim_results <- eventReactive(input$run_ancova_sim, {
+    
         set.seed(as.integer(Sys.time()))
-        n_rep <- 15; n_trat <- 3
-        correlacion <- input$ancova_cor; sd_error <- input$ancova_sd
-        tratamientos <- factor(rep(paste0("T", 1:n_trat), each = n_rep))
-        efecto_trat <- c(rep(0, n_rep), rep(5, n_rep), rep(-3, n_rep))
-        covariable_x <- rnorm(n_rep * n_trat, mean = 20, sd = 3)
-        error_y <- rnorm(n_rep * n_trat, mean = 0, sd = sd_error)
-        respuesta_y <- efecto_trat + (covariable_x * correlacion) + (error_y * sqrt(1 - correlacion^2))
-        df_sim <- data.frame(tratamiento = tratamientos, covariable_X = covariable_x, respuesta_Y = respuesta_y)
-        modelo_anova <- aov(respuesta_Y ~ tratamiento, data = df_sim)
-        modelo_ancova <- aov(respuesta_Y ~ covariable_X + tratamiento, data = df_sim)
-        cme_anova <- summary(modelo_anova)[[1]]['Residuals', 'Mean Sq']
-        cme_ancova <- summary(modelo_ancova)[[1]]['Residuals', 'Mean Sq']
-        if(is.na(cme_ancova) || cme_ancova == 0) return(NULL)
+        n_rep <- 20; n_trat <- 3
+        
+        # Parámetros de la simulación
+        correlacion <- input$ancova_cor
+        efecto_trat_mag <- input$ancova_effect_size # Usar el nuevo ID
+        sd_error_residual <- 15 # Fijamos un error residual para simplificar
+        
+        # Crear datos base
+        dieta <- factor(rep(c('Control', 'Dieta_A', 'Dieta_B'), each = n_rep))
+        
+        # Simular el efecto del tratamiento
+        efecto_trat <- c(rep(0, n_rep), rep(efecto_trat_mag, n_rep), rep(efecto_trat_mag * 0.5, n_rep))
+        
+        # Simular la covariable (Peso Inicial)
+        peso_inicial_x <- rnorm(n_rep * n_trat, mean = 250, sd = 20)
+        
+        # Simular el error aleatorio puro
+        error_y <- rnorm(n_rep * n_trat, mean = 0, sd = sd_error_residual)
+        
+        # Generar la variable de respuesta (Peso Final)
+        # Y = Peso_Base + Efecto_Dieta + Efecto_Peso_Inicial + Error
+        peso_final_y <- 300 + efecto_trat + ((peso_inicial_x - mean(peso_inicial_x)) * correlacion * 2) + (error_y * sqrt(1 - correlacion^2))
+        
+        df_sim <- data.frame(
+            Dieta = dieta,
+            Peso_Inicial = peso_inicial_x,
+            Peso_Final = peso_final_y
+        )
+        
+        # Ajustar ambos modelos
+        modelo_anova <- aov(Peso_Final ~ Dieta, data = df_sim)
+        modelo_ancova <- aov(Peso_Final ~ Peso_Inicial + Dieta, data = df_sim)
+        
+        # Extraer CME y calcular ER
+        cme_anova <- anova(modelo_anova)['Residuals', 'Mean Sq']
+        cme_ancova <- anova(modelo_ancova)['Residuals', 'Mean Sq']
+        
+        if (is.na(cme_ancova) || cme_ancova == 0) return(NULL)
         eficiencia_relativa <- cme_anova / cme_ancova
-        list(datos = df_sim, modelo_anova = modelo_anova, modelo_ancova = modelo_ancova, cme_anova = cme_anova, cme_ancova = cme_ancova, er = eficiencia_relativa)
+        
+        list(
+            datos = df_sim,
+            modelo_anova = modelo_anova,
+            modelo_ancova = modelo_ancova,
+            cme_anova = cme_anova,
+            cme_ancova = cme_ancova,
+            er = eficiencia_relativa
+        )
     }, ignoreNULL = FALSE)
 
+    # Gráfico principal
     output$ancova_plot <- renderPlot({
-        res <- ancova_sim_results_s9(); req(res)
-        ggplot(res$datos, aes(x = covariable_X, y = respuesta_Y, color = tratamiento)) +
+        res <- ancova_sim_results(); req(res)
+        ggplot(res$datos, aes(x = Peso_Inicial, y = Peso_Final, color = Dieta)) +
             geom_point(size = 3, alpha = 0.7) +
-            geom_smooth(method = "lm", se = FALSE, linewidth = 1) +
-            labs(title = "Relación entre Covariable (X) y Respuesta (Y)", x = "Valor de la Covariable", y = "Valor de la Respuesta Final") +
+            geom_smooth(method = "lm", se = FALSE, linewidth = 1, linetype = "dashed") +
+            labs(
+                title = "Relación entre Peso Inicial (Covariable) y Peso Final (Respuesta)",
+                subtitle = "Las líneas discontinuas muestran la tendencia para cada dieta",
+                x = "Peso Inicial (kg)",
+                y = "Peso Final (kg)"
+            ) +
             theme_minimal(base_size = 14)
     })
 
+    # Salidas de texto para los modelos
     output$anova_output_sim <- renderPrint({
-        res <- ancova_sim_results_s9(); req(res)
-        cat("CME (Error) del ANOVA:", round(res$cme_anova, 4), "\n\n")
+        res <- ancova_sim_results(); req(res)
+        cat("--- Tabla ANOVA ---\n")
         summary(res$modelo_anova)
     })
 
     output$ancova_output_sim <- renderPrint({
-        res <- ancova_sim_results_s9(); req(res)
-        cat("CME (Error) del ANCOVA:", round(res$cme_ancova, 4), "\n\n")
-        summary(res$modelo_ancova)
+        res <- ancova_sim_results(); req(res)
+        cat("--- Tabla ANCOVA ---\n")
+        # Usamos anova() en lugar de summary() para ver la tabla Tipo I secuencial, que es más clara aquí
+        anova(res$modelo_ancova)
     })
 
+    # Interpretaciones dinámicas
+    output$anova_interpretation_ui <- renderUI({
+        res <- ancova_sim_results(); req(res)
+        p_val <- summary(res$modelo_anova)[[1]]["Dieta", "Pr(>F)"]
+        
+        if (p_val < 0.05) {
+            div(class="alert alert-success mt-2",
+                icon("check-circle"),
+                strong("Conclusión: Significativo."), " El ANOVA simple fue capaz de detectar una diferencia entre las dietas.")
+        } else {
+            div(class="alert alert-danger mt-2",
+                icon("times-circle"),
+                strong("Conclusión: No Significativo."), " El 'ruido' causado por la variación en el Peso Inicial es tan grande que oculta el efecto de las dietas.")
+        }
+    })
+
+    output$ancova_interpretation_ui <- renderUI({
+        res <- ancova_sim_results(); req(res)
+        p_val <- anova(res$modelo_ancova)["Dieta", "Pr(>F)"]
+        
+        if (p_val < 0.05) {
+            div(class="alert alert-success mt-2",
+                icon("check-circle"),
+                strong("Conclusión: Significativo."), " Después de 'limpiar' el efecto del Peso Inicial, el ANCOVA revela que sí existe un efecto real de las dietas. ¡El ajuste funcionó!")
+        } else {
+            div(class="alert alert-danger mt-2",
+                icon("times-circle"),
+                strong("Conclusión: No Significativo."), " Incluso después de ajustar por el Peso Inicial, no hay evidencia de un efecto de las dietas. Probablemente no son efectivas.")
+        }
+    })
+
+    # Salida para la Eficiencia Relativa
     output$ancova_efficiency_ui <- renderUI({
-        res <- ancova_sim_results_s9(); req(res)
+        res <- ancova_sim_results(); req(res)
         er_porc <- res$er * 100
         alert_class <- if (er_porc > 110) "alert alert-success" else "alert alert-warning"
+        
         tagList(
-            h5("Eficiencia Relativa (ER)"),
+            h5(class="text-center", "Eficiencia Relativa (ER)"),
             tags$div(class = alert_class, style = "text-align: center; font-size: 1.2em;",
                 strong(paste0("ER = ", round(er_porc, 1), "%")),
                 p(class="small mt-2",
-                    paste0("El ANCOVA fue un ", round(er_porc - 100, 1), "% más eficiente que el ANOVA.")
+                paste0("El ANCOVA fue un ", round(er_porc - 100, 1), "% más eficiente, aumentando nuestro poder de detección.")
                 )
             )
         )
     })
     
-    # --- LÓGICA PARA LA PESTAÑA 2: REGRESIÓN LINEAL SIMPLE ---
+    # --- LÓGICA PARA LA PESTAÑA 2: MANCOVA ---
+    ### ---- Subsección 4 ----
+    mancova_sim_results <- eventReactive(input$run_mancova_sim, {
+        
+        set.seed(as.integer(Sys.time()))
+        n_rep <- 20
+        n_trat <- 3
+        
+        # Parámetros de la simulación
+        correlacion <- input$mancova_cor
+        efecto_trat_mag <- input$mancova_trat_effect
+        
+        # Crear datos base
+        tratamiento_vec <- factor(rep(c('Control', 'Trat_A', 'Trat_B'), each = n_rep))
+        
+        # Efecto del tratamiento sobre las respuestas
+        efecto_y1_vec <- c(rep(0, n_rep), rep(efecto_trat_mag, n_rep), rep(efecto_trat_mag * 0.8, n_rep))
+        efecto_y2_vec <- c(rep(0, n_rep), rep(efecto_trat_mag * -0.5, n_rep), rep(efecto_trat_mag * 0.2, n_rep))
+        
+        # Covariable (X) que afecta a ambas respuestas
+        covariable_x_vec <- rnorm(n_rep * n_trat, mean = 50, sd = 10)
+        
+        # Errores aleatorios para cada respuesta
+        error_y1_vec <- rnorm(n_rep * n_trat, mean = 0, sd = 8)
+        error_y2_vec <- rnorm(n_rep * n_trat, mean = 0, sd = 5)
+        
+        # Generar las variables de respuesta
+        # Y = efecto_trat + efecto_covariable + error
+        respuesta_Y1_vec <- 20 + efecto_y1_vec + (covariable_x_vec * correlacion) + (error_y1_vec * sqrt(1 - correlacion^2))
+        respuesta_Y2_vec <- 15 + efecto_y2_vec + (covariable_x_vec * correlacion * 0.5) + (error_y2_vec * sqrt(1 - correlacion^2)) # La covariable afecta a Y2 con la mitad de fuerza
+        
+        # Construimos el data.frame asignando explícitamente los vectores a nombres de columna
+        df_sim <- data.frame(
+            tratamiento = tratamiento_vec,
+            covariable_X = covariable_x_vec,
+            respuesta_Y1 = respuesta_Y1_vec,
+            respuesta_Y2 = respuesta_Y2_vec
+        )
+        
+        # Ajustar ambos modelos
+        modelo_manova <- manova(cbind(respuesta_Y1, respuesta_Y2) ~ tratamiento, data = df_sim)
+        modelo_mancova <- manova(cbind(respuesta_Y1, respuesta_Y2) ~ covariable_X + tratamiento, data = df_sim)
+        
+        list(
+            datos = df_sim,
+            manova_summary = summary(modelo_manova, test = "Pillai"),
+            mancova_summary = summary(modelo_mancova, test = "Pillai")
+        )
+    }, ignoreNULL = FALSE)
+
+    # Gráfico para la Respuesta 1
+    output$mancova_plot_y1 <- renderPlot({
+        res <- mancova_sim_results(); req(res)
+        ggplot(res$datos, aes(x = tratamiento, y = respuesta_Y1, fill = tratamiento)) +
+            geom_boxplot(alpha = 0.7) +
+            theme_minimal() +
+            labs(title = "Respuesta Y1 (ej. Rendimiento) sin ajustar", y = "Respuesta 1")
+    })
+
+    # Gráfico para la Respuesta 2
+    output$mancova_plot_y2 <- renderPlot({
+        res <- mancova_sim_results(); req(res)
+        ggplot(res$datos, aes(x = tratamiento, y = respuesta_Y2, fill = tratamiento)) +
+            geom_boxplot(alpha = 0.7) +
+            theme_minimal() +
+            labs(title = "Respuesta Y2 (ej. Proteína) sin ajustar", y = "Respuesta 2")
+    })
+
+    # Salida para el MANOVA
+    output$manova_output_sim <- renderPrint({
+        res <- mancova_sim_results(); req(res)
+        cat("--- Prueba Global MANOVA (sin covariable) ---\n")
+        print(res$manova_summary)
+    })
+
+    # Salida para el MANCOVA
+    output$mancova_output_sim <- renderPrint({
+        res <- mancova_sim_results(); req(res)
+        cat("--- Prueba Global MANCOVA (ajustada por covariable) ---\n")
+        print(res$mancova_summary)
+    })
+
+    # Interpretación para el MANOVA
+    output$manova_interpretation <- renderUI({
+        res <- mancova_sim_results(); req(res)
+        p_val <- res$manova_summary$stats["tratamiento", "Pr(>F)"]
+        
+        if (p_val < 0.05) {
+            div(class="alert alert-success mt-2",
+                icon("check-circle"),
+                strong("Conclusión: Significativo."), " Basado en los datos brutos, hay evidencia de que al menos un bioestimulante tiene un perfil de Rendimiento/Dulzura diferente al de los otros."
+            )
+        } else {
+            div(class="alert alert-danger mt-2",
+                icon("times-circle"),
+                strong("Conclusión: No Significativo."), " Basado en los datos brutos, no hay evidencia suficiente para decir que los tratamientos difieren. El 'ruido' podría estar ocultando el efecto."
+            )
+        }
+    })
+
+    # Interpretación para el MANCOVA
+    output$mancova_interpretation <- renderUI({
+        res <- mancova_sim_results(); req(res)
+        p_val <- res$mancova_summary$stats["tratamiento", "Pr(>F)"]
+        
+        if (p_val < 0.05) {
+            div(class="alert alert-success mt-2",
+                icon("check-circle"),
+                strong("Conclusión: Significativo."), " Después de ajustar por las diferencias en Fósforo inicial, se revela un efecto real del tratamiento. ¡El ANCOVA funcionó!"
+            )
+        } else {
+            div(class="alert alert-danger mt-2",
+                icon("times-circle"),
+                strong("Conclusión: No Significativo."), " Incluso después de ajustar por el Fósforo, no hay evidencia de un efecto del tratamiento. Es probable que los bioestimulantes no sean efectivos."
+            )
+        }
+    })
+
+    # --- LÓGICA PARA LA PESTAÑA 3: REGRESIÓN LINEAL SIMPLE ---
     
     reg_data <- reactive({
         req(input$reg_intercept, input$reg_slope, input$reg_error, input$reg_n)
@@ -246,7 +823,7 @@ session9Server  <- function(input, output, session) {
         cat(paste0(" - R-cuadrado (R-squared): ", round(r_sq*100, 1), "%. Este porcentaje de la variabilidad en el Rendimiento es explicado por la Dosis de Nitrógeno."))
     })
     
-    # --- LÓGICA PARA LA PESTAÑA 3: REGRESIÓN LINEAL MÚLTIPLE ---
+    # --- LÓGICA PARA LA PESTAÑA 4: REGRESIÓN LINEAL MÚLTIPLE ---
     
     rlm_modelo <- reactive({
         req(input$rlm_predictors)
@@ -272,5 +849,81 @@ session9Server  <- function(input, output, session) {
         par(mfrow = c(2,2))
         plot(modelo)
         par(mfrow = c(1,1))
+    })
+
+    # --- LÓGICA PARA LA PESTAÑA 5: PCA ---
+    # Reactive para realizar el Análisis de Componentes Principales (PCA)
+    pca_results <- reactive({
+        # Requerir al menos 2 variables para el PCA
+        validate(
+            need(length(input$pca_vars) >= 2, "Por favor, seleccione al menos dos variables para realizar el PCA.")
+        )
+        
+        iris_subset <- iris %>% dplyr::select(all_of(input$pca_vars))
+        
+        # Realizar el PCA
+        prcomp(iris_subset, scale. = input$pca_scale)
+    })
+
+    # Gráfico Biplot del PCA (CORREGIDO)
+    output$pca_biplot <- renderPlot({
+        pca_model <- pca_results()
+        req(pca_model)
+        
+        # La llamada a autoplot() debe hacerse después de cargar la librería, sin el prefijo.
+        # El paquete ggfortify extiende la función genérica autoplot.
+        autoplot(
+            pca_model, 
+            data = iris,
+            colour = 'Species',
+            shape = 'Species', # Añadir forma para mayor claridad
+            size = 3,
+            
+            # Estética de los loadings (flechas)
+            loadings = TRUE,
+            loadings.colour = 'blue',
+            loadings.label = TRUE,
+            loadings.label.colour = 'blue',
+            loadings.label.size = 5,
+            loadings.label.vjust = 1.2, # Ajustar posición vertical de la etiqueta
+            loadings.arrow.size = 1.5   # Hacer las flechas un poco más gruesas
+        ) +
+        labs(
+            title = "Biplot del Análisis de Componentes Principales (PCA)",
+            subtitle = "Visualización de la relación entre especies y variables medidas"
+        ) +
+        theme_bw(base_size = 14) + # Usar theme_bw para un look más clásico
+        theme(legend.position = "bottom")
+    })
+
+    # Resumen del PCA
+    output$pca_summary <- renderPrint({
+        pca_model <- pca_results()
+        req(pca_model)
+        
+        cat("--- Importancia de los Componentes ---\n")
+        summary_pca <- summary(pca_model)
+        print(summary_pca$importance)
+        
+        cat("\n--- Interpretación del Resumen ---\n")
+        prop_var_pc1 <- round(summary_pca$importance['Proportion of Variance', 'PC1'] * 100, 1)
+        prop_var_pc2 <- round(summary_pca$importance['Proportion of Variance', 'PC2'] * 100, 1)
+        
+        cat(paste0(" - PC1 explica el ", prop_var_pc1, "% de la variabilidad total.\n"))
+        cat(paste0(" - PC2 explica el ", prop_var_pc2, "% de la variabilidad total.\n"))
+        cat(paste0(" - Juntos, los dos primeros componentes capturan el ", 
+                round(summary_pca$importance['Cumulative Proportion', 'PC2'] * 100, 1), 
+                "% de toda la información de las variables originales.\n"))
+        cat("   Esto justifica el uso del biplot 2D para explorar los datos.\n")
+    })
+
+    # Salida para los Loadings
+    output$pca_loadings <- renderPrint({
+        pca_model <- pca_results()
+        req(pca_model)
+        
+        cat("--- Loadings (Coeficientes de las Variables) ---\n")
+        # Los loadings están en el componente 'rotation' del objeto prcomp
+        print(pca_model$rotation)
     })
 }
