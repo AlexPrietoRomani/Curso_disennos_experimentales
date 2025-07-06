@@ -852,6 +852,62 @@ session9Server  <- function(input, output, session) {
     })
 
     # --- LÓGICA PARA LA PESTAÑA 5: PCA ---
+
+    ### ---- Subsección 3 ----
+    # Gráfico conceptual de datos 3D para la analogía del PCA
+    output$pca_concept_3d <- renderPlot({
+        # install.packages("scatterplot3d") si no está instalado
+        req(scatterplot3d)
+        set.seed(123)
+        
+        # Simular una nube de puntos 3D con estructura
+        nube_3d <- data.frame(
+            x = rnorm(100, 0, 2),
+            y = rnorm(100, 0, 2),
+            z = rnorm(100, 0, 0.5)
+        )
+        nube_3d$y <- nube_3d$y + nube_3d$x * 0.5
+        nube_3d$z <- nube_3d$z + nube_3d$x * 0.2
+
+        # Crear el gráfico 3D
+        scatterplot3d::scatterplot3d(
+            x = nube_3d$x, y = nube_3d$y, z = nube_3d$z,
+            pch = 19, color = "steelblue",
+            angle = 40,
+            grid = TRUE, box = FALSE,
+            xlab = "Variable 1", ylab = "Variable 2", zlab = "Variable 3"
+        )
+    })
+
+    # Gráfico conceptual de la proyección 2D (la 'sombra')
+    output$pca_concept_2d <- renderPlot({
+        set.seed(123) # Usar la misma semilla para consistencia
+        
+        # Simular los mismos datos
+        nube_3d <- data.frame(
+            x = rnorm(100, 0, 2),
+            y = rnorm(100, 0, 2),
+            z = rnorm(100, 0, 0.5)
+        )
+        nube_3d$y <- nube_3d$y + nube_3d$x * 0.5
+        nube_3d$z <- nube_3d$z + nube_3d$x * 0.2
+        
+        # Realizar el PCA sobre los datos 3D
+        pca_result <- prcomp(nube_3d, scale. = TRUE)
+        df_pca <- as.data.frame(pca_result$x)
+        
+        # Graficar los dos primeros componentes
+        ggplot(df_pca, aes(x = PC1, y = PC2)) +
+            geom_point(color = "steelblue", alpha = 0.7, size = 3) +
+            labs(
+                x = "Componente Principal 1 (Máxima Variación)",
+                y = "Componente Principal 2 (Segunda Variación)"
+            ) +
+            theme_minimal(base_size = 12) +
+            coord_fixed()
+    })
+
+    ### ---- Subsección 4 ----
     # Reactive para realizar el Análisis de Componentes Principales (PCA)
     pca_results <- reactive({
         # Requerir al menos 2 variables para el PCA
