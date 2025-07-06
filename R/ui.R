@@ -75,6 +75,15 @@ ui <- fluidPage(
           border-radius: 5px;
           display: inline-block;
       }
+      .dcl-example-table th, .dcl-example-table td {
+        vertical-align: middle;
+        font-weight: bold;
+        font-size: 1.2em;
+      }
+      .dcl-A { background-color: #d1ecf1; }
+      .dcl-B { background-color: #d4edda; }
+      .dcl-C { background-color: #f8d7da; }
+      .dcl-D { background-color: #fff3cd; }
       .decision-box-option {
         border: 2px dashed #0d6efd; /* Borde azul de Bootstrap 'primary' */
         padding: 8px;
@@ -84,25 +93,39 @@ ui <- fluidPage(
       }
       .content-row {
           display: grid;
-          grid-template-columns: 3fr 1fr;
+          grid-template-columns: 2.5fr 1fr;
           gap: 2em;
           margin-bottom: 2em;
-          overflow: hidden;
+          align-items: stretch; 
+      }
+      .main-content {
+          /* Esta clase se aplicará al div que contiene el texto principal */
+          /* No necesita estilos especiales por ahora, pero es bueno tenerla definida */
       }
       .note-cloud {
           background: #e0f7fa;
-          border-radius: 1.5em;
-          padding: 1.2em;
-          margin: 1em auto;
-          max-width: 300px;
-          position: relative;
-          box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-          transition: transform 0.2s;
+          border-radius: 1em; /* Un radio de borde más sutil */
+          padding: 1.5em;
+          box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+          
+          /* --- INICIO DE LA CORRECCIÓN CLAVE --- */
+          display: flex;
+          flex-direction: column;
+          /* --- FIN DE LA CORRECCIÓN CLAVE --- */
+
+          /* Eliminamos margin y max-width para que se ajuste a la cuadrícula */
+          /* margin: 1em auto; */
+          /* max-width: 300px; */
+
+          position: relative; /* Mantenemos esto para el pseudo-elemento de la cola */
+          transition: transform 0.2s, box-shadow 0.2s;
       }
       .note-cloud:hover {
           transform: translateY(-5px);
+          box-shadow: 0 6px 12px rgba(0,0,0,0.12);
       }
       .note-cloud:after {
+          /* La cola de la nube de diálogo */
           content: '';
           position: absolute;
           bottom: -15px;
@@ -115,6 +138,7 @@ ui <- fluidPage(
           color: #00796b;
           display: block;
           margin-bottom: 0.5em;
+          font-size: 1.1em; /* Hacer el título un poco más grande */
       }
       .small-diagram {
           text-align: center;
