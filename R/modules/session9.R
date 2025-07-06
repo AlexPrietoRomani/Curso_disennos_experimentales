@@ -97,19 +97,42 @@ session9UI <- function(id) {
                     )
                 ),
                 tags$hr(),
-                # ---------------------------------------------------------------
-                # Subsección 1.2: El Problema del 'Ruido' Inicial
-                # ---------------------------------------------------------------
-                h4(class = "section-header", "1.2 El Problema del 'Ruido' Inicial y el Rol de la Covariable"),
+                # --------------------------------------------------------------------------------------
+                # Subsección 1.2: El Problema del 'Ruido' Inicial y el Poder de la Covariable
+                # --------------------------------------------------------------------------------------
+                h4(class = "section-header", "1.2 Identificando el 'Ruido' Medible: El Rol de la Covariable"),
                 p(
-                    "El bloqueo controla la variación espacial, pero la variación inherente a las unidades experimentales persiste. Si esta variación inicial está correlacionada con nuestra respuesta final, actúa como 'ruido' estadístico."
+                    "El bloqueo es nuestra herramienta para controlar la variación ", strong("espacial"), " (gradientes). Pero, ¿qué pasa con la variación ", strong("inicial"), " que cada unidad experimental trae consigo? Esta variación preexistente, si está relacionada con nuestra variable de respuesta, actúa como un 'ruido de fondo' que dificulta escuchar la 'señal' de nuestros tratamientos."
                 ),
-                tags$div(class = "note-cloud",
-                    tags$strong("Ejemplos de Covariables en Agronomía:"),
-                    tags$ul(
-                        tags$li(strong("Rendimiento del cultivo (Y):"), " La covariable (X) podría ser la población de plantas al inicio, la altura inicial, o el contenido de materia orgánica del suelo."),
-                        tags$li(strong("Ganancia de peso en animales (Y):"), " La covariable (X) es casi siempre el peso inicial del animal."),
-                        tags$li(strong("Control de plagas (Y):"), " La covariable (X) sería la infestación basal de la plaga antes de aplicar los insecticidas.")
+
+                tags$div(class = "content-row",
+                    # Columna para la explicación y ejemplos
+                    tags$div(class = "main-content",
+                        p("Una ", strong("covariable"), " (X) es precisamente eso: una variable continua que medimos, que no es afectada por nuestros tratamientos, y que creemos que tiene una relación lineal con nuestra variable de respuesta final (Y)."),
+                        p("Al medirla (generalmente antes de aplicar los tratamientos), podemos usarla para ajustar matemáticamente nuestros resultados."),
+                        
+                        tags$h5("Ejemplos Clásicos de Covariables en Agronomía:"),
+                        tags$ul(
+                            tags$li(
+                                strong("Ensayo de Rendimiento (Y):"), " La covariable (X) podría ser el ", em("número de plantas emergidas por parcela"), ". Es lógico pensar que parcelas que comienzan con más plantas tenderán a rendir más, independientemente del fertilizante aplicado."
+                            ),
+                            tags$li(
+                                strong("Ensayo de Ganancia de Peso en Ganado (Y):"), " La covariable (X) es el ", em("peso inicial del animal."), " Un animal que ya es más pesado probablemente ganará peso de manera diferente a uno más liviano."
+                            ),
+                            tags$li(
+                                strong("Ensayo de Control de Plagas (Y = % de daño final):"), " La covariable (X) sería la ", em("infestación basal de la plaga."), " Una planta que ya tiene muchos insectos sufrirá un daño final diferente a una que comienza casi limpia."
+                            )
+                        )
+                    ),
+                    
+                    # Columna para el gráfico conceptual
+                    tags$div(class = "note-cloud text-center",
+                        tags$strong("Visualizando el Problema del Ruido"),
+                        # plotOutput para el gráfico conceptual
+                        plotOutput(ns("ancova_noise_plot"), height="250px"),
+                        p(class="small text-muted mt-2",
+                        "Sin ajuste, la gran superposición entre los grupos (debido al 'ruido' de la covariable) hace que parezca que no hay diferencia entre los tratamientos."
+                        )
                     )
                 ),
                 tags$hr(),
@@ -567,7 +590,36 @@ session9Server  <- function(input, output, session) {
     ns <- session$ns
     
     # --- LÓGICA PARA LA PESTAÑA 1: ANCOVA ---
-    
+    ### ---- Subsección 1.2 ----
+    # Gráfico conceptual que muestra el problema del 'ruido' de la covariable
+    output$ancova_noise_plot <- renderPlot({
+        set.seed(3)
+        n_per_group <- 30
+        
+        # Simular datos donde el efecto del tratamiento es pequeño y el de la covariable es grande
+        df <- data.frame(
+            Tratamiento = factor(rep(c("Control", "Tratado"), each = n_per_group)),
+            # Efecto de la covariable (ruido grande)
+            Efecto_Covariable = rep(rnorm(n_per_group, mean = 0, sd = 10), 2),
+            # Efecto real del tratamiento (señal pequeña)
+            Efecto_Tratamiento = rep(c(0, 3), each = n_per_group)
+        )
+        
+        # La respuesta final es la suma de los efectos
+        df$Respuesta_Y <- df$Efecto_Covariable + df$Efecto_Tratamiento + rnorm(n_per_group*2, 0, 2)
+        
+        ggplot(df, aes(x = Tratamiento, y = Respuesta_Y, fill = Tratamiento)) +
+            geom_boxplot(alpha = 0.6) +
+            geom_jitter(width = 0.2, alpha = 0.4) +
+            theme_minimal(base_size = 12) +
+            theme(legend.position = "none") +
+            labs(
+                y = "Respuesta Final (Y)",
+                title = "Efecto del Tratamiento 'Oculto' por el Ruido"
+            )
+    })
+
+    ### ---- Subsección 1.5 ----
     ancova_sim_results <- eventReactive(input$run_ancova_sim, {
     
         set.seed(as.integer(Sys.time()))
