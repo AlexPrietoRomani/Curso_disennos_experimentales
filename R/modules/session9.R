@@ -14,46 +14,85 @@ session9UI <- function(id) {
                 # ---------------------------------------------------------------
                 # Subsección 1.1: ¿Qué es ANCOVA y cómo se diferencia?
                 # ---------------------------------------------------------------
-                h4(class = "section-header", "1.1 ¿Qué es ANCOVA y cómo se diferencia de ANOVA y MANOVA?"),
+                h4(class = "section-header", "1.1 ANCOVA: El Puente entre ANOVA y Regresión"),
                 p(
-                    "El Análisis de Covarianza (ANCOVA) es una poderosa técnica híbrida que fusiona la comparación de medias del ANOVA con la modelización de relaciones de la regresión lineal. Su objetivo principal es ", strong("aumentar la precisión de un experimento al reducir el error experimental.")
+                    "El Análisis de Covarianza (ANCOVA) es una de las técnicas más potentes y prácticas en la experimentación agronómica. No es simplemente otro tipo de ANOVA; es una fusión inteligente que combina la ", strong("comparación de grupos (ANOVA)"), " con la ", strong("modelización de relaciones (Regresión Lineal).")
                 ),
-                
+
+                # --- Visualización Conceptual ---
                 tags$div(class="card border-primary mb-4",
+                    tags$div(class="card-header bg-primary text-white", strong("La Idea Central: Limpiar el 'Ruido' para Ver la 'Señal'")),
                     tags$div(class="card-body",
-                        h5(class="card-title text-center", "La Idea Central: Aislar el Efecto del Tratamiento"),
-                        p(class="text-center", "Imagina que el rendimiento total que observas (Y) es una mezcla de tres cosas: el ", strong("efecto real de tu tratamiento,"), " el ", strong("efecto de una condición inicial medible"), " (la covariable, ej. humedad del suelo), y el ", strong("ruido aleatorio."), " El ANCOVA es la herramienta que nos permite 'restar' matemáticamente el efecto de la covariable para poder ver el efecto del tratamiento de forma mucho más clara.")
+                        h5(class="card-title text-center", "Descomponiendo la Variabilidad del Rendimiento"),
+                        
+                        # Diagrama de flujo visual
+                        tags$div(class="d-flex justify-content-center align-items-center flex-wrap",
+                            tags$div(class="alert alert-secondary m-2 text-center", 
+                                strong("Rendimiento Observado (Y)"), br(),
+                                em("La mezcla total")
+                            ),
+                            tags$i(class="bi bi-arrow-right-short fa-2x mx-2 d-none d-md-block"), # Flecha visible en escritorio
+                            
+                            # Usar un div para agrupar los componentes
+                            tags$div(
+                                tags$div(class="d-flex justify-content-center align-items-center flex-wrap",
+                                    tags$div(class="alert alert-info m-2 text-center", strong("Efecto del Tratamiento"), br(), em("La 'Señal' que buscamos")),
+                                    tags$i(class="bi bi-plus fa-2x mx-2"),
+                                    tags$div(class="alert alert-warning m-2 text-center", strong("Efecto de la Covariable"), br(), em("El 'Ruido' que podemos medir y restar")),
+                                    tags$i(class="bi bi-plus fa-2x mx-2"),
+                                    tags$div(class="alert alert-danger m-2 text-center", strong("Error Aleatorio"), br(), em("El 'Ruido' impredecible"))
+                                )
+                            )
+                        ),
+                        p(class="text-center mt-3", "El ANCOVA es la herramienta que nos permite aislar y remover el 'Efecto de la Covariable', permitiéndonos hacer una prueba más limpia y potente sobre el 'Efecto del Tratamiento'.")
                     )
                 ),
-                
-                tags$h5("Diferencias Clave con ANOVA y MANOVA"),
-                tags$table(class="table table-bordered table-hover", style="vertical-align: middle;",
-                    tags$thead(class="table-light",
-                        tags$tr(
-                            tags$th("Técnica"),
-                            tags$th("Variables de Respuesta (Y)"),
-                            tags$th("Variables Predictoras"),
-                            tags$th("Pregunta Principal que Responde")
+
+                # --- Comparación de Técnicas ---
+                h4(class = "section-header", "Ubicando el ANCOVA en el Universo de los Modelos Lineales"),
+                p("Entender la estructura de entrada y la pregunta que responde cada técnica es clave para no confundirlas."),
+
+                fluidRow(
+                    # Tarjeta para ANOVA
+                    column(4,
+                        tags$div(class="card h-100",
+                            tags$div(class="card-header text-center", h5(strong("ANOVA"))),
+                            tags$div(class="card-body",
+                                p(strong("Respuesta (Y):"), " UNA (continua)"),
+                                p(strong("Predictor (X):"), " Un factor CATEGÓRICO (Tratamiento)"),
+                                hr(),
+                                p(class="text-center", icon("question-circle", "fa-2x text-primary")),
+                                p(class="text-center", em("¿Son diferentes las medias de los grupos?"))
+                            )
                         )
                     ),
-                    tags$tbody(
-                        tags$tr(
-                            tags$td(strong("ANOVA")),
-                            tags$td("UNA (continua)"),
-                            tags$td("Un factor categórico (Tratamiento)"),
-                            tags$td(em("¿Son diferentes las medias de los grupos?"))
-                        ),
-                        tags$tr(
-                            tags$td(strong("ANCOVA")),
-                            tags$td("UNA (continua)"),
-                            tags$td(tagList("Un factor categórico (Tratamiento)", br(), strong("+ UNA o más covariables (continuas)"))),
-                            tags$td(em("Después de ajustar por la covariable, ¿son diferentes las medias de los grupos?"))
-                        ),
-                        tags$tr(
-                            tags$td(strong("MANOVA")),
-                            tags$td(strong("MÚLTIPLES (continuas)")),
-                            tags$td("Un factor categórico (Tratamiento)"),
-                            tags$td(em("¿Son diferentes los vectores de medias (centroides) de los grupos?"))
+                    # Tarjeta para ANCOVA (destacada)
+                    column(4,
+                        tags$div(class="card h-100 border-primary shadow",
+                            tags$div(class="card-header bg-primary text-white text-center", h5(strong("ANCOVA"))),
+                            tags$div(class="card-body",
+                                p(strong("Respuesta (Y):"), " UNA (continua)"),
+                                p(strong("Predictor (X):"), tagList(
+                                    "Un factor CATEGÓRICO (Tratamiento)", br(),
+                                    strong("+"), " UNA o más COVARIABLES (continuas)")
+                                ),
+                                hr(),
+                                p(class="text-center", icon("question-circle", "fa-2x text-primary")),
+                                p(class="text-center", em("Después de ajustar por la covariable, ¿son diferentes las medias de los grupos?"))
+                            )
+                        )
+                    ),
+                    # Tarjeta para MANOVA
+                    column(4,
+                        tags$div(class="card h-100",
+                            tags$div(class="card-header text-center", h5(strong("MANOVA"))),
+                            tags$div(class="card-body",
+                                p(strong("Respuesta (Y):"), strong("MÚLTIPLES (continuas)")),
+                                p(strong("Predictor (X):"), " Un factor CATEGÓRICO (Tratamiento)"),
+                                hr(),
+                                p(class="text-center", icon("question-circle", "fa-2x text-primary")),
+                                p(class="text-center", em("¿Son diferentes los vectores de medias (centroides) de los grupos?"))
+                            )
                         )
                     )
                 ),
