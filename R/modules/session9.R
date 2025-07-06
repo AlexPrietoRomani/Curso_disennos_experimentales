@@ -222,30 +222,82 @@ session9UI <- function(id) {
                     p("Si las líneas de regresión no son paralelas, significa que existe una ", strong("interacción significativa entre la covariable y el tratamiento."), " Esto es un resultado interesante por sí mismo. Significa que el efecto de la condición inicial (ej. fósforo en el suelo) es diferente para cada tratamiento. En este caso, el ANCOVA tradicional no es el modelo adecuado, y se deben usar modelos más complejos que incluyan explícitamente este término de interacción.")
                 ),
                 tags$hr(),
-                # ---------------------------------------------------------------
-                # Subsección 1.4: Ejemplo Práctico en R
-                # ---------------------------------------------------------------
-                h4(class = "section-header", "1.4 Ejemplo Práctico: Ajustando el Crecimiento de Plantas"),
-                p("Usaremos el dataset `weight` del paquete `agricolae`, que contiene datos del peso de plantas bajo diferentes tratamientos. Usaremos la altura inicial (`cov1`) como covariable para ajustar el peso final (`yield`)."),
-                tags$pre(class="r-code",
-                    htmltools::HTML(
-                        "library(agricolae)\n",
-                        "data(growth)\n\n",
-                        "# Modelo ANOVA simple (sin covariable)\n",
-                        "modelo_anova <- aov(yield ~ treat, data = growth)\n",
-                        "cat('--- Tabla ANOVA ---\\n')\n",
-                        "print(summary(modelo_anova))\n\n",
+                # --------------------------------------------------------------------------------------
+                # Subsección 1.4: Caso de Estudio en R - Ajustando la Ganancia de Peso en Terneros
+                # --------------------------------------------------------------------------------------
+                h4(class = "section-header", "1.4 Caso de Estudio en R: Ajustando la Ganancia de Peso en Terneros"),
+                p(
+                    "Ahora, apliquemos todo lo que hemos aprendido a un conjunto de datos simulado que representa un escenario agronómico común. En este experimento, se evaluó el efecto de dos dietas nuevas (`Dieta Alta Proteína`, `Dieta Alta Energía`) en comparación con una `Dieta Control` sobre el peso final (`peso_final`) de un grupo de terneros. La altura inicial de cada ternero (`peso_inicial`) se midió antes de comenzar el ensayo y se usará como covariable."
+                ),
+                p(
+                    strong("La pregunta de investigación es:"), " Después de controlar el efecto del peso inicial de los terneros, ¿existe una diferencia significativa en el peso final entre las dietas?"
+                ),
+
+                # Usaremos pestañas para guiar el análisis paso a paso
+                navset_card_pill(
+                    header = tags$h5("Flujo de Análisis del ANCOVA"),
+                    
+                    # Pestaña 1: Exploración y Verificación de Supuestos
+                    nav_panel(
+                        "Paso 1: Exploración y Supuestos",
+                        h6("Visualizando la Relación Covariable-Respuesta"),
+                        p("Primero, verificamos si existe una relación lineal entre la covariable (`peso_inicial`) y la respuesta (`peso_final`). También verificamos visualmente el supuesto de homogeneidad de pendientes."),
                         
-                        "# Modelo ANCOVA (ajustando por altura inicial 'cov1')\n",
-                        "modelo_ancova <- aov(yield ~ cov1 + treat, data = growth)\n",
-                        "cat('--- Tabla ANCOVA ---\\n')\n",
-                        "print(summary(modelo_ancova))\n\n",
+                        plotOutput(ns("ancova_case_study_plot")),
                         
-                        "# Cálculo de la Eficiencia Relativa\n",
-                        "cme_anova <- anova(modelo_anova)['Residuals', 'Mean Sq']\n",
-                        "cme_ancova <- anova(modelo_ancova)['Residuals', 'Mean Sq']\n",
-                        "eficiencia_relativa <- cme_anova / cme_ancova\n",
-                        "cat(paste0('\\nEficiencia Relativa (ER): ', round(eficiencia_relativa, 2)))"
+                        h6("Interpretación del Gráfico:"),
+                        tags$ul(
+                            tags$li("Se observa una fuerte tendencia positiva general: terneros que comenzaron más pesados tienden a terminar más pesados. Esto confirma que `peso_inicial` es una excelente candidata para ser una covariable."),
+                            tags$li("Las líneas de regresión para cada dieta son ", strong("aproximadamente paralelas."), " Esto sugiere que el supuesto de homogeneidad de pendientes se cumple, lo que nos permite proceder con el ANCOVA.")
+                        )
+                    ),
+                    
+                    # Pestaña 2: ANVA sin ajuste
+                    nav_panel(
+                        "Paso 2: ANOVA Simple (Sin Ajuste)",
+                        p("Primero, realizamos un ANOVA simple, ignorando la covariable. Este es nuestro análisis 'base' o de referencia."),
+                        tags$pre(class="r-code",
+                            htmltools::HTML(
+                                "# Modelo ANOVA simple (ignora el peso inicial)\n",
+                                "modelo_anova <- aov(peso_final ~ dieta, data = datos_simulados)"
+                            )
+                        ),
+                        h6("Tabla ANOVA:"),
+                        verbatimTextOutput(ns("ancova_case_study_anova_out")),
+                        h6("Interpretación:"),
+                        p("Con esta simulación, es probable que el p-valor para la `dieta` sea > 0.05. Concluiríamos (erróneamente) que no hay diferencias, porque el 'ruido' del peso inicial es muy grande.")
+                    ),
+                    
+                    # Pestaña 3: ANCOVA con ajuste
+                    nav_panel(
+                        "Paso 3: ANCOVA (Con Ajuste)",
+                        p("Ahora, realizamos el ANCOVA, añadiendo la covariable (`peso_inicial`) al modelo para 'limpiar' el error."),
+                        tags$pre(class="r-code",
+                            htmltools::HTML(
+                                "# Modelo ANCOVA (ajusta por el peso inicial)\n",
+                                "modelo_ancova <- aov(peso_final ~ peso_inicial + dieta, data = datos_simulados)"
+                            )
+                        ),
+                        h6("Tabla ANCOVA:"),
+                        verbatimTextOutput(ns("ancova_case_study_ancova_out")),
+                        h6("Interpretación:"),
+                        tags$ul(
+                            tags$li(strong("Fila `peso_inicial`:"), " El p-valor muy bajo confirma que la covariable está significativamente relacionada con la respuesta. ¡Ajustar por ella fue útil!"),
+                            tags$li(strong("Fila `dieta`:"), " Este es el resultado clave. Después de remover el efecto del peso inicial, el p-valor para `dieta` ahora debería ser significativo. ¡El ANCOVA ha revelado un efecto que el ANOVA no pudo ver!")
+                        )
+                    ),
+                    
+                    # Pestaña 4: Eficiencia y Conclusión
+                    nav_panel(
+                        "Paso 4: Eficiencia y Conclusión",
+                        h6("Cálculo de la Eficiencia Relativa (ER)"),
+                        p("Finalmente, cuantificamos la ganancia en precisión."),
+                        verbatimTextOutput(ns("ancova_case_study_er_out")),
+                        h6("Conclusión Final:"),
+                        div(class="alert alert-success",
+                            icon("trophy"),
+                            " El ANCOVA fue ", strong(textOutput(ns("er_text_conclusion"), inline=TRUE)), " más eficiente que el ANOVA simple. Al medir y ajustar por el peso inicial de los terneros, pudimos reducir el error experimental lo suficiente como para detectar diferencias significativas entre las dietas que de otro modo habrían pasado desapercibidas."
+                        )
                     )
                 ),
                 tags$hr(),
@@ -739,6 +791,102 @@ session9Server  <- function(input, output, session) {
             theme_minimal(base_size = 11) +
             labs(x="Covariable (X)", y="Respuesta (Y)") +
             theme(strip.text = element_text(face="bold"), legend.position = "bottom")
+    })
+
+    ### ---- Subsección 1.4 ----
+    # Pre-calcular los modelos para no repetirlos en cada output
+    case_study_models <- reactive({
+        
+        # --- INICIO DE LA CORRECCIÓN DEFINITIVA ---
+        # 1. Simular un dataset desde cero que se ajuste a nuestra historia.
+        #    Escenario: Ensayo de ganancia de peso en terneros.
+        set.seed(42) # Usamos una semilla fija para que el resultado sea siempre el mismo.
+        n_por_grupo <- 15
+        
+        datos_simulados <- data.frame(
+            # Creamos el factor de tratamiento
+            dieta = factor(rep(c("Control", "Dieta Alta Proteína", "Dieta Alta Energía"), each = n_por_grupo))
+        ) %>%
+        mutate(
+            # Creamos la covariable: Peso Inicial de los terneros
+            peso_inicial = rnorm(n(), mean = 250, sd = 15),
+            
+            # Definimos el efecto real de cada dieta
+            efecto_dieta = case_when(
+                dieta == "Control" ~ 0,
+                dieta == "Dieta Alta Proteína" ~ 8,  # Un efecto sutil
+                dieta == "Dieta Alta Energía"  ~ 12  # Un efecto un poco mayor
+            ),
+            
+            # La respuesta final (Peso Final) depende del peso inicial, el efecto de la dieta y un error
+            peso_final = 300 + (peso_inicial - 250) * 1.1 + efecto_dieta + rnorm(n(), mean = 0, sd = 10)
+        )
+        # --- FIN DE LA CORRECCIÓN DEFINITIVA ---
+        
+        # Ajustar ambos modelos usando el nuevo dataframe simulado
+        modelo_anova <- aov(peso_final ~ dieta, data = datos_simulados)
+        modelo_ancova <- aov(peso_final ~ peso_inicial + dieta, data = datos_simulados)
+        
+        # Calcular ER
+        cme_anova <- anova(modelo_anova)['Residuals', 'Mean Sq']
+        cme_ancova <- anova(modelo_ancova)['Residuals', 'Mean Sq']
+        
+        validate(
+            need(!is.na(cme_anova) && !is.na(cme_ancova) && cme_ancova != 0, 
+                "No se pudieron calcular los errores para la Eficiencia Relativa.")
+        )
+        
+        eficiencia_relativa <- cme_anova / cme_ancova
+        
+        list(
+            datos = datos_simulados,
+            anova_summary = summary(modelo_anova),
+            ancova_summary = anova(modelo_ancova),
+            cme_anova = cme_anova,
+            cme_ancova = cme_ancova,
+            er = eficiencia_relativa
+        )
+    })
+
+    # Gráfico para la Pestaña 1 del caso de estudio
+    output$ancova_case_study_plot <- renderPlot({
+        res <- case_study_models(); req(res)
+        ggplot(res$datos, aes(x = peso_inicial, y = peso_final, color = dieta)) +
+            geom_point(alpha = 0.7, size = 3) +
+            geom_smooth(method = "lm", se = FALSE, linewidth = 1) +
+            labs(
+                title = "Relación entre Peso Inicial (Covariable) y Peso Final (Respuesta)",
+                x = "Peso Inicial (kg)",
+                y = "Peso Final (kg)",
+                color = "Dieta"
+            ) +
+            theme_minimal(base_size = 14)
+    })
+
+    # Salida para la tabla ANOVA
+    output$ancova_case_study_anova_out <- renderPrint({
+        res <- case_study_models(); req(res)
+        print(res$anova_summary)
+    })
+
+    # Salida para la tabla ANCOVA
+    output$ancova_case_study_ancova_out <- renderPrint({
+        res <- case_study_models(); req(res)
+        print(res$ancova_summary)
+    })
+
+    # Salida para el cálculo de ER
+    output$ancova_case_study_er_out <- renderPrint({
+        res <- case_study_models(); req(res)
+        cat(paste0("ER = CME_ANOVA / CME_ANCOVA\n"))
+        cat(paste0("ER = ", round(res$cme_anova, 2), " / ", round(res$cme_ancova, 2), "\n"))
+        cat(paste0("ER = ", round(res$er, 2)))
+    })
+
+    # Salida de texto para la conclusión
+    output$er_text_conclusion <- renderText({
+        res <- case_study_models(); req(res)
+        paste0(round((res$er - 1) * 100, 1), "%")
     })
 
     ### ---- Subsección 1.5 ----
