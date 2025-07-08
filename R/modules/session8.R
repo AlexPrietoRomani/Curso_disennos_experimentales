@@ -400,7 +400,7 @@ session8UI <- function(id) {
                 )
             ),
 
-            # ===== PESTAÑA 3: Los 4 Ingredientes del Poder (VERSIÓN MEJORADA) =====
+            # ===== PESTAÑA 3: Los 4 Ingredientes del Poder =====
             nav_panel(
                 title = "3. Los 4 Ingredientes del Poder",
                 
@@ -480,44 +480,52 @@ session8UI <- function(id) {
                 )
             ),
 
-            # ===== PESTAÑA 4: Calculadora de Poder y Muestra =====
+            # ===== PESTAÑA 4: Calculadora de Poder y Tamaño de Muestra =====
             nav_panel(
                 title = "4. Calculadora de Poder y Muestra",
-                tags$h4(class = "section-header", "Planificación Interactiva para ANOVA de una vía (DCA)"),
-                tags$p(
+                
+                h4(class = "section-header", "Planificación Interactiva para ANOVA de una vía (DCA)"),
+                p(
                     "Esta calculadora te permite realizar un análisis de poder ", em("a priori"), " para determinar el tamaño de muestra necesario para tu experimento. Manipula los 'ingredientes' del poder y observa el impacto directo en tus requerimientos de replicaciones y en la curva de poder."
                 ),
                 
+                # --- Contexto del Escenario ---
+                tags$div(class="card bg-light mb-4",
+                    tags$div(class="card-body",
+                        h5(icon("seedling"), " Escenario de Planificación: Ensayo de Variedades de Maíz"),
+                        p("Imagina que eres un mejorador genético y quieres comparar un conjunto de nuevas variedades de maíz contra un control. Tu objetivo es determinar cuántas repeticiones (parcelas por variedad) necesitas para tener una buena probabilidad (80%) de detectar una diferencia de rendimiento que consideras agronómicamente relevante.")
+                    )
+                ),
+
                 sidebarLayout(
                     sidebarPanel(
                         width = 4,
-                        tags$h5("Parámetros de Planificación"),
-                        
-                        # --- Panel 1: Parámetros del Experimento ---
-                        sliderInput(ns("power_k"), "Número de Tratamientos a Comparar (k):", 
+                        tags$h5("1. Parámetros del Experimento"),
+                        sliderInput(ns("power_k"), "Número de Variedades a Comparar (k):", 
                                     min = 2, max = 10, value = 4, step = 1),
                         
-                        # --- Panel 2: Definición del Tamaño del Efecto ---
+                        tags$h5("2. Tamaño del Efecto a Detectar (f)"),
+                        p(class="text-muted small", "Define la 'señal' que quieres ser capaz de detectar."),
                         navset_card_pill(
                             id = ns("f_method_selector"),
                             nav_panel("Por Convención",
-                                selectInput(ns("power_f_conv"), "Tamaño del Efecto Esperado (f):", 
+                                selectInput(ns("power_f_conv"), "Tamaño del Efecto Esperado:", 
                                             choices = c("Pequeño (f=0.10)" = 0.10, 
                                                         "Mediano (f=0.25)" = 0.25,
                                                         "Grande (f=0.40)" = 0.40),
                                             selected = 0.25)
                             ),
-                            nav_panel("Por Medias",
-                                p(class="text-muted", "Define la diferencia mínima relevante."),
-                                textInput(ns("power_means"), "Medias Esperadas (separadas por coma)", value = "5, 5.5, 5.5, 5"),
-                                numericInput(ns("power_sd"), "Desv. Estándar Dentro del Grupo (σ)", value = 0.8, min = 0.1)
+                            nav_panel("Por Medias Esperadas",
+                                p(class="text-muted small", "Define la diferencia mínima relevante."),
+                                textInput(ns("power_means"), "Medias de Rendimiento Esperadas (t/ha), separadas por coma", value = "8, 8.5, 8.5, 8"),
+                                numericInput(ns("power_sd"), "Desviación Estándar del Rendimiento (σ)", value = 1.2, min = 0.1)
                             )
                         ),
                         
-                        # --- Panel 3: Parámetros de la Prueba ---
+                        tags$h5("3. Parámetros de la Prueba Estadística"),
                         sliderInput(ns("power_alpha"), "Nivel de Significancia (α):", 
                                     min = 0.01, max = 0.10, value = 0.05, step = 0.01),
-                        sliderInput(ns("power_target"), "Poder Deseado (1-β):", 
+                        sliderInput(ns("power_target"), "Poder Estadístico Deseado (1-β):", 
                                     min = 0.70, max = 0.99, value = 0.80, step = 0.01)
                     ),
                     mainPanel(
@@ -528,139 +536,159 @@ session8UI <- function(id) {
                             tags$div(class="card-body",
                                 fluidRow(
                                     column(6,
-                                        tags$h6("Parámetros de Entrada:"),
-                                        textOutput(ns("summary_text"))
+                                        h6(icon("sliders-h"), " Parámetros de Entrada"),
+                                        verbatimTextOutput(ns("summary_text")) # Usamos verbatim para un mejor formato
                                     ),
                                     column(6, style="border-left: 1px solid #ddd; text-align: center;",
-                                        tags$h6("Replicaciones Necesarias (n)"),
-                                        tags$p("Por cada tratamiento, necesitas aproximadamente:"),
-                                        tags$p(style="font-size: 3.5em; font-weight: bold; color: #0d6efd;", textOutput(ns("power_result_n"))),
-                                        tags$p(class="text-muted", textOutput(ns("total_n_text")))
+                                        h6(icon("users"), " Replicaciones Necesarias (n)"),
+                                        p("Por cada variedad, necesitas al menos:"),
+                                        tags$p(style="font-size: 4em; font-weight: bold; color: #0d6efd; line-height: 1;", textOutput(ns("power_result_n"))),
+                                        tags$h5(class="text-muted", textOutput(ns("total_n_text")))
                                     )
-                                )
+                                ),
+                                # Interpretación dinámica del resultado
+                                uiOutput(ns("power_interpretation_ui"))
                             )
                         ),
                         
                         # --- Curva de Poder ---
                         tags$h5("Curva de Poder"),
-                        tags$p("Este gráfico muestra cómo el poder de tu experimento aumenta a medida que añades más replicaciones. Observa la 'ley de rendimientos decrecientes': las primeras replicaciones aportan mucho poder, pero el beneficio disminuye a medida que el poder se acerca al 100%."),
+                        p("Este gráfico muestra cómo el poder de tu experimento aumenta a medida que añades más replicaciones. Observa la 'ley de rendimientos decrecientes': las primeras replicaciones aportan mucho poder, pero el beneficio disminuye a medida que te acercas al 100%."),
                         plotOutput(ns("power_curve_plot"))
                     )
                 )
             ),
             
-            # ===== PESTAÑA 5: Poder para Diseños Avanzados =====
+            # ===== PESTAÑA 5: Poder para Diseños Avanzados: De las Fórmulas a la Simulación =====
             nav_panel(
                 title = "5. Poder para Diseños Avanzados",
                 
-                tags$h4(class = "section-header", "5.1 Limitaciones de las Fórmulas Simples"),
-                tags$p(
-                    "La calculadora que exploramos en la pestaña anterior es perfecta para un ANOVA de una vía (DCA). Sin embargo, en cuanto introducimos bloques (DBCA) o múltiples factores (Factoriales, Split-Plot), la ecuación del poder se complica enormemente. ¿Por qué? Porque ahora la varianza se particiona en más componentes, y el 'error' que se usa como denominador en las pruebas F cambia dependiendo del efecto que se esté probando (Stroup, 1989)."
+                h4(class = "section-header", "5.1 La Escalada de la Complejidad: ¿Por qué no sirve la calculadora simple?"),
+                p(
+                    "La calculadora interactiva que usamos es una herramienta fantástica para el diseño más simple: el ANOVA de una vía (DCA). Sin embargo, en cuanto añadimos complejidad a nuestro diseño, como bloques (DBCA), múltiples factores (Factoriales) o estructuras anidadas (Split-Plot), la simple fórmula de poder deja de ser suficiente."
                 ),
-                tags$p(
-                    "Calcular el poder para estos diseños requiere herramientas más sofisticadas. A continuación, exploramos las dos soluciones más comunes y potentes."
-                ),
-
-                hr(),
-                
-                # --- G*Power ---
-                tags$h4(class = "section-header", "5.2 Solución 1: Software Especializado (G*Power)"),
-                tags$p(
-                    "G*Power es un programa gratuito y el estándar de facto en muchas disciplinas para realizar análisis de poder. Su gran ventaja es que tiene menús pre-configurados para una gran variedad de pruebas estadísticas, incluyendo ANOVA con múltiples factores."
-                ),
-                tags$h5("Ejemplo: Cálculo de Poder para un ANOVA Factorial en G*Power"),
-                tags$p(
-                    "Imagina que quieres planificar un experimento factorial 2x3. En G*Power, seguirías estos pasos:"
-                ),
-                tags$div(class="row align-items-center",
-                    tags$div(class="col-md-6",
-                        tags$ol(
-                            tags$li(strong("Test family:"), " Seleccionas 'F tests'."),
-                            tags$li(strong("Statistical test:"), " Eliges 'ANOVA: Fixed effects, special, main effects and interactions'."),
-                            tags$li(strong("Type of power analysis:"), " Eliges 'A priori: Compute required sample size'."),
-                            tags$li(strong("Input Parameters:"), " Aquí introduces tus 'ingredientes':"),
-                            tags$ul(
-                                tags$li(tags$span(code("Effect size f"), ": Lo estimas como aprendimos en la Pestaña 2.")),
-                                tags$li(tags$span(code("α err prob"), ": Tu alfa (ej. 0.05).")),
-                                tags$li(tags$span(code("Power (1-β err prob)"), ": Tu poder deseado (ej. 0.80).")),
-                                tags$li(tags$span(code("Numerator df"), ": Los grados de libertad del efecto que te interesa (ej. para la interacción AxB, sería (a-1)(b-1)).")),
-                                tags$li(tags$span(code("Number of groups"), ": El número total de combinaciones de tratamiento (ej. 2x3 = 6 grupos)."))
-                            ),
-                            tags$li("Haces clic en ", strong("Calculate"), " y G*Power te dará el 'Total sample size' necesario.")
+                tags$div(class="card border-warning mb-4",
+                    tags$div(class="card-body",
+                        h5(class="card-title text-center", "El Problema Central: La Partición del Error"),
+                        p("Recuerda la lógica del ANOVA: particionamos la varianza total. En un DCA, solo hay dos destinos para la varianza: la que se debe al ", strong("Tratamiento"), " y la que se debe al ", strong("Error.")),
+                        p("Pero en un diseño más complejo como un Split-Plot, la varianza se divide en muchos más componentes: Bloque, Factor Principal, ", strong("Error (a)"), ", Factor Secundario, Interacción, y ", strong("Error (b)."), " La prueba F para el factor principal usa el Error (a) como denominador, mientras que la prueba para el factor secundario usa el Error (b)."),
+                        tags$blockquote(class="blockquote text-center",
+                            p(class="mb-0", "Calcular el poder para un efecto específico ahora requiere saber no solo su 'señal', sino también el 'ruido' específico del error contra el que se va a probar.")
                         )
+                    )
+                ),
+                p("Para manejar esta complejidad, necesitamos herramientas más sofisticadas."),
+
+                tags$hr(),
+
+                # --- Usaremos navset_card_pill para mostrar las dos soluciones ---
+                navset_tab(
+                    # --- Solución 1: G*Power ---
+                    nav_panel(
+                        "Solución 1: Software Especializado (G*Power)",
+                        
+                        h4(class="section-header mt-3", "G*Power: La Navaja Suiza del Análisis de Poder"),
+                        p(
+                            "G*Power es un programa gratuito, considerado el estándar en muchas disciplinas para realizar análisis de poder. Su gran ventaja es que contiene menús pre-configurados para una amplia gama de pruebas estadísticas, lo que simplifica enormemente el proceso."
+                        ),
+                        
+                        h5("Ejemplo Práctico: Planificar un ANOVA Factorial 2x3 en G*Power"),
+                        p(
+                            "Imagina que quieres planificar un experimento con 2 variedades y 3 dosis de fertilizante. En G*Power, el proceso es como rellenar un formulario:"
+                        ),
+                        tags$div(class="row align-items-center",
+                            tags$div(class="col-md-7",
+                                tags$ol(
+                                    tags$li(strong("Familia de Test:"), " Seleccionas 'F tests'."),
+                                    tags$li(strong("Test Estadístico:"), " Eliges 'ANOVA: Fixed effects, special, main effects and interactions'."),
+                                    tags$li(strong("Tipo de Análisis:"), " Seleccionas 'A priori: Compute required sample size' (Calcular tamaño de muestra requerido)."),
+                                    tags$li(strong("Parámetros de Entrada:"), " Aquí introduces los 4 ingredientes que ya conocemos:"),
+                                    tags$ul(
+                                        tags$li(icon("ruler-horizontal"), code("Effect size f")),
+                                        tags$li(icon("exclamation-triangle"), code("α err prob")),
+                                        tags$li(icon("bolt"), code("Power (1-β err prob)")),
+                                        tags$li(icon("list-ol"), code("Numerator df"), " (Grados de libertad del efecto que te interesa, ej. (a-1)(b-1) para la interacción)."),
+                                        tags$li(icon("users"), code("Number of groups"), " (Número total de combinaciones, ej. 2x3 = 6).")
+                                    ),
+                                    tags$li("Haces clic en ", strong("Calculate"), " y G*Power te dará el 'Total sample size' necesario.")
+                                )
+                            ),
+                            tags$div(class="col-md-5",
+                                tags$div(class="card",
+                                    plotOutput(ns("gpower_interface_plot"), height="400px"),
+                                    tags$div(class="card-footer small text-center", "Simulación de la interfaz de G*Power para el análisis de poder de un ANOVA.")
+                                )
+                            )
+                        ),
+                        tags$div(class="alert alert-success mt-3", icon("check-circle"), strong("Ventaja:"), " Rápido, fácil y fiable para diseños estándar como factoriales completos."),
+                        tags$div(class="alert alert-danger", icon("times-circle"), strong("Limitación:"), " No puede manejar diseños muy complejos con estructuras de error anidadas (como Split-Plot) o efectos aleatorios.")
                     ),
-                    tags$div(class="col-md-6",
-                        tags$img(src="images/gpower_screenshot.png", class="img-fluid border rounded", 
-                                alt="Captura de pantalla de la interfaz de G*Power para ANOVA")
+                    
+                    # --- Solución 2: Simulaciones ---
+                    nav_panel(
+                        "Solución 2: Simulación (El Enfoque Universal)",
+                        
+                        h4(class="section-header mt-3", "Simulación de Monte Carlo: Creando tu Propio Experimento miles de veces"),
+                        p(
+                            "Para los diseños más complejos de la vida real (Split-Plot, modelos mixtos), a menudo ninguna fórmula o software pre-configurado es suficiente. Aquí es donde los estadísticos modernos usan su herramienta más poderosa: la ", strong("simulación.")
+                        ),
+                        p("La lógica es increíblemente intuitiva y es como jugar a ser la 'naturaleza':"),
+                        
+                        # Diagrama de flujo mejorado
+                        tags$div(class="card-deck text-center mt-3",
+                            tags$div(class="card shadow-sm", div(class="card-body", icon("bullseye", "fa-2x text-primary"), h6("1. Define la 'Verdad'"), p(class="small", "Establece los efectos que esperas encontrar (medias, DE, correlaciones)."))),
+                            tags$div(class="card shadow-sm", div(class="card-body", icon("vials", "fa-2x text-info"), h6("2. Genera Datos"), p(class="small", "Crea un dataset falso en R que siga esa 'verdad' y el ruido esperado."))),
+                            tags$div(class="card shadow-sm", div(class="card-body", icon("chart-bar", "fa-2x text-success"), h6("3. Analiza"), p(class="small", "Aplica tu modelo (ej. ANOVA Split-Plot) a los datos falsos y guarda el p-valor."))),
+                            tags$div(class="card shadow-sm", div(class="card-body", icon("sync-alt", "fa-2x text-warning"), h6("4. Repite"), p(class="small", "Haz los pasos 2 y 3 miles de veces (ej. 5000)."))),
+                            tags$div(class="card bg-success text-white shadow", div(class="card-body", icon("trophy", "fa-2x"), h6("5. Calcula el Poder"), p(class="small", "El Poder es el porcentaje de veces que tu p-valor fue significativo (< α).")))
+                        ),
+                        
+                        p(class="mt-3", "Aunque escribir el código para una simulación requiere más esfuerzo, te da un control total y te permite calcular el poder para ", strong("CUALQUIER"), " diseño experimental, sin importar cuán complejo sea. Paquetes de R como ", code("Superpower"), " y ", code("simr"), " ayudan a automatizar este proceso."),
+
+                        tags$h5("Ejemplo Conceptual de Código para una Simulación de Poder"),
+                        tags$pre(class="r-code",
+                            htmltools::HTML(
+                                "# NO EJECUTAR - SOLO CONCEPTUAL\n\n",
+                                "# 1. Definir parámetros\n",
+                                "n_simulaciones <- 5000\n",
+                                "n_por_grupo <- 15 # El tamaño de muestra que queremos probar\n",
+                                "efecto_real <- 0.5 # La diferencia que esperamos\n",
+                                "p_valores <- numeric(n_simulaciones) # Vector para guardar resultados\n\n",
+                                "# 4. Bucle de simulación\n",
+                                "for (i in 1:n_simulaciones) {\n",
+                                "  # 2. Generar datos falsos\n",
+                                "  datos_falsos <- data.frame(\n",
+                                "    respuesta = c(rnorm(n_por_grupo, mean = 0, sd = 1),\n",
+                                "                  rnorm(n_por_grupo, mean = efecto_real, sd = 1)),\n",
+                                "    grupo = factor(rep(c('Control', 'Tratado'), each = n_por_grupo))\n",
+                                "  )\n\n",
+                                "  # 3. Analizar y guardar p-valor\n",
+                                "  modelo <- t.test(respuesta ~ grupo, data = datos_falsos)\n",
+                                "  p_valores[i] <- modelo$p.value\n",
+                                "}\n\n",
+                                "# 5. Calcular el poder\n",
+                                "poder_estimado <- mean(p_valores < 0.05)\n",
+                                "print(paste('Poder estimado para n =', n_por_grupo, 'es:', poder_estimado))"
+                            )
+                        ),
+                        tags$div(class="alert alert-success mt-3", icon("check-circle"), strong("Ventaja:"), " Infinitamente flexible. Es el único método que funciona para todos los diseños y modelos complejos."),
+                        tags$div(class="alert alert-danger", icon("times-circle"), strong("Limitación:"), " Requiere conocimientos de programación y una comprensión clara del modelo que se va a simular.")
                     )
                 ),
-                
-                tags$hr(),
 
-                # --- Simulaciones ---
-                tags$h4(class = "section-header", "5.3 Solución 2: Simulaciones de Monte Carlo (El Enfoque Universal)"),
-                tags$p(
-                    "Para los diseños más complejos, como los Split-Plot o modelos con efectos aleatorios, a menudo ni siquiera G*Power es suficiente. En estos casos, el enfoque más flexible y potente es ", strong("estimar el poder mediante simulación."), " La lógica es sorprendentemente intuitiva:"
-                ),
-                
-                tags$div(class="text-center",
-                    strong("Diagrama de Flujo de una Simulación de Poder")
-                ),
-                # Diagrama de flujo
-                # (Esto podría ser un gráfico más elegante, pero el texto funciona bien)
-                tags$div(class="card-deck text-center mt-3",
-                    tags$div(class="card", div(class="card-body", "1. Define tu Hipótesis (ej. Medias, DE, efectos esperados)")),
-                    tags$i(class="bi bi-arrow-right align-self-center fa-2x"),
-                    tags$div(class="card", div(class="card-body", "2. Genera un dataset falso basado en esa hipótesis")),
-                    tags$i(class="bi bi-arrow-right align-self-center fa-2x"),
-                    tags$div(class="card", div(class="card-body", "3. Analiza el dataset falso y guarda el p-valor")),
-                    tags$i(class="bi bi-arrow-right align-self-center fa-2x"),
-                    tags$div(class="card", div(class="card-body", "4. Repite los pasos 2 y 3 miles de veces (ej. 5000 veces)")),
-                    tags$i(class="bi bi-arrow-right align-self-center fa-2x"),
-                    tags$div(class="card bg-success text-white", div(class="card-body", "5. El Poder es la proporción de veces que el p-valor fue < α"))
-                ),
-                
-                tags$p(class="mt-3", "Aunque escribir el código para una simulación requiere más esfuerzo, te da un control total y te permite calcular el poder para ", em("cualquier"), " diseño experimental, sin importar cuán complejo sea. Paquetes de R como ", code("Superpower"), " automatizan este proceso para diseños factoriales."),
-
-                tags$h5("Ejemplo Conceptual de Código para una Simulación de Poder"),
-                tags$pre(class="r-code",
-                    htmltools::HTML(
-                        "# NO EJECUTAR - SOLO CONCEPTUAL\n\n",
-                        "# 1. Definir parámetros\n",
-                        "n_simulaciones <- 5000\n",
-                        "n_por_grupo <- 15 # El tamaño de muestra que queremos probar\n",
-                        "efecto_real <- 0.5 # La diferencia que esperamos\n",
-                        "p_valores <- numeric(n_simulaciones) # Vector para guardar resultados\n\n",
-                        "# 4. Bucle de simulación\n",
-                        "for (i in 1:n_simulaciones) {\n",
-                        "  # 2. Generar datos falsos\n",
-                        "  datos_falsos <- data.frame(\n",
-                        "    respuesta = c(rnorm(n_por_grupo, mean = 0, sd = 1),\n",
-                        "                  rnorm(n_por_grupo, mean = efecto_real, sd = 1)),\n",
-                        "    grupo = factor(rep(c('Control', 'Tratado'), each = n_por_grupo))\n",
-                        "  )\n\n",
-                        "  # 3. Analizar y guardar p-valor\n",
-                        "  modelo <- t.test(respuesta ~ grupo, data = datos_falsos)\n",
-                        "  p_valores[i] <- modelo$p.value\n",
-                        "}\n\n",
-                        "# 5. Calcular el poder\n",
-                        "poder_estimado <- mean(p_valores < 0.05)\n",
-                        "print(paste('Poder estimado para n =', n_por_grupo, 'es:', poder_estimado))"
-                    )
-                ),
-                
-                # --- Tabla Resumen ---
+                # --- Tabla Resumen Final ---
                 tags$hr(),
-                tags$h4(class="section-header", "5.4 Guía Rápida: ¿Qué Herramienta Usar?"),
-                tags$table(class="table table-striped", 
-                    tags$thead(
-                        tags$tr(tags$th("Diseño Experimental"), tags$th("Herramienta de Poder Recomendada"))
+                h4(class="section-header", "5.4 Guía Rápida: ¿Qué Herramienta de Poder Usar?"),
+                p("Basado en lo que hemos visto, aquí tienes una guía rápida para elegir tu herramienta de planificación:"),
+                tags$table(class="table table-striped table-hover", 
+                    tags$thead(class="table-light",
+                        tags$tr(tags$th("Si tu Diseño Experimental es..."), tags$th("Herramienta de Poder Recomendada"))
                     ),
                     tags$tbody(
-                        tags$tr(tags$td("DCA / ANOVA de una vía"), tags$td(tagList(code("pwr::pwr.anova.test"), " o G*Power"))),
-                        tags$tr(tags$td("DBCA"), tags$td("G*Power (usando ANOVA de una vía y ajustando 'n' para compensar los gl perdidos) o Simulación.")),
-                        tags$tr(tags$td("Factorial Completo"), tags$td(tagList("G*Power o el paquete de R ", code("Superpower"), " (que se basa en simulación)."))),
-                        tags$tr(tags$td("Split-Plot / Diseños Mixtos"), tags$td(strong("Simulación de Monte Carlo."), " Es el único método verdaderamente fiable y flexible para estos diseños."))
+                        tags$tr(tags$td(strong("DCA / ANOVA de una vía")), tags$td(tagList(icon("calculator", class="text-success"), " Calculadora simple (ej. ", code("pwr::pwr.anova.test"), ") o G*Power."))),
+                        tags$tr(tags$td(strong("DBCA")), tags$td(tagList(icon("laptop-code", class="text-info"), " G*Power (es una buena aproximación) o Simulación (más preciso)."))),
+                        tags$tr(tags$td(strong("Factorial Completo")), tags$td(tagList(icon("laptop-code", class="text-info"), " G*Power o paquetes de simulación en R como ", code("Superpower"), "."))),
+                        tags$tr(tags$td(strong("Split-Plot, Diseños Mixtos, etc.")), tags$td(tagList(icon("cogs", class="text-primary"), strong(" Simulación de Monte Carlo."), " Es el único método verdaderamente fiable y flexible.")))
                     )
                 )
             ),
@@ -1168,111 +1196,185 @@ session8Server <- function(input, output, session) {
     })
 
     # --- LÓGICA PARA LA PESTAÑA 4: CALCULADORA DE PODER ---
-    
-    # Reactive para calcular 'f' de Cohen
+
+    # Reactive para calcular 'f' de Cohen, ahora con validación
     f_calculada <- reactive({
         if (input$f_method_selector == "Por Convención") {
-            # Si se usa la convención, simplemente toma el valor del select input
             req(input$power_f_conv)
             return(as.numeric(input$power_f_conv))
         } else {
-            # Si se calcula por medias
-            req(input$power_means, input$power_sd)
-            # Procesar el string de medias
-            medias_vec <- as.numeric(unlist(strsplit(input$power_means, ",")))
+            req(input$power_means, input$power_sd > 0)
             
-            # Validar que el número de medias coincida con k
+            # Procesar el string de medias
+            medias_vec <- try(as.numeric(unlist(strsplit(input$power_means, ","))), silent = TRUE)
+            
+            # Validar que la entrada sea numérica y coincida con k
             validate(
+                need(!inherits(medias_vec, "try-error") && !any(is.na(medias_vec)), 
+                    "Error: Las medias deben ser números separados por comas."),
                 need(length(medias_vec) == input$power_k, 
-                     paste("Error: Proporcionaste", length(medias_vec), "medias, pero k =", input$power_k))
+                    paste("Error: Proporcionaste", length(medias_vec), "medias, pero k =", input$power_k, "."))
             )
             
-            # Calcular 'f'
             media_general <- mean(medias_vec)
             sigma_m <- sqrt(sum((medias_vec - media_general)^2) / length(medias_vec))
             f_val <- sigma_m / input$power_sd
             return(f_val)
         }
     })
-    
+
     # Reactive principal que hace el cálculo de poder
     power_calculation <- reactive({
-        req(input$power_k, f_calculada(), input$power_alpha, input$power_target)
+        # Requiere que f_calculada() sea válido
+        f_val <- f_calculada(); req(f_val)
         
         tryCatch({
             pwr::pwr.anova.test(
                 k = input$power_k,
-                f = f_calculada(),
+                f = f_val,
                 sig.level = input$power_alpha,
                 power = input$power_target
             )
         }, error = function(e) {
-            list(n = NA, error_msg = "No se puede alcanzar el poder deseado.")
+            # Esto sucede si el poder es inalcanzable con los parámetros dados
+            list(n = NA, error_msg = "No se puede alcanzar el poder deseado con este tamaño de efecto.")
         })
     })
-    
+
     # Salidas para la tarjeta de resumen
-    output$summary_text <- renderText({
-        paste0(
-            "Número de grupos (k): ", input$power_k, "\n",
-            "Tamaño del efecto (f): ", round(f_calculada(), 3), "\n",
-            "Nivel de significancia (α): ", input$power_alpha, "\n",
-            "Poder deseado (1-β): ", input$power_target
+    output$summary_text <- renderPrint({
+        f_val <- f_calculada(); req(f_val)
+        cat(
+            "Nº de Variedades (k):", input$power_k, "\n",
+            "Tamaño del Efecto (f):", round(f_val, 3), "\n",
+            "Nivel de Significancia (α):", input$power_alpha, "\n",
+            "Poder Deseado (1-β):", input$power_target
         )
     })
-    
+
     output$power_result_n <- renderText({
         calc <- power_calculation()
-        if (!is.na(calc$n)) ceiling(calc$n) else "Inalcanzable"
+        if (!is.na(calc$n)) ceiling(calc$n) else "N/A"
     })
-    
+
     output$total_n_text <- renderText({
         calc <- power_calculation()
         if (!is.na(calc$n)) {
             total_n <- ceiling(calc$n) * input$power_k
-            paste0("(Total de ", total_n, " unidades experimentales)")
+            paste0("(Total de ", total_n, " parcelas)")
         } else {
-            ""
+            "Efecto demasiado pequeño o error muy grande."
         }
     })
-    
+
+    # Interpretación dinámica del resultado
+    output$power_interpretation_ui <- renderUI({
+        calc <- power_calculation(); req(calc)
+        
+        if (is.na(calc$n)) {
+            return(div(class="alert alert-danger mt-3", "Con los parámetros actuales, es prácticamente imposible alcanzar el poder deseado. Considera buscar un efecto más grande, aumentar tu tolerancia al error (α), o aceptar un poder más bajo."))
+        }
+        
+        n_necesario <- ceiling(calc$n)
+        texto_interpretacion <- paste0(
+            "Para tener una probabilidad del ", input$power_target * 100, "% de detectar una diferencia con una magnitud de efecto de f = ", round(f_calculada(), 3),
+            ", necesitarás planificar un experimento con al menos ", strong(n_necesario), " repeticiones para cada una de tus ", input$power_k, " variedades."
+        )
+        
+        div(class="alert alert-light mt-3", HTML(texto_interpretacion))
+    })
+
     # Generar la curva de poder
     output$power_curve_plot <- renderPlot({
-        f_val <- f_calculada()
-        req(input$power_k, f_val, input$power_alpha, input$power_target)
+        f_val <- f_calculada(); req(f_val)
         
-        n_max_plot <- 200 # Límite superior para el gráfico, ajustable
-        calc_n <- power_calculation()$n
-        if (!is.na(calc_n) && calc_n > n_max_plot) {
-             n_max_plot <- ceiling(calc_n) * 1.5 # Ajustar el eje si n es muy grande
-        }
-        if (n_max_plot > 1000) n_max_plot <- 1000 # Poner un límite final
+        calc_n_obj <- power_calculation()
+        # Si n es NA, no podemos dibujar la línea vertical
+        n_necesario <- if (!is.na(calc_n_obj$n)) ceiling(calc_n_obj$n) else NA
         
-        n_sequence <- seq(2, n_max_plot, by = 1)
+        # Determinar el rango del gráfico dinámicamente
+        n_max_plot <- if (!is.na(n_necesario)) max(100, n_necesario * 2) else 200
+        if (n_max_plot > 500) n_max_plot <- 500 # Poner un límite para no congelar la app
+
+        n_sequence <- seq(2, n_max_plot, length.out = 100)
         
         power_values <- sapply(n_sequence, function(n_i) {
             tryCatch(pwr::pwr.anova.test(k=input$power_k, f=f_val, sig.level=input$power_alpha, n=n_i)$power,
-                     error = function(e) NA)
+                    error = function(e) NA)
         })
         
         df_power <- data.frame(n = n_sequence, power = power_values) %>% na.omit()
-        n_necesario <- if(!is.na(calc_n)) ceiling(calc_n) else NA
         
-        ggplot(df_power, aes(x = n, y = power)) +
+        p <- ggplot(df_power, aes(x = n, y = power)) +
             geom_line(color = "blue", linewidth = 1.2) +
             geom_hline(yintercept = input$power_target, linetype = "dashed", color = "red") +
-            geom_vline(xintercept = n_necesario, linetype = "dotted", color = "darkgreen") +
-            geom_point(aes(x = n_necesario, y = input$power_target), color = "darkgreen", size = 4, shape = 18) +
-            annotate("text", x = n_max_plot, y = input$power_target, label = paste0("Poder Objetivo: ", round(input$power_target*100),"%"), color = "red", hjust = 1.05, vjust = -0.5) +
-            annotate("text", x = n_necesario, y = 0.1, label = paste0("n ≈ ", n_necesario), color = "darkgreen", hjust = -0.1) +
             scale_y_continuous(labels = scales::percent, limits = c(0, 1), breaks=seq(0,1,0.2)) +
             scale_x_continuous(limits = c(0, n_max_plot)) +
             labs(
                 title = "Curva de Poder vs. Tamaño de Muestra por Grupo",
-                x = "Número de Replicaciones por Tratamiento (n)",
+                x = "Número de Replicaciones por Variedad (n)",
                 y = "Poder Estadístico (Prob. de detectar el efecto)"
             ) +
             theme_bw(base_size = 14)
+        
+        # Solo añadir las líneas y texto si el cálculo fue exitoso
+        if (!is.na(n_necesario)) {
+            p <- p + 
+                geom_vline(xintercept = n_necesario, linetype = "dotted", color = "darkgreen", linewidth=1) +
+                geom_point(aes(x = n_necesario, y = input$power_target), color = "darkgreen", size = 5, shape = 18) +
+                annotate("text", x = n_max_plot, y = input$power_target, label = paste0("Poder Objetivo: ", round(input$power_target*100),"%"), color = "red", hjust = 1.05, vjust = -0.5, fontface="bold") +
+                annotate("text", x = n_necesario, y = 0.1, label = paste0("n ≈ ", n_necesario), color = "darkgreen", hjust = -0.2, fontface="bold")
+        }
+        
+        print(p)
+    })
+
+    # Gráfico que simula la interfaz de G*Power
+    output$gpower_interface_plot <- renderPlot({
+
+        # Crear un data.frame vacío solo para inicializar el plot
+        df <- data.frame()
+
+        # Usar ggplot para crear un "lienzo"
+        ggplot(df) +
+            # 1. Definir los límites de los ejes PRIMERO.
+            xlim(0, 10) +
+            ylim(0, 10) +
+
+            # 2. Añadir todas las capas de geometría y anotaciones.
+            geom_rect(aes(xmin = 0, xmax = 10, ymin = 0, ymax = 10), fill = "#f0f0f0", color = "grey") +
+            annotate("text", x = 5, y = 9.5, label = "G*Power: ANOVA Fixed effects", fontface = "bold", size = 6) +
+            
+            # Panel de Parámetros de Entrada
+            annotate("rect", xmin = 0.5, xmax = 9.5, ymin = 4, ymax = 9, fill = "white", color = "grey") +
+            annotate("text", x = 1, y = 8.7, label = "Input Parameters", fontface = "bold", hjust = 0, size = 5) +
+            
+            # Etiquetas y valores de entrada
+            annotate("text", x = 1.2, y = c(8, 7.25, 6.5, 5.75, 5), 
+                    label = c("Effect size f =", "α err prob =", "Power (1-β) =", "Numerator df =", "Number of groups ="), 
+                    hjust = 0, size = 4) +
+                    
+            annotate("text", x = 5, y = c(8, 7.25, 6.5, 5.75, 5), 
+                    label = c("0.40", "0.05", "0.80", "5", "6"), 
+                    hjust = 0, size = 4, fontface="bold", color="blue") +
+
+            # Panel de Parámetros de Salida
+            annotate("rect", xmin = 0.5, xmax = 9.5, ymin = 1, ymax = 3.5, fill = "#e9ecef", color = "grey") +
+            annotate("text", x = 1, y = 3.2, label = "Output Parameters", fontface = "bold", hjust = 0, size = 5) +
+            
+            # Etiquetas y valores de salida
+            annotate("text", x = 1.2, y = 2.5, label = "Total sample size =", hjust = 0, size = 4.5, fontface="bold") +
+            annotate("text", x = 6, y = 2.5, label = "66", hjust = 0, size = 6, fontface="bold", color="darkred") +
+            
+            annotate("text", x = 1.2, y = 1.7, label = "Actual power =", hjust = 0, size = 4) +
+            annotate("text", x = 5, y = 1.7, label = "0.808", hjust = 0, size = 4, color="darkred") +
+            
+            # Botón de Calcular
+            annotate("rect", xmin = 7.5, xmax = 9.5, ymin = 0.3, ymax = 0.8, fill = "#d4edda", color = "darkgreen") +
+            annotate("text", x = 8.5, y = 0.55, label = "Calculate", fontface = "bold") +
+
+            # 3. Aplicar el tema al FINAL.
+            theme_void()
     })
 
     # --- LÓGICA PARA LA PESTAÑA 6: ANÁLISIS MULTIVARIADO ---
