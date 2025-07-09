@@ -1033,14 +1033,41 @@ session9UI <- function(id) {
                 title = "3. Regresión Lineal Múltiple",
                 h4(class = "section-header", "3.1 La Realidad es Multifactorial"),
                 p("En agronomía, es raro que una sola variable explique todo el comportamiento de la respuesta. El rendimiento no solo depende del nitrógeno, sino también del fósforo, del potasio, de la materia orgánica, del pH, etc. La ", strong("Regresión Lineal Múltiple (RLM)"), " extiende el modelo simple para incluir múltiples variables predictoras."),
+                title = "3. Regresión Lineal Múltiple", # Ajustado para seguir el orden
                 
-                h4(class = "section-header", "3.2 El Modelo Extendido"),
-                withMathJax(helpText(
-                    "$$Y_i = \\beta_0 + \\beta_1 X_{1i} + \\beta_2 X_{2i} + \\dots + \\beta_p X_{pi} + \\epsilon_i$$"
-                )),
+                # --------------------------------------------------------------------------------------
+                # Subsección 4.1: La Realidad es Multifactorial - El Peligro de la Visión de Túnel
+                # --------------------------------------------------------------------------------------
+                h4(class = "section-header", "4.1 La Realidad es Multifactorial: El Peligro de la Visión de Túnel"),
                 p(
-                    "Cada predictor (\\(X_1, X_2, \\dots\\)) tiene su propio coeficiente de pendiente (\\(\\beta_1, \\beta_2, \\dots\\)). Cada \\(\\beta_j\\) ahora se interpreta como el cambio promedio en Y por un aumento de una unidad en \\(X_j\\), ", strong("manteniendo constantes todas las demás variables predictoras.")
+                    "La regresión lineal simple es una herramienta poderosa, pero tiene una limitación fundamental: asume que solo una variable predictora importa. En agronomía, esto es una sobresimplificación peligrosa. El rendimiento de un cultivo no depende solo de la dosis de Nitrógeno; está influenciado por un ecosistema de factores: Fósforo, Potasio, materia orgánica, pH, precipitación, etc."
                 ),
+                p(
+                    "Ignorar estos otros factores relevantes puede llevar a lo que se conoce como ", strong("sesgo de variable omitida,"), " donde el efecto que atribuimos a nuestro predictor principal está en realidad distorsionado por la influencia de otras variables que no incluimos en el modelo."
+                ),
+
+                # --- Visualización del Problema ---
+                tags$div(class="card mb-4",
+                    tags$div(class="card-body",
+                        h5(class="card-title text-center", "Ejemplo: ¿El Fósforo Afecta el Rendimiento?"),
+                        p(class="text-center", "Imaginemos que encontramos una relación positiva entre el Fósforo (P) aplicado y el Rendimiento. Pero, ¿qué pasa si las parcelas con más Fósforo también tenían un pH más óptimo? Podríamos estar atribuyéndole al Fósforo un efecto que en realidad pertenece al pH."),
+                        
+                        # Gráfico conceptual
+                        plotOutput(ns("rlm_concept_plot"), height = "350px")
+                    )
+                ),
+
+                p(
+                    "El gráfico anterior ilustra el problema. Si solo miramos la relación entre Fósforo y Rendimiento (la línea de tendencia general en negro), vemos una relación positiva. Sin embargo, cuando consideramos el ", strong("pH del suelo"), " (representado por los colores), vemos que la verdadera historia es diferente: ", em("dentro de cada nivel de pH,"), " la relación entre Fósforo y Rendimiento es casi plana o incluso negativa. El efecto que vimos inicialmente era una ilusión creada por la variable omitida (pH)."
+                ),
+
+                tags$div(class="alert alert-success",
+                    icon("lightbulb"),
+                    strong("La Solución: Regresión Lineal Múltiple (RLM)"),
+                    p("La RLM es nuestra herramienta para evitar esta visión de túnel. Nos permite incluir múltiples predictores en un solo modelo, de modo que podemos ", strong("aislar el efecto único de cada variable,"), " controlando estadísticamente el efecto de todas las demás. En lugar de preguntar '¿Cuál es el efecto del Fósforo?', podemos hacer una pregunta mucho más precisa: ", em("'Manteniendo el pH constante, ¿cuál es el efecto del Fósforo?'"))
+                ),
+
+                tags$hr(),
                 
                 h4(class = "section-header", "3.3 Ejemplo: Prediciendo el Peso de un Fruto"),
                 p("Analizaremos el dataset `iris` para modelar el ", strong("Ancho del Pétalo"), " en función del ", strong("Largo del Pétalo"), " y el ", strong("Largo del Sépalo.")),
@@ -1915,7 +1942,76 @@ session9Server  <- function(input, output, session) {
     })
     
     # --- LÓGICA PARA LA PESTAÑA 4: REGRESIÓN LINEAL MÚLTIPLE ---
-    
+    ### Subsección 4.1
+    # Gráfico conceptual para ilustrar el sesgo de variable omitida
+    output$rlm_concept_plot <- renderPlot({
+        set.seed(123)
+        n <- 150
+        
+        # Simular datos donde el pH es el verdadero impulsor
+        pH <- rnorm(n, mean = 6.5, sd = 0.5)
+        
+        # El Fósforo está correlacionado con el pH
+        Fosforo <- 20 + (pH - 6.5) * 10 + rnorm(n, 0, 5)
+        
+        # El Rendimiento depende fuertemente del pH, pero muy poco del Fósforo
+        Rendimiento <- 50 + (pH - 6.5) * 20 - 0.1 * Fosforo + rnorm(n, 0, 8)
+        
+        df <- data.frame(Rendimiento, Fosforo, pH)
+        
+        ggplot(df, aes(x = Fosforo, y = Rendimiento)) +
+            # Línea de regresión simple (visión de túnel)
+            geom_smooth(method = "lm", se = FALSE, color = "black", linetype = "dashed", linewidth = 1.2) +
+            # Puntos coloreados por la variable omitida (pH)
+            geom_point(aes(color = pH), size = 3, alpha = 0.8) +
+            # Líneas de regresión dentro de cada nivel de pH (la verdad)
+            geom_smooth(aes(group = cut(pH, breaks=3)), method="lm", se=FALSE, color="red", linewidth=0.8) +
+            
+            scale_color_viridis_c(name = "pH del Suelo") +
+            theme_bw(base_size = 14) +
+            labs(
+                title = "El Peligro de la Variable Omitida (Sesgo)",
+                subtitle = "La tendencia general (negra) es una ilusión causada por el pH",
+                x = "Fósforo Aplicado (ppm)",
+                y = "Rendimiento (qq/ha)"
+            ) +
+            annotate("text", x=40, y=30, label="Tendencia aparente: Fósforo parece positivo", color="black", fontface="bold") +
+            annotate("text", x=15, y=75, label="Tendencia real (controlando por pH):\nFósforo tiene poco o ningún efecto", color="red", fontface="bold")
+    })
+
+    ### Subsección 4.2
+    # Gráfico conceptual de un plano de regresión 3D
+    output$rlm_plane_plot <- renderPlot({
+        # install.packages("scatterplot3d") si no está instalado
+        req(scatterplot3d)
+        set.seed(42)
+        
+        # Simular datos
+        x1 <- runif(50, 0, 10)
+        x2 <- runif(50, 0, 10)
+        y <- 10 + 2*x1 + 3*x2 + rnorm(50, 0, 8)
+        df <- data.frame(X1=x1, X2=x2, Y=y)
+        
+        # Ajustar el modelo RLM
+        model <- lm(Y ~ X1 + X2, data=df)
+        
+        # Crear el gráfico 3D
+        s3d <- scatterplot3d::scatterplot3d(
+            x = df$X1, y = df$X2, z = df$Y,
+            pch = 19, color = "steelblue",
+            grid = TRUE, box = FALSE,
+            angle = 60, # Ángulo de visión
+            xlab = "Predictor X1 (ej. Nitrógeno)",
+            ylab = "Predictor X2 (ej. Fósforo)",
+            zlab = "Respuesta Y (ej. Rendimiento)"
+        )
+        
+        # Añadir el plano de regresión
+        s3d$plane3d(model, lty.box = "solid", col = "rgba(255, 0, 0, 0.3)")
+    })
+
+    ### Subsección 4.3
+    # Reactive que construye y ajusta el modelo de RLM
     rlm_modelo <- reactive({
         req(input$rlm_predictors)
         
