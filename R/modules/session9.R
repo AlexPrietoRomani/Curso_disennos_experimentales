@@ -1333,13 +1333,13 @@ session9UI <- function(id) {
                     "El biplot es el resultado final más importante del PCA. Es un 'mapa' increíblemente denso en información que nos permite responder a tres preguntas fundamentales sobre nuestros datos de un solo vistazo, proyectando tanto las observaciones (puntos) como las variables (flechas) en el nuevo espacio de los dos primeros componentes principales."
                 ),
 
-                # --- Biplot de Ejemplo Anotado ---
+                # --- Biplot de Ejemplo Anotado (ahora sin columnas) ---
                 tags$div(class="card mb-4",
                     tags$div(class="card-body",
-                        h5(class="card-title text-center", "Biplot de Ejemplo del Dataset `iris`"),
-                        p(class="text-center text-muted", "Este gráfico muestra la relación entre las 3 especies de iris y sus 4 características morfológicas."),
-                        # Gráfico estático anotado que se generará en el servidor
-                        plotOutput(ns("pca_annotated_biplot"), height="500px")
+                        h5(class="card-title text-center", "Biplot de Ejemplo del Dataset de Café"),
+                        p(class="text-center text-muted", "Este gráfico muestra la relación entre los 3 procesos de post-cosecha y sus 6 atributos de calidad."),
+                        # El plotOutput ahora ocupa todo el ancho del card-body
+                        plotOutput(ns("pca_annotated_biplot"), height="550px") # Aumentamos la altura
                     )
                 ),
 
@@ -2508,7 +2508,7 @@ session9Server  <- function(input, output, session) {
     # Gráfico de Sedimentación (Scree Plot)
     output$pca_scree_plot <- renderPlot({
         # Usaremos el PCA del laboratorio interactivo para ser consistentes
-        pca_model <- pca_results() # Asumiendo que pca_results() ya está definido en tu server
+        pca_model <- pca_results_coffee()
         req(pca_model)
         
         # Calcular la varianza explicada por cada componente
@@ -2535,47 +2535,67 @@ session9Server  <- function(input, output, session) {
     })
 
     ### -------- Subsección 5.3 -------- 
-    # Gráfico biplot anotado para la explicación
+    # Gráfico biplot anotado para la explicación (USA LOS DATOS DEL LABORATORIO)
     output$pca_annotated_biplot <- renderPlot({
         
-        # Realizar el PCA sobre las 4 variables numéricas de iris
-        pca_model <- prcomp(iris[, 1:4], scale. = TRUE)
+        # Usamos los mismos datos que el laboratorio interactivo para consistencia
+        datos_cafe <- pca_sim_data() 
         
-        # Usar ggfortify para crear el biplot base
-        p <- autoplot(
-            pca_model,
-            data = iris,
-            colour = 'Species',
-            shape = 'Species',
-            size = 3,
-            loadings = TRUE,
-            loadings.colour = 'blue',
-            loadings.label = TRUE,
-            loadings.label.colour = 'blue',
-            loadings.label.size = 5,
-            loadings.label.vjust = 1.2,
-            loadings.arrow.size = 1.2
-        ) +
-        theme_bw(base_size = 14) +
-        theme(legend.position = "bottom") +
-        # Añadir elipses de confianza
-        stat_ellipse(aes(color = Species), type="t", level=0.95, linetype="dashed", geom="path")
+        # --- PASO 1: Realizar el PCA y extraer los componentes ---
+        # Seleccionamos todas las variables numéricas para este gráfico de ejemplo
+        datos_numericos <- datos_cafe %>% select_if(is.numeric)
+        pca_model <- prcomp(datos_numericos, scale. = TRUE)
         
-        # Añadir anotaciones para explicar los conceptos
-        p +
-            # Anotación para el cluster de Setosa
-            annotate("rect", xmin = 1.5, xmax = 3.5, ymin = -1, ymax = 1.5, fill = "orange", alpha = 0.1, color="orange", linetype="dashed") +
-            annotate("text", x = 3.3, y = 1.3, label = "Cluster de Setosa\n(Similares entre sí)", color = "darkorange", fontface="bold") +
+        # Extraer scores y loadings
+        df_scores <- as.data.frame(pca_model$x)
+        df_scores$Proceso <- datos_cafe$Proceso
+        
+        df_loadings <- as.data.frame(pca_model$rotation)
+        df_loadings$Variable <- rownames(df_loadings)
+        
+        porc_var <- round((pca_model$sdev^2 / sum(pca_model$sdev^2)) * 100, 1)
+        
+        # Factor de escala para las flechas
+        escala_flechas <- max(abs(df_scores[,1:2])) / max(abs(df_loadings[,1:2])) * 0.8
+        
+        # --- PASO 2: Construir el Biplot manualmente con ggplot2 ---
+        ggplot() +
+            geom_point(data = df_scores, aes(x = PC1, y = PC2, color = Proceso, shape = Proceso),
+                    size = 3, alpha = 0.7) +
             
-            # Anotación para la correlación positiva
-            annotate("segment", x = -0.5, y = -0.6, xend = -0.6, yend = -0.5,
-                    arrow = arrow(length = unit(0.2, "cm"), type = "closed"), color = "darkgreen") +
-            annotate("text", x = -0.7, y = -0.7, label = "Ángulo pequeño =\nCorrelación Positiva", color = "darkgreen", size=4, hjust=1) +
+            geom_segment(data = df_loadings, 
+                        aes(x = 0, y = 0, xend = PC1 * escala_flechas, yend = PC2 * escala_flechas),
+                        arrow = arrow(length = unit(0.2, "cm")), color = "blue", linewidth = 1) +
+                        
+            geom_text(data = df_loadings,
+                    aes(x = PC1 * escala_flechas * 1.1, y = PC2 * escala_flechas * 1.1, label = Variable),
+                    color = "blue", fontface = "bold", size = 4, check_overlap = TRUE) +
+                    
+            stat_ellipse(data = df_scores, aes(x = PC1, y = PC2, color = Proceso), 
+                        type="t", level=0.95, linetype="dashed", geom="path") +
             
-            # Anotación para la correlación nula
-            annotate("segment", x = -0.5, y = -0.6, xend = -0.05, yend = 0.35,
-                    arrow = arrow(length = unit(0.2, "cm"), type = "closed"), color = "purple") +
-            annotate("text", x = -0.1, y = 0.5, label = "Ángulo ~90° =\nSin Correlación", color = "purple", size=4)
+            # --- PASO 3: Anotaciones ---
+            # Las coordenadas exactas dependerán de la simulación, pero podemos estimarlas
+            annotate("rect", xmin = -4, xmax = -1.5, ymin = -1, ymax = 2.5, 
+                    fill = "orange", alpha = 0.1, color="orange", linetype="dashed") +
+            annotate("text", x = -2.75, y = 2.8, label = "Cluster de 'Natural'\n(Cuerpo y Dulzura altos)", 
+                    color = "darkorange", fontface="bold", size=4) +
+                    
+            annotate("text", x = 3, y = 0, label = "Cluster de 'Lavado'\n(Acidez y pH bajos)",
+                    color="darkred", fontface="bold", size=4) +
+            
+            # --- PASO 4: Títulos y Temas ---
+            labs(
+                title = "Biplot de Ejemplo del Dataset de Café",
+                subtitle = "Relación entre procesos de post-cosecha y atributos de calidad",
+                x = paste0("PC1 (", porc_var[1], "%)"),
+                y = paste0("PC2 (", porc_var[2], "%)")
+            ) +
+            theme_bw(base_size = 14) +
+            theme(legend.position = "bottom") +
+            geom_hline(yintercept = 0, linetype = "dotted", color = "grey") +
+            geom_vline(xintercept = 0, linetype = "dotted", color = "grey") +
+            coord_fixed()
     })
 
     ### -------- Subsección 5.4 -------- 
