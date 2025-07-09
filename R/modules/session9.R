@@ -849,7 +849,9 @@ session9UI <- function(id) {
                     tags$div(class="col-md-6",
                         tags$div(class="card h-100 border-warning",
                             tags$div(class="card-header bg-warning text-dark", strong("2. Incapacidad de Predecir")),
-                            p("La pregunta más importante de un ensayo de dosis es: ", em("¿Cuál sería el rendimiento si aplico 75 kg/ha o 120 kg/ha?"), " El ANOVA no puede responder a esto. Solo puede hablar de las medias de los niveles que probaste. La regresión, al generar una ecuación (una línea), nos permite ", strong("interpolar y predecir"), " resultados para dosis que no estaban en el experimento original.")
+                            tags$div(class="card-body",
+                                p("La pregunta más importante de un ensayo de dosis es: ", em("¿Cuál sería el rendimiento si aplico 75 kg/ha o 120 kg/ha?"), " El ANOVA no puede responder a esto. Solo puede hablar de las medias de los niveles que probaste. La regresión, al generar una ecuación (una línea), nos permite ", strong("interpolar y predecir"), " resultados para dosis que no estaban en el experimento original.")
+                            )
                         )
                     )
                 ),
