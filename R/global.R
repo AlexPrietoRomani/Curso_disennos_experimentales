@@ -23,6 +23,7 @@ library(rstatix)
 library(ggfortify)
 library(scatterplot3d)
 library(GGally)
+library(effects)
 
 # Cargar módulos
 mod_files <- list.files("R/modules", full.names = TRUE, pattern = "\\.R$")
