@@ -1030,9 +1030,6 @@ session9UI <- function(id) {
             
             # ===== PESTAÑA 4: REGRESIÓN LINEAL MÚLTIPLE =====
             nav_panel(
-                title = "3. Regresión Lineal Múltiple",
-                h4(class = "section-header", "3.1 La Realidad es Multifactorial"),
-                p("En agronomía, es raro que una sola variable explique todo el comportamiento de la respuesta. El rendimiento no solo depende del nitrógeno, sino también del fósforo, del potasio, de la materia orgánica, del pH, etc. La ", strong("Regresión Lineal Múltiple (RLM)"), " extiende el modelo simple para incluir múltiples variables predictoras."),
                 title = "3. Regresión Lineal Múltiple", # Ajustado para seguir el orden
                 
                 # --------------------------------------------------------------------------------------
@@ -1069,29 +1066,118 @@ session9UI <- function(id) {
 
                 tags$hr(),
                 
-                h4(class = "section-header", "3.3 Ejemplo: Prediciendo el Peso de un Fruto"),
-                p("Analizaremos el dataset `iris` para modelar el ", strong("Ancho del Pétalo"), " en función del ", strong("Largo del Pétalo"), " y el ", strong("Largo del Sépalo.")),
+                # --------------------------------------------------------------------------------------
+                # Subsección 4.2: El Modelo Extendido y la Interpretación de Coeficientes
+                # --------------------------------------------------------------------------------------
+                h4(class = "section-header", "4.2 El Modelo Extendido: De una Línea a un Plano"),
+                p(
+                    "La Regresión Lineal Múltiple extiende la ecuación de la línea recta para incorporar múltiples predictores. Si la regresión simple describe una línea en un espacio 2D, una regresión con dos predictores describe un ", strong("plano de ajuste"), " en un espacio 3D."
+                ),
+
+                # --- Visualización del Modelo 3D ---
+                fluidRow(
+                    # Columna para el gráfico 3D
+                    column(7,
+                        tags$div(class="card",
+                            tags$div(class="card-body",
+                                h6(class="text-center", "Visualización de un Plano de Regresión Múltiple"),
+                                plotOutput(ns("rlm_plane_plot"), height="350px")
+                            )
+                        )
+                    ),
+                    # Columna para la Ecuación y la Interpretación
+                    column(5,
+                        h5("El Modelo Matemático"),
+                        withMathJax(helpText("$$Y_i = \\beta_0 + \\beta_1 X_{1i} + \\beta_2 X_{2i} + \\dots + \\epsilon_i$$")),
+                        
+                        h5("Interpretación de los Coeficientes"),
+                        p("La interpretación de los coeficientes en RLM es más matizada y poderosa:"),
+                        tags$dl(
+                            tags$dt("\\(\\beta_0\\) (Intercepto)"),
+                            tags$dd("Es el valor predicho de Y cuando ", em("todos"), " los predictores (X₁, X₂, etc.) son cero."),
+                            tags$dt("\\(\\beta_1\\) (Pendiente Parcial)"),
+                            tags$dd("Representa el cambio en Y por cada unidad que aumenta X₁, ", strong("manteniendo constante el valor de X₂.")),
+                            tags$dt("\\(\\beta_2\\) (Pendiente Parcial)"),
+                            tags$dd("Representa el cambio en Y por cada unidad que aumenta X₂, ", strong("manteniendo constante el valor de X₁.")))
+                    )
+                ),
+
+                # --- La Clave de la Interpretación ---
+                tags$div(class="alert alert-info mt-4",
+                    icon("key"), strong("La Interpretación 'Ceteris Paribus':"), " La frase clave en RLM es ", em("'ceteris paribus'"), " o 'manteniendo todo lo demás constante'. Cada coeficiente \\(\\beta_j\\) nos da el efecto ", strong("único y aislado"), " del predictor \\(X_j\\) sobre Y, después de haber controlado estadísticamente la influencia de todos los demás predictores en el modelo. Esto nos permite desenredar los efectos de variables que podrían estar correlacionadas."
+                ),
+
+                tags$hr(),
+
+                # --- Supuestos del Modelo ---
+                h4(class = "section-header", "Supuestos del Modelo de Regresión Múltiple"),
+                p(
+                    "Al igual que la regresión simple, la RLM se basa en supuestos sobre los residuos para que sus inferencias (p-valores, intervalos de confianza) sean válidas. Estos son prácticamente los mismos que los del ANOVA."
+                ),
+                tags$ul(
+                    tags$li(strong("Linealidad:"), " La relación entre cada predictor y la respuesta debe ser lineal (después de ajustar por los otros predictores)."),
+                    tags$li(strong("Independencia de los Residuos:"), " Los errores no deben estar correlacionados entre sí."),
+                    tags$li(strong("Normalidad de los Residuos:"), " Los residuos deben seguir una distribución normal con media cero."),
+                    tags$li(strong("Homocedasticidad:"), " La varianza de los residuos debe ser constante a lo largo de todos los niveles de los valores predichos."),
+                    tags$li(strong("Ausencia de Multicolinealidad Fuerte:"), " Los predictores no deben estar altamente correlacionados entre sí. Como vimos en la sección anterior, esto puede hacer que las estimaciones de los coeficientes sean inestables.")
+                ),
+                p("Verificaremos estos supuestos en el laboratorio interactivo utilizando los gráficos de diagnóstico estándar."),
+
+                tags$hr(),
+
+                # --------------------------------------------------------------------------------------
+                # Subsección 4.3: Laboratorio Interactivo
+                # --------------------------------------------------------------------------------------
+                h4(class = "section-header", "4.3 Laboratorio Interactivo: Construyendo un Modelo para Predecir Características de `iris`"),
+                p(
+                    "Vamos a actuar como modeladores de datos. Nuestro objetivo es construir el mejor modelo posible para predecir el ", strong("Ancho del Pétalo (`Petal.Width`)"), " de una flor de iris, utilizando las otras medidas como posibles predictores. Usa los controles para añadir o quitar predictores y observa cómo cambia el modelo."
+                ),
                 
                 sidebarLayout(
                     sidebarPanel(
                         width = 3,
-                        tags$h5("Selección de Modelo"),
-                        checkboxGroupInput(ns("rlm_predictors"), "Seleccionar Predictores:",
+                        tags$h5("Control de Construcción del Modelo"),
+                        checkboxGroupInput(ns("rlm_predictors"), "Seleccionar Variables Predictoras:",
                             choices = c("Largo del Pétalo" = "Petal.Length", 
                                         "Ancho del Sépalo" = "Sepal.Width", 
                                         "Largo del Sépalo" = "Sepal.Length"),
                             selected = c("Petal.Length", "Sepal.Length")
                         ),
-                        p("La variable de respuesta siempre será 'Ancho del Pétalo'.")
+                        
+                        hr(),
+                        tags$h5("Contexto del Dataset"),
+                        p(class="small text-muted", "El dataset `iris` contiene 50 muestras de 3 especies diferentes de flores de iris (Setosa, Versicolor, y Virginica), con 4 medidas para cada una. Es un dataset clásico para tareas de clasificación y regresión.")
                     ),
                     mainPanel(
                         width = 9,
-                        h5("Resultados del Modelo de Regresión Múltiple:"),
-                        verbatimTextOutput(ns("rlm_summary_output")),
-                        h5("Diagnóstico del Modelo:"),
-                        plotOutput(ns("rlm_diagnostic_plot"))
+                        # Usaremos pestañas para organizar la salida
+                        navset_card_pill(
+                            # Pestaña para la Salida Principal
+                            nav_panel(
+                                "Resumen del Modelo e Interpretación",
+                                verbatimTextOutput(ns("rlm_summary_output")),
+                                # UI para la interpretación dinámica
+                                uiOutput(ns("rlm_interpretation_ui"))
+                            ),
+                            # Pestaña para Diagnóstico
+                            nav_panel(
+                                "Diagnóstico de Residuos",
+                                plotOutput(ns("rlm_diagnostic_plot"))
+                            ),
+                            # Pestaña para Visualizar Colinealidad
+                            nav_panel(
+                                "Diagnóstico de Colinealidad",
+                                h6("Matriz de Correlación de los Predictores"),
+                                p("Un problema común en RLM es la ", strong("colinealidad"), ": cuando los predictores están fuertemente correlacionados entre sí. Esto puede hacer que las estimaciones de los coeficientes sean inestables. Valores cercanos a 1 o -1 en esta matriz indican una alta correlación."),
+                                plotOutput(ns("rlm_correlation_plot")),
+                                h6("Factor de Inflación de la Varianza (VIF)"),
+                                p("El VIF es una medida numérica de la colinealidad. Una regla general es que valores de VIF > 5 o 10 indican un problema de colinealidad que debe ser abordado."),
+                                verbatimTextOutput(ns("rlm_vif_output"))
+                            )
+                        )
                     )
-                )
+                ),
+                tags$hr(),
             ),
 
             # ===== PESTAÑA 5: PCA =====
@@ -2013,29 +2099,91 @@ session9Server  <- function(input, output, session) {
     ### Subsección 4.3
     # Reactive que construye y ajusta el modelo de RLM
     rlm_modelo <- reactive({
-        req(input$rlm_predictors)
+        # Requerir al menos un predictor
+        validate(
+            need(length(input$rlm_predictors) > 0, "Por favor, seleccione al menos una variable predictora.")
+        )
         
         # Construir la fórmula dinámicamente
         formula_str <- paste("Petal.Width ~", paste(input$rlm_predictors, collapse = " + "))
         
+        # Ajustar el modelo lineal
         lm(as.formula(formula_str), data = iris)
     })
-    
+
+    # Salida del resumen del modelo
     output$rlm_summary_output <- renderPrint({
-        modelo <- rlm_modelo()
-        cat("--- Resumen del Modelo de Regresión Múltiple ---\n\n")
-        print(summary(modelo))
-        
-        r_sq_adj <- summary(modelo)$adj.r.squared
-        cat("\n--- Interpretación del Ajuste ---\n")
-        cat(paste0(" - R-cuadrado Ajustado: ", round(r_sq_adj*100, 1), "%. El modelo explica este porcentaje de la variabilidad en el Ancho del Pétalo."))
+        summary(rlm_modelo())
     })
-    
-    output$rlm_diagnostic_plot <- renderPlot({
+
+    # Interpretación dinámica del modelo
+    output$rlm_interpretation_ui <- renderUI({
         modelo <- rlm_modelo()
-        par(mfrow = c(2,2))
-        plot(modelo)
-        par(mfrow = c(1,1))
+        sumario <- summary(modelo)
+        
+        # Extraer coeficientes y R-cuadrado ajustado
+        coefs <- coef(sumario)
+        r_sq_adj <- sumario$adj.r.squared
+
+        # Crear la lista de interpretación de coeficientes
+        lista_coefs <- lapply(rownames(coefs), function(nombre) {
+            if (nombre == "(Intercept)") {
+                tags$li(HTML(paste0("<b>Intercepto (β₀):</b> El ancho del pétalo predicho cuando todos los predictores son cero es de ", strong(round(coefs[nombre, 1], 3)), " cm.")))
+            } else {
+                p_val <- coefs[nombre, 4]
+                significancia <- if(p_val < 0.05) "<b class='text-success'>significativo</b>" else "<b class='text-danger'>no significativo</b>"
+                
+                tags$li(HTML(paste0("<b>", nombre, " (β):</b> Por cada cm que aumenta '", nombre, "', el ancho del pétalo cambia en promedio en ", strong(round(coefs[nombre, 1], 3)), " cm, ", em("manteniendo los otros predictores constantes."), " Este efecto es estadísticamente ", significancia, " (p = ", format.pval(p_val, digits=3), ").")))
+            }
+        })
+
+        tagList(
+            h5("Guía de Interpretación del Modelo"),
+            tags$ul(
+                tags$li(HTML(paste0("<b>Calidad del Ajuste (R² Adj.):</b> El modelo actual explica aproximadamente el ", strong(round(r_sq_adj*100, 1)), "% de la variabilidad en el Ancho del Pétalo.")))
+            ),
+            tags$h6("Interpretación de los Coeficientes:"),
+            tags$ul(lista_coefs)
+        )
+    })
+
+    # Gráficos de diagnóstico
+    output$rlm_diagnostic_plot <- renderPlot({
+        par(mfrow = c(2, 2))
+        plot(rlm_modelo())
+        par(mfrow = c(1, 1))
+    })
+
+    # --- Salidas para la pestaña de Colinealidad ---
+
+    # Gráfico de matriz de correlación
+    output$rlm_correlation_plot <- renderPlot({
+        # Requerir al menos 2 predictores para una matriz de correlación
+        validate(
+            need(length(input$rlm_predictors) >= 2, "Se necesitan al menos dos predictores para calcular la correlación.")
+        )
+        
+        # Usar el paquete 'GGally' para un gráfico elegante
+        if (!requireNamespace("GGally", quietly = TRUE)) {
+            plot(1,1,type="n", main="Instale el paquete 'GGally' para ver este gráfico"); return()
+        }
+        
+        datos_predictores <- iris %>% dplyr::select(all_of(input$rlm_predictors))
+        
+        GGally::ggcorr(datos_predictores, label = TRUE, label_size = 5, label_round = 2)
+    })
+
+    # Salida del VIF
+    output$rlm_vif_output <- renderPrint({
+        # Requerir al menos 2 predictores para VIF
+        if(length(input$rlm_predictors) < 2){
+            cat("El VIF solo se puede calcular con dos o más predictores.")
+            return()
+        }
+        
+        cat("--- Factor de Inflación de la Varianza (VIF) ---\n")
+        # La función vif() viene del paquete 'car'
+        print(car::vif(rlm_modelo()))
     })
 
     # --- LÓGICA PARA LA PESTAÑA 5: PCA ---
