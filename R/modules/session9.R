@@ -802,40 +802,228 @@ session9UI <- function(id) {
             nav_panel(
                 title = "2. Regresión Lineal Simple",
                 
-                h4(class = "section-header", "2.1 Más Allá de Comparar Grupos: Modelando Relaciones Continuas"),
-                p("Mientras que el ANOVA es excelente para comparar grupos categóricos (tratamientos), la ", strong("regresión lineal"), " se utiliza para modelar la relación entre dos o más variables continuas. Es una de las herramientas más fundamentales en el análisis de datos agronómicos."),
-                p("La ", strong("Regresión Lineal Simple"), " busca describir la relación entre una variable predictora (X, o variable independiente) y una variable de respuesta (Y, o variable dependiente) a través de una línea recta."),
-                
-                h4(class = "section-header", "2.2 El Modelo de la Línea Recta"),
-                withMathJax(helpText(
-                    "$$Y_i = \\beta_0 + \\beta_1 X_i + \\epsilon_i$$"
-                )),
-                tags$ul(
-                    tags$li(strong("\\(Y_i\\):"), " El valor observado de la variable de respuesta para la i-ésima observación."),
-                    tags$li(strong("\\(\\beta_0\\) (Intercepto):"), " El valor predicho de Y cuando X es cero. Representa el punto de partida o la base de la respuesta."),
-                    tags$li(strong("\\(\\beta_1\\) (Pendiente):"), " El coeficiente más importante. Nos dice cuánto cambia Y (en promedio) por cada unidad que aumenta X. Una pendiente positiva indica una relación directa; una negativa, una relación inversa."),
-                    tags$li(strong("\\(X_i\\):"), " El valor de la variable predictora para la i-ésima observación."),
-                    tags$li(strong("\\(\\epsilon_i\\):"), " El error o residuo aleatorio, la parte de Y que el modelo no puede explicar.")
+                # --------------------------------------------------------------------------------------
+                # Subsección 3.1: De Comparar Grupos a Modelar Relaciones
+                # --------------------------------------------------------------------------------------
+                h4(class = "section-header", "3.1 ¿Por qué Regresión y no ANOVA? De Grupos a Gradientes"),
+                p(
+                    "Hasta ahora, hemos usado ANOVA para comparar el efecto de tratamientos ", strong("categóricos"), " (ej. Variedad A vs. Variedad B vs. Variedad C). Pero, ¿qué pasa si nuestro 'tratamiento' no son categorías discretas, sino un ", strong("factor cuantitativo"), " que aplicamos en diferentes niveles, como una dosis de fertilizante (0, 50, 100, 150 kg/ha)?"
                 ),
-                p("El objetivo es encontrar los valores de \\(\\beta_0\\) y \\(\\beta_1\\) que mejor se ajusten a los datos, lo cual se hace mediante el método de ", strong("mínimos cuadrados ordinarios (MCO)"), ", que minimiza la suma de los errores al cuadrado."),
+
+                # --- Comparación Visual de Enfoques ---
+                tags$div(class="card mb-4",
+                    tags$div(class="card-body",
+                        h5(class="card-title text-center", "El Mismo Experimento, Dos Perspectivas Analíticas"),
+                        p(class="text-center", "Imaginemos un ensayo de respuesta a la dosis de Nitrógeno. Podríamos analizarlo de dos maneras:"),
+                        
+                        fluidRow(
+                            # Columna para la Visión del ANOVA
+                            column(6, style="border-right: 1px solid #ddd;",
+                                h6(strong("Visión del ANOVA: 'Cajas Separadas'")),
+                                p(class="text-muted", "El ANOVA trata cada dosis como un grupo categórico e independiente. Compara las medias entre estos grupos."),
+                                plotOutput(ns("intro_reg_anova_plot"), height = "300px")
+                            ),
+                            # Columna para la Visión de la Regresión
+                            column(6,
+                                h6(strong("Visión de la Regresión: 'Buscando la Tendencia'")),
+                                p(class="text-muted", "La Regresión aprovecha que las dosis son un continuo numérico. Busca modelar la relación y la tendencia a lo largo de todo el gradiente de dosis."),
+                                plotOutput(ns("intro_reg_regression_plot"), height = "300px")
+                            )
+                        )
+                    )
+                ),
+
+                h4(class="section-header", "Las Limitaciones del Enfoque ANOVA para Variables Cuantitativas"),
+                p(
+                    "Aunque técnicamente se puede hacer un ANOVA, este enfoque tiene dos grandes desventajas cuando el factor es cuantitativo:"
+                ),
+                tags$div(class="row",
+                    tags$div(class="col-md-6",
+                        tags$div(class="card h-100 border-danger",
+                            tags$div(class="card-header bg-danger text-white", strong("1. Pérdida de Información y Poder")),
+                            tags$div(class="card-body",
+                                p("El ANOVA ignora por completo el orden y la magnitud de las dosis. Para él, los grupos '50 kg/ha' y '100 kg/ha' son tan diferentes como 'Variedad A' y 'Variedad B'. Al no usar la información de que 100 es mayor que 50, pierde poder estadístico para detectar una tendencia sistemática.")
+                            )
+                        )
+                    ),
+                    tags$div(class="col-md-6",
+                        tags$div(class="card h-100 border-warning",
+                            tags$div(class="card-header bg-warning text-dark", strong("2. Incapacidad de Predecir")),
+                            p("La pregunta más importante de un ensayo de dosis es: ", em("¿Cuál sería el rendimiento si aplico 75 kg/ha o 120 kg/ha?"), " El ANOVA no puede responder a esto. Solo puede hablar de las medias de los niveles que probaste. La regresión, al generar una ecuación (una línea), nos permite ", strong("interpolar y predecir"), " resultados para dosis que no estaban en el experimento original.")
+                        )
+                    )
+                ),
+                p(class="mt-3", strong("Conclusión:"), " Usamos la ", strong("Regresión Lineal"), " cuando nuestro objetivo no es solo comparar, sino ", strong("entender y modelar la relación funcional"), " entre una variable predictora continua y una respuesta continua."),
                 
-                h4(class = "section-header", "2.3 Ejemplo Interactivo: Dosis de Fertilizante vs. Rendimiento"),
-                p("Vamos a simular un experimento para encontrar la relación entre la dosis de nitrógeno aplicada y el rendimiento de un cultivo."),
+                tags$hr(),
+
+                # --------------------------------------------------------------------------------------
+                # Subsección 3.2: Anatomía de la Línea Recta - El Modelo de Regresión
+                # --------------------------------------------------------------------------------------
+
+                h4(class = "section-header", "3.2 Anatomía de la Línea Recta: El Modelo de Regresión"),
+                p(
+                    "La Regresión Lineal Simple busca describir la relación entre una variable predictora continua (X) y una de respuesta (Y) a través de una línea recta. Para entender el modelo, primero veamos el gráfico que intenta generar."
+                ),
+
+                # --- Diagrama Visual del Modelo ---
+                tags$div(class="card mb-4",
+                    tags$div(class="card-header", strong("Visualizando los Componentes de la Regresión")),
+                    tags$div(class="card-body",
+                        plotOutput(ns("reg_concept_plot"), height="400px")
+                    )
+                ),
+
+                # --- Explicación de los Componentes ---
+                fluidRow(
+                    # Columna para el Modelo Matemático
+                    column(6, style="border-right: 1px solid #ddd;",
+                        h5("El Modelo Matemático"),
+                        p("La línea del gráfico se describe con esta famosa ecuación:"),
+                        withMathJax(helpText("$$Y_i = \\beta_0 + \\beta_1 X_i + \\epsilon_i$$")),
+                        tags$dl(
+                            tags$dt("\\(Y_i\\) - La Respuesta Observada"),
+                            tags$dd("El valor real que medimos en el campo (ej. el rendimiento de la parcela 'i'). Corresponde a la altura de cada punto azul en el gráfico."),
+                            
+                            tags$dt("\\(\\beta_0\\) - El Intercepto"),
+                            tags$dd("El punto de partida. Es el valor predicho de Y cuando X es cero. Agronómicamente, es el rendimiento base que esperaríamos ", em("sin aplicar nada del predictor.")),
+
+                            tags$dt("\\(\\beta_1\\) - La Pendiente"),
+                            tags$dd("El coeficiente más importante. Nos dice cuánto cambia Y (en promedio) por cada unidad que aumenta X. Es la ", strong("tasa de cambio o eficiencia."), " Por ejemplo, cuántos kg de rendimiento ganamos por cada kg de N aplicado."),
+
+                            tags$dt("\\(\\epsilon_i\\) - El Error (o Residuo)"),
+                            tags$dd("La distancia vertical entre un punto observado y la línea de regresión (las líneas naranjas discontinuas). Representa la variabilidad que el modelo no puede explicar (el 'ruido').")
+                        )
+                    ),
+                    # Columna para Mínimos Cuadrados
+                    column(6,
+                        h5("¿Cómo se Encuentra la 'Mejor' Línea?"),
+                        p("Podríamos dibujar infinitas líneas a través de esa nube de puntos. R encuentra la línea 'óptima' utilizando el ", strong("Método de Mínimos Cuadrados Ordinarios (MCO).")),
+                        
+                        tags$div(class="text-center",
+                            p(icon("arrows-down-to-line", "fa-3x text-warning"))
+                        ),
+
+                        p(strong("La Intuición del MCO:")),
+                        p("Imagina que cada residuo (\\(\\epsilon_i\\)) es un resorte elástico que conecta el punto de dato con la línea de regresión. El MCO es un procedimiento matemático que encuentra la única posición e inclinación de la línea que ", strong("minimiza la suma total de la energía (o tensión) de todos esos resortes al cuadrado."), " Es la línea que, en conjunto, pasa 'lo más cerca posible' de todos los puntos de datos simultáneamente."),
+                        withMathJax(helpText("$$\\text{MCO minimiza: } \\sum_{i=1}^{n} \\epsilon_i^2 = \\sum_{i=1}^{n} (Y_i - (\\beta_0 + \\beta_1 X_i))^2$$"))
+                    )
+                ),
+
+                tags$hr(),
+
+                # --------------------------------------------------------------------------------------
+                # Subsección 3.3: Encontrando la 'Mejor' Línea: Mínimos Cuadrados Ordinarios (MCO)
+                # --------------------------------------------------------------------------------------
+                h4(class = "section-header", "3.3 Encontrando la 'Mejor' Línea: Mínimos Cuadrados Ordinarios (MCO)"),
+                p(
+                    "A través de una nube de puntos, podríamos dibujar infinitas líneas rectas. ¿Cómo elige R la 'mejor' línea de ajuste? La respuesta es un procedimiento matemático elegante y fundamental llamado ", strong("Mínimos Cuadrados Ordinarios (MCO)"), " o OLS por sus siglas en inglés (Ordinary Least Squares)."
+                ),
+
+                # --- Comparación Visual de Ajustes ---
+                tags$div(class="card mb-4",
+                    tags$div(class="card-body",
+                        h5(class="card-title text-center", "Visualizando el Concepto de 'Mejor Ajuste'"),
+                        fluidRow(
+                            # Columna para una línea de mal ajuste
+                            column(6, style="border-right: 1px solid #ddd;",
+                                h6(strong("Intento 1: Una Línea 'Cualquiera'")),
+                                p(class="text-muted", "Esta línea roja claramente no representa bien la tendencia de los datos. Observa los grandes errores (distancias verticales)."),
+                                plotOutput(ns("mco_bad_fit_plot"), height = "300px")
+                            ),
+                            # Columna para la línea de buen ajuste (MCO)
+                            column(6,
+                                h6(strong("Intento 2: La Línea de Mínimos Cuadrados")),
+                                p(class="text-muted", "Esta es la línea óptima encontrada por MCO. La suma de las áreas de los cuadrados de los errores es la más pequeña posible."),
+                                plotOutput(ns("mco_best_fit_plot"), height = "300px")
+                            )
+                        )
+                    )
+                ),
+
+                # --- Explicación del Proceso ---
+                h4(class="section-header", "La Lógica del MCO: Minimizando los Errores al Cuadrado"),
+                tags$div(class="content-row",
+                    tags$div(class="main-content",
+                        p(
+                            "El principio del MCO es simple:"
+                        ),
+                        tags$ol(
+                            tags$li("Para cualquier línea candidata, se calcula la distancia vertical (el residuo, \\(\\epsilon_i\\)) desde cada punto de dato hasta la línea."),
+                            tags$li("Cada uno de estos residuos se eleva al cuadrado. ¿Por qué al cuadrado? Esto tiene dos beneficios: primero, asegura que todos los valores sean positivos (no importa si el punto está por encima o por debajo); segundo, penaliza más fuertemente los errores grandes."),
+                            tags$li("Se suman todas estas áreas cuadradas. El resultado es la ", strong("Suma de los Cuadrados de los Errores (SCE).")),
+                            tags$li("El MCO es el algoritmo que prueba todas las posibles líneas y encuentra la única combinación de intercepto (\\(\\beta_0\\)) y pendiente (\\(\\beta_1\\)) que produce la ", strong("SCE más pequeña posible.")),
+                        ),
+                        withMathJax(helpText("$$\\text{MCO busca minimizar: } \\quad SCE = \\sum_{i=1}^{n} \\epsilon_i^2 = \\sum_{i=1}^{n} (Y_i - \\hat{Y}_i)^2$$"))
+                    ),
+                    tags$div(class="note-cloud",
+                        tags$strong("Analogía de los Resortes"),
+                        p("Imagina que cada residuo es un resorte que conecta el punto de dato con la línea. La 'energía potencial' de un resorte es proporcional a su longitud al cuadrado."),
+                        p("El MCO encuentra la posición y el ángulo de la línea que minimiza la energía total almacenada en todos los resortes. Es la posición de 'mínima tensión' y, por lo tanto, el mejor equilibrio y ajuste general.")
+                    )
+                ),
+
+                tags$hr(),
+
+                # --------------------------------------------------------------------------------------
+                # Subsección 3.4: Laboratorio Interactivo de Regresión
+                # --------------------------------------------------------------------------------------
+                h4(class = "section-header", "3.4 Laboratorio Interactivo: Construyendo un Modelo de Regresión"),
+
+                # --- Guía y Misión ---
+                tags$div(class="card bg-light mb-4",
+                    tags$div(class="card-body",
+                        h5(icon("compass"), " Guía del Laboratorio y Tu Misión"),
+                        p(
+                            "En esta simulación, tú eres el arquitecto de un sistema biológico. Usarás los controles de la izquierda para definir la ", strong("relación verdadera"), " entre la dosis de nitrógeno y el rendimiento de un cultivo. Luego, generarás datos de un experimento con 'ruido' aleatorio y observarás cómo el modelo de regresión lineal intenta 'redescubrir' los parámetros que tú estableciste."
+                        ),
+                        p(strong("Tu Misión:"), " Juega con los controles para responder a estas preguntas:"),
+                        tags$ul(
+                            tags$li("¿Cómo afecta el 'Ruido Experimental' (σ) a la precisión de las estimaciones y al R²?"),
+                            tags$li("¿Cómo afecta el 'Número de Parcelas' (n) a la significancia de la pendiente (su p-valor)?"),
+                            tags$li("¿Qué tan cerca están los coeficientes estimados por el modelo de los valores 'reales' que tú definiste?")
+                        )
+                    )
+                ),
+
                 sidebarLayout(
                     sidebarPanel(
                         width = 3,
-                        tags$h5("Parámetros del Modelo"),
-                        sliderInput(ns("reg_intercept"), "Rendimiento Base (β₀):", min = 10, max = 50, value = 25, step = 1),
-                        sliderInput(ns("reg_slope"), "Respuesta a N (β₁):", min = -0.5, max = 2, value = 0.8, step = 0.1),
-                        sliderInput(ns("reg_error"), "Ruido Experimental (σ):", min = 1, max = 15, value = 5, step = 1),
-                        numericInput(ns("reg_n"), "Número de Parcelas:", value=50, min=10, max=200)
+                        tags$h5("Parámetros del Sistema Biológico"),
+                        sliderInput(ns("reg_intercept"), 
+                                    tagList(icon("leaf"), "Rendimiento Base (β₀ Verdadero)"),
+                                    min = 10, max = 50, value = 25, step = 1),
+                        sliderInput(ns("reg_slope"), 
+                                    tagList(icon("chart-line"), "Respuesta a N (β₁ Verdadero)"),
+                                    min = -0.5, max = 2, value = 0.8, step = 0.1),
+                        sliderInput(ns("reg_error"), 
+                                    tagList(icon("wave-square"), "Ruido Experimental (σ Verdadero)"),
+                                    min = 1, max = 20, value = 8, step = 1),
+                        numericInput(ns("reg_n"), "Número de Parcelas (n):", value=50, min=10, max=200),
+                        actionButton(ns("run_reg_sim"), "Generar Nueva Simulación", icon=icon("sync"), class="btn-primary w-100 mt-2")
                     ),
                     mainPanel(
                         width = 9,
-                        plotOutput(ns("reg_plot")),
-                        verbatimTextOutput(ns("reg_summary_output"))
+                        # Usaremos pestañas para la salida
+                        navset_card_pill(
+                            nav_panel(
+                                "Gráfico de Regresión",
+                                plotOutput(ns("reg_plot"))
+                            ),
+                            nav_panel(
+                                "Resumen e Interpretación",
+                                verbatimTextOutput(ns("reg_summary_output")),
+                                uiOutput(ns("reg_interpretation_ui"))
+                            ),
+                            nav_panel(
+                                "Diagnóstico del Modelo",
+                                p("Incluso en una simulación, es una buena práctica verificar los supuestos del modelo sobre los residuos. ¿Se distribuyen normalmente? ¿Tienen varianza constante?"),
+                                plotOutput(ns("reg_diagnostic_plot"))
+                            )
+                        )
                     )
-                )
+                ),
+                tags$hr(),
             ),
             
             # ===== PESTAÑA 4: REGRESIÓN LINEAL MÚLTIPLE =====
@@ -1495,49 +1683,233 @@ session9Server  <- function(input, output, session) {
     )
 
     # --- LÓGICA PARA LA PESTAÑA 3: REGRESIÓN LINEAL SIMPLE ---
-    
-    reg_data <- reactive({
-        req(input$reg_intercept, input$reg_slope, input$reg_error, input$reg_n)
-        set.seed(42) # Semilla fija para consistencia en este ejemplo
+
+    ### ---- Subsección 3.1 ----
+    # Crear un dataset conceptual una sola vez para ambos gráficos
+    conceptual_data <- reactive({
+        set.seed(123)
+        dosis <- rep(c(0, 50, 100, 150), each = 15)
+        rendimiento <- 30 + 0.15 * dosis + rnorm(length(dosis), 0, 8)
+        data.frame(
+            Dosis_N = dosis,
+            Rendimiento = rendimiento,
+            Dosis_Factor = as.factor(dosis) # Versión categórica para el ANOVA
+        )
+    })
+
+    # Gráfico que muestra la visión del ANOVA
+    output$intro_reg_anova_plot <- renderPlot({
+        df <- conceptual_data()
+        ggplot(df, aes(x = Dosis_Factor, y = Rendimiento, fill = Dosis_Factor)) +
+            geom_boxplot(show.legend = FALSE) +
+            labs(
+                subtitle = "Pregunta: ¿Son diferentes las medias?",
+                x = "Dosis de N (tratada como categoría)",
+                y = "Rendimiento"
+            ) +
+            theme_minimal(base_size = 12)
+    })
+
+    # Gráfico que muestra la visión de la Regresión
+    output$intro_reg_regression_plot <- renderPlot({
+        df <- conceptual_data()
+        ggplot(df, aes(x = Dosis_N, y = Rendimiento)) +
+            geom_point(alpha = 0.6, color = "darkblue", size = 2.5) +
+            # La línea de regresión es la protagonista
+            geom_smooth(method = "lm", se = FALSE, color = "red", linewidth = 1.5) +
+            labs(
+                subtitle = "Pregunta: ¿Cuál es la tendencia?",
+                x = "Dosis de N (tratada como continuo)",
+                y = "Rendimiento"
+            ) +
+            theme_minimal(base_size = 12)
+    })
+
+    ### ---- Subsección 3.2 ----
+    # Gráfico conceptual de la anatomía de la regresión
+    output$reg_concept_plot <- renderPlot({
+        set.seed(101)
+        x <- seq(5, 95, length.out = 15)
+        y <- 20 + 0.7*x + rnorm(length(x), 0, 8)
+        df <- data.frame(X=x, Y=y)
+        model <- lm(Y ~ X, data=df)
         
-        # Simular la variable predictora (dosis de Nitrógeno)
-        dosis_N <- runif(input$reg_n, min = 0, max = 150)
+        df$pred <- predict(model)
+        df$resid_start <- pmin(df$Y, df$pred) # Para dibujar desde el punto más bajo
+        df$resid_end <- pmax(df$Y, df$pred)   # hasta el más alto
         
-        # Simular la respuesta (Rendimiento) según el modelo lineal
-        rendimiento <- input$reg_intercept + input$reg_slope * dosis_N + rnorm(input$reg_n, 0, input$reg_error)
+        # Encontrar los coeficientes
+        b0 <- coef(model)[1]
+        b1 <- coef(model)[2]
         
-        data.frame(Dosis_N = dosis_N, Rendimiento = rendimiento)
+        ggplot(df, aes(x = X, y = Y)) +
+            # Segmentos de los residuos
+            geom_segment(aes(xend = X, yend = pred), color = "orange", linetype = "dashed", linewidth=1) +
+            # Línea de regresión
+            geom_smooth(method = "lm", formula = y~x, se = FALSE, color = "red", linewidth=1.5, fullrange = TRUE) +
+            # Puntos de datos
+            geom_point(size = 4, color = "darkblue", shape=21, fill="lightblue", stroke=1.2) +
+            
+            # Anotaciones claras
+            annotate("text", x=8, y=b0, label=paste0("β₀ ≈ ", round(b0,1)), color="darkred", size=5, hjust=0) +
+            geom_point(aes(x=0, y=b0), color="darkred", size=5) +
+            
+            annotate("text", x=70, y=75, label=paste0("Pendiente (β₁) ≈ ", round(b1,2)), color="darkred", size=5, angle=atan(b1)*(180/pi)) +
+            
+            annotate("segment", x=30, y=45, xend=40, yend=40, arrow=arrow(length=unit(0.2,"cm")), color="darkorange") +
+            annotate("text", x=28, y=45, label="εᵢ (Residuo)", color="darkorange", size=5, hjust=1) +
+            
+            theme_bw(base_size = 14) +
+            labs(x="Variable Predictora (X) - ej. Dosis de N", 
+                y="Variable de Respuesta (Y) - ej. Rendimiento",
+                title="Anatomía de un Modelo de Regresión Lineal Simple") +
+            coord_cartesian(xlim=c(0, 100), ylim=c(0, 100)) # Fijar los ejes para consistencia
     })
     
+    ### ---- Subsección 3.3 ----
+    # Crear un dataset conceptual una sola vez para ambos gráficos de MCO
+    mco_conceptual_data <- reactive({
+        set.seed(50)
+        x <- seq(10, 90, length.out = 10)
+        y <- 15 + 0.8*x + rnorm(length(x), 0, 12)
+        df <- data.frame(X=x, Y=y)
+        return(df)
+    })
+
+    # Gráfico que muestra un mal ajuste
+    output$mco_bad_fit_plot <- renderPlot({
+        df <- mco_conceptual_data()
+        # Una línea "mala" con intercepto y pendiente incorrectos
+        df$pred_mala <- 30 + 0.4 * df$X 
+        
+        ggplot(df, aes(x = X, y = Y)) +
+            # Cuadrados de los errores (grandes)
+            geom_rect(aes(xmin=X-2, xmax=X+2, ymin=pmin(Y, pred_mala), ymax=pmax(Y, pred_mala)), 
+                    fill="orange", alpha=0.3) +
+            geom_segment(aes(xend = X, yend = pred_mala), color = "orange", linetype = "dashed") +
+            geom_line(aes(y=pred_mala), color="red", linewidth=1.2) +
+            geom_point(size = 3, color = "darkblue") +
+            theme_minimal(base_size = 12) + labs(x="X", y="Y")
+    })
+
+    # Gráfico que muestra el mejor ajuste (MCO)
+    output$mco_best_fit_plot <- renderPlot({
+        df <- mco_conceptual_data()
+        model <- lm(Y ~ X, data=df)
+        df$pred_buena <- predict(model)
+        
+        ggplot(df, aes(x = X, y = Y)) +
+            # Cuadrados de los errores (minimizados)
+            geom_rect(aes(xmin=X-2, xmax=X+2, ymin=pmin(Y, pred_buena), ymax=pmax(Y, pred_buena)), 
+                    fill="skyblue", alpha=0.3) +
+            geom_segment(aes(xend = X, yend = pred_buena), color = "blue", linetype = "dashed") +
+            geom_smooth(method="lm", se=FALSE, color="red", linewidth=1.2) +
+            geom_point(size = 3, color = "darkblue") +
+            theme_minimal(base_size = 12) + labs(x="X", y="Y")
+    })
+
+    ### ---- Subsección 3.4 ----
+    # Reactive para los datos y el modelo de la simulación
+    # Usamos eventReactive para que solo se actualice al presionar el botón
+    reg_sim_results <- eventReactive(input$run_reg_sim, {
+        req(input$reg_intercept, input$reg_slope, input$reg_error, input$reg_n)
+        set.seed(as.integer(Sys.time())) # Nueva simulación cada vez
+        
+        # Parámetros "verdaderos" definidos por el usuario
+        beta_0_real <- input$reg_intercept
+        beta_1_real <- input$reg_slope
+        sigma_real <- input$reg_error
+        n_real <- input$reg_n
+        
+        # Simular los datos
+        dosis_N <- runif(n_real, min = 0, max = 150)
+        rendimiento <- beta_0_real + beta_1_real * dosis_N + rnorm(n_real, 0, sigma_real)
+        
+        df <- data.frame(Dosis_N = dosis_N, Rendimiento = rendimiento)
+        
+        # Ajustar el modelo lineal
+        modelo <- lm(Rendimiento ~ Dosis_N, data = df)
+        
+        # Devolver todo en una lista
+        list(
+            datos = df,
+            modelo = modelo,
+            parametros_reales = list(b0 = beta_0_real, b1 = beta_1_real, sigma = sigma_real)
+        )
+    }, ignoreNULL = FALSE)
+
+    # Gráfico interactivo mejorado
     output$reg_plot <- renderPlot({
-        df <- reg_data()
-        ggplot(df, aes(x = Dosis_N, y = Rendimiento)) +
+        res <- reg_sim_results(); req(res)
+        
+        ggplot(res$datos, aes(x = Dosis_N, y = Rendimiento)) +
+            # Línea de la "Verdad" (definida por el usuario)
+            geom_abline(
+                intercept = res$parametros_reales$b0, 
+                slope = res$parametros_reales$b1,
+                color = "black", linetype = "dashed", linewidth = 1.2
+            ) +
+            # Línea del modelo ajustado por R
+            geom_smooth(method = "lm", se = TRUE, color = "red", fill="red", alpha=0.1) +
+            # Puntos de datos
             geom_point(alpha = 0.6, color = "darkgreen") +
-            geom_smooth(method = "lm", formula = y ~ x, color = "red", se = TRUE) +
+            
             labs(
-                title = "Regresión Lineal Simple: Rendimiento vs. Dosis de Nitrógeno",
+                title = "Resultado de la Simulación: Verdad vs. Estimación del Modelo",
+                subtitle = "Línea discontinua = Relación 'Verdadera' | Línea roja = Modelo ajustado por R",
                 x = "Dosis de Nitrógeno Aplicada (kg/ha)",
                 y = "Rendimiento del Cultivo (qq/ha)"
             ) +
             theme_bw(base_size = 14)
     })
-    
+
+    # Salida del resumen del modelo
     output$reg_summary_output <- renderPrint({
-        df <- reg_data()
-        modelo <- lm(Rendimiento ~ Dosis_N, data = df)
+        res <- reg_sim_results(); req(res)
+        summary(res$modelo)
+    })
+
+    # Interpretación dinámica mejorada
+    output$reg_interpretation_ui <- renderUI({
+        res <- reg_sim_results(); req(res)
         
-        cat("--- Resumen del Modelo de Regresión Lineal ---\n\n")
-        print(summary(modelo))
+        # Coeficientes estimados por el modelo
+        coefs_estimados <- coef(summary(res$modelo))
+        b0_estimado <- coefs_estimados[1, 1]
+        b1_estimado <- coefs_estimados[2, 1]
         
-        cat("\n--- Interpretación de los Coeficientes ---\n")
-        coefs <- coef(summary(modelo))
-        cat(paste0(" - Intercepto (β₀): ", round(coefs[1,1], 2), ". Es el rendimiento esperado con 0 kg/ha de N.\n"))
-        cat(paste0(" - Pendiente (β₁ para Dosis_N): ", round(coefs[2,1], 4), ". Por cada kg adicional de N, el rendimiento aumenta en promedio ", round(coefs[2,1], 4), " qq/ha.\n"))
-        cat(paste0(" - El p-valor para Dosis_N (Pr(>|t|)) es ", format.pval(coefs[2,4], digits=4), ", lo que indica si la relación es estadísticamente significativa.\n"))
+        # Parámetros reales de la simulación
+        b0_real <- res$parametros_reales$b0
+        b1_real <- res$parametros_reales$b1
         
-        cat("\n--- Interpretación de la Calidad del Ajuste ---\n")
-        r_sq <- summary(modelo)$r.squared
-        cat(paste0(" - R-cuadrado (R-squared): ", round(r_sq*100, 1), "%. Este porcentaje de la variabilidad en el Rendimiento es explicado por la Dosis de Nitrógeno."))
+        # Resultados de la prueba
+        p_val_slope <- coefs_estimados[2, 4]
+        r_sq_adj <- summary(res$modelo)$adj.r.squared
+
+        tagList(
+            h5("Comparación: Parámetros Verdaderos vs. Estimados"),
+            tags$table(class="table table-sm table-bordered",
+                tags$thead(tags$tr(tags$th("Parámetro"), tags$th("Valor Verdadero (Simulación)"), tags$th("Valor Estimado (Modelo)"))),
+                tags$tbody(
+                    tags$tr(tags$td(strong("Intercepto (β₀)")), tags$td(b0_real), tags$td(round(b0_estimado, 2))),
+                    tags$tr(tags$td(strong("Pendiente (β₁)")), tags$td(b1_real), tags$td(round(b1_estimado, 4)))
+                )
+            ),
+            h5("Interpretación del Ajuste del Modelo"),
+            tags$ul(
+                tags$li(HTML(paste0("<b>Significancia de la Pendiente:</b> El p-valor para la Dosis de N es ", strong(format.pval(p_val_slope, digits=3)), ". ", 
+                                    ifelse(p_val_slope < 0.05, "Esto indica que el modelo detectó exitosamente la relación lineal.", "El modelo no pudo detectar una relación significativa (probablemente por un efecto pequeño, pocas repeticiones o mucho ruido).")))),
+                tags$li(HTML(paste0("<b>Calidad del Ajuste (R² Adj.):</b> El modelo explica aproximadamente el ", strong(round(r_sq_adj*100, 1)), "% de la variabilidad en el Rendimiento.")))
+            )
+        )
+    })
+
+    # Gráfico de diagnóstico del modelo
+    output$reg_diagnostic_plot <- renderPlot({
+        res <- reg_sim_results(); req(res)
+        par(mfrow = c(2,2))
+        plot(res$modelo)
+        par(mfrow = c(1,1))
     })
     
     # --- LÓGICA PARA LA PESTAÑA 4: REGRESIÓN LINEAL MÚLTIPLE ---
