@@ -107,17 +107,9 @@ ui <- fluidPage(
           border-radius: 1em; /* Un radio de borde más sutil */
           padding: 1.5em;
           box-shadow: 0 4px 8px rgba(0,0,0,0.08);
-          
-          /* --- INICIO DE LA CORRECCIÓN CLAVE --- */
           display: flex;
           flex-direction: column;
-          /* --- FIN DE LA CORRECCIÓN CLAVE --- */
-
-          /* Eliminamos margin y max-width para que se ajuste a la cuadrícula */
-          /* margin: 1em auto; */
-          /* max-width: 300px; */
-
-          position: relative; /* Mantenemos esto para el pseudo-elemento de la cola */
+          position: relative; 
           transition: transform 0.2s, box-shadow 0.2s;
       }
       .note-cloud:hover {
