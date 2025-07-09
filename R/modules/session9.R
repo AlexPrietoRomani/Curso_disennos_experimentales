@@ -1214,110 +1214,179 @@ session9UI <- function(id) {
                 tags$hr(),
             ),
 
-            # ===== PESTAÑA 5: PCA =====
+            # ===== PESTAÑA 5: PCA: VISUALIZANDO LA ESTRUCTURA OCULTA DE LOS DATOS =====
             nav_panel(
-                title = "4. PCA: Explorando la Complejidad",
-                h4(class = "section-header", "6.3 PCA: El Arte de Simplificar la Complejidad"),
-                    p(
-                        "Mientras que MANOVA prueba una hipótesis formal, a menudo nuestro primer objetivo es simplemente ", strong("explorar"), " un conjunto de datos complejo. Si hemos medido 10, 20 o 50 variables en nuestras parcelas, ¿cómo podemos 'ver' la estructura general de los datos? ¿Qué tratamientos se parecen entre sí? ¿Qué variables se comportan de forma similar? Aquí es donde brilla el ", strong("Análisis de Componentes Principales (PCA).")
-                    ),
+                title = "PCA: Explorando la Complejidad",
+                
+                # --------------------------------------------------------------------------------------
+                # Subsección 5.1: El Desafío de los Datos Multidimensionales
+                # --------------------------------------------------------------------------------------
+                h4(class = "section-header", "5.1 El Desafío de los Datos Multidimensionales: La 'Maldición de la Dimensionalidad'"),
+                p(
+                    "Hasta ahora, nos hemos enfocado en probar hipótesis (ANOVA, MANOVA). Pero a menudo, el primer paso en un análisis complejo no es probar, sino ", strong("explorar y visualizar."), " En la agronomía moderna, con sensores, drones y análisis de laboratorio, es común medir decenas de variables para cada parcela: rendimiento, altura, contenido de N, P, K, 10 metabolitos, 5 índices de vegetación, etc."
+                ),
 
-                    # --- Analogía y Concepto Visual ---
-                    tags$div(class="card mb-4",
-                        tags$div(class="card-body",
-                            h5(class="card-title text-center", "La Analogía de la Sombra: Reduciendo Dimensiones"),
-                            p("Imagina que tienes una escultura 3D compleja (tus datos multivariados). Es difícil capturar su forma completa en una foto 2D. El PCA es como un fotógrafo experto que busca el ángulo perfecto para proyectar una sombra de esa escultura sobre una pared. Esa sombra (un plano 2D) pierde algunos detalles, pero si se elige el ángulo correcto, puede capturar la mayor parte de la forma y estructura esencial de la escultura original."),
-                            
-                            fluidRow(
-                                column(5, class="text-center",
-                                    p(strong("Datos Originales (Espacio Multidimensional)")),
-                                    # Gráfico que simula datos 3D
-                                    plotOutput(ns("pca_concept_3d"), height="300px")
-                                ),
-                                column(2, class="text-center align-self-center",
-                                    p(icon("compress-arrows-alt", class="fa-4x text-primary")),
-                                    p(strong("PCA 'Proyecta' la Sombra"))
-                                ),
-                                column(5, class="text-center",
-                                    p(strong("Biplot 2D (Espacio Reducido)")),
-                                    # Gráfico que simula la proyección 2D
-                                    plotOutput(ns("pca_concept_2d"), height="300px")
-                                )
-                            )
+                # --- Analogía del Problema ---
+                tags$div(class="card border-danger mb-4",
+                    tags$div(class="card-body",
+                        h5(class="card-title text-center", "La Analogía del Mapa Imposible"),
+                        p("Imagina que tienes que crear un mapa de una ciudad, pero en lugar de tener solo latitud y longitud (2 dimensiones), tienes 15 'dimensiones' de información para cada punto: altitud, densidad de población, precio del suelo, nivel de ruido, etc. ¿Cómo dibujarías un mapa que muestre todas esas 15 dimensiones a la vez? Es imposible para la mente humana (y para una pantalla) visualizarlo."),
+                        tags$blockquote(class="blockquote text-center",
+                            p(class="mb-0", "Este es el núcleo de la 'maldición de la dimensionalidad': a medida que añadimos más variables (dimensiones), el 'espacio' que contiene nuestros datos se vuelve vasto, vacío y imposible de visualizar de forma intuitiva.")
+                        )
+                    )
+                ),
+
+                h4(class="section-header", "El Intento Clásico y su Fracaso: La Matriz de Gráficos de Dispersión"),
+                p(
+                    "Un primer intento para explorar datos con múltiples variables es crear una matriz de gráficos de dispersión, que muestra la relación por pares entre todas las variables. Aunque útil, esta aproximación falla rápidamente a medida que aumenta el número de variables."
+                ),
+                fluidRow(
+                    # Columna para el gráfico de la matriz
+                    column(7,
+                        h6(class="text-center", "Matriz de Dispersión para las 4 variables de `iris`"),
+                        plotOutput(ns("pca_pairs_plot"), height="350px")
+                    ),
+                    # Columna para la explicación
+                    column(5, style="border-left: 1px solid #ddd; padding-left: 15px;",
+                        h6(strong("Limitaciones de la Matriz de Dispersión:")),
+                        tags$ul(
+                            tags$li(strong("Explosión de Gráficos:"), " Con solo 4 variables, ya tenemos 6 gráficos de dispersión a interpretar. ¡Con 10 variables, serían 45 gráficos! Se vuelve abrumador rápidamente."),
+                            tags$li(strong("Visión de Túnel:"), " Cada gráfico solo muestra la relación entre dos variables a la vez. Perdemos completamente la visión de la estructura ", em("global"), " y de cómo interactúan tres o más variables conjuntamente."),
+                            tags$li(strong("Redundancia:"), " Si muchas variables están correlacionadas (como `Petal.Length` y `Petal.Width`), muchos de los gráficos nos estarán contando la misma historia, pero de forma desordenada.")
+                        )
+                    )
+                ),
+
+                tags$div(class="alert alert-success mt-4",
+                    icon("lightbulb"),
+                    strong("La Necesidad de una Nueva Perspectiva:"),
+                    p("Claramente, necesitamos una forma de 'colapsar' toda esta información redundante y de alta dimensionalidad en una vista de baja dimensión (2D o 3D) que capture la esencia de la estructura de los datos. Esta es la misión del Análisis de Componentes Principales (PCA).")
+                ),
+                
+                tags$hr(),
+
+                # --------------------------------------------------------------------------------------
+                # Subsección 5.2: PCA como Solución - La Analogía de la Sombra
+                # --------------------------------------------------------------------------------------
+                h4(class = "section-header", "5.2 La Solución PCA: Proyectando la Sombra más Informativa"),
+                p(
+                    "El ", strong("Análisis de Componentes Principales (PCA)"), " es la solución a este problema. Es una técnica de ", strong("reducción de dimensionalidad"), " que transforma nuestro complejo conjunto de datos multivariado en un nuevo sistema de coordenadas, mucho más simple, sin perder (idealmente) mucha información."
+                ),
+                
+                tags$div(class="card mb-4",
+                    tags$div(class="card-body",
+                        h5(class="card-title text-center", "La Analogía de la Sombra"),
+                        p("Imagina que tus datos son una escultura 3D. El PCA es como un fotógrafo experto que gira una luz alrededor de la escultura hasta que encuentra el ángulo exacto donde la sombra proyectada en la pared es lo más grande y descriptiva posible. Esa sombra es el ", strong("Componente Principal 1 (PC1)."), " Luego, manteniendo la primera luz fija, añade una segunda luz en un ángulo de 90 grados y busca la siguiente sombra más informativa. Esa es la ", strong("PC2.")),
+                        
+                        fluidRow(
+                            column(5, class="text-center", p(strong("Datos Originales (3D)")), plotOutput(ns("pca_concept_3d"), height="300px")),
+                            column(2, class="text-center align-self-center", p(icon("compress-arrows-alt", class="fa-4x text-primary")), p(strong("PCA"))),
+                            column(5, class="text-center", p(strong("Proyección 2D (Biplot)")), plotOutput(ns("pca_concept_2d"), height="300px"))
+                        )
+                    )
+                ),
+                
+                p("Técnicamente, los Componentes Principales son nuevos ejes (combinaciones lineales de las variables originales) ordenados por la cantidad de varianza que capturan:"),
+                tags$ul(
+                    tags$li(strong("PC1:"), " La dirección de máxima variabilidad en los datos."),
+                    tags$li(strong("PC2:"), " La dirección de máxima variabilidad restante, perpendicular a PC1.")
+                ),
+                p("El objetivo es que los primeros dos o tres componentes capturen la gran mayoría (ej. > 70%) de la varianza total, permitiéndonos visualizar la estructura principal de los datos en un gráfico 2D llamado ", strong("biplot.")),
+
+                tags$hr(),
+
+                # --------------------------------------------------------------------------------------
+                # Subsección 5.3: Interpretando el Biplot - El Mapa del PCA
+                # --------------------------------------------------------------------------------------
+                h4(class = "section-header", "5.3 Interpretando el Biplot: El Mapa del PCA"),
+                p("El biplot es el resultado final más importante del PCA. Es un mapa que nos muestra dos cosas a la vez: las observaciones y las variables originales, proyectadas en el nuevo espacio de los componentes principales."),
+                
+                fluidRow(
+                    column(6,
+                        h6(strong(icon("map-marker-alt"), " Puntos (Observaciones)")),
+                        tags$ul(
+                            tags$li(strong("Proximidad:"), " Puntos cercanos entre sí representan observaciones (ej. parcelas, genotipos) que son muy similares en su perfil multivariado."),
+                            tags$li(strong("Agrupamiento (Clustering):"), " La formación de grupos distintos indica que esos grupos de observaciones son fundamentalmente diferentes entre sí (ej. las especies de iris)."),
+                            tags$li(strong("Distancia al Origen:"), " Puntos lejos del origen (0,0) son más 'extremos' o diferentes del promedio.")
                         )
                     ),
-
-                    p(
-                        "Técnicamente, el PCA es una técnica de ", strong("reducción de dimensionalidad."), " Toma un conjunto de datos con muchas variables (posiblemente correlacionadas) y las re-expresa como un nuevo conjunto de variables sintéticas, no correlacionadas, llamadas ", strong("Componentes Principales (PCs)."), " Estos PCs se construyen con dos objetivos:"
-                    ),
-                    tags$ul(
-                        tags$li(strong("PC1 (Primera Componente Principal):"), " Es un nuevo eje (una combinación lineal de las variables originales) que se orienta en la dirección de la ", em("máxima variabilidad"), " de los datos. Captura la mayor cantidad posible de la 'dispersión' total."),
-                        tags$li(strong("PC2 (Segunda Componente Principal):"), " Es un segundo eje, ", strong("perpendicular (no correlacionado)"), " al PC1, que captura la mayor cantidad posible de la variabilidad ", em("restante.")),
-                        tags$li("...y así sucesivamente para PC3, PC4, etc.")
-                    ),
-                    p(
-                        "El resultado es asombroso: a menudo, los dos primeros componentes (PC1 y PC2) pueden capturar el 70%, 80% o incluso más del 90% de la información total contenida en docenas de variables originales. Esto nos permite visualizar la estructura principal de los datos en un simple gráfico 2D llamado ", strong("biplot,"), " que muestra tanto las observaciones (ej. genotipos) como las variables originales (ej. rendimiento, altura) en este nuevo espacio reducido."
-                    ),
-
-                    tags$hr(),
-                    
-                    h4(class = "section-header", "6.4 Laboratorio Interactivo: Explorando el PCA con `iris`"),
-                    p(
-                        "Ahora, usemos el PCA de forma interactiva para explorar el clásico dataset `iris`. Tu objetivo es actuar como un científico de datos: selecciona diferentes combinaciones de variables y observa cómo cambia la visualización de la estructura de los datos."
-                    ),
-
-                    sidebarLayout(
-                        sidebarPanel(
-                            width = 3,
-                            tags$h5("Control del Análisis PCA"),
-                            checkboxGroupInput(ns("pca_vars"), "1. Seleccionar Variables para el PCA:",
-                                choices = c("Largo Sépalo" = "Sepal.Length", 
-                                            "Ancho Sépalo" = "Sepal.Width", 
-                                            "Largo Pétalo" = "Petal.Length",
-                                            "Ancho Pétalo" = "Petal.Width"),
-                                selected = c("Sepal.Length", "Sepal.Width", "Petal.Length", "Petal.Width")
-                            ),
-                            checkboxInput(ns("pca_scale"), "Escalar Variables (Recomendado)", value = TRUE),
-                            hr(),
-                            tags$div(class="note-cloud",
-                                strong("¿Por qué escalar?"),
-                                p("Si las variables tienen escalas muy diferentes (ej. altura en cm vs. peso en kg), la variable con la mayor varianza dominará el PC1. Escalar (estandarizar) las variables asegura que todas contribuyan por igual al análisis, basándose en sus correlaciones, no en su escala.")
+                    column(6, style="border-left: 1px solid #ddd;",
+                        h6(strong(icon("arrow-right"), " Flechas (Variables Originales)")),
+                        tags$ul(
+                            tags$li(strong("Largo:"), " Flechas más largas representan variables que tienen una mayor contribución a la varianza mostrada en el gráfico. Son las variables 'más importantes' en estos dos componentes."),
+                            tags$li(strong("Dirección y Ángulo:"), " El ángulo entre las flechas nos informa sobre la correlación entre las variables originales:"),
+                            tags$ul(
+                                tags$li(em("Ángulo Pequeño (< 90°):"), " Correlación positiva fuerte."),
+                                tags$li(em("Ángulo de ~90°:"), " Sin correlación."),
+                                tags$li(em("Ángulo Grande (> 90°):"), " Correlación negativa fuerte.")
                             )
+                        )
+                    )
+                ),
+
+                tags$hr(),
+                
+                # --------------------------------------------------------------------------------------
+                # Subsección 5.4: Laboratorio Interactivo
+                # --------------------------------------------------------------------------------------
+                h4(class = "section-header", "5.4 Laboratorio Interactivo: Explorando el PCA con `iris`"),
+                p(
+                    "Ahora, usemos el PCA de forma interactiva para explorar el clásico dataset `iris`. Tu objetivo es actuar como un científico de datos: selecciona diferentes combinaciones de variables y observa cómo cambia la visualización de la estructura de los datos."
+                ),
+
+                sidebarLayout(
+                    sidebarPanel(
+                        width = 3,
+                        tags$h5("Control del Análisis PCA"),
+                        checkboxGroupInput(ns("pca_vars"), "1. Seleccionar Variables para el PCA:",
+                            choices = c("Largo Sépalo" = "Sepal.Length", 
+                                        "Ancho Sépalo" = "Sepal.Width", 
+                                        "Largo Pétalo" = "Petal.Length",
+                                        "Ancho Pétalo" = "Petal.Width"),
+                            selected = c("Sepal.Length", "Sepal.Width", "Petal.Length", "Petal.Width")
                         ),
-                        mainPanel(
-                            width = 9,
-                            # Usaremos pestañas para organizar la salida
-                            navset_card_pill(
-                                # Pestaña para el Biplot
-                                nav_panel(
-                                    "Biplot",
-                                    plotOutput(ns("pca_biplot")),
-                                    tags$hr(),
-                                    h6(strong("¿Cómo interpretar este Biplot?")),
-                                    tags$ul(
-                                        tags$li(strong("Puntos (Observaciones):"), " Cada punto es una flor. Puntos cercanos representan flores con características similares. Observa cómo las especies forman conglomerados (clusters) distintos."),
-                                        tags$li(strong("Flechas (Variables):"), " Cada flecha representa una de las variables originales."),
-                                        tags$ul(
-                                            tags$li(strong("Dirección:"), " Flechas que apuntan en direcciones similares indican variables que están positivamente correlacionadas (ej. Largo y Ancho del Pétalo). Flechas en direcciones opuestas están negativamente correlacionadas."),
-                                            tags$li(strong("Largo:"), " Flechas más largas indican variables que tienen una mayor contribución a la variación capturada en estos dos componentes.")
-                                        )
-                                    )
-                                ),
-                                # Pestaña para el Resumen Numérico
-                                nav_panel(
-                                    "Resumen Numérico",
-                                    h6("Resumen de la Importancia de los Componentes"),
-                                    verbatimTextOutput(ns("pca_summary")),
-                                    hr(),
-                                    h6("Loadings (Cargas de los Componentes)"),
-                                    p("Esta tabla muestra cómo cada variable original 'carga' o contribuye a la construcción de cada Componente Principal. Valores grandes (cercanos a 1 o -1) indican una fuerte contribución."),
-                                    verbatimTextOutput(ns("pca_loadings"))
-                                )
-                            )
+                        checkboxInput(ns("pca_scale"), "Escalar Variables (Recomendado)", value = TRUE),
+                        hr(),
+                        tags$div(class="note-cloud",
+                            strong("¿Por qué escalar?"),
+                            p("Si las variables tienen escalas muy diferentes (ej. altura en cm vs. peso en kg), la variable con la mayor varianza dominará el PC1. Escalar (estandarizar) las variables asegura que todas contribuyan por igual al análisis, basándose en sus correlaciones, no en su escala.")
                         )
                     ),
+                    mainPanel(
+                        width = 9,
+                        # Usaremos pestañas para organizar la salida
+                        navset_card_pill(
+                            # Pestaña para el Biplot
+                            nav_panel(
+                                "Biplot",
+                                plotOutput(ns("pca_biplot")),
+                                tags$hr(),
+                                h6(strong("¿Cómo interpretar este Biplot?")),
+                                tags$ul(
+                                    tags$li(strong("Puntos (Observaciones):"), " Cada punto es una flor. Puntos cercanos representan flores con características similares. Observa cómo las especies forman conglomerados (clusters) distintos."),
+                                    tags$li(strong("Flechas (Variables):"), " Cada flecha representa una de las variables originales."),
+                                    tags$ul(
+                                        tags$li(strong("Dirección:"), " Flechas que apuntan en direcciones similares indican variables que están positivamente correlacionadas (ej. Largo y Ancho del Pétalo). Flechas en direcciones opuestas están negativamente correlacionadas."),
+                                        tags$li(strong("Largo:"), " Flechas más largas indican variables que tienen una mayor contribución a la variación capturada en estos dos componentes.")
+                                    )
+                                )
+                            ),
+                            # Pestaña para el Resumen Numérico
+                            nav_panel(
+                                "Resumen Numérico",
+                                h6("Resumen de la Importancia de los Componentes"),
+                                verbatimTextOutput(ns("pca_summary")),
+                                hr(),
+                                h6("Loadings (Cargas de los Componentes)"),
+                                p("Esta tabla muestra cómo cada variable original 'carga' o contribuye a la construcción de cada Componente Principal. Valores grandes (cercanos a 1 o -1) indican una fuerte contribución."),
+                                verbatimTextOutput(ns("pca_loadings"))
+                            )
+                        )
+                    )
+                ),
 
-                    tags$hr()
+                tags$hr()
             ),
         )
     )
@@ -1330,7 +1399,7 @@ session9Server  <- function(input, output, session) {
     ns <- session$ns
     
     # --- LÓGICA PARA LA PESTAÑA 1: ANCOVA ---
-    ### ---- Subsección 1.2 ----
+    ### -------- Subsección 1.2 -------- 
     # Gráfico conceptual que muestra el problema del 'ruido' de la covariable
     output$ancova_noise_plot <- renderPlot({
         set.seed(3)
@@ -1359,7 +1428,7 @@ session9Server  <- function(input, output, session) {
             )
     })
 
-    ### ---- Subsección 1.3 ----
+    ### -------- Subsección 1.3 -------- 
     # Gráfico conceptual para el supuesto de Linealidad
     output$ancova_assumption_linearity <- renderPlot({
         set.seed(1)
@@ -1414,7 +1483,7 @@ session9Server  <- function(input, output, session) {
             theme(strip.text = element_text(face="bold"), legend.position = "bottom")
     })
 
-    ### ---- Subsección 1.4 ----
+    ### -------- Subsección 1.4 -------- 
     # Pre-calcular los modelos para no repetirlos en cada output
     case_study_models <- reactive({
         
@@ -1510,7 +1579,7 @@ session9Server  <- function(input, output, session) {
         paste0(round((res$er - 1) * 100, 1), "%")
     })
 
-    ### ---- Subsección 1.5 ----
+    ### -------- Subsección 1.5 -------- 
     ancova_sim_results <- eventReactive(input$run_ancova_sim, {
     
         set.seed(as.integer(Sys.time()))
@@ -1647,7 +1716,7 @@ session9Server  <- function(input, output, session) {
     })
     
     # --- LÓGICA PARA LA PESTAÑA 2: MANCOVA ---
-    ### ---- Subsección 2.3 ---
+    ### -------- Subsección 2.3 -------- 
     # Reactive para generar los datos del caso de estudio
     case_study_mancova_data <- reactive({
         set.seed(123) # Semilla fija para consistencia
@@ -1705,7 +1774,7 @@ session9Server  <- function(input, output, session) {
         summary.aov(modelo_mancova)
     })
 
-    ### ---- Subsección 2.4 ----
+    ### -------- Subsección 2.4 -------- 
     mancova_sim_results <- eventReactive(input$run_ancova_sim, { # Usamos el ID del botón de la UI
         
         set.seed(as.integer(Sys.time()))
@@ -1833,7 +1902,7 @@ session9Server  <- function(input, output, session) {
 
     # --- LÓGICA PARA LA PESTAÑA 3: REGRESIÓN LINEAL SIMPLE ---
 
-    ### ---- Subsección 3.1 ----
+    ### -------- Subsección 3.1 -------- 
     # Crear un dataset conceptual una sola vez para ambos gráficos
     conceptual_data <- reactive({
         set.seed(123)
@@ -1874,7 +1943,7 @@ session9Server  <- function(input, output, session) {
             theme_minimal(base_size = 12)
     })
 
-    ### ---- Subsección 3.2 ----
+    ### -------- Subsección 3.2 -------- 
     # Gráfico conceptual de la anatomía de la regresión
     output$reg_concept_plot <- renderPlot({
         set.seed(101)
@@ -1915,7 +1984,7 @@ session9Server  <- function(input, output, session) {
             coord_cartesian(xlim=c(0, 100), ylim=c(0, 100)) # Fijar los ejes para consistencia
     })
     
-    ### ---- Subsección 3.3 ----
+    ### -------- Subsección 3.3 -------- 
     # Crear un dataset conceptual una sola vez para ambos gráficos de MCO
     mco_conceptual_data <- reactive({
         set.seed(50)
@@ -1957,7 +2026,7 @@ session9Server  <- function(input, output, session) {
             theme_minimal(base_size = 12) + labs(x="X", y="Y")
     })
 
-    ### ---- Subsección 3.4 ----
+    ### -------- Subsección 3.4 -------- 
     # Reactive para los datos y el modelo de la simulación
     # Usamos eventReactive para que solo se actualice al presionar el botón
     reg_sim_results <- eventReactive(input$run_reg_sim, {
@@ -2062,7 +2131,7 @@ session9Server  <- function(input, output, session) {
     })
     
     # --- LÓGICA PARA LA PESTAÑA 4: REGRESIÓN LINEAL MÚLTIPLE ---
-    ### Subsección 4.1
+    ### -------- Subsección 4.1 -------- 
     # Gráfico conceptual para ilustrar el sesgo de variable omitida
     output$rlm_concept_plot <- renderPlot({
         set.seed(123)
@@ -2099,7 +2168,7 @@ session9Server  <- function(input, output, session) {
             annotate("text", x=15, y=75, label="Tendencia real (controlando por pH):\nFósforo tiene poco o ningún efecto", color="red", fontface="bold")
     })
 
-    ### Subsección 4.2
+    ### -------- Subsección 4.2 -------- 
     # Gráfico conceptual de un plano de regresión 3D
     output$rlm_plane_plot <- renderPlot({
         # install.packages("scatterplot3d") si no está instalado
@@ -2130,7 +2199,7 @@ session9Server  <- function(input, output, session) {
         s3d$plane3d(model, lty.box = "solid", col = "#FF00004D") # Rojo con ~30% de opacidad
     })
 
-    ### Subsección 4.3
+    ### -------- Subsección 4.3 -------- 
     # Reactive para generar los datos simulados una sola vez
     rlm_sim_data <- reactive({
         set.seed(42)
@@ -2264,8 +2333,24 @@ session9Server  <- function(input, output, session) {
     })
 
     # --- LÓGICA PARA LA PESTAÑA 5: PCA ---
+    ### -------- Subsección 5.1 -------- 
+    # Gráfico de la matriz de dispersión para ilustrar el problema
+    output$pca_pairs_plot <- renderPlot({
+        # Usamos el paquete 'GGally' para un gráfico de pares mejorado
+        if (!requireNamespace("GGally", quietly = TRUE)) {
+            plot(1,1,type="n", main="Instale el paquete 'GGally' para ver este gráfico"); return()
+        }
+        
+        # ggpairs crea una matriz que muestra dispersión, densidad y correlación
+        GGally::ggpairs(
+            iris,
+            columns = 1:4, # Seleccionar solo las variables numéricas
+            ggplot2::aes(color = Species) # Colorear por especie para ver la estructura
+        ) +
+        theme_minimal(base_size = 10)
+    })
 
-    ### ---- Subsección 3 ----
+    ### -------- Subsección 5.3 -------- 
     # Gráfico conceptual de datos 3D para la analogía del PCA
     output$pca_concept_3d <- renderPlot({
         # install.packages("scatterplot3d") si no está instalado
@@ -2319,7 +2404,7 @@ session9Server  <- function(input, output, session) {
             coord_fixed()
     })
 
-    ### ---- Subsección 4 ----
+    ### -------- Subsección 5.4 -------- 
     # Reactive para realizar el Análisis de Componentes Principales (PCA)
     pca_results <- reactive({
         # Requerir al menos 2 variables para el PCA
