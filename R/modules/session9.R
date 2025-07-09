@@ -9,7 +9,7 @@ session9UI <- function(id) {
         navset_tab(
             # ===== PESTAÑA 1: ANÁLISIS DE COVARIANZA (ANCOVA) =====
             nav_panel(
-                title = "1. ANCOVA: Ajustando por Covariables",
+                title = "1. ANCOVA",
                 
                 # ---------------------------------------------------------------
                 # Subsección 1.1: ¿Qué es ANCOVA y cómo se diferencia?
@@ -408,7 +408,7 @@ session9UI <- function(id) {
 
             # ===== PESTAÑA 2: MANCOVA =====
             nav_panel(
-                title = "2. MANCOVA: Ajustando por Covariables en Múltiples Respuestas",
+                title = "2. MANCOVA",
                 
                 # --------------------------------------------------------------------------------------
                 # Subpestaña 1: Definiendo el MANCOVA y su Lugar en la Estadística
@@ -800,7 +800,7 @@ session9UI <- function(id) {
 
             # ===== PESTAÑA 3: REGRESIÓN LINEAL SIMPLE =====
             nav_panel(
-                title = "2. Regresión Lineal Simple",
+                title = "3. Regresión Lineal Simple",
                 
                 # --------------------------------------------------------------------------------------
                 # Subsección 3.1: De Comparar Grupos a Modelar Relaciones
@@ -1030,7 +1030,7 @@ session9UI <- function(id) {
             
             # ===== PESTAÑA 4: REGRESIÓN LINEAL MÚLTIPLE =====
             nav_panel(
-                title = "3. Regresión Lineal Múltiple", # Ajustado para seguir el orden
+                title = "4. Regresión Lineal Múltiple", # Ajustado para seguir el orden
                 
                 # --------------------------------------------------------------------------------------
                 # Subsección 4.1: La Realidad es Multifactorial - El Peligro de la Visión de Túnel
@@ -1216,7 +1216,7 @@ session9UI <- function(id) {
 
             # ===== PESTAÑA 5: PCA: VISUALIZANDO LA ESTRUCTURA OCULTA DE LOS DATOS =====
             nav_panel(
-                title = "PCA: Explorando la Complejidad",
+                title = "5. PCA",
                 
                 # --------------------------------------------------------------------------------------
                 # Subsección 5.1: El Desafío de los Datos Multidimensionales
@@ -1392,59 +1392,104 @@ session9UI <- function(id) {
                 tags$hr(),
                 
                 # --------------------------------------------------------------------------------------
-                # Subsección 5.4: Laboratorio Interactivo
+                # Subsección 5.4: Laboratorio Interactivo - Caracterización de Perfiles de Café
                 # --------------------------------------------------------------------------------------
-                h4(class = "section-header", "5.4 Laboratorio Interactivo: Explorando el PCA con `iris`"),
-                p(
-                    "Ahora, usemos el PCA de forma interactiva para explorar el clásico dataset `iris`. Tu objetivo es actuar como un científico de datos: selecciona diferentes combinaciones de variables y observa cómo cambia la visualización de la estructura de los datos."
+                h4(class = "section-header", "5.4 Laboratorio Interactivo: Caracterización de Perfiles de Café"),
+
+                # --- Contexto y Misión ---
+                tags$div(class="card bg-light mb-4",
+                    tags$div(class="card-body",
+                        h5(icon("coffee"), " Escenario de Calidad: Evaluando Procesos de Post-cosecha"),
+                        p(
+                            "Imagina que eres un especialista en calidad de café. Has recibido muestras de tres procesos de post-cosecha diferentes: ", strong("Lavado, Honey y Natural."), " Para cada muestra, se han medido 6 atributos clave: 4 sensoriales (Acidez, Cuerpo, Dulzura, Aroma) y 2 químicos (Cafeína, pH)."
+                        ),
+                        p(strong("Tu Misión:"), " Utiliza el PCA para responder a estas preguntas:"),
+                        tags$ul(
+                            tags$li("¿Los diferentes procesos de post-cosecha producen perfiles de café claramente distinguibles?"),
+                            tags$li("¿Qué atributos (sensoriales o químicos) son los más importantes para diferenciar estos perfiles?"),
+                            tags$li("¿Cómo se relacionan los atributos entre sí? Por ejemplo, ¿los cafés con más cuerpo también tienen más dulzura?")
+                        ),
+                        p("Para empezar, descarga el dataset simulado y cárgalo en tu propia consola de R para explorar."),
+                        div(class="text-center", downloadButton(ns("download_pca_data"), "Descargar Datos de Café (CSV)", class="btn-sm btn-success"))
+                    )
                 ),
 
                 sidebarLayout(
                     sidebarPanel(
                         width = 3,
                         tags$h5("Control del Análisis PCA"),
-                        checkboxGroupInput(ns("pca_vars"), "1. Seleccionar Variables para el PCA:",
-                            choices = c("Largo Sépalo" = "Sepal.Length", 
-                                        "Ancho Sépalo" = "Sepal.Width", 
-                                        "Largo Pétalo" = "Petal.Length",
-                                        "Ancho Pétalo" = "Petal.Width"),
-                            selected = c("Sepal.Length", "Sepal.Width", "Petal.Length", "Petal.Width")
+                        checkboxGroupInput(ns("pca_vars_coffee"), "1. Seleccionar Atributos a Incluir:",
+                            choices = c("Acidez", "Cuerpo", "Dulzura", "Aroma", "Cafeina", "pH"),
+                            selected = c("Acidez", "Cuerpo", "Dulzura", "Aroma", "Cafeina", "pH")
                         ),
-                        checkboxInput(ns("pca_scale"), "Escalar Variables (Recomendado)", value = TRUE),
+                        checkboxInput(ns("pca_scale_coffee"), "Escalar Variables (Recomendado)", value = TRUE),
                         hr(),
                         tags$div(class="note-cloud",
                             strong("¿Por qué escalar?"),
-                            p("Si las variables tienen escalas muy diferentes (ej. altura en cm vs. peso en kg), la variable con la mayor varianza dominará el PC1. Escalar (estandarizar) las variables asegura que todas contribuyan por igual al análisis, basándose en sus correlaciones, no en su escala.")
+                            p("Las variables están en escalas muy diferentes (ej. pH de ~5 vs. Cafeína de ~1200). Sin escalar, la Cafeína dominaría el análisis solo por su mayor varianza numérica. Escalar pone a todas las variables en un campo de juego nivelado.")
                         )
                     ),
                     mainPanel(
                         width = 9,
-                        # Usaremos pestañas para organizar la salida
                         navset_card_pill(
                             # Pestaña para el Biplot
                             nav_panel(
-                                "Biplot",
-                                plotOutput(ns("pca_biplot")),
+                                "Biplot: El Mapa de Perfiles",
+                                plotOutput(ns("pca_biplot_coffee")),
                                 tags$hr(),
-                                h6(strong("¿Cómo interpretar este Biplot?")),
+                                h6(strong("Guía Rápida de Interpretación del Biplot:")),
                                 tags$ul(
-                                    tags$li(strong("Puntos (Observaciones):"), " Cada punto es una flor. Puntos cercanos representan flores con características similares. Observa cómo las especies forman conglomerados (clusters) distintos."),
-                                    tags$li(strong("Flechas (Variables):"), " Cada flecha representa una de las variables originales."),
-                                    tags$ul(
-                                        tags$li(strong("Dirección:"), " Flechas que apuntan en direcciones similares indican variables que están positivamente correlacionadas (ej. Largo y Ancho del Pétalo). Flechas en direcciones opuestas están negativamente correlacionadas."),
-                                        tags$li(strong("Largo:"), " Flechas más largas indican variables que tienen una mayor contribución a la variación capturada en estos dos componentes.")
-                                    )
+                                    tags$li(strong("Puntos (Muestras de Café):"), " Puntos cercanos indican perfiles de calidad similares. ¿Se forman grupos (clusters) por tipo de proceso?"),
+                                    tags$li(strong("Flechas (Atributos):"), " El ángulo entre las flechas indica correlación. Por ejemplo, si las flechas de 'Cuerpo' y 'Dulzura' apuntan en la misma dirección, significa que los cafés con más cuerpo tienden a ser más dulces."),
+                                    tags$li(strong("Relación Puntos-Flechas:"), " Si el cluster del proceso 'Natural' se proyecta en la dirección de la flecha 'Dulzura', significa que este proceso se caracteriza por producir cafés más dulces.")
                                 )
                             ),
                             # Pestaña para el Resumen Numérico
                             nav_panel(
-                                "Resumen Numérico",
-                                h6("Resumen de la Importancia de los Componentes"),
-                                verbatimTextOutput(ns("pca_summary")),
+                                "Resultados Numéricos",
+                                fluidRow(
+                                    column(6,
+                                        h6("Gráfico de Sedimentación (Scree Plot)"),
+                                        plotOutput(ns("pca_scree_plot_coffee"), height="300px")
+                                    ),
+                                    column(6,
+                                        h6("Importancia de los Componentes"),
+                                        verbatimTextOutput(ns("pca_summary_coffee"))
+                                    )
+                                ),
                                 hr(),
-                                h6("Loadings (Cargas de los Componentes)"),
-                                p("Esta tabla muestra cómo cada variable original 'carga' o contribuye a la construcción de cada Componente Principal. Valores grandes (cercanos a 1 o -1) indican una fuerte contribución."),
-                                verbatimTextOutput(ns("pca_loadings"))
+                                h6("Loadings (Contribución de las Variables a los PCs)"),
+                                p("Esta tabla muestra la 'receta' de cada Componente Principal. Valores grandes (positivos o negativos) en PC1 para 'Dulzura' y 'Cuerpo' significan que este eje representa principalmente un gradiente de 'Intensidad y Dulzura'."),
+                                verbatimTextOutput(ns("pca_loadings_coffee"))
+                            ),
+                            # Pestaña para el Código R
+                            nav_panel(
+                                "Código R de Ejemplo",
+                                p("Este es el código que puedes usar en tu propia consola para replicar el análisis sobre los datos que descargaste."),
+                                tags$pre(class="r-code",
+                                    htmltools::HTML(
+                                        "# 1. Cargar datos y librerías\n",
+                                        "library(dplyr)\n",
+                                        "library(ggplot2)\n",
+                                        "library(ggfortify) # Para autoplot()\n\n",
+                                        
+                                        "datos_cafe <- read.csv('datos_simulados_cafe.csv')\n\n",
+                                        
+                                        "# 2. Preparar los datos numéricos para el PCA\n",
+                                        "datos_pca <- datos_cafe %>% select_if(is.numeric)\n\n",
+                                        
+                                        "# 3. Realizar el PCA\n",
+                                        "modelo_pca <- prcomp(datos_pca, scale. = TRUE)\n\n",
+                                        
+                                        "# 4. Visualizar el Biplot\n",
+                                        "autoplot(modelo_pca, data = datos_cafe, colour = 'Proceso',\n",
+                                        "         loadings = TRUE, loadings.label = TRUE, loadings.colour = 'blue')\n\n",
+                                        
+                                        "# 5. Ver el resumen numérico\n",
+                                        "summary(modelo_pca)\n",
+                                        "print(modelo_pca$rotation) # Ver los loadings"
+                                    )
+                                )
                             )
                         )
                     )
@@ -2534,78 +2579,113 @@ session9Server  <- function(input, output, session) {
     })
 
     ### -------- Subsección 5.4 -------- 
-    # Reactive para realizar el Análisis de Componentes Principales (PCA)
-    pca_results <- reactive({
-        # Requerir al menos 2 variables para el PCA
-        validate(
-            need(length(input$pca_vars) >= 2, "Por favor, seleccione al menos dos variables para realizar el PCA.")
+    # Reactive para generar los datos simulados de café
+    pca_sim_data <- reactive({
+        set.seed(42)
+        n_per_group <- 40
+        
+        # Crear la base del dataframe
+        df <- data.frame(
+            Proceso = factor(rep(c("Lavado", "Honey", "Natural"), each = n_per_group))
         )
         
-        iris_subset <- iris %>% dplyr::select(all_of(input$pca_vars))
+        # Simular los datos con una estructura de correlación
+        # Los 'Naturales' tendrán más cuerpo y dulzura.
+        # Los 'Lavados' tendrán más acidez y pH más bajo.
+        # Los 'Honey' serán intermedios.
+        df <- df %>%
+        mutate(
+            Acidez = case_when(
+                Proceso == "Lavado" ~ rnorm(n(), 7.5, 0.5),
+                Proceso == "Honey"  ~ rnorm(n(), 7.0, 0.5),
+                Proceso == "Natural"~ rnorm(n(), 6.5, 0.6)
+            ),
+            Cuerpo = case_when(
+                Proceso == "Lavado" ~ rnorm(n(), 5, 0.6),
+                Proceso == "Honey"  ~ rnorm(n(), 6, 0.5),
+                Proceso == "Natural"~ rnorm(n(), 7.5, 0.5)
+            ),
+            Dulzura = Cuerpo * 0.7 + rnorm(n(), 0, 0.5), # Correlacionada con Cuerpo
+            Aroma = Acidez * 0.2 + Dulzura * 0.5 + rnorm(n(), 0, 0.4),
+            pH = 5.2 - Acidez * 0.1 + rnorm(n(), 0, 0.1), # Correlación negativa con Acidez
+            Cafeina = 1200 + (Cuerpo - 6)*20 + rnorm(n(), 0, 50)
+        ) %>%
+        mutate(across(where(is.numeric), ~round(., 2)))
         
-        # Realizar el PCA
-        prcomp(iris_subset, scale. = input$pca_scale)
+        return(df)
     })
 
-    # Gráfico Biplot del PCA (CORREGIDO)
-    output$pca_biplot <- renderPlot({
-        pca_model <- pca_results()
-        req(pca_model)
+    # Lógica para la descarga de datos
+    output$download_pca_data <- downloadHandler(
+        filename = function() { "datos_simulados_cafe.csv" },
+        content = function(file) { write.csv(pca_sim_data(), file, row.names = FALSE) }
+    )
+
+    # Reactive principal que realiza el PCA
+    pca_results_coffee <- reactive({
+        validate(
+            need(length(input$pca_vars_coffee) >= 2, "Por favor, seleccione al menos dos atributos.")
+        )
         
-        # La llamada a autoplot() debe hacerse después de cargar la librería, sin el prefijo.
-        # El paquete ggfortify extiende la función genérica autoplot.
+        datos_subset <- pca_sim_data() %>% dplyr::select(all_of(input$pca_vars_coffee))
+        
+        prcomp(datos_subset, scale. = input$pca_scale_coffee)
+    })
+
+    # Gráfico Biplot
+    output$pca_biplot_coffee <- renderPlot({
+        modelo <- pca_results_coffee(); req(modelo)
+        
         autoplot(
-            pca_model, 
-            data = iris,
-            colour = 'Species',
-            shape = 'Species', # Añadir forma para mayor claridad
+            modelo, 
+            data = pca_sim_data(), # Usar los datos simulados
+            colour = 'Proceso',
+            shape = 'Proceso',
             size = 3,
-            
-            # Estética de los loadings (flechas)
-            loadings = TRUE,
-            loadings.colour = 'blue',
-            loadings.label = TRUE,
-            loadings.label.colour = 'blue',
-            loadings.label.size = 5,
-            loadings.label.vjust = 1.2, # Ajustar posición vertical de la etiqueta
-            loadings.arrow.size = 1.5   # Hacer las flechas un poco más gruesas
+            loadings = TRUE, loadings.colour = 'blue',
+            loadings.label = TRUE, loadings.label.colour = 'blue',
+            loadings.label.size = 5, loadings.label.vjust = 1.2
         ) +
         labs(
-            title = "Biplot del Análisis de Componentes Principales (PCA)",
-            subtitle = "Visualización de la relación entre especies y variables medidas"
+            title = "Biplot de Atributos de Calidad del Café por Proceso",
+            subtitle = "Proyección en los dos primeros Componentes Principales"
         ) +
-        theme_bw(base_size = 14) + # Usar theme_bw para un look más clásico
-        theme(legend.position = "bottom")
+        theme_bw(base_size = 14) +
+        theme(legend.position = "bottom") +
+        stat_ellipse(aes(color=Proceso), type="t", level=0.95, linetype="dashed")
     })
 
-    # Resumen del PCA
-    output$pca_summary <- renderPrint({
-        pca_model <- pca_results()
-        req(pca_model)
+    # Scree Plot
+    output$pca_scree_plot_coffee <- renderPlot({
+        modelo <- pca_results_coffee(); req(modelo)
         
+        varianza_explicada <- (modelo$sdev^2) / sum(modelo$sdev^2)
+        df_scree <- data.frame(
+            Componente = factor(paste0("PC", 1:length(varianza_explicada)), 
+                                levels = paste0("PC", 1:length(varianza_explicada))),
+            Varianza = varianza_explicada
+        )
+        
+        ggplot(df_scree, aes(x = Componente, y = Varianza, group = 1)) +
+            geom_bar(stat = "identity", fill = "skyblue", alpha = 0.8) +
+            geom_line(color = "red", linewidth = 1) + geom_point(color = "red", size = 3) +
+            scale_y_continuous(labels = scales::percent) +
+            labs(y = "% de Varianza Explicada") +
+            theme_minimal(base_size = 12)
+    })
+
+    # Resumen numérico
+    output$pca_summary_coffee <- renderPrint({
+        modelo <- pca_results_coffee(); req(modelo)
+        summary_pca <- summary(modelo)
         cat("--- Importancia de los Componentes ---\n")
-        summary_pca <- summary(pca_model)
         print(summary_pca$importance)
-        
-        cat("\n--- Interpretación del Resumen ---\n")
-        prop_var_pc1 <- round(summary_pca$importance['Proportion of Variance', 'PC1'] * 100, 1)
-        prop_var_pc2 <- round(summary_pca$importance['Proportion of Variance', 'PC2'] * 100, 1)
-        
-        cat(paste0(" - PC1 explica el ", prop_var_pc1, "% de la variabilidad total.\n"))
-        cat(paste0(" - PC2 explica el ", prop_var_pc2, "% de la variabilidad total.\n"))
-        cat(paste0(" - Juntos, los dos primeros componentes capturan el ", 
-                round(summary_pca$importance['Cumulative Proportion', 'PC2'] * 100, 1), 
-                "% de toda la información de las variables originales.\n"))
-        cat("   Esto justifica el uso del biplot 2D para explorar los datos.\n")
     })
 
-    # Salida para los Loadings
-    output$pca_loadings <- renderPrint({
-        pca_model <- pca_results()
-        req(pca_model)
-        
-        cat("--- Loadings (Coeficientes de las Variables) ---\n")
-        # Los loadings están en el componente 'rotation' del objeto prcomp
-        print(pca_model$rotation)
+    # Loadings
+    output$pca_loadings_coffee <- renderPrint({
+        modelo <- pca_results_coffee(); req(modelo)
+        cat("--- Loadings (Receta de cada PC) ---\n")
+        print(modelo$rotation)
     })
 }
