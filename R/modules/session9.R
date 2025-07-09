@@ -1126,57 +1126,91 @@ session9UI <- function(id) {
                 tags$hr(),
 
                 # --------------------------------------------------------------------------------------
-                # Subsección 4.3: Laboratorio Interactivo
+                # Subsección 4.3: Laboratorio de Construcción de Modelos de Regresión Múltiple
                 # --------------------------------------------------------------------------------------
-                h4(class = "section-header", "4.3 Laboratorio Interactivo: Construyendo un Modelo para Predecir Características de `iris`"),
-                p(
-                    "Vamos a actuar como modeladores de datos. Nuestro objetivo es construir el mejor modelo posible para predecir el ", strong("Ancho del Pétalo (`Petal.Width`)"), " de una flor de iris, utilizando las otras medidas como posibles predictores. Usa los controles para añadir o quitar predictores y observa cómo cambia el modelo."
+                h4(class = "section-header", "4.3 Laboratorio Interactivo: Construyendo un Modelo de Rendimiento"),
+
+                # --- Contexto y Misión ---
+                tags$div(class="card bg-light mb-4",
+                    tags$div(class="card-body",
+                        h5(icon("tractor"), " Escenario de Planificación: Prediciendo el Rendimiento de un Cultivo"),
+                        p(
+                            "Vamos a usar un conjunto de datos simulado que representa un ensayo agronómico. Nuestro objetivo es construir el mejor modelo de regresión posible para predecir el ", strong("Rendimiento (`yield`)"), " de un cultivo, utilizando diferentes variables de suelo y clima como posibles predictores."
+                        ),
+                        p(strong("Tu Misión:"), " Juega a ser un científico de datos. Añade y quita predictores para encontrar el modelo que cumpla con estos criterios:"),
+                        tags$ul(
+                            tags$li("Tenga un ", strong("R-cuadrado Ajustado alto"), " (explique la mayor cantidad de varianza posible)."),
+                            tags$li("Tenga valores de ", strong("AIC y BIC bajos"), " (sea parsimonioso y eficiente)."),
+                            tags$li("No tenga problemas graves de ", strong("colinealidad"), " (VIF < 5)."),
+                            tags$li("Todos sus predictores sean ", strong("estadísticamente significativos"), " (p < 0.05).")
+                        ),
+                        p("Para empezar, descarga el dataset simulado y cárgalo en tu propia consola de R para explorar."),
+                        div(class="text-center", downloadButton(ns("download_rlm_data"), "Descargar Datos de Ejemplo (CSV)", class="btn-sm btn-success"))
+                    )
                 ),
-                
+
                 sidebarLayout(
                     sidebarPanel(
                         width = 3,
                         tags$h5("Control de Construcción del Modelo"),
                         checkboxGroupInput(ns("rlm_predictors"), "Seleccionar Variables Predictoras:",
-                            choices = c("Largo del Pétalo" = "Petal.Length", 
-                                        "Ancho del Sépalo" = "Sepal.Width", 
-                                        "Largo del Sépalo" = "Sepal.Length"),
-                            selected = c("Petal.Length", "Sepal.Length")
+                            # Usaremos variables con nombres agronómicos
+                            choices = c("Nitrógeno en Suelo (ppm)" = "N_suelo", 
+                                        "Fósforo en Suelo (ppm)" = "P_suelo", 
+                                        "Materia Orgánica (%)" = "Materia_Organica",
+                                        "Precipitación (mm)" = "Precipitacion"),
+                            selected = c("N_suelo", "Precipitacion")
                         ),
-                        
                         hr(),
-                        tags$h5("Contexto del Dataset"),
-                        p(class="small text-muted", "El dataset `iris` contiene 50 muestras de 3 especies diferentes de flores de iris (Setosa, Versicolor, y Virginica), con 4 medidas para cada una. Es un dataset clásico para tareas de clasificación y regresión.")
+                        tags$h5("Opciones de Visualización"),
+                        # Añadimos un selector para el gráfico de efectos parciales
+                        selectInput(ns("partial_effect_var"), "Ver Efecto Parcial de:",
+                                    choices = NULL) # Las opciones se llenarán dinámicamente
                     ),
                     mainPanel(
                         width = 9,
-                        # Usaremos pestañas para organizar la salida
                         navset_card_pill(
                             # Pestaña para la Salida Principal
                             nav_panel(
-                                "Resumen del Modelo e Interpretación",
-                                verbatimTextOutput(ns("rlm_summary_output")),
-                                # UI para la interpretación dinámica
-                                uiOutput(ns("rlm_interpretation_ui"))
+                                "Resumen y Selección del Modelo",
+                                fluidRow(
+                                    column(6,
+                                        h6("Resumen del Modelo Actual"),
+                                        verbatimTextOutput(ns("rlm_summary_output"))
+                                    ),
+                                    column(6,
+                                        h6("Criterios de Selección de Modelos"),
+                                        verbatimTextOutput(ns("rlm_model_selection_output")),
+                                        h6("Interpretación de Coeficientes"),
+                                        uiOutput(ns("rlm_interpretation_ui"))
+                                    )
+                                )
                             ),
-                            # Pestaña para Diagnóstico
-                            nav_panel(
-                                "Diagnóstico de Residuos",
-                                plotOutput(ns("rlm_diagnostic_plot"))
-                            ),
-                            # Pestaña para Visualizar Colinealidad
+                            # Pestaña para Diagnóstico de Colinealidad
                             nav_panel(
                                 "Diagnóstico de Colinealidad",
-                                h6("Matriz de Correlación de los Predictores"),
-                                p("Un problema común en RLM es la ", strong("colinealidad"), ": cuando los predictores están fuertemente correlacionados entre sí. Esto puede hacer que las estimaciones de los coeficientes sean inestables. Valores cercanos a 1 o -1 en esta matriz indican una alta correlación."),
-                                plotOutput(ns("rlm_correlation_plot")),
-                                h6("Factor de Inflación de la Varianza (VIF)"),
-                                p("El VIF es una medida numérica de la colinealidad. Una regla general es que valores de VIF > 5 o 10 indican un problema de colinealidad que debe ser abordado."),
-                                verbatimTextOutput(ns("rlm_vif_output"))
+                                p("La colinealidad ocurre cuando los predictores están correlacionados entre sí, lo que puede desestabilizar las estimaciones del modelo."),
+                                fluidRow(
+                                    column(6, 
+                                        h6("Matriz de Correlación de Predictores"),
+                                        plotOutput(ns("rlm_correlation_plot"))
+                                    ),
+                                    column(6,
+                                        h6("Factor de Inflación de la Varianza (VIF)"),
+                                        verbatimTextOutput(ns("rlm_vif_output"))
+                                    )
+                                )
+                            ),
+                            # Pestaña para Efectos Parciales
+                            nav_panel(
+                                "Visualización de Efectos Parciales",
+                                p("Este gráfico muestra el efecto de la variable seleccionada sobre el rendimiento, ", strong("después de ajustar por el efecto de todos los demás predictores"), " en el modelo. Es la representación visual de un coeficiente de regresión múltiple."),
+                                plotOutput(ns("rlm_partial_effect_plot"))
                             )
                         )
                     )
                 ),
+
                 tags$hr(),
             ),
 
@@ -2092,28 +2126,67 @@ session9Server  <- function(input, output, session) {
             zlab = "Respuesta Y (ej. Rendimiento)"
         )
         
-        # Añadir el plano de regresión
-        s3d$plane3d(model, lty.box = "solid", col = "rgba(255, 0, 0, 0.3)")
+        # Añadir el plano de regresión usando un color hexadecimal con canal alfa
+        s3d$plane3d(model, lty.box = "solid", col = "#FF00004D") # Rojo con ~30% de opacidad
     })
 
     ### Subsección 4.3
+    # Reactive para generar los datos simulados una sola vez
+    rlm_sim_data <- reactive({
+        set.seed(42)
+        n <- 150
+        
+        # Crear predictores, algunos correlacionados
+        N_suelo <- rnorm(n, 15, 4)
+        Materia_Organica <- 2 + 0.1 * N_suelo + rnorm(n, 0, 0.5) # Correlacionada con N
+        P_suelo <- rnorm(n, 20, 5)
+        Precipitacion <- rnorm(n, 600, 100)
+        
+        # Generar la respuesta
+        yield <- 10 + 2*N_suelo + 1.5*Materia_Organica - 0.2*P_suelo + 0.05*Precipitacion + rnorm(n, 0, 10)
+        
+        data.frame(yield, N_suelo, P_suelo, Materia_Organica, Precipitacion) %>%
+            # Redondear para que se vean como datos reales
+            mutate(across(everything(), ~round(., 2)))
+    })
+
+    # Lógica para la descarga de datos
+    output$download_rlm_data <- downloadHandler(
+        filename = function() { "datos_simulados_rlm.csv" },
+        content = function(file) {
+            write.csv(rlm_sim_data(), file, row.names = FALSE)
+        }
+    )
+
     # Reactive que construye y ajusta el modelo de RLM
     rlm_modelo <- reactive({
-        # Requerir al menos un predictor
         validate(
             need(length(input$rlm_predictors) > 0, "Por favor, seleccione al menos una variable predictora.")
         )
-        
-        # Construir la fórmula dinámicamente
-        formula_str <- paste("Petal.Width ~", paste(input$rlm_predictors, collapse = " + "))
-        
-        # Ajustar el modelo lineal
-        lm(as.formula(formula_str), data = iris)
+        formula_str <- paste("yield ~", paste(input$rlm_predictors, collapse = " + "))
+        lm(as.formula(formula_str), data = rlm_sim_data())
     })
 
-    # Salida del resumen del modelo
+    # Actualizar las opciones del selector de efectos parciales dinámicamente
+    observe({
+        updateSelectInput(session, "partial_effect_var",
+                        choices = input$rlm_predictors,
+                        selected = input$rlm_predictors[1])
+    })
+
+
+    # --- Salidas para la Pestaña "Resumen y Selección del Modelo" ---
     output$rlm_summary_output <- renderPrint({
         summary(rlm_modelo())
+    })
+
+    output$rlm_model_selection_output <- renderPrint({
+        modelo <- rlm_modelo()
+        cat("--- Criterios de Selección ---\n")
+        cat("R-cuadrado Ajustado:", round(summary(modelo)$adj.r.squared, 4), "\n")
+        cat("AIC:", round(AIC(modelo), 2), "\n")
+        cat("BIC:", round(BIC(modelo), 2), "\n")
+        cat("\nRegla general: Buscamos un R² Adj. alto y valores de AIC/BIC bajos.")
     })
 
     # Interpretación dinámica del modelo
@@ -2154,36 +2227,40 @@ session9Server  <- function(input, output, session) {
         par(mfrow = c(1, 1))
     })
 
-    # --- Salidas para la pestaña de Colinealidad ---
-
-    # Gráfico de matriz de correlación
+    # --- Salidas para la Pestaña "Diagnóstico de Colinealidad" ---
     output$rlm_correlation_plot <- renderPlot({
-        # Requerir al menos 2 predictores para una matriz de correlación
-        validate(
-            need(length(input$rlm_predictors) >= 2, "Se necesitan al menos dos predictores para calcular la correlación.")
-        )
-        
-        # Usar el paquete 'GGally' para un gráfico elegante
+        validate(need(length(input$rlm_predictors) >= 2, "Se necesitan al menos dos predictores."))
         if (!requireNamespace("GGally", quietly = TRUE)) {
-            plot(1,1,type="n", main="Instale el paquete 'GGally' para ver este gráfico"); return()
+            plot(1,1,type="n", main="Instale el paquete 'GGally'"); return()
         }
-        
-        datos_predictores <- iris %>% dplyr::select(all_of(input$rlm_predictors))
-        
+        datos_predictores <- rlm_sim_data() %>% dplyr::select(all_of(input$rlm_predictors))
         GGally::ggcorr(datos_predictores, label = TRUE, label_size = 5, label_round = 2)
     })
 
-    # Salida del VIF
     output$rlm_vif_output <- renderPrint({
-        # Requerir al menos 2 predictores para VIF
         if(length(input$rlm_predictors) < 2){
             cat("El VIF solo se puede calcular con dos o más predictores.")
             return()
         }
-        
         cat("--- Factor de Inflación de la Varianza (VIF) ---\n")
-        # La función vif() viene del paquete 'car'
         print(car::vif(rlm_modelo()))
+    })
+
+    # --- Salida para la Pestaña "Visualización de Efectos Parciales" ---
+    output$rlm_partial_effect_plot <- renderPlot({
+        req(input$partial_effect_var)
+        modelo <- rlm_modelo()
+        
+        # Usar el paquete 'effects' para calcular y graficar los efectos parciales
+        if (!requireNamespace("effects", quietly = TRUE)) {
+            plot(1,1,type="n", main="Instale el paquete 'effects'"); return()
+        }
+
+        # 'allEffects' calcula los efectos para todos los términos del modelo
+        efectos <- effects::allEffects(modelo)
+        
+        # Graficar el efecto parcial de la variable seleccionada
+        plot(efectos, ask=FALSE, main=paste("Efecto Parcial de", input$partial_effect_var, "sobre el Rendimiento"))
     })
 
     # --- LÓGICA PARA LA PESTAÑA 5: PCA ---
