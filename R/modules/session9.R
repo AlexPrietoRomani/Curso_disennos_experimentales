@@ -1326,30 +1326,65 @@ session9UI <- function(id) {
                 tags$hr(),
 
                 # --------------------------------------------------------------------------------------
-                # Subsección 5.3: Interpretando el Biplot - El Mapa del PCA
+                # Subsección 5.3: Interpretando el Biplot - El Mapa del Análisis Multivariado
                 # --------------------------------------------------------------------------------------
-                h4(class = "section-header", "5.3 Interpretando el Biplot: El Mapa del PCA"),
-                p("El biplot es el resultado final más importante del PCA. Es un mapa que nos muestra dos cosas a la vez: las observaciones y las variables originales, proyectadas en el nuevo espacio de los componentes principales."),
-                
-                fluidRow(
-                    column(6,
-                        h6(strong(icon("map-marker-alt"), " Puntos (Observaciones)")),
+                h4(class = "section-header", "5.3 Interpretando el Biplot: El Mapa del Análisis Multivariado"),
+                p(
+                    "El biplot es el resultado final más importante del PCA. Es un 'mapa' increíblemente denso en información que nos permite responder a tres preguntas fundamentales sobre nuestros datos de un solo vistazo, proyectando tanto las observaciones (puntos) como las variables (flechas) en el nuevo espacio de los dos primeros componentes principales."
+                ),
+
+                # --- Biplot de Ejemplo Anotado ---
+                tags$div(class="card mb-4",
+                    tags$div(class="card-body",
+                        h5(class="card-title text-center", "Biplot de Ejemplo del Dataset `iris`"),
+                        p(class="text-center text-muted", "Este gráfico muestra la relación entre las 3 especies de iris y sus 4 características morfológicas."),
+                        # Gráfico estático anotado que se generará en el servidor
+                        plotOutput(ns("pca_annotated_biplot"), height="500px")
+                    )
+                ),
+
+                # --- Las Tres Preguntas Clave del Biplot ---
+                navset_card_pill(
+                    header = tags$h5("Cómo Leer el Mapa: Las Tres Preguntas Clave"),
+                    
+                    # Pregunta 1: ¿Cómo se relacionan las observaciones?
+                    nav_panel(
+                        "1. ¿Cómo se agrupan mis tratamientos/muestras?",
+                        icon = icon("users"),
+                        h6(strong("Interpretando los Puntos (Observaciones)")),
                         tags$ul(
-                            tags$li(strong("Proximidad:"), " Puntos cercanos entre sí representan observaciones (ej. parcelas, genotipos) que son muy similares en su perfil multivariado."),
-                            tags$li(strong("Agrupamiento (Clustering):"), " La formación de grupos distintos indica que esos grupos de observaciones son fundamentalmente diferentes entre sí (ej. las especies de iris)."),
-                            tags$li(strong("Distancia al Origen:"), " Puntos lejos del origen (0,0) son más 'extremos' o diferentes del promedio.")
+                            tags$li(strong("Proximidad = Similitud:"), " Puntos que están cerca en el biplot representan observaciones (ej. genotipos, parcelas) que tienen un perfil multivariado muy similar. En el gráfico, todas las flores de la especie 'setosa' están agrupadas, indicando su alta similitud."),
+                            tags$li(strong("Distancia = Diferencia:"), " La distancia entre los centroides de los grupos indica cuán diferentes son. El grupo 'setosa' está muy lejos de 'virginica' y 'versicolor', lo que significa que su perfil morfológico es muy distinto."),
+                            tags$li(strong("Dirección desde el Origen:"), " La dirección en la que se encuentra un grupo de puntos nos dice qué variables lo caracterizan. El grupo 'virginica' está en la misma dirección que las flechas de `Petal.Length` y `Petal.Width`, lo que significa que se caracteriza por tener pétalos grandes.")
                         )
                     ),
-                    column(6, style="border-left: 1px solid #ddd;",
-                        h6(strong(icon("arrow-right"), " Flechas (Variables Originales)")),
+                    
+                    # Pregunta 2: ¿Cómo se relacionan las variables?
+                    nav_panel(
+                        "2. ¿Cómo se relacionan mis variables de respuesta?",
+                        icon = icon("project-diagram"),
+                        h6(strong("Interpretando las Flechas (Variables Originales)")),
                         tags$ul(
-                            tags$li(strong("Largo:"), " Flechas más largas representan variables que tienen una mayor contribución a la varianza mostrada en el gráfico. Son las variables 'más importantes' en estos dos componentes."),
-                            tags$li(strong("Dirección y Ángulo:"), " El ángulo entre las flechas nos informa sobre la correlación entre las variables originales:"),
+                            tags$li(strong("Ángulo = Correlación:"), " El ángulo entre las flechas nos dice cómo se correlacionan las variables originales entre sí."),
                             tags$ul(
-                                tags$li(em("Ángulo Pequeño (< 90°):"), " Correlación positiva fuerte."),
-                                tags$li(em("Ángulo de ~90°:"), " Sin correlación."),
-                                tags$li(em("Ángulo Grande (> 90°):"), " Correlación negativa fuerte.")
-                            )
+                                tags$li(em("Ángulo Agudo (< 90°):"), " Correlación positiva. En el gráfico, `Petal.Length` y `Petal.Width` tienen un ángulo muy pequeño, indicando que están fuertemente correlacionadas positivamente (flores con pétalos largos también los tienen anchos)."),
+                                tags$li(em("Ángulo Recto (~90°):"), " Sin correlación. `Sepal.Width` es casi perpendicular a las variables del pétalo, sugiriendo poca o ninguna correlación."),
+                                tags$li(em("Ángulo Obtuso (> 90°):"), " Correlación negativa. `Sepal.Width` y `Petal.Length` forman un ángulo mayor a 90°, lo que podría indicar una leve correlación negativa.")
+                            ),
+                            tags$li(strong("Largo = Importancia:"), " Flechas más largas representan variables que tienen una mayor contribución a la varianza explicada por estos dos componentes. Son las variables 'más importantes' para diferenciar las observaciones en este mapa 2D.")
+                        )
+                    ),
+                    
+                    # Pregunta 3: ¿Cómo se relacionan observaciones y variables?
+                    nav_panel(
+                        "3. ¿Qué variables caracterizan a cada grupo?",
+                        icon = icon("search-location"),
+                        h6(strong("Interpretando la Relación Puntos-Flechas")),
+                        p("Esta es la interpretación más poderosa. Proyectar un punto (o el centroide de un grupo) perpendicularmente sobre una flecha de una variable nos dice cómo se posiciona esa observación en relación a esa variable."),
+                        tags$ul(
+                            tags$li("Si la proyección de un grupo de puntos cae en la ", strong("punta de una flecha"), ", significa que ese grupo tiene valores ", strong("altos"), " para esa variable. (Ej: 'virginica' tiene valores altos de `Petal.Length` y `Petal.Width`)."),
+                            tags$li("Si la proyección de un grupo de puntos cae en la ", strong("base de una flecha"), " (en la dirección opuesta), significa que ese grupo tiene valores ", strong("bajos"), " para esa variable. (Ej: 'setosa' tiene valores bajos de `Petal.Length` y `Petal.Width`)."),
+                            tags$li("Si la proyección cae cerca del origen (0,0), el grupo tiene valores ", strong("promedio"), " para esa variable.")
                         )
                     )
                 ),
@@ -2455,57 +2490,47 @@ session9Server  <- function(input, output, session) {
     })
 
     ### -------- Subsección 5.3 -------- 
-    # Gráfico conceptual de datos 3D para la analogía del PCA
-    output$pca_concept_3d <- renderPlot({
-        # install.packages("scatterplot3d") si no está instalado
-        req(scatterplot3d)
-        set.seed(123)
+    # Gráfico biplot anotado para la explicación
+    output$pca_annotated_biplot <- renderPlot({
         
-        # Simular una nube de puntos 3D con estructura
-        nube_3d <- data.frame(
-            x = rnorm(100, 0, 2),
-            y = rnorm(100, 0, 2),
-            z = rnorm(100, 0, 0.5)
-        )
-        nube_3d$y <- nube_3d$y + nube_3d$x * 0.5
-        nube_3d$z <- nube_3d$z + nube_3d$x * 0.2
-
-        # Crear el gráfico 3D
-        scatterplot3d::scatterplot3d(
-            x = nube_3d$x, y = nube_3d$y, z = nube_3d$z,
-            pch = 19, color = "steelblue",
-            angle = 40,
-            grid = TRUE, box = FALSE,
-            xlab = "Variable 1", ylab = "Variable 2", zlab = "Variable 3"
-        )
-    })
-
-    # Gráfico conceptual de la proyección 2D (la 'sombra')
-    output$pca_concept_2d <- renderPlot({
-        set.seed(123) # Usar la misma semilla para consistencia
+        # Realizar el PCA sobre las 4 variables numéricas de iris
+        pca_model <- prcomp(iris[, 1:4], scale. = TRUE)
         
-        # Simular los mismos datos
-        nube_3d <- data.frame(
-            x = rnorm(100, 0, 2),
-            y = rnorm(100, 0, 2),
-            z = rnorm(100, 0, 0.5)
-        )
-        nube_3d$y <- nube_3d$y + nube_3d$x * 0.5
-        nube_3d$z <- nube_3d$z + nube_3d$x * 0.2
+        # Usar ggfortify para crear el biplot base
+        p <- autoplot(
+            pca_model,
+            data = iris,
+            colour = 'Species',
+            shape = 'Species',
+            size = 3,
+            loadings = TRUE,
+            loadings.colour = 'blue',
+            loadings.label = TRUE,
+            loadings.label.colour = 'blue',
+            loadings.label.size = 5,
+            loadings.label.vjust = 1.2,
+            loadings.arrow.size = 1.2
+        ) +
+        theme_bw(base_size = 14) +
+        theme(legend.position = "bottom") +
+        # Añadir elipses de confianza
+        stat_ellipse(aes(color = Species), type="t", level=0.95, linetype="dashed", geom="path")
         
-        # Realizar el PCA sobre los datos 3D
-        pca_result <- prcomp(nube_3d, scale. = TRUE)
-        df_pca <- as.data.frame(pca_result$x)
-        
-        # Graficar los dos primeros componentes
-        ggplot(df_pca, aes(x = PC1, y = PC2)) +
-            geom_point(color = "steelblue", alpha = 0.7, size = 3) +
-            labs(
-                x = "Componente Principal 1 (Máxima Variación)",
-                y = "Componente Principal 2 (Segunda Variación)"
-            ) +
-            theme_minimal(base_size = 12) +
-            coord_fixed()
+        # Añadir anotaciones para explicar los conceptos
+        p +
+            # Anotación para el cluster de Setosa
+            annotate("rect", xmin = 1.5, xmax = 3.5, ymin = -1, ymax = 1.5, fill = "orange", alpha = 0.1, color="orange", linetype="dashed") +
+            annotate("text", x = 3.3, y = 1.3, label = "Cluster de Setosa\n(Similares entre sí)", color = "darkorange", fontface="bold") +
+            
+            # Anotación para la correlación positiva
+            annotate("segment", x = -0.5, y = -0.6, xend = -0.6, yend = -0.5,
+                    arrow = arrow(length = unit(0.2, "cm"), type = "closed"), color = "darkgreen") +
+            annotate("text", x = -0.7, y = -0.7, label = "Ángulo pequeño =\nCorrelación Positiva", color = "darkgreen", size=4, hjust=1) +
+            
+            # Anotación para la correlación nula
+            annotate("segment", x = -0.5, y = -0.6, xend = -0.05, yend = 0.35,
+                    arrow = arrow(length = unit(0.2, "cm"), type = "closed"), color = "purple") +
+            annotate("text", x = -0.1, y = 0.5, label = "Ángulo ~90° =\nSin Correlación", color = "purple", size=4)
     })
 
     ### -------- Subsección 5.4 -------- 
