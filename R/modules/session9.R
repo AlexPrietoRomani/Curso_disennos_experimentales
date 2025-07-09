@@ -1267,32 +1267,61 @@ session9UI <- function(id) {
                 tags$hr(),
 
                 # --------------------------------------------------------------------------------------
-                # Subsección 5.2: PCA como Solución - La Analogía de la Sombra
+                # Subsección 5.2: La Solución PCA - Encontrando los Nuevos Ejes de Variación
                 # --------------------------------------------------------------------------------------
-                h4(class = "section-header", "5.2 La Solución PCA: Proyectando la Sombra más Informativa"),
+                h4(class = "section-header", "5.2 La Solución PCA: Encontrando los Nuevos Ejes de Variación"),
                 p(
-                    "El ", strong("Análisis de Componentes Principales (PCA)"), " es la solución a este problema. Es una técnica de ", strong("reducción de dimensionalidad"), " que transforma nuestro complejo conjunto de datos multivariado en un nuevo sistema de coordenadas, mucho más simple, sin perder (idealmente) mucha información."
+                    "El Análisis de Componentes Principales (PCA) resuelve el problema de la alta dimensionalidad no eliminando variables, sino creando ", strong("nuevas variables sintéticas"), " (los Componentes Principales) que son mucho más informativas. Es una técnica de rotación de ejes que busca la perspectiva más interesante de nuestros datos."
                 ),
-                
+
+                # --- Laboratorio Conceptual Interactivo: La Analogía de la Sombra ---
                 tags$div(class="card mb-4",
                     tags$div(class="card-body",
-                        h5(class="card-title text-center", "La Analogía de la Sombra"),
-                        p("Imagina que tus datos son una escultura 3D. El PCA es como un fotógrafo experto que gira una luz alrededor de la escultura hasta que encuentra el ángulo exacto donde la sombra proyectada en la pared es lo más grande y descriptiva posible. Esa sombra es el ", strong("Componente Principal 1 (PC1)."), " Luego, manteniendo la primera luz fija, añade una segunda luz en un ángulo de 90 grados y busca la siguiente sombra más informativa. Esa es la ", strong("PC2.")),
+                        h5(class="card-title text-center", "Laboratorio Conceptual: Proyectando la Sombra más Informativa"),
+                        p(class="text-center", "Imagina que tus datos son la nube de puntos 3D de abajo. El PCA es como un fotógrafo que busca el mejor ángulo para proyectar su sombra. ", strong("Mueve el deslizador para rotar la nube de datos y observa cómo cambia la 'sombra' (la proyección 2D) que se ve en el gráfico de la derecha."), " El PCA encuentra automáticamente el ángulo que hace que la sombra sea lo más 'ancha' y dispersa posible."),
                         
-                        fluidRow(
-                            column(5, class="text-center", p(strong("Datos Originales (3D)")), plotOutput(ns("pca_concept_3d"), height="300px")),
-                            column(2, class="text-center align-self-center", p(icon("compress-arrows-alt", class="fa-4x text-primary")), p(strong("PCA"))),
-                            column(5, class="text-center", p(strong("Proyección 2D (Biplot)")), plotOutput(ns("pca_concept_2d"), height="300px"))
+                        sidebarLayout(
+                            sidebarPanel(
+                                width = 3,
+                                sliderInput(ns("pca_angle_slider"), "Ángulo de Rotación de la Vista 3D:",
+                                            min = 0, max = 180, value = 40, step = 5)
+                            ),
+                            mainPanel(
+                                width = 9,
+                                fluidRow(
+                                    column(7, plotOutput(ns("pca_concept_3d_interactive"))),
+                                    column(5, plotOutput(ns("pca_concept_2d_interactive")))
+                                )
+                            )
                         )
                     )
                 ),
-                
-                p("Técnicamente, los Componentes Principales son nuevos ejes (combinaciones lineales de las variables originales) ordenados por la cantidad de varianza que capturan:"),
-                tags$ul(
-                    tags$li(strong("PC1:"), " La dirección de máxima variabilidad en los datos."),
-                    tags$li(strong("PC2:"), " La dirección de máxima variabilidad restante, perpendicular a PC1.")
+
+                h4(class="section-header", "Definiendo los Componentes Principales (PCs)"),
+                fluidRow(
+                    column(6,
+                        p(strong("¿Qué es un Componente Principal?")),
+                        p("Cada PC es una ", strong("combinación lineal"), " de las variables originales. Piensa en ello como una nueva 'receta' o un nuevo 'índice'."),
+                        withMathJax(helpText("$$PC1 = w_{11}X_1 + w_{12}X_2 + \\dots + w_{1p}X_p$$")),
+                        p("Los 'pesos' (\\(w\\)) de esta receta se calculan para cumplir dos condiciones:"),
+                        tags$ul(
+                            tags$li(strong("Maximizar la Varianza:"), " El PC1 es el eje que atraviesa la nube de datos en su dirección más larga, capturando la mayor cantidad de dispersión."),
+                            tags$li(strong("Ser Ortogonales:"), " El PC2 se construye para ser perpendicular (no correlacionado) al PC1, capturando la mayor cantidad de la varianza restante. Y así sucesivamente.")
+                        )
+                    ),
+                    column(6, style="border-left: 1px solid #ddd; padding-left: 15px;",
+                        p(strong("¿Cuántos Componentes Necesitamos?")),
+                        p("Un PCA crea tantos componentes como variables originales. Pero el objetivo es quedarse solo con los primeros que expliquen una gran parte de la varianza total. La herramienta para decidir cuántos componentes retener es el ", strong("Gráfico de Sedimentación (Scree Plot).")),
+                        # plotOutput para el Scree Plot
+                        plotOutput(ns("pca_scree_plot"), height="250px")
+                    )
                 ),
-                p("El objetivo es que los primeros dos o tres componentes capturen la gran mayoría (ej. > 70%) de la varianza total, permitiéndonos visualizar la estructura principal de los datos en un gráfico 2D llamado ", strong("biplot.")),
+
+                tags$div(class="alert alert-success mt-3",
+                    icon("bullseye"),
+                    strong("El Objetivo Final del PCA:"),
+                    p("Reducir la complejidad de, por ejemplo, 10 variables correlacionadas a solo 2 o 3 Componentes Principales no correlacionados que capturen la mayor parte de la información (>70-80%). Esto nos permite visualizar y analizar la estructura principal de los datos sin el 'ruido' de la redundancia, utilizando un gráfico llamado ", strong("biplot."))
+                ),
 
                 tags$hr(),
 
@@ -2348,6 +2377,81 @@ session9Server  <- function(input, output, session) {
             ggplot2::aes(color = Species) # Colorear por especie para ver la estructura
         ) +
         theme_minimal(base_size = 10)
+    })
+
+    ### -------- Subsección 5.2 -------- 
+    # Crear datos 3D una sola vez para el laboratorio conceptual
+    pca_conceptual_data <- reactive({
+        set.seed(123)
+        nube_3d <- data.frame(
+            x = rnorm(100, 0, 2),
+            y = rnorm(100, 0, 2),
+            z = rnorm(100, 0, 0.5)
+        )
+        nube_3d$y <- nube_3d$y + nube_3d$x * 0.5
+        nube_3d$z <- nube_3d$z + nube_3d$x * 0.2
+        return(nube_3d)
+    })
+
+    # Gráfico 3D interactivo
+    output$pca_concept_3d_interactive <- renderPlot({
+        req(scatterplot3d)
+        df <- pca_conceptual_data()
+        scatterplot3d::scatterplot3d(
+            x = df$x, y = df$y, z = df$z,
+            pch = 19, color = "steelblue",
+            angle = input$pca_angle_slider, # ¡El ángulo es ahora interactivo!
+            grid = TRUE, box = FALSE,
+            xlab = "Variable 1", ylab = "Variable 2", zlab = "Variable 3",
+            main = "Datos Originales (Vista 3D)"
+        )
+    })
+
+    # Gráfico 2D que muestra la proyección ("sombra")
+    output$pca_concept_2d_interactive <- renderPlot({
+        df <- pca_conceptual_data()
+        # Realizar el PCA
+        pca_result <- prcomp(df, scale. = TRUE)
+        df_pca <- as.data.frame(pca_result$x)
+        
+        ggplot(df_pca, aes(x = PC1, y = PC2)) +
+            geom_point(color = "steelblue", alpha = 0.7, size = 3) +
+            theme_minimal(base_size = 12) +
+            coord_fixed() +
+            labs(
+                x = "Componente Principal 1 (Sombra Principal)",
+                y = "Componente Principal 2",
+                title = "Proyección 2D (Sombra)"
+            )
+    })
+
+    # Gráfico de Sedimentación (Scree Plot)
+    output$pca_scree_plot <- renderPlot({
+        # Usaremos el PCA del laboratorio interactivo para ser consistentes
+        pca_model <- pca_results() # Asumiendo que pca_results() ya está definido en tu server
+        req(pca_model)
+        
+        # Calcular la varianza explicada por cada componente
+        varianza_explicada <- (pca_model$sdev^2) / sum(pca_model$sdev^2)
+        df_scree <- data.frame(
+            Componente = paste0("PC", 1:length(varianza_explicada)),
+            Varianza = varianza_explicada
+        )
+        # Asegurar el orden de los componentes
+        df_scree$Componente <- factor(df_scree$Componente, levels = df_scree$Componente)
+        
+        ggplot(df_scree, aes(x = Componente, y = Varianza, group = 1)) +
+            geom_bar(stat = "identity", fill = "skyblue", alpha = 0.8) +
+            geom_line(color = "red", linewidth = 1) +
+            geom_point(color = "red", size = 3) +
+            scale_y_continuous(labels = scales::percent) +
+            labs(
+                title = "Gráfico de Sedimentación (Scree Plot)",
+                subtitle = "¿Cuánta información aporta cada componente?",
+                x = "Componente Principal",
+                y = "Porcentaje de Varianza Explicada"
+            ) +
+            theme_minimal(base_size = 12)
     })
 
     ### -------- Subsección 5.3 -------- 
