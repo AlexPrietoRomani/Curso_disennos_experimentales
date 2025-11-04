@@ -9,7 +9,12 @@ Curso_disennos_experimentales/
 │       ├── session3.R
 │       └── … session8.R
 ├── www/
+│   ├── css/
+│   │   └── custom.css
+│   ├── js/
+│   │   └── custom.js
 │   └── images/          # Aquí se almacenarán todas las imágenes (png, jpg, etc.)
 ├── data/                # Carpeta para datos de ejemplo o datasets
 ├── README.md
 └── app.R
+
