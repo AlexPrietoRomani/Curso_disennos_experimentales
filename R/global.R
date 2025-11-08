@@ -1,4 +1,24 @@
 # R/global.R
+
+need_pkg <- function(pkg) {
+  if (!requireNamespace(pkg, quietly = TRUE)) {
+    stop(sprintf("El paquete '%s' es requerido para esta sesión. Instálalo primero.", pkg), call. = FALSE)
+  }
+}
+
+# Opcional: polyfill de callout si tu bslib no lo tiene
+bs_callout <- function(..., title = NULL, type = c("info","warning","danger","success")) {
+  type <- match.arg(type)
+  # Usa callout si existe; si no, degrade a alert
+  if (requireNamespace("bslib", quietly = TRUE) && "callout" %in% getNamespaceExports("bslib")) {
+    return(bslib::callout(title = title, ...))
+  }
+  # Bootstrap alert compatible
+  div(class = paste0("alert alert-", if (type == "danger") "danger" else type),
+      if (!is.null(title)) tags$h5(title),
+      ...)
+}
+
 library(shiny)
 library(tidyverse)
 library(agricolae)
@@ -24,8 +44,9 @@ library(ggfortify)
 library(scatterplot3d)
 library(GGally)
 library(effects)
-library(FielDHub)
-library(augmentedRCBD)
+safe_library("FielDHub")
+safe_library("augmentedRCBD")
+safe_library("broom.mixed")
 library(systemfonts)
 
 # Cargar módulos
