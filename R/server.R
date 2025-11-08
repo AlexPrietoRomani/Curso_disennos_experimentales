@@ -53,6 +53,15 @@ server <- function(input, output, session) {
           onclick = "Shiny.setInputValue('nav_target', 'home', {priority: 'event'});",
           "Alex Prieto Romani"
         ),
+        tags$button(
+          type = "button",
+          class = "nav-toggle",
+          `aria-expanded` = "false",
+          `aria-label` = "Abrir menú de navegación",
+          tags$span(class = "nav-toggle-bar"),
+          tags$span(class = "nav-toggle-bar"),
+          tags$span(class = "nav-toggle-bar")
+        ),
         tags$ul(
           class = "nav-links",
           tags$li(tags$a(href = "#courses", class = "nav-link", onclick = "Shiny.setInputValue('nav_target', 'courses', {priority: 'event'});", "Cursos")),
@@ -411,7 +420,7 @@ server <- function(input, output, session) {
         build_contact_section()
       )
 
-      return(tagList(nav, landing_content))
+      return(div(class = "app-shell", nav, landing_content))
     }
 
     partes <- names(estructura_cursos[[curso_actual]])
@@ -465,7 +474,7 @@ server <- function(input, output, session) {
       )
     )
 
-    tagList(nav, course_view)
+    div(class = "app-shell", nav, course_view)
   })
 
   output$session_cards <- renderUI({

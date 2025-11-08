@@ -16,3 +16,27 @@ $(document).on('click', '.r-code', function() {
   });
 });
 
+$(document).on('click', '.nav-toggle', function() {
+  const $button = $(this);
+  const isExpanded = $button.attr('aria-expanded') === 'true';
+  const $navLinks = $button.closest('.primary-nav').find('.nav-links');
+  $navLinks.toggleClass('is-open', !isExpanded);
+  $button.attr('aria-expanded', String(!isExpanded));
+});
+
+$(document).on('click', '.nav-links .nav-link', function() {
+  const $menu = $(this).closest('.nav-links');
+  const $toggle = $menu.siblings('.nav-toggle');
+  if ($menu.hasClass('is-open')) {
+    $menu.removeClass('is-open');
+    $toggle.attr('aria-expanded', 'false');
+  }
+});
+
+$(window).on('resize', function() {
+  if (window.innerWidth > 992) {
+    $('.primary-nav .nav-links').removeClass('is-open');
+    $('.primary-nav .nav-toggle').attr('aria-expanded', 'false');
+  }
+});
+
