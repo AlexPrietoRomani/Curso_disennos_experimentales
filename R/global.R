@@ -6,7 +6,18 @@ need_pkg <- function(pkg) {
   }
 }
 
-# Opcional: polyfill de callout si tu bslib no lo tiene
+safe_library <- function(pkg) {
+  if (!requireNamespace(pkg, quietly = TRUE)) {
+    message(sprintf("Paquete opcional no disponible: %s (la app seguirá sin este módulo).", pkg))
+    return(FALSE)
+  }
+  suppressPackageStartupMessages(
+    library(pkg, character.only = TRUE)
+  )
+  TRUE
+}
+
+# polyfill de callout si tu bslib no lo tiene
 bs_callout <- function(..., title = NULL, type = c("info","warning","danger","success")) {
   type <- match.arg(type)
   # Usa callout si existe; si no, degrade a alert
