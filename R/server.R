@@ -495,11 +495,8 @@ server <- function(input, output, session) {
         id = button_id,
         type = "button",
         class = paste("session-card action-button", if (activa) "active"),
-        style = sprintf("--session-image: url('images/sesiones/%s.jpg');", session_id),
-        tags$div(class = "session-card-overlay"),
         tags$div(
           class = "session-card-body",
-          tags$span(class = "session-card-label", parte_actual),
           tags$h4(class = "session-card-title", nombre_sesion)
         )
       )
