@@ -7,9 +7,11 @@
 *.Ruserdata
 *.Rbuildignore
 Curso_disennos_experimentales.Rproj
+intermedio.R
 
 # File credentials
 # Note: This file is not tracked by git, but it is included here for reference.
 credentials.sqlite
 /.Rproj.user/
 *.Rproj
+/renv/
