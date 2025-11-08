@@ -24,12 +24,14 @@ Imports:
     MASS,
     effectsize,
     broom,
+    broom.mixed,
     emmeans,
     DT,
     pwr,
     GGally,
     scatterplot3d,
     ggfortify,
-    FielDHub,
-    augmentedRCBD,
     systemfonts
+Suggests:
+    FielDHub,
+    augmentedRCBD
