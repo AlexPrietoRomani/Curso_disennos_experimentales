@@ -1,133 +1,86 @@
-# Shiny App de Estadística Agrícola en R
+# Plataforma Shiny de Diseños Experimentales y Portafolio Profesional
 
-Este repositorio contiene una aplicación Shiny desarrollada en R para servir como plataforma interactiva de enseñanza del Temario de Estadística Agrícola, dividida en dos partes (básica e intermedia) y 8 sesiones teórico-prácticas.
+Esta aplicación Shiny combina el temario de los cursos de diseños experimentales con una landing page personal que resume la experiencia de Alex Prieto Romani. Desde un menú fijo se puede navegar por la presentación profesional, acceder al listado de cursos, revisar proyectos destacados y descargar el CV actualizado.
 
-## Descripción del Proyecto
+## Características principales
 
-La aplicación está diseñada para:
+- **Landing page personal:** Hero con CTA hacia LinkedIn y GitHub, resumen bilingüe, focos profesionales y stack tecnológico.
+- **Selección interactiva de cursos:** Tarjetas con partes y sesiones; al seleccionar un curso se habilita la navegación por módulos detallados.
+- **Portafolio de proyectos:** Cuatro proyectos destacados con enlaces a los repositorios de GitHub y etiquetas de tecnologías clave.
+- **Descarga de CV y contacto:** Botón de descarga directa (archivo de ejemplo incluido) y datos de contacto (correo, LinkedIn y GitHub).
+- **Arquitectura modular:** Cada sesión del temario vive en su propio módulo Shiny para facilitar el mantenimiento y la extensión futura.
 
-- **Presentar** el contenido de cada sesión de forma clara y estructurada.
-
-- **Proporcionar** ejemplos de código reproducibles y plantillas para cada concepto.
-
-- **Permitir** la escalabilidad futura mediante una arquitectura modular basada en módulos de Shiny por sesión.
-
-- **Soportar** la incorporación de recursos multimedia (imágenes, gráficos) en la carpeta www/images/.
-
-## Objetivos
-
-1. Facilitar el aprendizaje de R aplicado a datos agronómicos.
-
-2. Enseñar conceptos estadísticos desde lo descriptivo hasta diseños experimentales avanzados.
-
-3. Ofrecer un entorno interactivo para que los estudiantes practiquen y reproduzcan análisis en R.
-
-## Estructura del Repositorio
+## Estructura del repositorio
 
 ```plaintext
-my_shiny_app/
+Curso_disennos_experimentales/
 ├── R/
-│   ├── global.R           # Librerías y configuración global
-│   ├── ui.R               # Definición de la interfaz de usuario
-│   ├── server.R           # Lógica principal del servidor
-│   └── modules/           # Módulos por sesión
-│       ├── session1.R     # Sesión 1: Importación y Exploración
-│       ├── session2.R     # Sesión 2: Estadística Descriptiva Avanzada
-│       ├── session3.R     # Sesión 3: Probabilidad y Distribuciones
-│       ├── session4.R     # Sesión 4: ANOVA y Diseños Básicos
-│       ├── session5.R     # Sesión 5: DCA y RCBD
-│       ├── session6.R     # Sesión 6: Diseño Factorial
-│       ├── session7.R     # Sesión 7: Split-Plot y Cuadro Latino
-│       └── session8.R     # Sesión 8: Potencia y Tamaño de Muestra
+│   ├── global.R                     # Librerías y configuración global
+│   ├── ui.R                         # Tema y bootstrap del render dinámico
+│   ├── server.R                     # Navegación entre landing, cursos y módulos
+│   └── modules/                     # Módulos por curso/parte/sesión
+│       ├── Diseños_estadisticos_V2/
+│       │   ├── Parte I (Básica)/session1.R ... session4.R
+│       │   └── Parte II (Intermedia)/session5.R ... session9.R
+│       └── Diseños_estadisticos_V3/
+│           ├── Parte I (IA)/session1.R
+│           ├── Parte II (Intermedia)/session1.R ... session3.R
+│           └── Parte III (Avanzada)/session1.R ... session4.R
 ├── www/
-│   └── images/            # Recursos visuales (imágenes de ejemplo)
-├── data/                  # Datos de ejemplo (CSV, Excel)
-├── app.R                  # Punto de entrada de la aplicación
-├── DESCRIPTION            # Metadatos del paquete (opcional)
-├── renv.lock              # Lockfile de dependencias con renv
-├── README.md              # Documentación del proyecto
-└── .gitignore             # Archivos y carpetas a ignorar en Git
+│   ├── css/custom.css               # Estilos para landing, navegación y cursos
+│   ├── js/custom.js                 # Interacciones personalizadas
+│   ├── docs/Alex_Prieto_Romani_CV.pdf  # Archivo temporal para la descarga del CV
+│   └── images/                      # Portadas de cursos y miniaturas de sesiones
+├── data/                            # Conjuntos de datos de apoyo
+├── app.R                            # Punto de entrada de la aplicación
+├── DESCRIPTION                      # Metadatos del proyecto
+├── renv/ y renv.lock                # Gestión de dependencias
+└── README.md                        # Este documento
 ```
 
-## Instalación y Ejecución Local
+## Cómo ejecutar la aplicación
 
-1. Clonar el repositorio:
+1. **Clonar el repositorio**
+   ```bash
+   git clone https://github.com/AlexPrietoRomani/Curso_disennos_experimentales.git
+   cd Curso_disennos_experimentales
+   ```
+2. **Restaurar dependencias con `renv`**
+   ```r
+   install.packages("renv")
+   renv::restore()
+   ```
+3. **Iniciar la app Shiny**
+   ```r
+   shiny::runApp()
+   # o abrir app.R en RStudio y ejecutar "Run App"
+   ```
 
-```bash
-git clone https://github.com/tu_usuario/my_shiny_app.git
-cd my_shiny_app
-```
+## Personalización rápida
 
-2. Instalar R y dependencias:
+- **Imágenes de cursos y sesiones:** Coloca archivos `.jpg` en `www/images/courses/` y `www/images/sesiones/` utilizando identificadores en minúsculas y sin espacios.
+- **Contenido de las sesiones:** Edita cada archivo del directorio `R/modules/...` para incorporar material, gráficos o código reproducible.
+- **CV descargable:** Sustituye `www/docs/Alex_Prieto_Romani_CV.pdf` por la versión oficial del currículum manteniendo el mismo nombre de archivo.
+- **Portafolio:** Ajusta la lista `projects_info` en `R/server.R` para añadir nuevos proyectos o actualizar descripciones y etiquetas.
 
-```bash
-install.packages("renv")
-renv::restore()  # Instala versiones exactas listadas en renv.lock
-```
+## Despliegue en shinyapps.io
 
-3. Ejecutar la aplicación:
-
-```bash
-library(shiny)
-runApp()  # O presionar Run App en RStudio sobre app.R
-```
-
-## Despliegue en Shinyapps.io
-
-1. Instalar y configurar rsconnect:
-
-```bash
-install.packages("rsconnect")
-rsconnect::setAccountInfo(
-  name   = "<TU_CUENTA>",
-  token  = "<TU_TOKEN>",
-  secret = "<TU_SECRET>"
-)
-```
-
-2. Desplegar:
-
-```bash
-rsconnect::deployApp()
-```
-
-3. Acceder en: https://<TU_CUENTA>.shinyapps.io/<NOMBRE_APP>/
-
-## Temario de Sesiones
-
-### Parte I: Fundamentos de Estadística Agrícola (4 sesiones, 8 h)
-
-| Sesión   | Título                                           |
-|:--------:|:-------------------------------------------------|
-| Sesión 1 | Importación de Datos y Exploración Inicial en R  |
-| Sesión 2 | Estadística Descriptiva Avanzada                 |
-| Sesión 3 | Probabilidad y Distribuciones Esenciales         |
-| Sesión 4 | Introducción a Diseños Estadísticos y ANOVA      |
-
-### Parte II: Diseños Experimentales en R (4 sesiones, 8 h)
-
-| Sesión   | Título                                                       |
-|:--------:|:-------------------------------------------------------------|
-| Sesión 5 | Diseño Completamente al Azar (DCA) y RCBD                    |
-| Sesión 6 | Diseño Factorial y Análisis de Interacciones                 |
-| Sesión 7 | Split-Plot y Cuadro Latino                                   |
-| Sesión 8 | Potencia y Tamaño de Muestra para Diseños Avanzados          |
-
-Cada sesión incluye:
-
-- Contexto agronómico relevante.
-
-- Objetivos de aprendizaje teóricos y prácticos.
-
-- Actividades detalladas con cronograma.
-
-- Ejemplos de código listos para copiar y ejecutar.
-
-- Recursos visuales (imágenes y gráficos).
+1. Configura `rsconnect`:
+   ```r
+   install.packages("rsconnect")
+   rsconnect::setAccountInfo(name = "<CUENTA>", token = "<TOKEN>", secret = "<SECRET>")
+   ```
+2. Publica la aplicación:
+   ```r
+   rsconnect::deployApp()
+   ```
+3. Accede mediante `https://<CUENTA>.shinyapps.io/<NOMBRE_APP>/`.
 
 ## Contacto
 
-Para comentarios, sugerencias o reportes de errores, abre un issue o escribe a alexprieto1997@gmail.com.
+- ✉️ Correo: [alexprieto1997@gmail.com](mailto:alexprieto1997@gmail.com)
+- 💼 LinkedIn: [linkedin.com/in/alex-prieto-romani](https://www.linkedin.com/in/alex-prieto-romani/)
+- 💻 GitHub: [github.com/AlexPrietoRomani](https://github.com/AlexPrietoRomani)
 
-
-Desarrollado por Alex Prieto, Magíster en Big Data y Data Science
+---
+Desarrollado por **Alex Prieto Romani** · Agriculture Data Science & Precision Agriculture

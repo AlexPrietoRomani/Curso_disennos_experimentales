@@ -1,8 +1,8 @@
 Curso_disennos_experimentales/
 ├── R/
 │   ├── global.R
-│   ├── ui.R
-│   ├── server.R
+│   ├── ui.R                 # Define tema general y delega renderizado dinámico en server
+│   ├── server.R             # Gestiona navegación landing/cursos, módulos y descarga de CV
 │   └── modules/
 │       ├── Diseños_estadisticos_V2/
 │       │   ├── Parte I (Básica)/
@@ -30,9 +30,11 @@ Curso_disennos_experimentales/
 │               └── session4.R
 ├── www/
 │   ├── css/
-│   │   └── custom.css
+│   │   └── custom.css       # Estilos para landing, navegación, cursos y secciones de proyectos/CV
 │   ├── js/
 │   │   └── custom.js
+│   ├── docs/
+│   │   └── Alex_Prieto_Romani_CV.pdf   # Archivo temporal para la descarga del CV (reemplazar por el oficial)
 │   └── images/
 │       ├── courses/     # Portadas de los cursos (ej. www/images/courses/disenos_estadisticos_v2.jpg)
 │       └── sesiones/    # Miniaturas para cada sesión (ej. www/images/sesiones/disenos_estadisticos_v2_parte_i_sesion_1.jpg)
