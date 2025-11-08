@@ -1,14 +1,6 @@
 # session1.R
 # ------------------------------------------------------------
 # Módulo: Sesión 1 — Flujo de Trabajo Moderno con IA
-# Estructura UI:
-#   - Pestaña: Contexto y objetivos
-#   - Pestaña: LLM vs RAG (NotebookLM)
-#   - Pestaña: Flujo de 4 pasos  [subpestañas: Descubrir | Curar | Consultar | Idear]
-#   - Pestaña: Práctica guiada   [constructor de prompts + descarga .txt]
-#   - Pestaña: Prompts efectivos [banco de prompts listos]
-#   - Pestaña: Referencias (APA 7)
-#
 # Dependencias: shiny, bslib
 # ------------------------------------------------------------
 
@@ -44,18 +36,9 @@ session1_v3UI <- function(id) {
               tags$li("Practicar ingeniería de prompts: rol, contexto y formato.")
             )
           ),
-          bslib::card(
-            bslib::card_header("Actividades"),
-            tags$ol(
-              tags$li("Identificar diferencias entre modelos generalistas de ideación y herramientas fundamentadas para extracción."),
-              tags$li("Usar herramientas de descubrimiento visual por redes de citas (p.ej., ResearchRabbit / Litmaps)."),
-              tags$li("Armar una base de conocimiento curada (PDFs clave) en NotebookLM."),
-              tags$li("Realizar consultas fundamentadas (resúmenes metodológicos, tablas comparativas, extracción de métricas)."),
-              tags$li("Construir prompts efectivos con rol, contexto y formato para generar hipótesis, borradores de código o diseño experimental.")
-            )
-          ),
-          bslib::callout(
-            title = "Resultado esperado",
+          div(
+            class = "alert alert-info",
+            tags$h5("Resultado esperado"),
             p("Un flujo de 4 pasos (Descubrir → Curar → Consultar → Idear) y un conjunto de prompts listos para acelerar tareas de investigación.")
           )
         )
@@ -120,10 +103,14 @@ session1_v3UI <- function(id) {
               )
             )
           ),
-          bslib::callout(
-            title = "Nota práctica",
-            p("En NotebookLM puedes cargar PDFs y luego ", strong("chatear con tu cuaderno"),
-              " para obtener respuestas ", strong("fundamentadas en esas fuentes"), " con ",
+          div(
+            class = "alert alert-warning",
+            tags$h5("Nota práctica"),
+            p("En NotebookLM puedes cargar PDFs y luego ",
+              strong("chatear con tu cuaderno"),
+              " para obtener respuestas ",
+              strong("fundamentadas en esas fuentes"),
+              " con ",
               strong("citas in-line"), ".")
           )
         )
@@ -196,8 +183,9 @@ session1_v3UI <- function(id) {
                 tags$li(strong("Contexto:"), " pega tu síntesis fundamentada (del Paso 3)."),
                 tags$li(strong("Formato:"), " especifica la salida esperada (lista numerada, tabla, pseudo-código, etc.).")
               ),
-              bslib::callout(
-                title = "Ejemplo de ciclo completo (agronomía)",
+              div(
+                class = "alert alert-info",
+                tags$h5("Ejemplo de ciclo completo (agronomía)"),
                 p("Basado en lagunas sobre micoparasitismo de ", em("T. harzianum"), " contra ", em("F. graminearum"),
                   ", pide 3 hipótesis, un diseño de invernadero y un borrador de análisis en R para un DBCA con 4 tratamientos × 5 repeticiones.")
               )
@@ -223,16 +211,18 @@ session1_v3UI <- function(id) {
             hr(),
             bslib::tooltip(
               actionButton(ns("pr_reset"), "Limpiar"),
-              title = "Vacía los campos para empezar de nuevo."
+              "Vacía los campos para empezar de nuevo.",
+              placement = "top"
             ),
             bslib::tooltip(
               downloadButton(ns("pr_descargar"), "Descargar prompt (.txt)"),
-              title = "Descarga el prompt ensamblado."
+              "Descarga el prompt ensamblado.",
+              placement = "top"
             )
           ),
           bslib::card(
             bslib::card_header("Vista previa del prompt"),
-            textAreaInput(ns("pr_preview"), NULL, value = "", rows = 20, resize = "vertical")
+            textAreaInput(ns("pr_preview"), NULL, value = "", rows = 20) # (si tu Shiny soporta `resize`, puedes añadirlo)
           )
         )
       ),
@@ -310,28 +300,36 @@ session1_v3Server <- function(input, output, session) {
 
   ns <- session$ns
 
-  # --- Reactive: Ensambla el prompt en tiempo real
+  # helper %||% (debe existir antes de usarse)
+  `%||%` <- function(x, y) if (is.null(x) || length(x) == 0) y else x
+
+  # --- Reactive: Ensambla el prompt en tiempo real (robusto a NULL)
   prompt_r <- reactive({
-    rol    <- input$pr_rol
-    ctx    <- input$pr_contexto
-    tarea  <- input$pr_tarea
-    forma  <- input$pr_formato
-    restr  <- input$pr_restricciones
+    rol   <- input$pr_rol           %||% ""
+    ctx   <- input$pr_contexto      %||% ""
+    tarea <- input$pr_tarea         %||% ""
+    forma <- input$pr_formato       %||% ""
+    restr <- input$pr_restricciones %||% ""
 
     parts <- c(
-      if (nzchar(rol))    paste0("Actúa como: ", rol, ".") else NULL,
-      if (nzchar(ctx))    paste0("Contexto fundamentado:\n", ctx) else NULL,
-      if (nzchar(tarea))  paste0("Tu tarea:\n", tarea) else NULL,
-      if (nzchar(forma))  paste0("Formato de salida esperado:\n", forma) else NULL,
-      if (nzchar(restr))  paste0("Restricciones/criterios:\n", restr) else NULL
+      if (shiny::isTruthy(rol))   paste0("Actúa como: ", rol, ".") else NULL,
+      if (shiny::isTruthy(ctx))   paste0("Contexto fundamentado:\n", ctx) else NULL,
+      if (shiny::isTruthy(tarea)) paste0("Tu tarea:\n", tarea) else NULL,
+      if (shiny::isTruthy(forma)) paste0("Formato de salida esperado:\n", forma) else NULL,
+      if (shiny::isTruthy(restr)) paste0("Restricciones/criterios:\n", restr) else NULL
     )
 
     paste(parts, collapse = "\n\n")
   })
 
-  observe({
-    updateTextAreaInput(session, "pr_preview", value = prompt_r())
-  })
+  # Actualiza la vista previa al cambiar entradas
+  observeEvent(
+    list(input$pr_rol, input$pr_contexto, input$pr_tarea, input$pr_formato, input$pr_restricciones),
+    ignoreInit = TRUE,
+    handlerExpr = {
+      updateTextAreaInput(session, "pr_preview", value = prompt_r())
+    }
+  )
 
   # --- Reset
   observeEvent(input$pr_reset, {
