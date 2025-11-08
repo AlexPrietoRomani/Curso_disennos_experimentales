@@ -63,6 +63,20 @@ Curso_disennos_experimentales/
 - **CV descargable:** Sustituye `www/docs/Alex_Prieto_Romani_CV.pdf` por la versión oficial del currículum manteniendo el mismo nombre de archivo.
 - **Portafolio:** Ajusta la lista `projects_info` en `R/server.R` para añadir nuevos proyectos o actualizar descripciones y etiquetas.
 
+## Tokens de diseño compartidos
+
+La paleta y los tokens que usa la aplicación están centralizados en `www/css/custom.css` dentro del bloque `:root`. Reutiliza estos valores cuando agregues nuevos estilos o módulos para mantener la coherencia visual sin redefinir colores.
+
+| Token               | Valor      | Uso principal                                                 |
+| ------------------- | ---------- | ------------------------------------------------------------- |
+| `--agro-green`      | `#2F855A`  | Botones primarios, acentos positivos y fondos suaves verdes. |
+| `--deep-forest`     | `#22543D`  | Titulares, texto destacado y elementos de marca.             |
+| `--agro-light`      | `#F7FAF2`  | Fondo base de la aplicación y tarjetas claras.               |
+| `--data-blue`       | `#2B6CB0`  | Enlaces, estados activos y componentes interactivos.         |
+| `--deep-data-blue`  | `#1E3A8A`  | Subtítulos y detalles que necesitan mayor contraste.         |
+| `--charcoal`        | `#1F2933`  | Texto principal y elementos de alto contraste.               |
+| `--card-shadow`     | `0 24px 40px rgba(34, 84, 61, 0.18)` | Sombras de tarjetas y elevación base.              |
+
 ## Despliegue en shinyapps.io
 
 1. Configura `rsconnect`:

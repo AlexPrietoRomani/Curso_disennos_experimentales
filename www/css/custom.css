@@ -1,4 +1,5 @@
 /* ===== Paleta y tipografía principal ===== */
+/* Tokens globales reutilizables para toda la plataforma */
 :root {
   --agro-green: #2F855A;
   --deep-forest: #22543D;
@@ -19,13 +20,17 @@ body {
   font-family: 'Poppins', 'Helvetica Neue', Arial, sans-serif;
 }
 
-a,
-.btn-link {
+.app-shell {
+  min-height: 100vh;
+}
+
+.app-shell a,
+.app-shell .btn-link {
   color: var(--data-blue);
 }
 
 /* ===== Navegación principal ===== */
-.primary-nav {
+.app-shell .primary-nav {
   position: sticky;
   top: 0;
   z-index: 1050;
@@ -35,7 +40,11 @@ a,
   padding: 1rem 0;
 }
 
-.primary-nav .brand-link {
+.app-shell .primary-nav .container {
+  position: relative;
+}
+
+.app-shell .primary-nav .brand-link {
   font-family: 'Montserrat', 'Poppins', sans-serif;
   font-weight: 700;
   font-size: 1.25rem;
@@ -43,12 +52,12 @@ a,
   text-decoration: none;
 }
 
-.primary-nav .brand-link:hover {
+.app-shell .primary-nav .brand-link:hover {
   text-decoration: none;
   color: var(--agro-green);
 }
 
-.nav-links {
+.app-shell .nav-links {
   list-style: none;
   display: flex;
   gap: 1.5rem;
@@ -56,24 +65,67 @@ a,
   padding: 0;
 }
 
-.nav-link {
+.app-shell .nav-toggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  background: transparent;
+  border: none;
+  padding: 0.25rem 0.5rem;
+  cursor: pointer;
+  border-radius: 999px;
+  transition: background-color 0.2s ease;
+}
+
+.app-shell .nav-toggle:focus-visible {
+  outline: 2px solid var(--data-blue);
+  outline-offset: 4px;
+}
+
+.app-shell .nav-toggle:hover {
+  background-color: rgba(47, 133, 90, 0.12);
+}
+
+.app-shell .nav-toggle-bar {
+  display: block;
+  width: 24px;
+  height: 2px;
+  border-radius: 999px;
+  background-color: var(--charcoal);
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.app-shell .nav-toggle[aria-expanded="true"] .nav-toggle-bar:nth-of-type(1) {
+  transform: translateY(6px) rotate(45deg);
+}
+
+.app-shell .nav-toggle[aria-expanded="true"] .nav-toggle-bar:nth-of-type(2) {
+  opacity: 0;
+}
+
+.app-shell .nav-toggle[aria-expanded="true"] .nav-toggle-bar:nth-of-type(3) {
+  transform: translateY(-6px) rotate(-45deg);
+}
+
+.app-shell .nav-link {
   font-weight: 600;
   color: rgba(31, 41, 51, 0.8);
   text-decoration: none;
 }
 
-.nav-link:hover,
-.nav-link:focus {
+.app-shell .nav-link:hover,
+.app-shell .nav-link:focus {
   color: var(--deep-data-blue);
   text-decoration: none;
 }
 
 /* ===== Secciones base ===== */
-.section {
+.app-shell .section {
   padding: 4rem 0;
 }
 
-.section-title {
+.app-shell .section-title {
   font-family: 'Montserrat', 'Poppins', sans-serif;
   font-size: 2.1rem;
   font-weight: 700;
@@ -81,38 +133,38 @@ a,
   color: var(--deep-forest);
 }
 
-.section-subtitle {
+.app-shell .section-subtitle {
   font-size: 1.25rem;
   font-weight: 600;
   margin-top: 2rem;
   color: var(--deep-data-blue);
 }
 
-.section-intro {
+.app-shell .section-intro {
   max-width: 760px;
   margin: 0 auto 2rem auto;
   color: rgba(31, 41, 51, 0.75);
 }
 
 /* ===== Hero ===== */
-.hero-section {
+.app-shell .hero-section {
   background: linear-gradient(135deg, rgba(47, 133, 90, 0.12), rgba(43, 108, 176, 0.08));
   padding-top: 6rem;
 }
 
-.hero-title {
+.app-shell .hero-title {
   font-size: 3rem;
   font-weight: 700;
   color: var(--deep-forest);
 }
 
-.hero-subtitle {
+.app-shell .hero-subtitle {
   font-size: 1.2rem;
   margin-top: 1rem;
   color: rgba(31, 41, 51, 0.75);
 }
 
-.hero-highlights {
+.app-shell .hero-highlights {
   list-style: none;
   padding: 0;
   margin: 1.5rem 0 2rem 0;
@@ -120,21 +172,21 @@ a,
   gap: 0.75rem;
 }
 
-.hero-highlights li {
+.app-shell .hero-highlights li {
   display: flex;
   align-items: center;
   gap: 0.5rem;
   font-weight: 500;
 }
 
-.hero-cta {
+.app-shell .hero-cta {
   display: flex;
   flex-wrap: wrap;
   gap: 1rem;
 }
 
-.hero-stat,
-.hero-typing {
+.app-shell .hero-stat,
+.app-shell .hero-typing {
   max-width: 100%;
   border-radius: 20px;
   box-shadow: 0 20px 45px rgba(34, 84, 61, 0.15);
@@ -142,20 +194,20 @@ a,
 }
 
 /* ===== Sobre mí ===== */
-.bio-grid {
+.app-shell .bio-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 1.5rem;
 }
 
-.bio-card {
+.app-shell .bio-card {
   background: #ffffff;
   border-radius: 20px;
   padding: 1.75rem;
   box-shadow: 0 18px 35px rgba(27, 63, 107, 0.12);
 }
 
-.focus-list {
+.app-shell .focus-list {
   list-style: none;
   padding: 0;
   margin: 1.5rem 0 0 0;
@@ -163,7 +215,7 @@ a,
   gap: 0.75rem;
 }
 
-.focus-list li {
+.app-shell .focus-list li {
   background: #ffffff;
   border-radius: 16px;
   padding: 1rem 1.5rem;
@@ -171,14 +223,14 @@ a,
 }
 
 /* ===== Skills ===== */
-.skills-section .row {
+.app-shell .skills-section .row {
   background: #ffffff;
   border-radius: 24px;
   padding: 2.5rem;
   box-shadow: 0 20px 40px rgba(27, 63, 107, 0.12);
 }
 
-.skills-section h3 {
+.app-shell .skills-section h3 {
   font-size: 1.15rem;
   font-weight: 600;
   margin-top: 1rem;
@@ -186,13 +238,13 @@ a,
 }
 
 /* ===== Proyectos ===== */
-.projects-grid {
+.app-shell .projects-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 2rem;
 }
 
-.project-card {
+.app-shell .project-card {
   background: #ffffff;
   border-radius: 24px;
   padding: 2rem;
@@ -202,24 +254,24 @@ a,
   gap: 1rem;
 }
 
-.project-title {
+.app-shell .project-title {
   font-size: 1.35rem;
   font-weight: 600;
   color: var(--deep-forest);
 }
 
-.project-description {
+.app-shell .project-description {
   flex-grow: 1;
   color: rgba(31, 41, 51, 0.75);
 }
 
-.project-tags {
+.app-shell .project-tags {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
 }
 
-.project-tags .tag {
+.app-shell .project-tags .tag {
   background: rgba(43, 108, 176, 0.12);
   color: var(--deep-data-blue);
   border-radius: 999px;
@@ -228,40 +280,40 @@ a,
   font-weight: 600;
 }
 
-.project-link {
+.app-shell .project-link {
   font-weight: 600;
   text-decoration: none;
 }
 
-.project-link:hover {
+.app-shell .project-link:hover {
   text-decoration: underline;
 }
 
 /* ===== CV ===== */
-.cv-section {
+.app-shell .cv-section {
   text-align: center;
   background: linear-gradient(135deg, rgba(43, 108, 176, 0.12), rgba(47, 133, 90, 0.12));
 }
 
-.cv-section .btn {
+.app-shell .cv-section .btn {
   padding: 0.9rem 2.5rem;
   font-size: 1.05rem;
   font-weight: 600;
 }
 
 /* ===== Contacto ===== */
-.contact-section {
+.app-shell .contact-section {
   background: #ffffff;
 }
 
-.contact-card {
+.app-shell .contact-card {
   background: rgba(47, 133, 90, 0.08);
   border-radius: 24px;
   padding: 2rem;
   box-shadow: 0 18px 30px rgba(27, 63, 107, 0.12);
 }
 
-.contact-list {
+.app-shell .contact-list {
   list-style: none;
   margin: 1.5rem 0 0 0;
   padding: 0;
@@ -269,18 +321,18 @@ a,
   gap: 0.75rem;
 }
 
-.contact-list a {
+.app-shell .contact-list a {
   font-weight: 600;
   color: var(--deep-data-blue);
   text-decoration: none;
 }
 
-.contact-list a:hover {
+.app-shell .contact-list a:hover {
   text-decoration: underline;
 }
 
 /* ===== Sección de cursos existente ===== */
-.landing-page {
+.app-shell .landing-page {
   background: linear-gradient(135deg, rgba(47, 133, 90, 0.12), rgba(43, 108, 176, 0.08));
   min-height: calc(100vh - 40px);
   display: flex;
@@ -288,12 +340,12 @@ a,
   padding: 4rem 0;
 }
 
-.landing-intro {
+.app-shell .landing-intro {
   max-width: 720px;
   margin: 0 auto 3rem auto;
 }
 
-.landing-kicker {
+.app-shell .landing-kicker {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
@@ -307,7 +359,7 @@ a,
   padding: 0.4rem 1rem;
 }
 
-.landing-title {
+.app-shell .landing-title {
   font-family: 'Montserrat', 'Poppins', sans-serif;
   font-size: 2.6rem;
   font-weight: 700;
@@ -315,20 +367,20 @@ a,
   color: var(--deep-forest);
 }
 
-.landing-subtitle {
+.app-shell .landing-subtitle {
   font-size: 1.05rem;
   color: rgba(31, 41, 51, 0.75);
   margin-top: 1rem;
 }
 
-.course-grid {
+.app-shell .course-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 2rem;
   margin-top: 2.5rem;
 }
 
-.course-card {
+.app-shell .course-card {
   position: relative;
   border: none;
   width: 100%;
@@ -344,21 +396,21 @@ a,
   transition: transform 0.35s ease, box-shadow 0.35s ease;
 }
 
-.course-card:hover,
-.course-card:focus {
+.app-shell .course-card:hover,
+.app-shell .course-card:focus {
   transform: translateY(-10px);
   box-shadow: 0 32px 60px rgba(34, 84, 61, 0.28);
   outline: none;
 }
 
-.course-card-overlay {
+.app-shell .course-card-overlay {
   position: absolute;
   inset: 0;
   background: linear-gradient(160deg, rgba(15, 32, 24, 0.05), rgba(0, 0, 0, 0.45));
   pointer-events: none;
 }
 
-.course-card-body {
+.app-shell .course-card-body {
   position: relative;
   padding: 2.75rem 2.25rem;
   display: flex;
@@ -368,7 +420,7 @@ a,
   justify-content: flex-end;
 }
 
-.course-card-kicker {
+.app-shell .course-card-kicker {
   font-size: 0.8rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -376,7 +428,7 @@ a,
   opacity: 0.85;
 }
 
-.course-card-title {
+.app-shell .course-card-title {
   font-family: 'Montserrat', 'Poppins', sans-serif;
   font-size: 1.5rem;
   font-weight: 700;
@@ -384,17 +436,17 @@ a,
   margin: 0;
 }
 
-.course-card-meta {
+.app-shell .course-card-meta {
   font-size: 0.95rem;
   opacity: 0.85;
   margin: 0;
 }
 
-.course-page {
+.app-shell .course-page {
   padding-bottom: 4rem;
 }
 
-.course-hero {
+.app-shell .course-hero {
   background: linear-gradient(135deg, rgba(34, 84, 61, 0.95), rgba(27, 63, 107, 0.9));
   color: #ffffff;
   padding: 4.5rem 0 3.5rem 0;
@@ -402,7 +454,7 @@ a,
   box-shadow: 0 30px 60px rgba(34, 84, 61, 0.25);
 }
 
-.course-hero-kicker {
+.app-shell .course-hero-kicker {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
@@ -415,21 +467,21 @@ a,
   background-color: rgba(255, 255, 255, 0.18);
 }
 
-.course-hero-title {
+.app-shell .course-hero-title {
   font-family: 'Montserrat', 'Poppins', sans-serif;
   font-size: 2.8rem;
   font-weight: 700;
   margin-top: 1.5rem;
 }
 
-.course-hero-subtitle {
+.app-shell .course-hero-subtitle {
   max-width: 680px;
   font-size: 1.05rem;
   margin-top: 1rem;
   color: rgba(255, 255, 255, 0.85);
 }
 
-.course-controls {
+.app-shell .course-controls {
   margin-top: -2.5rem;
   background: #ffffff;
   padding: 1.75rem 2rem;
@@ -437,7 +489,7 @@ a,
   box-shadow: 0 15px 35px rgba(27, 63, 107, 0.12);
 }
 
-.reset-course {
+.app-shell .reset-course {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
@@ -446,26 +498,26 @@ a,
   text-decoration: none !important;
 }
 
-.reset-course .fa {
+.app-shell .reset-course .fa {
   transition: transform 0.3s ease;
 }
 
-.reset-course:hover .fa {
+.app-shell .reset-course:hover .fa {
   transform: translateX(-4px);
 }
 
-.session-grid-container {
+.app-shell .session-grid-container {
   margin-top: 3rem;
 }
 
 /* ===== Sesiones ===== */
-.session-grid {
+.app-shell .session-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 1.5rem;
 }
 
-.session-card {
+.app-shell .session-card {
   position: relative;
   border: none;
   width: 100%;
@@ -481,25 +533,25 @@ a,
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.session-card:hover,
-.session-card:focus {
+.app-shell .session-card:hover,
+.app-shell .session-card:focus {
   transform: translateY(-8px);
   box-shadow: 0 28px 55px rgba(34, 84, 61, 0.3);
   outline: none;
 }
 
-.session-card.active {
+.app-shell .session-card.active {
   box-shadow: 0 35px 70px rgba(43, 108, 176, 0.28);
 }
 
-.session-card-overlay {
+.app-shell .session-card-overlay {
   position: absolute;
   inset: 0;
   background: linear-gradient(160deg, rgba(15, 32, 24, 0.05), rgba(0, 0, 0, 0.45));
   pointer-events: none;
 }
 
-.session-card-body {
+.app-shell .session-card-body {
   position: relative;
   padding: 2.4rem 2rem;
   display: flex;
@@ -509,7 +561,7 @@ a,
   justify-content: flex-end;
 }
 
-.session-card-label {
+.app-shell .session-card-label {
   font-size: 0.8rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -517,7 +569,7 @@ a,
   opacity: 0.85;
 }
 
-.session-card-title {
+.app-shell .session-card-title {
   font-family: 'Montserrat', 'Poppins', sans-serif;
   font-size: 1.35rem;
   font-weight: 700;
@@ -525,7 +577,7 @@ a,
   margin: 0;
 }
 
-.session-detail-header {
+.app-shell .session-detail-header {
   margin-top: 3rem;
   margin-bottom: 2rem;
   display: flex;
@@ -533,7 +585,7 @@ a,
   gap: 1rem;
 }
 
-.session-detail-pill {
+.app-shell .session-detail-pill {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
@@ -547,20 +599,20 @@ a,
   color: var(--deep-forest);
 }
 
-.session-detail-title {
+.app-shell .session-detail-title {
   font-family: 'Montserrat', 'Poppins', sans-serif;
   font-size: 2.1rem;
   font-weight: 700;
 }
 
-.session-detail-body {
+.app-shell .session-detail-body {
   background: #ffffff;
   border-radius: 24px;
   padding: 2.5rem;
   box-shadow: 0 20px 40px rgba(27, 63, 107, 0.12);
 }
 
-.empty-state {
+.app-shell .empty-state {
   background: rgba(43, 108, 176, 0.1);
   border-radius: 16px;
   padding: 2rem;
@@ -571,38 +623,117 @@ a,
 
 /* ===== Responsivo ===== */
 @media (max-width: 992px) {
-  .hero-title {
+  .app-shell .nav-toggle {
+    display: inline-flex;
+  }
+
+  .app-shell .nav-links {
+    display: none;
+    position: absolute;
+    top: calc(100% + 0.75rem);
+    right: 1rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+    background-color: rgba(255, 255, 255, 0.97);
+    padding: 1rem 1.25rem;
+    border-radius: 16px;
+    box-shadow: 0 20px 40px rgba(34, 84, 61, 0.18);
+    min-width: 220px;
+  }
+
+  .app-shell .nav-links.is-open {
+    display: flex;
+  }
+
+  .app-shell .nav-link {
+    width: 100%;
+  }
+
+  .app-shell .hero-title {
     font-size: 2.4rem;
   }
 
-  .nav-links {
-    flex-wrap: wrap;
-    justify-content: flex-end;
-    gap: 1rem;
+  .app-shell .course-card-body {
+    padding: 2.25rem 1.75rem;
+  }
+
+  .app-shell .session-card-body {
+    padding: 2.1rem 1.75rem;
   }
 }
 
 @media (max-width: 768px) {
-  .primary-nav {
+  .app-shell .primary-nav {
     padding: 0.75rem 0;
   }
 
-  .skills-section .row {
+  .app-shell .skills-section .row {
     padding: 1.5rem;
   }
 
-  .section {
+  .app-shell .section {
     padding: 3rem 0;
   }
 }
 
 @media (max-width: 576px) {
-  .hero-cta {
+  .app-shell .hero-cta {
     flex-direction: column;
     align-items: stretch;
   }
 
-  .project-card {
+  .app-shell .project-card {
     padding: 1.75rem;
+  }
+
+  .app-shell .course-card-body {
+    padding: 2rem 1.5rem;
+  }
+
+  .app-shell .course-card-title {
+    font-size: 1.3rem;
+  }
+
+  .app-shell .course-card-meta {
+    font-size: 0.9rem;
+  }
+
+  .app-shell .session-card-body {
+    padding: 1.85rem 1.5rem;
+  }
+
+  .app-shell .session-card-title {
+    font-size: 1.2rem;
+  }
+
+  .app-shell .session-card-label {
+    font-size: 0.75rem;
+  }
+}
+
+@media (max-width: 420px) {
+  .app-shell .primary-nav .container {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .app-shell .nav-links {
+    right: 0;
+    width: 100%;
+  }
+
+  .app-shell .course-card-body,
+  .app-shell .session-card-body {
+    padding: 1.75rem 1.35rem;
+  }
+
+  .app-shell .course-card-title,
+  .app-shell .session-card-title {
+    font-size: 1.15rem;
+  }
+
+  .app-shell .hero-title {
+    font-size: 2.1rem;
   }
 }
