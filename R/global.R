@@ -24,6 +24,9 @@ library(ggfortify)
 library(scatterplot3d)
 library(GGally)
 library(effects)
+library(FielDHub)
+library(augmentedRCBD)
+library(systemfonts)
 
 # Cargar módulos
 mod_files <- list.files("R/modules", full.names = TRUE, pattern = "\\.R$", recursive = TRUE)
@@ -54,22 +57,22 @@ estructura_cursos <- list(
   "Diseños estadísticos V3" = list(
     "Parte I (IA)" = list(
       sesiones = list(
-        "Sesión 1" = list(module = NULL, id = "v3_p1_s1")
+        "Sesión 1" = list(module = "session1_v3", id = "v3_p1_s1")
       )
     ),
     "Parte II (Intermedia)" = list(
       sesiones = list(
-        "Sesión 2" = list(module = NULL, id = "v3_p2_s2"),
+        "Sesión 2" = list(module = "session2_v3", id = "v3_p2_s2"),
         "Sesión 3" = list(module = "session3_v3", id = "v3_p2_s3"),
-        "Sesión 4" = list(module = NULL, id = "v3_p2_s4")
+        "Sesión 4" = list(module = "session4_v3", id = "v3_p2_s4")
       )
     ),
     "Parte III (Avanzada)" = list(
       sesiones = list(
-        "Sesión 5" = list(module = NULL, id = "v3_p3_s5"),
-        "Sesión 6" = list(module = NULL, id = "v3_p3_s6"),
-        "Sesión 7" = list(module = NULL, id = "v3_p3_s7"),
-        "Sesión 8" = list(module = NULL, id = "v3_p3_s8")
+        "Sesión 5" = list(module = "session5_v3", id = "v3_p3_s5"),
+        "Sesión 6" = list(module = "session6_v3", id = "v3_p3_s6"),
+        "Sesión 7" = list(module = "session7_v3", id = "v3_p3_s7"),
+        "Sesión 8" = list(module = "session8_v3", id = "v3_p3_s8")
       )
     )
   )
