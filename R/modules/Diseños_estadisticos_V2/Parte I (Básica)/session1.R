@@ -801,7 +801,13 @@ session1Server <- function(input, output, session) {
       # Limpieza básica inicial
       df %>%
           janitor::clean_names() %>%
-          mutate(rendimiento_kg_ha = as.numeric(as.character(rendimiento_kg_ha)))
+          mutate(
+            rendimiento_kg_ha = readr::parse_number(
+              rendimiento_kg_ha,
+              locale = readr::locale(decimal_mark = ".", grouping_mark = ",")
+            )
+          )
+
   }
   
   # Inicializar el reactiveVal
