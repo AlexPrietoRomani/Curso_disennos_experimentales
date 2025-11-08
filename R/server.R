@@ -164,11 +164,11 @@ server <- function(input, output, session) {
               tags$span(class = "landing-kicker", "Explora el temario digital"),
               tags$h1(
                 class = "landing-title",
-                "Diseños experimentales para la agro data science"
+                "Cursos Disponibles"
               ),
               tags$p(
                 class = "landing-subtitle",
-                "Selecciona primero un curso para descubrir las sesiones disponibles, diseñadas con un enfoque minimalista y profesional."
+                "Selecciona primero un curso para descubrir las sesiones disponibles."
               )
             ),
             div(class = "course-grid", course_cards)
