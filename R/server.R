@@ -116,14 +116,9 @@ server <- function(input, output, session) {
           div(
             class = "col-lg-5 text-center",
             tags$img(
-              src = "https://github-readme-stats.vercel.app/api?username=AlexPrietoRomani&show_icons=true&theme=radical&include_all_commits=true&count_private=true",
+              src = "https://media.licdn.com/dms/image/v2/D4E03AQHe7d1z40IRvw/profile-displayphoto-shrink_800_800/B4EZdXkQIzHQAc-/0/1749520811003?e=1764201600&v=beta&t=Or660-mvTYk_XE7ZldpeFH0al8WJuOseQYe1SawSKpA",
               class = "hero-stat",
-              alt = "Estadísticas de GitHub"
-            ),
-            tags$img(
-              src = "https://readme-typing-svg.herokuapp.com?font=Architects+Daughter&color=7AF79A&size=24&lines=Precision+Agriculture;Big+Data+%26+AI+for+Farming;Let's+build+data-driven+agtech!",
-              class = "hero-typing",
-              alt = "Presentación animada"
+              alt = "Imagen de perfíl linkedin"
             )
           )
         )
@@ -547,11 +542,17 @@ server <- function(input, output, session) {
     contentType = "application/pdf"
   )
 
-  for (module_name in names(module_registry)) {
-    server_fun_name <- paste0(module_name, "Server")
+  # Inicializa el módulo server solo cuando se selecciona una sesión
+  observeEvent(selected_session(), {
+    req(selected_course(), selected_part(), selected_session())
+    info <- obtener_info_sesion(selected_course(), selected_part(), selected_session())
+    modulo <- info$module
+    server_fun_name <- paste0(modulo, "Server")
+
     if (exists(server_fun_name, mode = "function")) {
       server_fun <- get(server_fun_name, mode = "function")
-      lapply(module_registry[[module_name]], function(id) callModule(server_fun, id))
+      callModule(server_fun, info$id)
     }
-  }
+  }, ignoreInit = TRUE)
+
 }
