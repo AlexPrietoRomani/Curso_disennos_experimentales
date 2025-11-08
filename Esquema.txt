@@ -20,14 +20,14 @@ Curso_disennos_experimentales/
 │           ├── Parte I (IA)/
 │           │   └── session1.R
 │           ├── Parte II (Intermedia)/
-│           │   ├── session1.R
 │           │   ├── session2.R
-│           │   └── session3.R
+│           │   ├── session3.R
+│           │   └── session4.R
 │           └── Parte III (Avanzada)/
-│               ├── session1.R
-│               ├── session2.R
-│               ├── session3.R
-│               └── session4.R
+│               ├── session5.R
+│               ├── session6.R
+│               ├── session7.R
+│               └── session8.R
 ├── www/
 │   ├── css/
 │   │   └── custom.css       # Estilos para landing, navegación, cursos y secciones de proyectos/CV

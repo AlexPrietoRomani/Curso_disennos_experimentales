@@ -28,7 +28,7 @@
 # - Documentación AIC en R (stats::AIC, extractAIC). :contentReference[oaicite:5]{index=5}
 # ------------------------------------------------------------------------------
 
-session3UI <- function(id) {
+session3_v3UI <- function(id) {
   ns <- NS(id)
   tagList(
     h3(class = "session-title", "Sesión 3: Análisis de Regresión (Lineal y No Lineal)"),
@@ -298,7 +298,7 @@ session3UI <- function(id) {
   )
 }
 
-session3Server <- function(input, output, session) {
+session3_v3Server <- function(input, output, session) {
   ns <- session$ns
 
   # ---------------------------

@@ -24,8 +24,8 @@ Curso_disennos_experimentales/
 │       │   └── Parte II (Intermedia)/session5.R ... session9.R
 │       └── Diseños_estadisticos_V3/
 │           ├── Parte I (IA)/session1.R
-│           ├── Parte II (Intermedia)/session1.R ... session3.R
-│           └── Parte III (Avanzada)/session1.R ... session4.R
+│           ├── Parte II (Intermedia)/session2.R ... session4.R
+│           └── Parte III (Avanzada)/session5.R ... session8.R
 ├── www/
 │   ├── css/custom.css               # Estilos para landing, navegación y cursos
 │   ├── js/custom.js                 # Interacciones personalizadas
