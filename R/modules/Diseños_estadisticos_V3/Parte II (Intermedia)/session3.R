@@ -1,32 +1,4 @@
 # R/modules/session3.R
-# ------------------------------------------------------------------------------
-# Sesión 3 (Parte II - Intermedia): Fundamentos y Aplicaciones del Análisis de Regresión
-# Estructura: 5 pestañas (1) MRLS, (2) Diagnóstico, (3) No lineales & Selección,
-#             (4) Ejercicios prácticos, (5) Referencias.
-# NOTA de estructura de carpetas actualizada:
-#   Diseños_estadisticos_V3/
-#     ├── Parte II (Intermedia)/
-#     │   ├── session2.R
-#     │   ├── session3.R   <-- ESTE ARCHIVO
-#     │   └── session4.R
-#     └── Parte III (Avanzada)/
-#         ├── session5.R
-#         ├── session6.R
-#         ├── session7.R
-#         └── session8.R
-#
-# Paquetes requeridos: shiny, bslib, ggplot2, dplyr, tidyr, broom, DT, readr (opcional),
-#                      stats (base), utils (base). Opcionales para pruebas formales:
-#                      car (Levene). Todas las llamadas están protegidas con comprobación.
-#
-# Fuentes académicas (para teoría y decisiones de métrica/selección):
-# - AIC y selección de modelos: Akaike (1974); Burnham & Anderson (2004; 2002). :contentReference[oaicite:0]{index=0}
-# - MRLS, diagnóstico e inferencia: Gelman & Hill (2007). :contentReference[oaicite:1]{index=1}
-# - Diagnóstico y Levene en R (car): Fox & Weisberg (manual y función). :contentReference[oaicite:2]{index=2}
-# - ggplot2 y geom_smooth (fórmulas y visualización): Wickham (libro/online) y docs. :contentReference[oaicite:3]{index=3}
-# - Respuestas no lineales comunes en agro: Yahuza (densidad-rendimiento); crecimiento (Besteiro et al., 2023/2024). :contentReference[oaicite:4]{index=4}
-# - Documentación AIC en R (stats::AIC, extractAIC). :contentReference[oaicite:5]{index=5}
-# ------------------------------------------------------------------------------
 
 session3_v3UI <- function(id) {
   ns <- NS(id)
