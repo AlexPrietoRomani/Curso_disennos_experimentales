@@ -4,10 +4,30 @@ Curso_disennos_experimentales/
 │   ├── ui.R
 │   ├── server.R
 │   └── modules/
-│       ├── session1.R
-│       ├── session2.R
-│       ├── session3.R
-│       └── … session8.R
+│       ├── Diseños_estadisticos_V2/
+│       │   ├── Parte I (Básica)/
+│       │   │   ├── session1.R
+│       │   │   ├── session2.R
+│       │   │   ├── session3.R
+│       │   │   └── session4.R
+│       │   └── Parte II (Intermedia)/
+│       │       ├── session5.R
+│       │       ├── session6.R
+│       │       ├── session7.R
+│       │       ├── session8.R
+│       │       └── session9.R
+│       └── Diseños_estadisticos_V3/
+│           ├── Parte I (IA)/
+│           │   └── session1.R
+│           ├── Parte II (Intermedia)/
+│           │   ├── session1.R
+│           │   ├── session2.R
+│           │   └── session3.R
+│           └── Parte III (Avanzada)/
+│               ├── session1.R
+│               ├── session2.R
+│               ├── session3.R
+│               └── session4.R
 ├── www/
 │   ├── css/
 │   │   └── custom.css
@@ -17,4 +37,3 @@ Curso_disennos_experimentales/
 ├── data/                # Carpeta para datos de ejemplo o datasets
 ├── README.md
 └── app.R
-
