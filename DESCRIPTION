@@ -26,4 +26,10 @@ Imports:
     broom,
     emmeans,
     DT,
-    pwr
+    pwr,
+    GGally,
+    scatterplot3d,
+    ggfortify,
+    FielDHub,
+    augmentedRCBD,
+    systemfonts
