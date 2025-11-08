@@ -185,6 +185,54 @@ body {
   gap: 1rem;
 }
 
+/* CTA buttons aligned with agro palette */
+.app-shell .btn-primary {
+  background-color: var(--agro-green);
+  border-color: var(--agro-green);
+  color: #fff;
+  box-shadow: 0 10px 20px rgba(34, 84, 61, 0.18);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.app-shell .btn-primary:hover,
+.app-shell .btn-primary:focus {
+  background-color: var(--deep-forest);
+  border-color: var(--deep-forest);
+  color: #fff;
+  transform: translateY(-1px);
+  box-shadow: 0 16px 28px rgba(34, 84, 61, 0.22);
+}
+
+.app-shell .btn-primary:active {
+  background-color: #1b3b2d;
+  border-color: #1b3b2d;
+  transform: translateY(0);
+  box-shadow: 0 8px 16px rgba(34, 84, 61, 0.16);
+}
+
+.app-shell .btn-outline-primary {
+  color: var(--deep-forest);
+  border-color: var(--deep-forest);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.app-shell .btn-outline-primary:hover,
+.app-shell .btn-outline-primary:focus {
+  color: #fff;
+  background-color: var(--deep-forest);
+  border-color: var(--deep-forest);
+  box-shadow: 0 16px 28px rgba(34, 84, 61, 0.18);
+  transform: translateY(-1px);
+}
+
+.app-shell .btn-outline-primary:active {
+  background-color: #1b3b2d;
+  border-color: #1b3b2d;
+  color: #fff;
+  transform: translateY(0);
+  box-shadow: 0 8px 16px rgba(34, 84, 61, 0.12);
+}
+
 .app-shell .hero-stat,
 .app-shell .hero-typing {
   max-width: 100%;

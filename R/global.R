@@ -59,17 +59,17 @@ estructura_cursos <- list(
     ),
     "Parte II (Intermedia)" = list(
       sesiones = list(
-        "Sesión 1" = list(module = NULL, id = "v3_p2_s1"),
         "Sesión 2" = list(module = NULL, id = "v3_p2_s2"),
-        "Sesión 3" = list(module = NULL, id = "v3_p2_s3")
+        "Sesión 3" = list(module = "session3_v3", id = "v3_p2_s3"),
+        "Sesión 4" = list(module = NULL, id = "v3_p2_s4")
       )
     ),
     "Parte III (Avanzada)" = list(
       sesiones = list(
-        "Sesión 1" = list(module = NULL, id = "v3_p3_s1"),
-        "Sesión 2" = list(module = NULL, id = "v3_p3_s2"),
-        "Sesión 3" = list(module = NULL, id = "v3_p3_s3"),
-        "Sesión 4" = list(module = NULL, id = "v3_p3_s4")
+        "Sesión 5" = list(module = NULL, id = "v3_p3_s5"),
+        "Sesión 6" = list(module = NULL, id = "v3_p3_s6"),
+        "Sesión 7" = list(module = NULL, id = "v3_p3_s7"),
+        "Sesión 8" = list(module = NULL, id = "v3_p3_s8")
       )
     )
   )
