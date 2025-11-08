@@ -16,7 +16,8 @@ ui <- fluidPage(
     sidebarPanel(
       width = 2,
       h4("Navegación"),
-      radioButtons("parte", "Parte:", choices = names(sesiones)),
+      selectInput("curso", "Curso:", choices = names(estructura_cursos), selected = curso_predeterminado),
+      radioButtons("parte", "Parte:", choices = names(estructura_cursos[[curso_predeterminado]]), selected = partes_predeterminadas[1]),
       uiOutput("sesion_ui")
     ),
     mainPanel(
@@ -25,4 +26,3 @@ ui <- fluidPage(
     )
   )
 )
-
