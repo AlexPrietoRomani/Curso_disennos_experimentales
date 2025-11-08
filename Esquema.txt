@@ -33,7 +33,10 @@ Curso_disennos_experimentales/
 │   │   └── custom.css
 │   ├── js/
 │   │   └── custom.js
-│   └── images/          # Aquí se almacenarán todas las imágenes (png, jpg, etc.)
+│   └── images/
+│       ├── courses/     # Portadas de los cursos (ej. www/images/courses/disenos_estadisticos_v2.jpg)
+│       └── sesiones/    # Miniaturas para cada sesión (ej. www/images/sesiones/disenos_estadisticos_v2_parte_i_sesion_1.jpg)
+│                       # Usa nombres en minúsculas, sin espacios ni acentos.
 ├── data/                # Carpeta para datos de ejemplo o datasets
 ├── README.md
 └── app.R
