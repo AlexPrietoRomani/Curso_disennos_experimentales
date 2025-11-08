@@ -78,12 +78,12 @@ server <- function(input, output, session) {
             tags$h1(class = "hero-title", "Alex Prieto Romani"),
             tags$p(
               class = "hero-subtitle",
-              "Ingeniero Agrícola y científico de datos enfocado en agricultura de precisión, modelos predictivos y analítica aplicada al sector agroindustrial."
+              "Ingeniero Agrónomo y científico de datos enfocado en agricultura de precisión, modelos predictivos y analítica aplicada al sector agroindustrial."
             ),
             tags$ul(
               class = "hero-highlights",
-              tags$li("Data Analyst & Researcher en Camposol"),
-              tags$li("Maestría en Big Data y Data Science"),
+              tags$li("Agriculture Data Science en Hortifrut SA"),
+              tags$li("Maestría en Big Data y Data Science - VIU"),
               tags$li("Consultor y formador en analítica aplicada al agro")
             ),
             div(
