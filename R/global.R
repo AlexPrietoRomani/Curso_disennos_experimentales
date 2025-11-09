@@ -2,7 +2,7 @@
 
 source("R/authentication.R")
 
-auto_install_pkgs <- c("mongolite")
+auto_install_pkgs <- c("mongolite", "sodium")
 
 ensure_default_repos <- function() {
   repos <- getOption("repos")
