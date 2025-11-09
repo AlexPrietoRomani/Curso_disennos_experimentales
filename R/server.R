@@ -295,7 +295,7 @@ server <- function(input, output, session) {
           ),
           tags$p(
             class = "text-muted small mt-3",
-            "Las contraseñas se almacenan cifradas y se validan directamente contra MongoDB."
+            "Las contraseñas se almacenan cifradas por su seguridad."
           )
         )
       )
