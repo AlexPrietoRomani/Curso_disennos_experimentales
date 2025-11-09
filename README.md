@@ -1,100 +1,35 @@
-# Plataforma Shiny de Diseños Experimentales y Portafolio Profesional
+# Plataforma Shiny de Diseños Experimentales
 
-Esta aplicación Shiny combina el temario de los cursos de diseños experimentales con una landing page personal que resume la experiencia de Alex Prieto Romani. Desde un menú fijo se puede navegar por la presentación profesional, acceder al listado de cursos, revisar proyectos destacados y descargar el CV actualizado.
+Esta aplicación reúne el contenido de los cursos "Diseños estadísticos" en un entorno Shiny que también funciona como carta de presentación profesional. Incluye una landing page, navegación por cursos/sesiones y un portafolio de proyectos para mostrar experiencia aplicada en agricultura de precisión.
 
-## Características principales
+Toda la estructura de carpetas y módulos se documenta en `Estructura.txt` para facilitar el mantenimiento del proyecto.
 
-- **Landing page personal:** Hero con CTA hacia LinkedIn y GitHub, resumen bilingüe, focos profesionales y stack tecnológico.
-- **Selección interactiva de cursos:** Tarjetas con partes y sesiones; al seleccionar un curso se habilita la navegación por módulos detallados.
-- **Portafolio de proyectos:** Cuatro proyectos destacados con enlaces a los repositorios de GitHub y etiquetas de tecnologías clave.
-- **Descarga de CV y contacto:** Botón de descarga directa (archivo de ejemplo incluido) y datos de contacto (correo, LinkedIn y GitHub).
-- **Arquitectura modular:** Cada sesión del temario vive en su propio módulo Shiny para facilitar el mantenimiento y la extensión futura.
+## ¿Cómo ejecutar la app?
 
-## Estructura del repositorio
-
-```plaintext
-Curso_disennos_experimentales/
-├── R/
-│   ├── global.R                     # Librerías y configuración global
-│   ├── ui.R                         # Tema y bootstrap del render dinámico
-│   ├── server.R                     # Navegación entre landing, cursos y módulos
-│   └── modules/                     # Módulos por curso/parte/sesión
-│       ├── Diseños_estadisticos_V2/
-│       │   ├── Parte I (Básica)/session1.R ... session4.R
-│       │   └── Parte II (Intermedia)/session5.R ... session9.R
-│       └── Diseños_estadisticos_V3/
-│           ├── Parte I (IA)/session1.R
-│           ├── Parte II (Intermedia)/session2.R ... session4.R
-│           └── Parte III (Avanzada)/session5.R ... session8.R
-├── www/
-│   ├── css/custom.css               # Estilos para landing, navegación y cursos
-│   ├── js/custom.js                 # Interacciones personalizadas
-│   ├── docs/Alex_Prieto_Romani_CV.pdf  # Archivo temporal para la descarga del CV
-│   └── images/                      # Portadas de cursos y miniaturas de sesiones
-├── data/                            # Conjuntos de datos de apoyo
-├── app.R                            # Punto de entrada de la aplicación
-├── DESCRIPTION                      # Metadatos del proyecto
-├── renv/ y renv.lock                # Gestión de dependencias
-└── README.md                        # Este documento
-```
-
-## Cómo ejecutar la aplicación
-
-1. **Clonar el repositorio**
+1. **Clona el repositorio**
    ```bash
    git clone https://github.com/AlexPrietoRomani/Curso_disennos_experimentales.git
    cd Curso_disennos_experimentales
    ```
-2. **Restaurar dependencias con `renv`**
+2. **Restaura las dependencias**
    ```r
    install.packages("renv")
    renv::restore()
    ```
-3. **Iniciar la app Shiny**
+3. **Inicia la aplicación**
    ```r
    shiny::runApp()
-   # o abrir app.R en RStudio y ejecutar "Run App"
+   # o abre app.R en RStudio y presiona "Run App"
    ```
 
-## Personalización rápida
+## Personalización básica
 
-- **Imágenes de cursos y sesiones:** Coloca archivos `.jpg` en `www/images/courses/` y `www/images/sesiones/` utilizando identificadores en minúsculas y sin espacios.
-- **Contenido de las sesiones:** Edita cada archivo del directorio `R/modules/...` para incorporar material, gráficos o código reproducible.
-- **CV descargable:** Sustituye `www/docs/Alex_Prieto_Romani_CV.pdf` por la versión oficial del currículum manteniendo el mismo nombre de archivo.
-- **Portafolio:** Ajusta la lista `projects_info` en `R/server.R` para añadir nuevos proyectos o actualizar descripciones y etiquetas.
-
-## Tokens de diseño compartidos
-
-La paleta y los tokens que usa la aplicación están centralizados en `www/css/custom.css` dentro del bloque `:root`. Reutiliza estos valores cuando agregues nuevos estilos o módulos para mantener la coherencia visual sin redefinir colores.
-
-| Token               | Valor      | Uso principal                                                 |
-| ------------------- | ---------- | ------------------------------------------------------------- |
-| `--agro-green`      | `#2F855A`  | Botones primarios, acentos positivos y fondos suaves verdes. |
-| `--deep-forest`     | `#22543D`  | Titulares, texto destacado y elementos de marca.             |
-| `--agro-light`      | `#F7FAF2`  | Fondo base de la aplicación y tarjetas claras.               |
-| `--data-blue`       | `#2B6CB0`  | Enlaces, estados activos y componentes interactivos.         |
-| `--deep-data-blue`  | `#1E3A8A`  | Subtítulos y detalles que necesitan mayor contraste.         |
-| `--charcoal`        | `#1F2933`  | Texto principal y elementos de alto contraste.               |
-| `--card-shadow`     | `0 24px 40px rgba(34, 84, 61, 0.18)` | Sombras de tarjetas y elevación base.              |
-
-## Despliegue en shinyapps.io
-
-1. Configura `rsconnect`:
-   ```r
-   install.packages("rsconnect")
-   rsconnect::setAccountInfo(name = "<CUENTA>", token = "<TOKEN>", secret = "<SECRET>")
-   ```
-2. Publica la aplicación:
-   ```r
-   rsconnect::deployApp()
-   ```
-3. Accede mediante `https://<CUENTA>.shinyapps.io/<NOMBRE_APP>/`.
+- Reemplaza el CV de ejemplo en `www/docs/` por la versión oficial manteniendo el mismo nombre de archivo.
+- Ajusta la información de proyectos en `R/server.R` para reflejar nuevos trabajos.
+- Actualiza las imágenes de cursos y sesiones colocando archivos `.jpg` en `www/images/courses/` y `www/images/sesiones/`.
 
 ## Contacto
 
-- ✉️ Correo: [alexprieto1997@gmail.com](mailto:alexprieto1997@gmail.com)
-- 💼 LinkedIn: [linkedin.com/in/alex-prieto-romani](https://www.linkedin.com/in/alex-prieto-romani/)
-- 💻 GitHub: [github.com/AlexPrietoRomani](https://github.com/AlexPrietoRomani)
-
----
-Desarrollado por **Alex Prieto Romani** · Agriculture Data Science & Precision Agriculture
+- ✉️ [alexprieto1997@gmail.com](mailto:alexprieto1997@gmail.com)
+- 💼 [linkedin.com/in/alex-prieto-romani](https://www.linkedin.com/in/alex-prieto-romani/)
+- 💻 [github.com/AlexPrietoRomani](https://github.com/AlexPrietoRomani)

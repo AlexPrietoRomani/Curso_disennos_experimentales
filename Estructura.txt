@@ -1,3 +1,5 @@
+# Estructura del repositorio
+
 Curso_disennos_experimentales/
 ├── R/
 │   ├── global.R
