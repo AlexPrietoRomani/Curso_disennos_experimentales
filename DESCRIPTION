@@ -1,37 +1,52 @@
-Package: Curso_disennos_experimentales 
-Version: 1.2.7  
-Title: Aplicación shiny para el curso de diseños experimentales  
+Package: Curso_disennos_experimentales
+Version: 1.2.7
+Title: Aplicación shiny para el curso de diseños experimentales
 Description: Es una aplicación shiny para el curso de diseños experimentales, donde se pueden realizar diferentes análisis estadísticos y visualizaciones de datos.
 Author: Alex Anthony Prieto Romani
-Maintainer: Alex Anthony Prieto Romani <alexprieto1997@gmail.com>  
-License: MIT  
-Encoding: UTF-8  
+Maintainer: Alex Anthony Prieto Romani <alexprieto1997@gmail.com>
+License: MIT
+Encoding: UTF-8
 LazyData: true
 Imports:
-    shiny,
-    tidyverse,
+    DT,
+    GGally,
+    MASS,
+    RColorBrewer,
     agricolae,
-    readxl,
-    janitor,
-    moments,
-    plotly,
+    broom,
     bslib,
-    ggplot2,
-    patchwork,
-    grid,
     car,
     dplyr,
-    MASS,
+    dunn.test,
     effectsize,
-    broom,
-    broom.mixed,
+    effects,
     emmeans,
-    DT,
-    pwr,
-    GGally,
-    scatterplot3d,
     ggfortify,
-    systemfonts
+    ggplot2,
+    glue,
+    grid,
+    htmltools,
+    janitor,
+    lme4,
+    lmerTest,
+    moments,
+    patchwork,
+    plotly,
+    purrr,
+    pwr,
+    readr,
+    readxl,
+    rstatix,
+    scales,
+    scatterplot3d,
+    shiny,
+    shinythemes,
+    systemfonts,
+    tibble,
+    tidyr,
+    tidyverse,
+    writexl
 Suggests:
     FielDHub,
-    augmentedRCBD
+    augmentedRCBD,
+    broom.mixed
