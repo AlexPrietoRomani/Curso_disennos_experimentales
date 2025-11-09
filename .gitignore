@@ -18,3 +18,4 @@ credentials.sqlite
 *.Rproj
 /renv/
 intermedio.R
+.Renviron
