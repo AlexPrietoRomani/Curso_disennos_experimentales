@@ -539,6 +539,29 @@ body {
   z-index: 2;
 }
 
+.app-shell .course-control-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.app-shell .course-active-part {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  color: var(--deep-data-blue);
+  background: rgba(43, 108, 176, 0.1);
+  padding: 0.5rem 0.75rem;
+  border-radius: 999px;
+}
+
+.app-shell .course-active-part .fa {
+  color: var(--data-blue);
+}
+
 .app-shell .reset-course {
   display: inline-flex;
   align-items: center;

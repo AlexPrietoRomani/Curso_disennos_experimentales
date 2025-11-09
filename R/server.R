@@ -329,31 +329,6 @@ server <- function(input, output, session) {
     selected_session(sesion_actual)
   }, ignoreNULL = FALSE)
 
-  observe({
-    curso <- selected_course()
-    parte <- selected_part()
-    if (is.null(curso) || is.null(parte)) {
-      return()
-    }
-
-    partes <- names(estructura_cursos[[curso]])
-    if (!is.null(input$part_selector)) {
-      updateSelectInput(
-        session,
-        "part_selector",
-        choices = partes,
-        selected = parte
-      )
-    }
-  })
-
-  observeEvent(input$part_selector, {
-    req(input$part_selector)
-    if (!identical(selected_part(), input$part_selector)) {
-      selected_part(input$part_selector)
-    }
-  })
-
   for (curso in names(estructura_cursos)) {
     partes <- estructura_cursos[[curso]]
     for (parte in names(partes)) {
@@ -418,7 +393,7 @@ server <- function(input, output, session) {
       return(div(class = "app-shell", nav, landing_content))
     }
 
-    partes <- names(estructura_cursos[[curso_actual]])
+    parte_activa <- selected_part()
 
     course_view <- div(
       id = "courses",
@@ -438,25 +413,20 @@ server <- function(input, output, session) {
       div(
         class = "container course-controls",
         div(
-          class = "row align-items-center gy-3",
-          div(
-            class = "col-md-6",
-            actionLink(
-              "reset_course",
-              label = tagList(icon("arrow-left"), span(" Elegir otro curso")),
-              class = "reset-course"
-            )
+          class = "course-control-bar",
+          actionLink(
+            "reset_course",
+            label = tagList(icon("arrow-left"), span(" Elegir otro curso")),
+            class = "reset-course"
           ),
-          div(
-            class = "col-md-6 text-md-end",
-            selectInput(
-              "part_selector",
-              "Parte del temario",
-              choices = partes,
-              selected = selected_part(),
-              width = "100%"
+          if (!is.null(parte_activa)) {
+            span(
+              class = "course-active-part",
+              icon("layer-group"),
+              span(" Parte activa: "),
+              tags$strong(parte_activa)
             )
-          )
+          }
         )
       ),
       div(
@@ -582,7 +552,7 @@ server <- function(input, output, session) {
 
     contenido <- NULL
 
-    if (!is.null(modulo)) {
+    if (!is.null(modulo) && ensure_module_loaded(modulo)) {
       ui_fun_name <- paste0(modulo, "UI")
       if (exists(ui_fun_name, mode = "function")) {
         ui_fun <- get(ui_fun_name, mode = "function")
@@ -625,7 +595,7 @@ server <- function(input, output, session) {
     modulo <- info$module
     server_fun_name <- paste0(modulo, "Server")
 
-    if (exists(server_fun_name, mode = "function")) {
+    if (ensure_module_loaded(modulo) && exists(server_fun_name, mode = "function")) {
       server_fun <- get(server_fun_name, mode = "function")
       callModule(server_fun, info$id)
     }
