@@ -4,12 +4,55 @@ source("R/authentication.R")
 
 auto_install_pkgs <- c("mongolite")
 
+ensure_default_repos <- function() {
+  repos <- getOption("repos")
+  if (is.null(repos)) {
+    repos <- character()
+  }
+
+  repos_names <- names(repos)
+  cran_idx <- which(repos_names %in% c("CRAN", "@CRAN@"))
+
+  needs_default <-
+    length(repos) == 0L ||
+    (length(cran_idx) > 0L && (repos[cran_idx[1]] %in% c("", "@CRAN@"))) ||
+    all(repos == "")
+
+  if (needs_default) {
+    repos <- c(CRAN = "https://cloud.r-project.org")
+    options(repos = repos)
+  }
+
+  repos
+}
+
+ensure_user_lib <- function() {
+  user_lib <- Sys.getenv("R_LIBS_USER")
+  if (!nzchar(user_lib)) {
+    user_lib <- file.path("~", "R", paste0(R.version$platform, "-library"), paste0(R.version$major, ".", R.version$minor))
+  }
+
+  user_lib <- path.expand(user_lib)
+
+  if (!dir.exists(user_lib)) {
+    dir.create(user_lib, recursive = TRUE, showWarnings = FALSE)
+  }
+
+  if (!(user_lib %in% .libPaths())) {
+    .libPaths(c(user_lib, .libPaths()))
+  }
+
+  user_lib
+}
+
 need_pkg <- function(pkg) {
   if (!requireNamespace(pkg, quietly = TRUE)) {
     if (pkg %in% auto_install_pkgs) {
+      repos <- ensure_default_repos()
+      lib_path <- ensure_user_lib()
       message(sprintf("Instalando paquete faltante '%s' desde CRAN...", pkg))
       tryCatch(
-        utils::install.packages(pkg, repos = getOption("repos")),
+        utils::install.packages(pkg, repos = repos, lib = lib_path),
         error = function(e) {
           stop(
             sprintf(
