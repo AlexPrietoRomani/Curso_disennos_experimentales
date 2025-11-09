@@ -1,4 +1,4 @@
-# R/utils.R
+# R/authentication.R
 # -------------------------------------------------------------------
 # Autenticación MongoDB robusta para Shiny
 # - Lectura segura con mongolite::iterate() (evita listas en data.frame)
