@@ -6,6 +6,7 @@
 *.RData
 *.Ruserdata
 *.Rbuildignore
+*.Renviron
 Curso_disennos_experimentales.Rproj
 intermedio.R
 
@@ -15,3 +16,4 @@ credentials.sqlite
 /.Rproj.user/
 *.Rproj
 /renv/
+intermedio.R
