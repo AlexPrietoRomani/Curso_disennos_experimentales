@@ -3,6 +3,7 @@
 Curso_disennos_experimentales/
 ├── R/
 │   ├── global.R
+│   ├── authentication.R    # Utilidades para autenticación (MongoDB + contraseñas)
 │   ├── ui.R                 # Define tema general y delega renderizado dinámico en server
 │   ├── server.R             # Gestiona navegación landing/cursos, módulos y descarga de CV
 │   └── modules/

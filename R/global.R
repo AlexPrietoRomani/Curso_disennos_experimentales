@@ -1,10 +1,31 @@
 # R/global.R
 
-source("R/utils.R")
+source("R/authentication.R")
+
+auto_install_pkgs <- c("mongolite")
 
 need_pkg <- function(pkg) {
   if (!requireNamespace(pkg, quietly = TRUE)) {
-    stop(sprintf("El paquete '%s' es requerido para esta sesión. Instálalo primero.", pkg), call. = FALSE)
+    if (pkg %in% auto_install_pkgs) {
+      message(sprintf("Instalando paquete faltante '%s' desde CRAN...", pkg))
+      tryCatch(
+        utils::install.packages(pkg, repos = getOption("repos")),
+        error = function(e) {
+          stop(
+            sprintf(
+              "No se pudo instalar automáticamente el paquete '%s': %s",
+              pkg,
+              conditionMessage(e)
+            ),
+            call. = FALSE
+          )
+        }
+      )
+    }
+
+    if (!requireNamespace(pkg, quietly = TRUE)) {
+      stop(sprintf("El paquete '%s' es requerido para esta sesión. Instálalo primero.", pkg), call. = FALSE)
+    }
   }
 }
 

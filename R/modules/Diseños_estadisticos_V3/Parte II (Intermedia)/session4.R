@@ -196,7 +196,7 @@ mL <- lmer(rend ~ tratamiento + (1|bloque), data = d, REML = TRUE)
 anova(mL, type = 3, ddf = "Satterthwaite")
 
 # 4) VarCorr e ICC
-vc <- as.data.frame(VarCorr(mL))
+vc <- as.data.frame(lme4::VarCorr(mL))
 sig_b <- vc$vcov[vc$grp == "bloque" & vc$var1 == "(Intercept)"]
 sig_e <- vc$vcov[vc$grp == "Residual"]
 ICC <- sig_b / (sig_b + sig_e); ICC
@@ -357,7 +357,7 @@ session4_v3Server <- function(input, output, session) {
 
   output$out_lmer_anova <- renderPrint({
     req(ajuste_lmer())
-    lmerTest::anova(ajuste_lmer(), type = 3, ddf = "Satterthwaite")
+    anova(ajuste_lmer(), type = 3, ddf = "Satterthwaite")
   })
 
   # VarCorr & ICC

@@ -419,19 +419,19 @@ session5_v3Server <- function(input, output, session) {
       requireNamespace("lmerTest", quietly = TRUE)
     })
     mod_lmm <- lmerTest::lmer(y ~ A*B + (1|Bloque) + (1|Bloque:A), data = df, REML = TRUE)
-    lmerTest::anova(mod_lmm, type = 3)  # tabla tipo III con p-values
+    anova(mod_lmm, type = 3)  # tabla tipo III con p-values (método lmerTest)
   })
 
   output$lmm_varcorr <- renderPrint({
     df <- sim_react(); req(df)
     mod_lmm <- lmerTest::lmer(y ~ A*B + (1|Bloque) + (1|Bloque:A), data = df, REML = TRUE)
-    print(VarCorr(mod_lmm), comp = c("Variance","Std.Dev."))
+    print(lme4::VarCorr(mod_lmm), comp = c("Variance","Std.Dev."))
   })
 
   output$tabla_icc <- renderTable({
     df <- sim_react(); req(df)
     mod_lmm <- lmerTest::lmer(y ~ A*B + (1|Bloque) + (1|Bloque:A), data = df, REML = TRUE)
-    icc_from_varcorr(VarCorr(mod_lmm))
+    icc_from_varcorr(lme4::VarCorr(mod_lmm))
   }, striped = TRUE, bordered = TRUE, align = "c")
 
   # Visualizaciones
@@ -523,19 +523,19 @@ session5_v3Server <- function(input, output, session) {
   output$ex_lmm_ok <- renderPrint({
     df <- ex_df(); req(df)
     mod <- lmerTest::lmer(y ~ A*B + (1|Bloque) + (1|Bloque:A), data = df, REML = TRUE)
-    lmerTest::anova(mod, type = 3)
+    anova(mod, type = 3)
   })
 
   output$ex_varcorr <- renderPrint({
     df <- ex_df(); req(df)
     mod <- lmerTest::lmer(y ~ A*B + (1|Bloque) + (1|Bloque:A), data = df, REML = TRUE)
-    print(VarCorr(mod), comp = c("Variance","Std.Dev."))
+    print(lme4::VarCorr(mod), comp = c("Variance","Std.Dev."))
   })
 
   output$ex_icc_tbl <- renderTable({
     df <- ex_df(); req(df)
     mod <- lmerTest::lmer(y ~ A*B + (1|Bloque) + (1|Bloque:A), data = df, REML = TRUE)
-    icc_from_varcorr(VarCorr(mod))
+    icc_from_varcorr(lme4::VarCorr(mod))
   }, striped = TRUE, bordered = TRUE, align = "c")
 
   output$ex_emm <- renderPrint({
