@@ -11,6 +11,11 @@ server <- function(input, output, session) {
     id
   }
 
+  view_state <- reactiveVal("landing")
+  user_authenticated <- reactiveVal(FALSE)
+  user_info <- reactiveVal(NULL)
+  login_error <- reactiveVal(NULL)
+
   selected_course <- reactiveVal(NULL)
   selected_part <- reactiveVal(NULL)
   selected_session <- reactiveVal(NULL)
@@ -42,7 +47,7 @@ server <- function(input, output, session) {
     )
   )
 
-  build_navbar <- function() {
+  build_navbar <- function(authenticated = FALSE, user = NULL) {
     tags$nav(
       class = "primary-nav",
       div(
@@ -67,7 +72,25 @@ server <- function(input, output, session) {
           tags$li(tags$a(href = "#courses", class = "nav-link", onclick = "Shiny.setInputValue('nav_target', 'courses', {priority: 'event'});", "Cursos")),
           tags$li(tags$a(href = "#projects", class = "nav-link", onclick = "Shiny.setInputValue('nav_target', 'projects', {priority: 'event'});", "Proyectos")),
           tags$li(tags$a(href = "#cv", class = "nav-link", onclick = "Shiny.setInputValue('nav_target', 'cv', {priority: 'event'});", "Descarga mi CV")),
-          tags$li(tags$a(href = "#contact", class = "nav-link", onclick = "Shiny.setInputValue('nav_target', 'contact', {priority: 'event'});", "Contáctame"))
+          tags$li(tags$a(href = "#contact", class = "nav-link", onclick = "Shiny.setInputValue('nav_target', 'contact', {priority: 'event'});", "Contáctame")),
+          if (authenticated) {
+            tagList(
+              tags$li(
+                class = "nav-item nav-user",
+                tags$span(
+                  class = "nav-link disabled",
+                  sprintf("Hola, %s", sanitize_credential_input(user$username %||% "usuario"))
+                )
+              ),
+              tags$li(
+                actionLink(
+                  "logout",
+                  label = tagList(icon("right-from-bracket"), span(" Cerrar sesión")),
+                  class = "nav-link nav-link-action"
+                )
+              )
+            )
+          }
         )
       )
     )
@@ -183,7 +206,32 @@ server <- function(input, output, session) {
     )
   }
 
-  build_courses_section <- function(course_cards) {
+  build_course_cards <- function() {
+    lapply(names(estructura_cursos), function(nombre_curso) {
+      partes <- estructura_cursos[[nombre_curso]]
+      total_partes <- length(partes)
+      total_sesiones <- sum(vapply(partes, function(x) length(x$sesiones), numeric(1)))
+      course_id <- sanitize_id(nombre_curso)
+      tags$button(
+        id = paste0("course_", course_id),
+        type = "button",
+        class = "course-card action-button",
+        style = sprintf("--card-image: url('images/courses/%s.jpg');", course_id),
+        tags$div(class = "course-card-overlay"),
+        tags$div(
+          class = "course-card-body",
+          tags$span(class = "course-card-kicker", "Curso especializado"),
+          tags$h3(class = "course-card-title", nombre_curso),
+          tags$p(
+            class = "course-card-meta",
+            sprintf("%d parte%s · %d sesión%s", total_partes, ifelse(total_partes == 1, "", "s"), total_sesiones, ifelse(total_sesiones == 1, "", "es"))
+          )
+        )
+      )
+    })
+  }
+
+  build_courses_section <- function(course_cards = NULL, entry_button = NULL) {
     div(
       id = "courses",
       class = "section courses-section",
@@ -194,7 +242,62 @@ server <- function(input, output, session) {
           class = "section-intro",
           "Selecciona un curso para explorar las partes y sesiones disponibles."
         ),
-        div(class = "course-grid", course_cards)
+        if (!is.null(entry_button)) {
+          div(
+            class = "d-flex justify-content-center mt-4",
+            entry_button
+          )
+        } else {
+          div(class = "course-grid", course_cards)
+        }
+      )
+    )
+  }
+
+  build_login_section <- function(error_message = NULL) {
+    div(
+      id = "courses",
+      class = "section courses-section login-section",
+      div(
+        class = "container",
+        tags$h2(class = "section-title", "Acceso a cursos"),
+        tags$p(
+          class = "section-intro",
+          "Inicia sesión con tus credenciales para acceder a los contenidos protegidos."
+        ),
+        div(
+          class = "login-card",
+          if (!is.null(error_message)) {
+            div(class = "alert alert-danger", role = "alert", error_message)
+          },
+          textInput("login_username", "Usuario", placeholder = "usuario"),
+          passwordInput("login_password", "Contraseña", placeholder = "********"),
+          div(
+            class = "d-flex flex-column flex-sm-row gap-2 mt-3",
+            actionButton("login_submit", label = tagList(icon("lock"), span(" Iniciar sesión")), class = "btn btn-primary"),
+            tags$button(
+              type = "button",
+              class = "btn btn-outline-secondary disabled",
+              disabled = "disabled",
+              icon("key"),
+              " Cambiar contraseña (en desarrollo)"
+            )
+          ),
+          tags$div(
+            class = "support-contact mt-4",
+            tags$p(class = "mb-2", "¿Necesitas ayuda con tus credenciales?"),
+            tags$a(
+              href = support_mailto_link(subject = "Soporte Cursos - Acceso"),
+              class = "btn btn-link",
+              icon("envelope"),
+              " Contactar soporte"
+            )
+          ),
+          tags$p(
+            class = "text-muted small mt-3",
+            "Las contraseñas se almacenan cifradas y se validan directamente contra MongoDB."
+          )
+        )
       )
     )
   }
@@ -260,15 +363,59 @@ server <- function(input, output, session) {
   }
 
   observeEvent(input$nav_target, {
-    selected_course(NULL)
-    selected_part(NULL)
-    selected_session(NULL)
+    if (identical(input$nav_target, "courses")) {
+      selected_course(NULL)
+      selected_part(NULL)
+      selected_session(NULL)
+      view_state(if (isTRUE(user_authenticated())) "course_select" else "login")
+    } else {
+      view_state("landing")
+    }
   }, ignoreNULL = TRUE)
 
   observeEvent(input$reset_course, {
     selected_course(NULL)
     selected_part(NULL)
     selected_session(NULL)
+    view_state("course_select")
+  })
+
+  observeEvent(input$open_course_login, {
+    if (isTRUE(user_authenticated())) {
+      view_state("course_select")
+    } else {
+      view_state("login")
+    }
+  })
+
+  observeEvent(input$login_submit, {
+    login_error(NULL)
+    result <- authenticate_user(input$login_username, input$login_password)
+
+    if (isTRUE(result$success)) {
+      user_authenticated(TRUE)
+      user_info(result$user)
+      selected_course(NULL)
+      selected_part(NULL)
+      selected_session(NULL)
+      view_state("course_select")
+      updateTextInput(session, "login_username", value = "")
+      updateTextInput(session, "login_password", value = "")
+    } else if (!is.null(result$message)) {
+      login_error(result$message)
+    }
+  })
+
+  observeEvent(input$logout, {
+    user_authenticated(FALSE)
+    user_info(NULL)
+    login_error(NULL)
+    selected_course(NULL)
+    selected_part(NULL)
+    selected_session(NULL)
+    view_state("landing")
+    updateTextInput(session, "login_username", value = "")
+    updateTextInput(session, "login_password", value = "")
   })
 
   for (curso in names(estructura_cursos)) {
@@ -286,9 +433,15 @@ server <- function(input, output, session) {
     if (is.null(curso)) {
       selected_part(NULL)
       selected_session(NULL)
+      if (isTRUE(user_authenticated())) {
+        view_state("course_select")
+      } else {
+        view_state("landing")
+      }
       return()
     }
 
+    view_state("course_detail")
     partes <- names(estructura_cursos[[curso]])
     if (length(partes) == 0) {
       selected_part(NULL)
@@ -353,43 +506,58 @@ server <- function(input, output, session) {
   }
 
   output$main_ui <- renderUI({
-    curso_actual <- selected_course()
-    nav <- build_navbar()
+    state <- view_state()
+    nav <- build_navbar(authenticated = isTRUE(user_authenticated()), user = user_info())
 
-    if (is.null(curso_actual)) {
-      course_cards <- lapply(names(estructura_cursos), function(nombre_curso) {
-        partes <- estructura_cursos[[nombre_curso]]
-        total_partes <- length(partes)
-        total_sesiones <- sum(vapply(partes, function(x) length(x$sesiones), numeric(1)))
-        course_id <- sanitize_id(nombre_curso)
-        tags$button(
-          id = paste0("course_", course_id),
-          type = "button",
-          class = "course-card action-button",
-          style = sprintf("--card-image: url('images/courses/%s.jpg');", course_id),
-          tags$div(class = "course-card-overlay"),
-          tags$div(
-            class = "course-card-body",
-            tags$span(class = "course-card-kicker", "Curso especializado"),
-            tags$h3(class = "course-card-title", nombre_curso),
-            tags$p(
-              class = "course-card-meta",
-              sprintf("%d parte%s · %d sesión%s", total_partes, ifelse(total_partes == 1, "", "s"), total_sesiones, ifelse(total_sesiones == 1, "", "es"))
-            )
-          )
-        )
-      })
-
+    if (identical(state, "landing")) {
       landing_content <- tagList(
         build_hero_section(),
         build_about_section(),
         build_skills_section(),
-        build_courses_section(course_cards),
+        build_courses_section(
+          entry_button = actionButton(
+            "open_course_login",
+            label = tagList(icon("graduation-cap"), span(" Ingresar a cursos")),
+            class = "btn btn-primary btn-lg"
+          )
+        ),
         build_projects_section(),
         build_cv_section(),
         build_contact_section()
       )
 
+      return(div(class = "app-shell", nav, landing_content))
+    }
+
+    if (identical(state, "login")) {
+      login_content <- build_login_section(login_error())
+      return(div(class = "app-shell", nav, login_content))
+    }
+
+    if (identical(state, "course_select")) {
+      course_cards <- build_course_cards()
+      selector_content <- build_courses_section(course_cards = course_cards)
+      return(div(class = "app-shell", nav, selector_content))
+    }
+
+    curso_actual <- selected_course()
+    if (is.null(curso_actual)) {
+      view_state("landing")
+      landing_content <- tagList(
+        build_hero_section(),
+        build_about_section(),
+        build_skills_section(),
+        build_courses_section(
+          entry_button = actionButton(
+            "open_course_login",
+            label = tagList(icon("graduation-cap"), span(" Ingresar a cursos")),
+            class = "btn btn-primary btn-lg"
+          )
+        ),
+        build_projects_section(),
+        build_cv_section(),
+        build_contact_section()
+      )
       return(div(class = "app-shell", nav, landing_content))
     }
 

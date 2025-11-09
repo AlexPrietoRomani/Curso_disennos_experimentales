@@ -1,5 +1,7 @@
 # R/global.R
 
+source("R/utils.R")
+
 need_pkg <- function(pkg) {
   if (!requireNamespace(pkg, quietly = TRUE)) {
     stop(sprintf("El paquete '%s' es requerido para esta sesión. Instálalo primero.", pkg), call. = FALSE)
@@ -40,10 +42,11 @@ bs_callout <- function(..., title = NULL, type = c("info","warning","danger","su
 
 package_groups <- list(
   shiny = c("shiny", "bslib", "shinythemes"),
-  data = c("tidyverse", "readxl", "janitor", "broom", "moments", "systemfonts"),
+  data = c("tidyverse", "readxl", "janitor", "broom", "moments", "systemfonts", "jsonlite"),
   modelling = c("agricolae", "MASS", "emmeans", "effectsize", "pwr", "dunn.test", "rstatix", "lme4", "lmerTest"),
   visualization = c("ggplot2", "plotly", "patchwork", "GGally", "ggfortify", "scatterplot3d", "effects", "RColorBrewer", "grid"),
-  interface = c("DT", "car")
+  interface = c("DT", "car"),
+  auth = c("mongolite", "sodium")
 )
 
 load_packages(unlist(package_groups))
