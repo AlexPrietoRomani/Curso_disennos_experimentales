@@ -7,6 +7,7 @@
 *.Ruserdata
 *.Rbuildignore
 *.Renviron
+!.Renviron
 Curso_disennos_experimentales.Rproj
 intermedio.R
 
