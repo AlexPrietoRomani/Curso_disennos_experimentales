@@ -17,6 +17,14 @@ safe_library <- function(pkg) {
   TRUE
 }
 
+load_packages <- function(pkgs) {
+  pkgs <- unique(pkgs)
+  invisible(lapply(pkgs, function(pkg) {
+    need_pkg(pkg)
+    suppressPackageStartupMessages(library(pkg, character.only = TRUE))
+  }))
+}
+
 # polyfill de callout si tu bslib no lo tiene
 bs_callout <- function(..., title = NULL, type = c("info","warning","danger","success")) {
   type <- match.arg(type)
@@ -30,35 +38,18 @@ bs_callout <- function(..., title = NULL, type = c("info","warning","danger","su
       ...)
 }
 
-library(shiny)
-library(tidyverse)
-library(agricolae)
-library(readxl)
-library(janitor)
-library(moments)
-library(plotly)
-library(bslib)
-library(ggplot2)
-library(patchwork)
-library(grid)
-library(car)
-library(dplyr)
-library(MASS)
-library(effectsize)
-library(broom)
-library(emmeans)
-library(DT)
-library(pwr)
-library(dunn.test)
-library(rstatix)
-library(ggfortify)
-library(scatterplot3d)
-library(GGally)
-library(effects)
-safe_library("FielDHub")
-safe_library("augmentedRCBD")
-safe_library("broom.mixed")
-library(systemfonts)
+package_groups <- list(
+  shiny = c("shiny", "bslib", "shinythemes"),
+  data = c("tidyverse", "readxl", "janitor", "broom", "moments", "systemfonts"),
+  modelling = c("agricolae", "MASS", "emmeans", "effectsize", "pwr", "dunn.test", "rstatix", "lme4", "lmerTest"),
+  visualization = c("ggplot2", "plotly", "patchwork", "GGally", "ggfortify", "scatterplot3d", "effects", "RColorBrewer", "grid"),
+  interface = c("DT", "car")
+)
+
+load_packages(unlist(package_groups))
+
+optional_packages <- c("FielDHub", "augmentedRCBD", "broom.mixed")
+invisible(lapply(optional_packages, safe_library))
 
 # Cargar módulos
 mod_files <- list.files("R/modules", full.names = TRUE, pattern = "\\.R$", recursive = TRUE)

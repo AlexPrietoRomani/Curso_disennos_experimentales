@@ -460,44 +460,119 @@ server <- function(input, output, session) {
         )
       ),
       div(
-        class = "container session-grid-container",
-        uiOutput("session_cards")
-      ),
-      div(
-        class = "container session-content-container",
-        uiOutput("contenido_ui")
+        class = "container course-layout",
+        div(
+          class = "row g-4 align-items-start",
+          div(
+            class = "col-12 col-xl-4",
+            uiOutput("course_sidebar")
+          ),
+          div(
+            class = "col-12 col-xl-8",
+            uiOutput("contenido_ui")
+          )
+        )
       )
     )
 
     div(class = "app-shell", nav, course_view)
   })
 
-  output$session_cards <- renderUI({
-    req(selected_course(), selected_part())
+  output$course_sidebar <- renderUI({
+    req(selected_course())
     curso_actual <- selected_course()
     parte_actual <- selected_part()
-    sesiones <- estructura_cursos[[curso_actual]][[parte_actual]]$sesiones
+    sesion_actual <- selected_session()
+    partes <- estructura_cursos[[curso_actual]]
 
-    if (length(sesiones) == 0) {
-      return(div(class = "empty-state", "Pronto agregaremos sesiones para esta parte."))
+    if (length(partes) == 0) {
+      return(div(class = "course-sidebar", div(class = "empty-state", "Pronto agregaremos partes para este curso.")))
     }
 
-    cards <- lapply(names(sesiones), function(nombre_sesion) {
-      session_id <- sanitize_id(paste(curso_actual, parte_actual, nombre_sesion))
-      button_id <- paste0("session_", session_id)
-      activa <- identical(selected_session(), nombre_sesion)
-      tags$button(
-        id = button_id,
-        type = "button",
-        class = paste("session-card action-button", if (activa) "active"),
-        tags$div(
-          class = "session-card-body",
-          tags$h4(class = "session-card-title", nombre_sesion)
+    accordion_id <- paste0("accordion_", sanitize_id(curso_actual))
+
+    accordion_items <- lapply(names(partes), function(nombre_parte) {
+      parte_id <- sanitize_id(paste(curso_actual, nombre_parte))
+      heading_id <- paste0("heading_", parte_id)
+      collapse_id <- paste0("collapse_", parte_id)
+      es_parte_activa <- identical(nombre_parte, parte_actual)
+      sesiones <- partes[[nombre_parte]]$sesiones
+      total_sesiones <- length(sesiones)
+
+      session_buttons <- NULL
+      if (total_sesiones > 0) {
+        session_buttons <- lapply(names(sesiones), function(nombre_sesion) {
+          session_id <- sanitize_id(paste(curso_actual, nombre_parte, nombre_sesion))
+          button_id <- paste0("session_", session_id)
+          activa <- identical(sesion_actual, nombre_sesion)
+          tags$button(
+            id = button_id,
+            type = "button",
+            class = paste("session-list-item action-button", if (activa) "active"),
+            tags$span(class = "session-list-index", sprintf("%02d", match(nombre_sesion, names(sesiones)))),
+            tags$span(class = "session-list-label", nombre_sesion)
+          )
+        })
+      }
+
+      tags$div(
+        class = "accordion-item",
+        tags$h2(
+          class = "accordion-header",
+          id = heading_id,
+          tags$button(
+            class = paste("accordion-button", if (!es_parte_activa) "collapsed"),
+            type = "button",
+            `data-bs-toggle` = "collapse",
+            `data-bs-target` = paste0("#", collapse_id),
+            `aria-expanded` = tolower(as.character(es_parte_activa)),
+            `aria-controls` = collapse_id,
+            tagList(
+              span(class = "sidebar-part-title", nombre_parte),
+              span(
+                class = "sidebar-part-count",
+                sprintf("%d sesión%s", total_sesiones, ifelse(total_sesiones == 1, "", "es"))
+              )
+            )
+          )
+        ),
+        div(
+          id = collapse_id,
+          class = paste("accordion-collapse collapse", if (es_parte_activa) "show"),
+          `aria-labelledby` = heading_id,
+          `data-bs-parent` = paste0("#", accordion_id),
+          div(
+            class = "accordion-body",
+            if (total_sesiones == 0) {
+              div(class = "empty-state", "Sesiones próximamente disponibles.")
+            } else {
+              div(class = "session-list", session_buttons)
+            }
+          )
         )
       )
     })
 
-    div(class = "session-grid", cards)
+    div(
+      class = "course-sidebar",
+      div(
+        class = "sidebar-header",
+        tags$span(class = "sidebar-kicker", "Plan de estudio"),
+        tags$h3(class = "sidebar-title", curso_actual)
+      ),
+      if (!is.null(parte_actual) && !is.null(sesion_actual)) {
+        div(
+          class = "sidebar-selection",
+          tags$span(class = "sidebar-selection-label", "Sesión activa"),
+          tags$strong(class = "sidebar-selection-value", paste(parte_actual, "·", sesion_actual))
+        )
+      },
+      div(
+        class = "accordion course-sidebar-accordion",
+        id = accordion_id,
+        accordion_items
+      )
+    )
   })
 
   output$contenido_ui <- renderUI({
@@ -522,7 +597,8 @@ server <- function(input, output, session) {
       )
     }
 
-    tagList(
+    div(
+      class = "course-content",
       div(
         class = "session-detail-header",
         tags$span(class = "session-detail-pill", selected_part()),
