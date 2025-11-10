@@ -1,14 +1,32 @@
 # R/global.R
+# -------------------------------------------------------------------------
+# Configuración global para la aplicación Shiny. En este archivo se
+# centraliza:
+#   * La gestión de paquetes (instalación automática y carga con mensajes
+#     claros para shinyapps.io).
+#   * El registro diferido de módulos alojados en `R/modules`.
+#   * La definición de la estructura de cursos consumida por la UI.
 
 source("R/authentication.R")
 
-auto_install_pkgs <- c("mongolite", "sodium")
+# ---- Gestión de paquetes -------------------------------------------------
+
+AUTO_INSTALL_PACKAGES <- c("mongolite", "openssl")
+
+PACKAGE_GROUPS <- list(
+  shiny = c("shiny", "bslib", "shinythemes"),
+  data = c("tidyverse", "readxl", "janitor", "broom", "moments", "systemfonts", "jsonlite"),
+  modelling = c("agricolae", "MASS", "emmeans", "effectsize", "pwr", "dunn.test", "rstatix", "lme4", "lmerTest"),
+  visualization = c("ggplot2", "plotly", "patchwork", "GGally", "ggfortify", "scatterplot3d", "effects", "RColorBrewer", "grid"),
+  interface = c("DT", "car"),
+  auth = c("mongolite", "openssl")
+)
+
+OPTIONAL_PACKAGES <- c("FielDHub", "augmentedRCBD", "broom.mixed")
 
 ensure_default_repos <- function() {
   repos <- getOption("repos")
-  if (is.null(repos)) {
-    repos <- character()
-  }
+  if (is.null(repos)) repos <- character()
 
   repos_names <- names(repos)
   cran_idx <- which(repos_names %in% c("CRAN", "@CRAN@"))
@@ -29,7 +47,12 @@ ensure_default_repos <- function() {
 ensure_user_lib <- function() {
   user_lib <- Sys.getenv("R_LIBS_USER")
   if (!nzchar(user_lib)) {
-    user_lib <- file.path("~", "R", paste0(R.version$platform, "-library"), paste0(R.version$major, ".", R.version$minor))
+    user_lib <- file.path(
+      "~",
+      "R",
+      paste0(R.version$platform, "-library"),
+      paste0(R.version$major, ".", R.version$minor)
+    )
   }
 
   user_lib <- path.expand(user_lib)
@@ -45,31 +68,46 @@ ensure_user_lib <- function() {
   user_lib
 }
 
+install_if_allowed <- function(pkg) {
+  repos <- ensure_default_repos()
+  lib_path <- ensure_user_lib()
+  message(sprintf("Instalando paquete faltante '%s' desde CRAN...", pkg))
+  tryCatch(
+    utils::install.packages(pkg, repos = repos, lib = lib_path),
+    error = function(e) {
+      stop(
+        sprintf(
+          "No se pudo instalar automáticamente el paquete '%s': %s",
+          pkg,
+          conditionMessage(e)
+        ),
+        call. = FALSE
+      )
+    }
+  )
+}
+
 need_pkg <- function(pkg) {
   if (!requireNamespace(pkg, quietly = TRUE)) {
-    if (pkg %in% auto_install_pkgs) {
-      repos <- ensure_default_repos()
-      lib_path <- ensure_user_lib()
-      message(sprintf("Instalando paquete faltante '%s' desde CRAN...", pkg))
-      tryCatch(
-        utils::install.packages(pkg, repos = repos, lib = lib_path),
-        error = function(e) {
-          stop(
-            sprintf(
-              "No se pudo instalar automáticamente el paquete '%s': %s",
-              pkg,
-              conditionMessage(e)
-            ),
-            call. = FALSE
-          )
-        }
-      )
+    if (pkg %in% AUTO_INSTALL_PACKAGES) {
+      install_if_allowed(pkg)
     }
 
     if (!requireNamespace(pkg, quietly = TRUE)) {
-      stop(sprintf("El paquete '%s' es requerido para esta sesión. Instálalo primero.", pkg), call. = FALSE)
+      stop(
+        sprintf("El paquete '%s' es requerido para esta sesión. Instálalo primero.", pkg),
+        call. = FALSE
+      )
     }
   }
+}
+
+load_packages <- function(pkgs) {
+  pkgs <- unique(pkgs)
+  invisible(lapply(pkgs, function(pkg) {
+    need_pkg(pkg)
+    suppressPackageStartupMessages(library(pkg, character.only = TRUE))
+  }))
 }
 
 safe_library <- function(pkg) {
@@ -83,55 +121,30 @@ safe_library <- function(pkg) {
   TRUE
 }
 
-load_packages <- function(pkgs) {
-  pkgs <- unique(pkgs)
-  invisible(lapply(pkgs, function(pkg) {
-    need_pkg(pkg)
-    suppressPackageStartupMessages(library(pkg, character.only = TRUE))
-  }))
-}
-
 # polyfill de callout si tu bslib no lo tiene
-bs_callout <- function(..., title = NULL, type = c("info","warning","danger","success")) {
+bs_callout <- function(..., title = NULL, type = c("info", "warning", "danger", "success")) {
   type <- match.arg(type)
-  # Usa callout si existe; si no, degrade a alert
   if (requireNamespace("bslib", quietly = TRUE) && "callout" %in% getNamespaceExports("bslib")) {
     return(bslib::callout(title = title, ...))
   }
-  # Bootstrap alert compatible
-  div(class = paste0("alert alert-", if (type == "danger") "danger" else type),
-      if (!is.null(title)) tags$h5(title),
-      ...)
+  div(
+    class = paste0("alert alert-", if (type == "danger") "danger" else type),
+    if (!is.null(title)) tags$h5(title),
+    ...
+  )
 }
 
-package_groups <- list(
-  shiny = c("shiny", "bslib", "shinythemes"),
-  data = c("tidyverse", "readxl", "janitor", "broom", "moments", "systemfonts", "jsonlite"),
-  modelling = c("agricolae", "MASS", "emmeans", "effectsize", "pwr", "dunn.test", "rstatix", "lme4", "lmerTest"),
-  visualization = c("ggplot2", "plotly", "patchwork", "GGally", "ggfortify", "scatterplot3d", "effects", "RColorBrewer", "grid"),
-  interface = c("DT", "car"),
-  auth = c("mongolite", "sodium")
-)
+load_packages(unlist(PACKAGE_GROUPS))
+invisible(lapply(OPTIONAL_PACKAGES, safe_library))
 
-load_packages(unlist(package_groups))
-
-optional_packages <- c("FielDHub", "augmentedRCBD", "broom.mixed")
-invisible(lapply(optional_packages, safe_library))
-
-# Registro de archivos de módulos para carga diferida
-mod_files <- list.files("R/modules", full.names = TRUE, pattern = "\\.R$", recursive = TRUE)
-mod_files <- sort(mod_files)
+# ---- Registro diferido de módulos ---------------------------------------
 
 module_sources <- new.env(parent = emptyenv())
 
-register_module_source <- function(module_name, file) {
-  if (!nzchar(module_name)) {
-    return()
-  }
-
-  if (!exists(module_name, envir = module_sources, inherits = FALSE)) {
-    assign(module_name, file, envir = module_sources)
-  }
+list_module_files <- function() {
+  if (!dir.exists("R/modules")) return(character())
+  files <- list.files("R/modules", full.names = TRUE, pattern = "\\.R$", recursive = TRUE)
+  sort(files)
 }
 
 extract_module_names <- function(file) {
@@ -153,7 +166,14 @@ extract_module_names <- function(file) {
   module_names
 }
 
-for (file in mod_files) {
+register_module_source <- function(module_name, file) {
+  if (!nzchar(module_name)) return()
+  if (!exists(module_name, envir = module_sources, inherits = FALSE)) {
+    assign(module_name, file, envir = module_sources)
+  }
+}
+
+for (file in list_module_files()) {
   modules_in_file <- extract_module_names(file)
   for (module_name in modules_in_file) {
     register_module_source(module_name, file)
@@ -161,16 +181,13 @@ for (file in mod_files) {
 }
 
 ensure_module_loaded <- function(module_name) {
-  if (!nzchar(module_name)) {
-    return(FALSE)
-  }
+  if (!nzchar(module_name)) return(FALSE)
 
   ui_fun_name <- paste0(module_name, "UI")
   server_fun_name <- paste0(module_name, "Server")
 
   ui_loaded <- exists(ui_fun_name, mode = "function", inherits = TRUE)
   server_loaded <- exists(server_fun_name, mode = "function", inherits = TRUE)
-
   if (ui_loaded || server_loaded) {
     return(TRUE)
   }
@@ -186,7 +203,8 @@ ensure_module_loaded <- function(module_name) {
     exists(server_fun_name, mode = "function", inherits = TRUE)
 }
 
-# Estructura de cursos, partes y sesiones
+# ---- Estructura de cursos ------------------------------------------------
+
 estructura_cursos <- list(
   "Diseños estadísticos V2" = list(
     "Parte I (Básica)" = list(
