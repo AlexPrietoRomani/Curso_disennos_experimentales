@@ -2,14 +2,14 @@
 # -------------------------------------------------------------------
 # Autenticación MongoDB robusta para Shiny
 # - Lectura segura con mongolite::iterate() (evita listas en data.frame)
-# - Hash de contraseñas con {sodium} / libsodium (Argon2id)
+# - Hash de contraseñas con PBKDF2-SHA256 ({openssl})
 # - Pepper opcional vía AUTH_PASSWORD_PEPPER (.Renviron)
 # - Soporta usuarios con username tipo email (case-insensitive via username_norm en DB)
 # Referencias:
-#   * sodium::password_store/password_verify: cadena ASCII con sal + parámetros. 
-#     https://search.r-project.org/CRAN/refmans/sodium/html/password.html
-#   * Libsodium crypto_pwhash_str (Argon2id, retrocompatibilidad): 
-#     https://libsodium.gitbook.io/doc/password_hashing
+#   * openssl::pbkdf2 (Key derivation function):
+#     https://search.r-project.org/CRAN/refmans/openssl/html/pbkdf2.html
+#   * Formato inspirado en Django PBKDF2 SHA256:
+#     https://docs.djangoproject.com/en/dev/topics/auth/passwords/#pbkdf2
 #   * mongolite iterate() (sin simplificación a data.frame):
 #     https://jeroen.github.io/mongolite/query-data.html
 # -------------------------------------------------------------------
@@ -103,21 +103,136 @@ get_password_pepper <- function() {
 }
 
 # ==============
-# Hash y verificación con {sodium} (libsodium)
+# Hash y verificación con PBKDF2-SHA256 ({openssl})
 # ==============
 
-# Devuelve string ASCII con sal y parámetros embebidos (libsodium crypto_pwhash_str)
+PASSWORD_HASH_SETTINGS <- list(
+  algorithm   = "pbkdf2_sha256",
+  iterations  = 120000L,
+  salt_bytes  = 16L,
+  key_length  = 32L,
+  hashfun     = "sha256"
+)
+
+generate_password_salt <- function(bytes = PASSWORD_HASH_SETTINGS$salt_bytes) {
+  openssl::rand_bytes(bytes)
+}
+
+encode_password_salt <- function(salt_raw) {
+  openssl::base64_encode(salt_raw)
+}
+
+decode_password_salt <- function(salt_encoded) {
+  tryCatch(openssl::base64_decode(salt_encoded), error = function(e) NULL)
+}
+
+derive_password_key <- function(password, salt_raw, iterations, key_length, hashfun, pepper) {
+  if (is.null(salt_raw)) return(raw(0L))
+  tryCatch(
+    openssl::pbkdf2(
+      password   = paste0(password, pepper),
+      salt       = salt_raw,
+      iterations = iterations,
+      dklen      = key_length,
+      hashfun    = hashfun
+    ),
+    error = function(e) raw(0L)
+  )
+}
+
+encode_password_key <- function(key_raw) {
+  openssl::base64_encode(key_raw)
+}
+
+constant_time_equal <- function(a, b) {
+  if (length(a) != length(b)) return(FALSE)
+  diff <- 0L
+  for (i in seq_along(a)) {
+    diff <- bitwOr(diff, bitwXor(as.integer(a[[i]]), as.integer(b[[i]])))
+  }
+  identical(diff, 0L)
+}
+
+format_password_hash <- function(digest, salt, iterations, algorithm = PASSWORD_HASH_SETTINGS$algorithm) {
+  sprintf("%s$%d$%s$%s", algorithm, iterations, salt, digest)
+}
+
+is_pbkdf2_hash <- function(hash) {
+  startsWith(hash, paste0(PASSWORD_HASH_SETTINGS$algorithm, "$"))
+}
+
 hash_password <- function(password) {
   password <- sanitize_credential_input(password)
   if (!is_valid_password(password)) {
     stop("La contraseña debe tener al menos 8 caracteres.", call. = FALSE)
   }
   pepper <- get_password_pepper()
-  sodium::password_store(paste0(password, pepper))
+  salt_raw <- generate_password_salt()
+  salt     <- encode_password_salt(salt_raw)
+  key_raw <- derive_password_key(
+    password  = password,
+    salt_raw  = salt_raw,
+    iterations = PASSWORD_HASH_SETTINGS$iterations,
+    key_length = PASSWORD_HASH_SETTINGS$key_length,
+    hashfun    = PASSWORD_HASH_SETTINGS$hashfun,
+    pepper     = pepper
+  )
+  digest <- encode_password_key(key_raw)
+  format_password_hash(
+    digest     = digest,
+    salt       = salt,
+    iterations = PASSWORD_HASH_SETTINGS$iterations
+  )
 }
 
-# Verifica de forma robusta:
-# 1) intenta con pepper (si existe), 2) cae a sin pepper (compatibilidad hacia atrás)
+verify_pbkdf2_password <- function(password, hash) {
+  parts <- strsplit(hash, "\\$", fixed = FALSE)[[1]]
+  if (length(parts) != 4L) return(FALSE)
+
+  algorithm  <- parts[[1]]
+  iterations <- suppressWarnings(as.integer(parts[[2]]))
+  salt       <- parts[[3]]
+  digest     <- parts[[4]]
+
+  if (!identical(algorithm, PASSWORD_HASH_SETTINGS$algorithm) || !is.finite(iterations) || iterations <= 0L) {
+    return(FALSE)
+  }
+
+  pepper <- get_password_pepper()
+  salt_raw <- decode_password_salt(salt)
+  if (is.null(salt_raw)) return(FALSE)
+
+  key_raw <- derive_password_key(
+    password  = password,
+    salt_raw  = salt_raw,
+    iterations = iterations,
+    key_length = PASSWORD_HASH_SETTINGS$key_length,
+    hashfun    = PASSWORD_HASH_SETTINGS$hashfun,
+    pepper     = pepper
+  )
+  if (!length(key_raw)) return(FALSE)
+
+  stored <- tryCatch(openssl::base64_decode(digest), error = function(e) raw(0L))
+  if (!length(stored)) return(FALSE)
+
+  constant_time_equal(key_raw, stored)
+}
+
+verify_legacy_sodium_hash <- function(password, hash) {
+  if (!requireNamespace("sodium", quietly = TRUE)) {
+    return(FALSE)
+  }
+  pepper <- get_password_pepper()
+  if (sodium::password_verify(hash, paste0(password, pepper))) {
+    return(TRUE)
+  }
+  sodium::password_verify(hash, password)
+}
+
+hash_seems_sodium <- function(hash) {
+  startsWith(hash, "$argon2")
+}
+
 verify_password <- function(password, hash) {
   norm1 <- function(x) {
     if (is.null(x)) return("")
@@ -130,14 +245,15 @@ verify_password <- function(password, hash) {
   hs <- norm1(hash)
   if (!nzchar(pw) || !nzchar(hs)) return(FALSE)
 
-  pepper <- get_password_pepper()
-  # Orden correcto: password_verify(hash, password)
-  ok <- sodium::password_verify(hs, paste0(pw, pepper))
-  if (!ok) {
-    # Compatibilidad con cuentas anteriores (sin pepper)
-    ok <- sodium::password_verify(hs, pw)
+  if (is_pbkdf2_hash(hs)) {
+    return(verify_pbkdf2_password(pw, hs))
   }
-  ok
+
+  if (hash_seems_sodium(hs)) {
+    return(verify_legacy_sodium_hash(pw, hs))
+  }
+
+  FALSE
 }
 
 # ==============
