@@ -7,6 +7,12 @@
 #   * El registro diferido de módulos alojados en `R/modules`.
 #   * La definición de la estructura de cursos consumida por la UI.
 
+# Cargar variables de entorno del proyecto (si existe .Renviron local)
+project_renviron <- file.path(getwd(), ".Renviron")
+if (file.exists(project_renviron)) {
+  readRenviron(project_renviron)
+}
+
 source("R/authentication.R")
 
 # ---- Gestión de paquetes -------------------------------------------------

@@ -10,22 +10,22 @@ session1_v3UI <- function(id) {
         h3("Sesión 1: Flujo de Trabajo Moderno con Inteligencia Artificial")
     ),
 
-    bslib::navset_tab(
+    navset_tab(
 
       # 0) Por qué usar herramientas IA en investigación
-      bslib::nav_panel(
+      nav_panel(
         title = "¿Por qué ahora?",
-        bslib::layout_column_wrap(
+        layout_column_wrap(
           width = 1,
-          bslib::card(
-            bslib::card_header("El cuello de botella se movió a la síntesis"),
+          card(
+            card_header("El cuello de botella se movió a la síntesis"),
             p("La producción científica crece de forma sostenida; el reto ya no es hallar ‘algo’, ",
               "sino ", strong("curar, sintetizar y verificar"), " múltiples fuentes y métodos de forma eficiente."),
             p("Las herramientas IA (descubrimiento visual, RAG/NotebookLM, smart citations) aceleran el ciclo ",
               em("Descubrir → Curar → Consultar → Idear"), " con mejor trazabilidad.")
           ),
-          bslib::card(
-            bslib::card_header("Objetivo de aprendizaje"),
+          card(
+            card_header("Objetivo de aprendizaje"),
             tags$ul(
               tags$li("Comprender rápidamente cómo funciona un LLM y por qué necesita apoyo de fuentes."),
               tags$li("Aplicar un flujo moderno con ResearchRabbit (mapas de citas) y NotebookLM (RAG con citas)."),
@@ -36,12 +36,12 @@ session1_v3UI <- function(id) {
       ),
 
       # 1) LLM en 5 minutos
-      bslib::nav_panel(
+      nav_panel(
         title = "LLM en 5 minutos",
-        bslib::layout_column_wrap(
+        layout_column_wrap(
           width = 1/2,
-          bslib::card(
-            bslib::card_header("¿Qué hace un LLM?"),
+          card(
+            card_header("¿Qué hace un LLM?"),
             tags$ol(
               tags$li("Convierte tu texto a ", strong("tokens"), " y vectores (embeddings)."),
               tags$li("Usa un ", strong("Transformer"), " (auto-atención) para ponderar contexto relevante."),
@@ -51,8 +51,8 @@ session1_v3UI <- function(id) {
             tags$pre(style = "white-space:pre-wrap;",
 "Texto → tokens → embeddings → [Bloques Transformer con atención] → probabilidad del siguiente token → texto")
           ),
-          bslib::card(
-            bslib::card_header("Cómo lo compensamos"),
+          card(
+            card_header("Cómo lo compensamos"),
             tags$ul(
               tags$li(strong("RAG / NotebookLM:"), " respuestas fundamentadas en tus PDFs/notas con citas."),
               tags$li(strong("Smart citations (scite):"), " lee si un paper ", em("apoya/contradice"), " a otro."),
@@ -67,20 +67,20 @@ session1_v3UI <- function(id) {
       ),
 
       # 2) LLM vs RAG (NotebookLM)
-      bslib::nav_panel(
+      nav_panel(
         title = "LLM vs RAG (NotebookLM)",
-        bslib::layout_column_wrap(
+        layout_column_wrap(
           width = 1,
-          bslib::card(
-            bslib::card_header("Conceptos"),
+          card(
+            card_header("Conceptos"),
             p(
               strong("LLM general:"), " excelente para idear/redactar, pero puede alucinar.",
               " ", strong("RAG/NotebookLM:"), " conecta el modelo a tus fuentes curadas y entrega ",
               strong("citas in-line"), " y trazabilidad."
             )
           ),
-          bslib::card(
-            bslib::card_header("Tabla comparativa"),
+          card(
+            card_header("Tabla comparativa"),
             div(class = "table-responsive",
                 tags$table(class = "table table-sm",
                   tags$thead(
@@ -112,12 +112,12 @@ session1_v3UI <- function(id) {
       ),
 
       # 3) ResearchRabbit y NotebookLM (paso a paso)
-      bslib::nav_panel(
+      nav_panel(
         title = "Guías: ResearchRabbit & NotebookLM",
-        bslib::layout_column_wrap(
+        layout_column_wrap(
           width = 1/2,
-          bslib::card(
-            bslib::card_header("ResearchRabbit (mapa de literatura)"),
+          card(
+            card_header("ResearchRabbit (mapa de literatura)"),
             tags$ol(
               tags$li("Crea una colección con 5–10 artículos ‘semilla’."),
               tags$li("Explora redes: ‘anteriores’, ‘posteriores’, ‘similares’."),
@@ -126,8 +126,8 @@ session1_v3UI <- function(id) {
             ),
             p(a(href = "https://www.researchrabbitapp.com/", target = "_blank", "Abrir ResearchRabbit →"))
           ),
-          bslib::card(
-            bslib::card_header("NotebookLM (RAG con tus fuentes)"),
+          card(
+            card_header("NotebookLM (RAG con tus fuentes)"),
             tags$ol(
               tags$li("Crea un cuaderno y carga 15–30 PDFs/notas clave (revisiones, métodos, ensayos)."),
               tags$li("Haz preguntas de extracción y síntesis (citas in-line)."),
@@ -141,19 +141,19 @@ session1_v3UI <- function(id) {
       ),
 
       # 4) Flujo de 4 pasos (con generador de búsquedas)
-      bslib::nav_panel(
+      nav_panel(
         title = "Flujo 4 pasos",
-        bslib::navset_tab(id = ns("steps_tabs"),
+        navset_tab(id = ns("steps_tabs"),
 
-          bslib::nav_panel(
+          nav_panel(
             title = "1) Descubrir",
-            bslib::card(
-              bslib::card_header("Estrategias"),
+            card(
+              card_header("Estrategias"),
               p("Combina palabra clave + mapas de citas + bases con ranking semántico para cubrir lo seminal y lo reciente.")
             ),
-            bslib::card(
-              bslib::card_header("Generador de búsqueda booleana"),
-              bslib::layout_column_wrap(
+            card(
+              card_header("Generador de búsqueda booleana"),
+              layout_column_wrap(
                 width = 1/2,
                 textInput(ns("kw_core"), "Término núcleo (obligatorio)", placeholder = "blueberry OR Vaccinium corymbosum"),
                 textInput(ns("kw_syn"), "Sinónimos (OR separados por ; )", placeholder = "yield; productivity; 'fruit set'"),
@@ -161,7 +161,7 @@ session1_v3UI <- function(id) {
                 textInput(ns("kw_filter"), "Filtros (site:, filetype:, year:)", placeholder = "site:gov OR site:nih.gov"),
                 textAreaInput(ns("kw_preview"), "Vista previa", rows = 4)
               ),
-              bslib::layout_column_wrap(
+              layout_column_wrap(
                 width = 1/3,
                 actionButton(ns("kw_build"), "Construir cadena"),
                 downloadButton(ns("kw_download"), "Descargar (.txt)")
@@ -169,10 +169,10 @@ session1_v3UI <- function(id) {
             )
           ),
 
-          bslib::nav_panel(
+          nav_panel(
             title = "2) Curar",
-            bslib::card(
-              bslib::card_header("Colección deliberada (GIGO)"),
+            card(
+              card_header("Colección deliberada (GIGO)"),
               tags$ul(
                 tags$li("Define criterios de inclusión/exclusión y documenta por qué."),
                 tags$li("Prioriza revisiones/meta-análisis y métodos bien citados."),
@@ -181,10 +181,10 @@ session1_v3UI <- function(id) {
             )
           ),
 
-          bslib::nav_panel(
+          nav_panel(
             title = "3) Consultar",
-            bslib::card(
-              bslib::card_header("Preguntas típicas para RAG/NotebookLM"),
+            card(
+              card_header("Preguntas típicas para RAG/NotebookLM"),
               tags$ol(
                 tags$li("“Con base en estas fuentes, resume metodologías para X y limita por especie/dosis.”"),
                 tags$li("“Tabla comparativa Autor A/B/C (año) con variable, diseño y efecto.”"),
@@ -194,10 +194,10 @@ session1_v3UI <- function(id) {
             )
           ),
 
-          bslib::nav_panel(
+          nav_panel(
             title = "4) Idear",
-            bslib::card(
-              bslib::card_header("Prompting (rol, contexto, formato, restricciones)"),
+            card(
+              card_header("Prompting (rol, contexto, formato, restricciones)"),
               p("Parte de tu síntesis citada; luego pide hipótesis, diseño y plan de análisis reproducible.")
             )
           )
@@ -205,12 +205,12 @@ session1_v3UI <- function(id) {
       ),
 
       # 5) Práctica guiada: Constructor de prompts
-      bslib::nav_panel(
+      nav_panel(
         title = "Práctica guiada",
-        bslib::layout_column_wrap(
+        layout_column_wrap(
           width = 1/2,
-          bslib::card(
-            bslib::card_header("Constructor de prompts"),
+          card(
+            card_header("Constructor de prompts"),
             textInput(ns("pr_rol"), "Rol", placeholder = "p.ej., Fitopatólogo + estadístico"),
             textAreaInput(ns("pr_contexto"), "Contexto (desde NotebookLM)", placeholder = "Síntesis con citas...", rows = 6),
             textAreaInput(ns("pr_tarea"), "Tarea", placeholder = "3 hipótesis; diseño DBCA; plan de análisis en R...", rows = 5),
@@ -220,20 +220,20 @@ session1_v3UI <- function(id) {
             actionButton(ns("pr_reset"), "Limpiar"),
             downloadButton(ns("pr_descargar"), "Descargar prompt (.txt)")
           ),
-          bslib::card(
-            bslib::card_header("Vista previa"),
+          card(
+            card_header("Vista previa"),
             textAreaInput(ns("pr_preview"), NULL, value = "", rows = 20)
           )
         )
       ),
 
       # 6) Catálogo de herramientas IA (interactivo)
-      bslib::nav_panel(
+      nav_panel(
         title = "Catálogo de herramientas",
-        bslib::layout_column_wrap(
+        layout_column_wrap(
           width = 1,
-          bslib::card(
-            bslib::card_header("Explora y filtra"),
+          card(
+            card_header("Explora y filtra"),
             DT::dataTableOutput(ns("tbl_tools")),
             div(class = "mt-2",
                 downloadButton(ns("tools_download"), "Descargar catálogo (.csv)")
@@ -243,36 +243,36 @@ session1_v3UI <- function(id) {
       ),
 
       # 7) Prompts efectivos (banco)
-      bslib::nav_panel(
+      nav_panel(
         title = "Prompts efectivos",
-        bslib::layout_column_wrap(
+        layout_column_wrap(
           width = 1,
-          bslib::card(
-            bslib::card_header("Ideación disciplinar"),
+          card(
+            card_header("Ideación disciplinar"),
             tags$pre(style="white-space:pre-wrap;",
 "Actúa como un agrónomo de suelos y un especialista en teledetección.
 Contexto: (pega síntesis con citas desde NotebookLM).
 Tarea: Propón 5 hipótesis comprobables que vinculen reflectancia de dosel con actividad microbiana en rizosfera.
 Formato: Lista numerada; cada hipótesis con métrica, método y control.")
           ),
-          bslib::card(
-            bslib::card_header("Crítica metodológica"),
+          card(
+            card_header("Crítica metodológica"),
             tags$pre(style="white-space:pre-wrap;",
 "Actúa como revisor de Plant and Soil, estricto en diseño y análisis.
 Contexto: (resúmenes metodológicos citados)
 Tarea: Señala debilidades en muestreo, sesgos y análisis; sugiere mejoras concretas.
 Formato: Tabla: Aspecto | Hallazgo | Riesgo | Recomendación.")
           ),
-          bslib::card(
-            bslib::card_header("Extracción/tablas comparativas"),
+          card(
+            card_header("Extracción/tablas comparativas"),
             tags$pre(style="white-space:pre-wrap;",
 "Rol: Asistente de revisión sistemática.
 Contexto: (artículos sobre Trichoderma en raíces)
 Tarea: Tabla con Especie/cepa | Dosis | Cultivo | Condición | Métrica | Efecto | Fuente (cita).
 Formato: Tabla Markdown. Sin inventar datos.")
           ),
-          bslib::card(
-            bslib::card_header("Hipótesis + diseño + análisis en R"),
+          card(
+            card_header("Hipótesis + diseño + análisis en R"),
             tags$pre(style="white-space:pre-wrap;",
 "Rol: Fitopatólogo + estadístico.
 Contexto: (lagunas fundamentadas)
@@ -283,12 +283,12 @@ Formato: Lista + bloque de código R comentado.")
       ),
 
       # 8) Referencias
-      bslib::nav_panel(
+      nav_panel(
         title = "Referencias",
-        bslib::layout_column_wrap(
+        layout_column_wrap(
           width = 1,
-          bslib::card(
-            bslib::card_header("Bibliografía y recursos"),
+          card(
+            card_header("Bibliografía y recursos"),
             tags$ul(
               tags$li("Bornmann & Mutz (2015). Growth rates of modern science. JASIST. https://doi.org/10.1002/asi.23329"),
               tags$li("Vaswani et al. (2017). Attention Is All You Need. NeurIPS."),
