@@ -1,60 +1,48 @@
 # R/global.R
 # -------------------------------------------------------------------------
-# Configuración global para la aplicación Shiny. En este archivo se
-# centraliza:
-#   * La gestión de paquetes (instalación automática y carga con mensajes
-#     claros para shinyapps.io).
-#   * El registro diferido de módulos alojados en `R/modules`.
-#   * La definición de la estructura de cursos consumida por la UI.
+# Configuración global para la aplicación Shiny:
+#  - Gestión de paquetes (instalación automática en shinyapps.io si faltan)
+#  - Registro diferido de módulos en R/modules
+#  - Estructura de cursos consumida por la UI
+# -------------------------------------------------------------------------
 
-# Cargar variables de entorno del proyecto (si existe .Renviron local)
+# 0) Variables de entorno del proyecto (.Renviron local si existe)
 project_renviron <- file.path(getwd(), ".Renviron")
 if (file.exists(project_renviron)) {
   readRenviron(project_renviron)
 }
 
+# 1) Autenticación
 source("R/authentication.R")
 
-auto_install_pkgs <- c("mongolite")
+# 2) Paquetes: instala automáticamente los críticos si no están
+auto_install_pkgs <- c("mongolite", "sodium", "openssl")
 
 ensure_default_repos <- function() {
-  repos <- getOption("repos")
-  if (is.null(repos)) {
-    repos <- character()
-  }
-
+  repos <- getOption("repos"); if (is.null(repos)) repos <- character()
   repos_names <- names(repos)
   cran_idx <- which(repos_names %in% c("CRAN", "@CRAN@"))
-
   needs_default <-
     length(repos) == 0L ||
     (length(cran_idx) > 0L && (repos[cran_idx[1]] %in% c("", "@CRAN@"))) ||
     all(repos == "")
-
   if (needs_default) {
     repos <- c(CRAN = "https://cloud.r-project.org")
     options(repos = repos)
   }
-
   repos
 }
 
 ensure_user_lib <- function() {
   user_lib <- Sys.getenv("R_LIBS_USER")
   if (!nzchar(user_lib)) {
-    user_lib <- file.path("~", "R", paste0(R.version$platform, "-library"), paste0(R.version$major, ".", R.version$minor))
+    user_lib <- file.path("~", "R",
+      paste0(R.version$platform, "-library"),
+      paste0(R.version$major, ".", R.version$minor))
   }
-
   user_lib <- path.expand(user_lib)
-
-  if (!dir.exists(user_lib)) {
-    dir.create(user_lib, recursive = TRUE, showWarnings = FALSE)
-  }
-
-  if (!(user_lib %in% .libPaths())) {
-    .libPaths(c(user_lib, .libPaths()))
-  }
-
+  if (!dir.exists(user_lib)) dir.create(user_lib, recursive = TRUE, showWarnings = FALSE)
+  if (!(user_lib %in% .libPaths())) .libPaths(c(user_lib, .libPaths()))
   user_lib
 }
 
@@ -67,18 +55,11 @@ need_pkg <- function(pkg) {
       tryCatch(
         utils::install.packages(pkg, repos = repos, lib = lib_path),
         error = function(e) {
-          stop(
-            sprintf(
-              "No se pudo instalar automáticamente el paquete '%s': %s",
-              pkg,
-              conditionMessage(e)
-            ),
-            call. = FALSE
-          )
+          stop(sprintf("No se pudo instalar automáticamente el paquete '%s': %s",
+                       pkg, conditionMessage(e)), call. = FALSE)
         }
       )
     }
-
     if (!requireNamespace(pkg, quietly = TRUE)) {
       stop(sprintf("El paquete '%s' es requerido para esta sesión. Instálalo primero.", pkg), call. = FALSE)
     }
@@ -90,9 +71,7 @@ safe_library <- function(pkg) {
     message(sprintf("Paquete opcional no disponible: %s (la app seguirá sin este módulo).", pkg))
     return(FALSE)
   }
-  suppressPackageStartupMessages(
-    library(pkg, character.only = TRUE)
-  )
+  suppressPackageStartupMessages(library(pkg, character.only = TRUE))
   TRUE
 }
 
@@ -104,17 +83,14 @@ load_packages <- function(pkgs) {
   }))
 }
 
-# polyfill de callout si tu bslib no lo tiene
+# Polyfill de callout si tu bslib no lo tiene
 bs_callout <- function(..., title = NULL, type = c("info","warning","danger","success")) {
   type <- match.arg(type)
-  # Usa callout si existe; si no, degrade a alert
   if (requireNamespace("bslib", quietly = TRUE) && "callout" %in% getNamespaceExports("bslib")) {
     return(bslib::callout(title = title, ...))
   }
-  # Bootstrap alert compatible
   div(class = paste0("alert alert-", if (type == "danger") "danger" else type),
-      if (!is.null(title)) tags$h5(title),
-      ...)
+      if (!is.null(title)) tags$h5(title), ...)
 }
 
 package_groups <- list(
@@ -123,7 +99,7 @@ package_groups <- list(
   modelling = c("agricolae", "MASS", "emmeans", "effectsize", "pwr", "dunn.test", "rstatix", "lme4", "lmerTest"),
   visualization = c("ggplot2", "plotly", "patchwork", "GGally", "ggfortify", "scatterplot3d", "effects", "RColorBrewer", "grid"),
   interface = c("DT", "car"),
-  auth = c("mongolite", "sodium")
+  auth = c("mongolite", "sodium") # sodium cargado para verificación en runtime
 )
 
 load_packages(unlist(package_groups))
@@ -131,17 +107,12 @@ load_packages(unlist(package_groups))
 optional_packages <- c("FielDHub", "augmentedRCBD", "broom.mixed")
 invisible(lapply(optional_packages, safe_library))
 
-# Registro de archivos de módulos para carga diferida
-mod_files <- list.files("R/modules", full.names = TRUE, pattern = "\\.R$", recursive = TRUE)
-mod_files <- sort(mod_files)
-
+# Registro diferido de módulos (R/modules)
+mod_files <- sort(list.files("R/modules", full.names = TRUE, pattern = "\\.R$", recursive = TRUE))
 module_sources <- new.env(parent = emptyenv())
 
 register_module_source <- function(module_name, file) {
-  if (!nzchar(module_name)) {
-    return()
-  }
-
+  if (!nzchar(module_name)) return()
   if (!exists(module_name, envir = module_sources, inherits = FALSE)) {
     assign(module_name, file, envir = module_sources)
   }
@@ -150,51 +121,36 @@ register_module_source <- function(module_name, file) {
 extract_module_names <- function(file) {
   lines <- readLines(file, warn = FALSE, encoding = "UTF-8")
   module_names <- character()
-
   for (line in lines) {
     match <- regexec("^\\s*([a-zA-Z0-9_]+)\\s*<-\\s*function", line, perl = TRUE)
     capture <- regmatches(line, match)
     if (length(capture) > 0 && length(capture[[1]]) > 1) {
       fname <- capture[[1]][2]
       if (grepl("(UI|Server)$", fname)) {
-        module_name <- sub("(UI|Server)$", "", fname)
-        module_names <- unique(c(module_names, module_name))
+        module_names <- unique(c(module_names, sub("(UI|Server)$", "", fname)))
       }
     }
   }
-
   module_names
 }
 
 for (file in mod_files) {
   modules_in_file <- extract_module_names(file)
-  for (module_name in modules_in_file) {
-    register_module_source(module_name, file)
-  }
+  for (module_name in modules_in_file) register_module_source(module_name, file)
 }
 
 ensure_module_loaded <- function(module_name) {
-  if (!nzchar(module_name)) {
-    return(FALSE)
-  }
-
+  if (!nzchar(module_name)) return(FALSE)
   ui_fun_name <- paste0(module_name, "UI")
   server_fun_name <- paste0(module_name, "Server")
-
   ui_loaded <- exists(ui_fun_name, mode = "function", inherits = TRUE)
   server_loaded <- exists(server_fun_name, mode = "function", inherits = TRUE)
-
-  if (ui_loaded || server_loaded) {
-    return(TRUE)
-  }
-
+  if (ui_loaded || server_loaded) return(TRUE)
   if (!exists(module_name, envir = module_sources, inherits = FALSE)) {
     warning(sprintf("No se encontró el archivo fuente para el módulo '%s'.", module_name), call. = FALSE)
     return(FALSE)
   }
-
   source(get(module_name, envir = module_sources), local = FALSE, encoding = "UTF-8")
-
   exists(ui_fun_name, mode = "function", inherits = TRUE) ||
     exists(server_fun_name, mode = "function", inherits = TRUE)
 }
@@ -254,11 +210,8 @@ for (curso in names(estructura_cursos)) {
       info <- sesiones[[sesion]]
       modulo <- info$module
       if (!is.null(modulo)) {
-        if (is.null(module_registry[[modulo]])) {
-          module_registry[[modulo]] <- info$id
-        } else {
-          module_registry[[modulo]] <- c(module_registry[[modulo]], info$id)
-        }
+        if (is.null(module_registry[[modulo]])) module_registry[[modulo]] <- info$id
+        else module_registry[[modulo]] <- c(module_registry[[modulo]], info$id)
       }
     }
   }
