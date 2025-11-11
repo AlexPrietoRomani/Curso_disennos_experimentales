@@ -164,11 +164,13 @@ get_password_pepper <- function() {
 
 PASSWORD_HASH_SETTINGS <- list(
   algorithm   = "pbkdf2_sha256",
-  iterations  = 120000L,
-  salt_bytes  = 16L,
   key_length  = 32L,
   hashfun     = "sha256"
 )
+
+decode_b64 <- function(x) tryCatch(openssl::base64_decode(x), error = function(e) NULL)
+
+encode_b64 <- function(x) openssl::base64_encode(x)
 
 generate_password_salt <- function(bytes = PASSWORD_HASH_SETTINGS$salt_bytes) {
   openssl::rand_bytes(bytes)
@@ -217,96 +219,71 @@ is_pbkdf2_hash <- function(hash) {
   startsWith(hash, paste0(PASSWORD_HASH_SETTINGS$algorithm, "$"))
 }
 
+# --- HASH y verificación principal (sodium: crypto_pwhash_str) ----------------
+# Devuelve cadena ASCII con sal y parámetros embebidos.
+# Docs: password_store/password_verify (sodium) devuelven/consumen string auto-contenido
+#       https://cran.r-project.org/web/packages/sodium/refman/sodium.html  (Password Storage)
 hash_password <- function(password) {
   password <- sanitize_credential_input(password)
   if (!is_valid_password(password)) {
     stop("La contraseña debe tener al menos 8 caracteres.", call. = FALSE)
   }
   pepper <- get_password_pepper()
-  salt_raw <- generate_password_salt()
-  salt     <- encode_password_salt(salt_raw)
-  key_raw <- derive_password_key(
-    password  = password,
-    salt_raw  = salt_raw,
-    iterations = PASSWORD_HASH_SETTINGS$iterations,
-    key_length = PASSWORD_HASH_SETTINGS$key_length,
-    hashfun    = PASSWORD_HASH_SETTINGS$hashfun,
-    pepper     = pepper
-  )
-  digest <- encode_password_key(key_raw)
-  format_password_hash(
-    digest     = digest,
-    salt       = salt,
-    iterations = PASSWORD_HASH_SETTINGS$iterations
-  )
+  if (!requireNamespace("sodium", quietly = TRUE)) {
+    stop("El paquete 'sodium' es requerido para hashear contraseñas.", call. = FALSE)
+  }
+  sodium::password_store(paste0(password, pepper))
 }
 
 verify_pbkdf2_password <- function(password, hash) {
-  parts <- strsplit(hash, "\\$", fixed = FALSE)[[1]]
+  parts <- strsplit(hash, "\\$")[[1]]
   if (length(parts) != 4L) return(FALSE)
-
   algorithm  <- parts[[1]]
   iterations <- suppressWarnings(as.integer(parts[[2]]))
-  salt       <- parts[[3]]
-  digest     <- parts[[4]]
-
+  salt_enc   <- parts[[3]]
+  digest_enc <- parts[[4]]
   if (!identical(algorithm, PASSWORD_HASH_SETTINGS$algorithm) || !is.finite(iterations) || iterations <= 0L) {
     return(FALSE)
   }
-
+  salt_raw <- decode_b64(salt_enc); if (is.null(salt_raw)) return(FALSE)
+  stored   <- decode_b64(digest_enc); if (is.null(stored)) return(FALSE)
   pepper <- get_password_pepper()
-  salt_raw <- decode_password_salt(salt)
-  if (is.null(salt_raw)) return(FALSE)
-
-  key_raw <- derive_password_key(
-    password  = password,
-    salt_raw  = salt_raw,
-    iterations = iterations,
-    key_length = PASSWORD_HASH_SETTINGS$key_length,
-    hashfun    = PASSWORD_HASH_SETTINGS$hashfun,
-    pepper     = pepper
+  # Nota: openssl::pbkdf2 podría no existir en algunas versiones.
+  if (!requireNamespace("openssl", quietly = TRUE)) return(FALSE)
+  key_raw <- tryCatch(
+    openssl::pbkdf2(password = paste0(password, pepper),
+                    salt = salt_raw, iterations = iterations,
+                    dklen = PASSWORD_HASH_SETTINGS$key_length,
+                    hashfun = PASSWORD_HASH_SETTINGS$hashfun),
+    error = function(e) raw(0L)
   )
   if (!length(key_raw)) return(FALSE)
-
-  stored <- tryCatch(openssl::base64_decode(digest), error = function(e) raw(0L))
-  if (!length(stored)) return(FALSE)
-
   constant_time_equal(key_raw, stored)
 }
 
-verify_legacy_sodium_hash <- function(password, hash) {
-  if (!requireNamespace("sodium", quietly = TRUE)) {
-    return(FALSE)
-  }
-  pepper <- get_password_pepper()
-  if (sodium::password_verify(hash, paste0(password, pepper))) {
-    return(TRUE)
-  }
-  sodium::password_verify(hash, password)
-}
-
-hash_seems_sodium <- function(hash) {
-  startsWith(hash, "$argon2")
-}
-
+# --- Verificación agnóstica (sodium primero; pbkdf2 como fallback) ------------
 verify_password <- function(password, hash) {
   norm1 <- function(x) {
     if (is.null(x)) return("")
     if (is.list(x)) x <- x[[1L]]
-    x <- as.character(x)
-    if (!length(x)) return("")
+    x <- as.character(x); if (!length(x)) return("")
     trimws(x[[1L]])
   }
-  pw <- norm1(password)
-  hs <- norm1(hash)
+  pw <- norm1(password); hs <- norm1(hash)
   if (!nzchar(pw) || !nzchar(hs)) return(FALSE)
 
-  if (is_pbkdf2_hash(hs)) {
-    return(verify_pbkdf2_password(pw, hs))
+  # 1) Intentar siempre con sodium (con y sin pepper). No dependemos del prefijo del hash.
+  if (requireNamespace("sodium", quietly = TRUE)) {
+    pepper <- get_password_pepper()
+    ok <- tryCatch(sodium::password_verify(hs, paste0(pw, pepper)), error = function(e) FALSE)
+    if (isTRUE(ok)) return(TRUE)
+    ok2 <- tryCatch(sodium::password_verify(hs, pw), error = function(e) FALSE) # compat sin pepper
+    if (isTRUE(ok2)) return(TRUE)
   }
 
-  if (hash_seems_sodium(hs)) {
-    return(verify_legacy_sodium_hash(pw, hs))
+  # 2) Si es un hash PBKDF2 "pbkdf2_sha256$...", verificar con openssl (fallback)
+  if (is_pbkdf2_hash(hs)) {
+    return(verify_pbkdf2_password(pw, hs))
   }
 
   FALSE
