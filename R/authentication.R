@@ -19,8 +19,25 @@
 # ==============
 
 sanitize_credential_input <- function(value) {
-  if (is.null(value)) return("")
+  if (is.null(value)) {
+    return("")
+  }
+
+  if (length(value) == 0L) {
+    return("")
+  }
+
+  value <- value[[1L]]
+
+  if (is.null(value) || is.na(value)) {
+    return("")
+  }
+
   value <- trimws(as.character(value))
+  if (!length(value)) {
+    return("")
+  }
+
   Encoding(value) <- "UTF-8"
   value
 }
@@ -66,11 +83,38 @@ is_valid_password <- function(password) {
 # Configuración Mongo (desde .Renviron)
 # ==============
 
+get_env_config_value <- function(primary, fallback = character()) {
+  keys <- unique(c(primary, fallback))
+
+  for (key in keys) {
+    raw <- Sys.getenv(key, unset = NA_character_)
+    if (is.na(raw)) {
+      next
+    }
+
+    value <- trimws(raw)
+    if (nzchar(value)) {
+      return(value)
+    }
+  }
+
+  ""
+}
+
 get_mongo_config <- function() {
   list(
-    url        = Sys.getenv("MongoDB_url",        unset = ""),
-    database   = Sys.getenv("MongoDB_basedatos",  unset = ""),
-    collection = Sys.getenv("MongoDB_tabla",      unset = "")
+    url = get_env_config_value(
+      "MongoDB_url",
+      fallback = c("MongoDB_URL", "MONGO_URL", "MONGODB_URL")
+    ),
+    database = get_env_config_value(
+      "MongoDB_basedatos",
+      fallback = c("MongoDB_BASEDATOS", "MONGO_DB", "MONGODB_DATABASE", "MONGO_DATABASE")
+    ),
+    collection = get_env_config_value(
+      "MongoDB_tabla",
+      fallback = c("MongoDB_TABLA", "MONGO_COLLECTION", "MONGODB_COLLECTION")
+    )
   )
 }
 
@@ -83,10 +127,22 @@ create_mongo_connection <- function() {
   if (!validate_mongo_config(config)) {
     stop("Variables de entorno de MongoDB incompletas. Verifica el archivo .Renviron.", call. = FALSE)
   }
-  mongolite::mongo(
-    collection = config$collection,
-    db         = config$database,
-    url        = config$url
+
+  tryCatch(
+    mongolite::mongo(
+      collection = config$collection,
+      db         = config$database,
+      url        = config$url
+    ),
+    error = function(err) {
+      stop(
+        sprintf(
+          "No fue posible establecer conexión con MongoDB: %s",
+          conditionMessage(err)
+        ),
+        call. = FALSE
+      )
+    }
   )
 }
 
@@ -291,28 +347,64 @@ fetch_user_by_username <- function(username) {
     )
   ), auto_unbox = TRUE)
 
-  fields <- '{"_id":0,"username":1,"username_norm":1,"password_hash":1,"password":1,"roles":1,"status":1}'
+  fields <- '{"_id":0,"username":1,"username_norm":1,"password_hash":1,"password":1,"roles":1,"status":1,"display":1}'
 
-  it  <- collection$iterate(query = q, fields = fields)
-  doc <- it$one()
+  it <- collection$iterate(query = q, fields = fields)
+
+  doc <- tryCatch(it$one(), error = function(e) NULL)
   if (is.null(doc)) return(NULL)
 
-  coerce1 <- function(x) {
+  coerce_scalar <- function(x) {
     if (is.null(x)) return(NULL)
     if (is.list(x)) x <- x[[1L]]
-    x <- as.character(x)
-    if (length(x)) x[[1L]] else NULL
+    if (!length(x)) return(NULL)
+    x <- x[[1L]]
+    if (is.null(x) || is.na(x)) return(NULL)
+    as.character(x)
   }
-  doc$username      <- coerce1(doc$username)
-  doc$username_norm <- coerce1(doc$username_norm)
-  doc$password_hash <- coerce1(doc$password_hash)
-  doc$password      <- coerce1(doc$password)
+
+  coerce_roles <- function(x) {
+    if (is.null(x)) {
+      return(character())
+    }
+
+    if (is.list(x)) {
+      x <- unlist(x, use.names = FALSE)
+    }
+
+    x <- as.character(x)
+    x <- x[!is.na(x) & nzchar(x)]
+    unique(x)
+  }
+
+  doc$username      <- coerce_scalar(doc$username)
+  doc$username_norm <- coerce_scalar(doc$username_norm)
+  doc$password_hash <- coerce_scalar(doc$password_hash)
+  doc$password      <- coerce_scalar(doc$password)
+  doc$status        <- coerce_scalar(doc$status)
+  doc$display       <- coerce_scalar(doc$display)
+  doc$roles         <- coerce_roles(doc$roles)
+
   doc
 }
 
 # ==============
 # Flujo de autenticación
 # ==============
+
+user_status_is_active <- function(status) {
+  if (is.null(status)) {
+    return(TRUE)
+  }
+
+  value <- sanitize_credential_input(status)
+  if (!nzchar(value)) {
+    return(TRUE)
+  }
+
+  value <- tolower(value)
+  value %in% c("active", "enabled", "1", "true")
+}
 
 authenticate_user <- function(username, password) {
   username <- sanitize_credential_input(username)
@@ -340,13 +432,48 @@ authenticate_user <- function(username, password) {
       return(list(success = FALSE, message = "Credenciales incorrectas."))
     }
 
+    if (!user_status_is_active(user$status)) {
+      return(list(success = FALSE, message = "La cuenta se encuentra inactiva. Contacta al administrador."))
+    }
+
     # Limpia credenciales del objeto usuario antes de retornarlo
     user$password_hash <- NULL
     user$password      <- NULL
+    user$username <- user$username %||% user$username_norm
+    if (is.null(user$roles)) {
+      user$roles <- character()
+    }
     list(success = TRUE, message = "Autenticación exitosa.", user = user)
   }, error = function(e) {
     list(success = FALSE, message = "No fue posible conectar con el servicio de autenticación. Inténtalo más tarde.")
   })
+}
+
+# Compatibilidad con shinymanager::secure_server (retorna función {shinymanager})
+check_credentials_mongo <- function() {
+  function(user, password) {
+    result <- authenticate_user(user, password)
+    if (!isTRUE(result$success)) {
+      return(list(result = FALSE))
+    }
+
+    info <- result$user %||% list()
+    username <- sanitize_credential_input(info$username %||% user)
+    display <- sanitize_credential_input(info$display %||% username)
+    roles <- info$roles
+    if (is.null(roles) || !length(roles)) {
+      roles <- "user"
+    }
+
+    user_df <- data.frame(
+      user = username,
+      display = display,
+      role = paste(roles, collapse = ","),
+      stringsAsFactors = FALSE
+    )
+
+    list(result = TRUE, user_info = user_df)
+  }
 }
 
 # ==============
