@@ -583,6 +583,10 @@ body {
   margin-top: 3rem;
 }
 
+.app-shell .course-layout .row {
+  --bs-gutter-x: 1.25rem;
+}
+
 /* ===== Sidebar de sesiones ===== */
 .app-shell .course-sidebar {
   background: #ffffff;
@@ -753,6 +757,15 @@ body {
 .app-shell .session-list-label {
   flex: 1 1 auto;
   font-size: 0.95rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.app-shell .session-list-item:focus .session-list-label,
+.app-shell .session-list-item:hover .session-list-label {
+  overflow: visible;
+  white-space: normal;
 }
 
 .app-shell .course-content {
@@ -894,6 +907,22 @@ body {
 
   .app-shell .course-layout {
     margin-top: 2.5rem;
+  }
+}
+
+@media (min-width: 1200px) {
+  .app-shell .course-layout .col-12.col-xl-4 {
+    flex: 0 0 26%;
+    max-width: 26%;
+  }
+
+  .app-shell .course-layout .col-12.col-xl-8 {
+    flex: 0 0 74%;
+    max-width: 74%;
+  }
+
+  .app-shell .course-sidebar {
+    padding: 1.5rem 1.25rem;
   }
 }
 
