@@ -24,6 +24,13 @@ body {
   min-height: 100vh;
 }
 
+.app-shell .container {
+  max-width: none;
+  width: 100%;
+  padding-left: clamp(1rem, 3vw, 3rem);
+  padding-right: clamp(1rem, 3vw, 3rem);
+}
+
 .app-shell a,
 .app-shell .btn-link {
   color: var(--data-blue);
@@ -494,6 +501,10 @@ body {
   padding-bottom: 4rem;
 }
 
+.app-shell .course-page .container {
+  max-width: none;
+}
+
 .app-shell .course-hero {
   background: linear-gradient(135deg, rgba(34, 84, 61, 0.95), rgba(27, 63, 107, 0.9));
   color: #ffffff;
@@ -584,7 +595,7 @@ body {
 }
 
 .app-shell .course-layout .row {
-  --bs-gutter-x: 1.25rem;
+  --bs-gutter-x: 1rem;
 }
 
 /* ===== Sidebar de sesiones ===== */
@@ -850,17 +861,42 @@ body {
   margin-bottom: 1.75rem;
 }
 
+/* En pantallas grandes: una sola fila de pestañas, con scroll si no alcanza */
+@media (min-width: 992px) {
+  .app-shell .session-detail-body .nav-tabs,
+  .app-shell .session-detail-body .nav-pills {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+  }
+}
+
 .app-shell .session-detail-body .nav-tabs .nav-link,
 .app-shell .session-detail-body .nav-pills .nav-link {
-  flex: 1 1 220px;
-  text-align: center;
+  flex: 0 0 auto;
+  min-width: 110px;
+  max-width: 180px;              /* un poco más compacto para que entren todas */
+  text-align: left;
   border: none;
   border-radius: 14px;
   background-color: rgba(47, 133, 90, 0.12);
   color: var(--deep-forest);
   font-weight: 600;
-  padding: 0.85rem 1rem;
+  padding: 0.65rem 0.9rem;
+  font-size: 0.9rem;
   transition: all 0.25s ease;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;       /* recorta el texto largo en estado “plegado” */
+}
+
+/* Cuando una pestaña está expandida (hover/activa), dejamos que se vea todo el título */
+.app-shell .session-detail-body .nav-tabs .nav-link.is-expanded,
+.app-shell .session-detail-body .nav-tabs .nav-link.active,
+.app-shell .session-detail-body .nav-pills .nav-link.is-expanded,
+.app-shell .session-detail-body .nav-pills .nav-link.active {
+  max-width: none;
+  white-space: normal;
+  overflow: visible;
 }
 
 .app-shell .session-detail-body .nav-tabs .nav-link:hover,
@@ -911,18 +947,19 @@ body {
 }
 
 @media (min-width: 1200px) {
+  /* Plan de estudio un poco más ancho, pero contenido sigue predominando */
   .app-shell .course-layout .col-12.col-xl-4 {
-    flex: 0 0 26%;
-    max-width: 26%;
+    flex: 0 0 24%;
+    max-width: 24%;
   }
 
   .app-shell .course-layout .col-12.col-xl-8 {
-    flex: 0 0 74%;
-    max-width: 74%;
+    flex: 0 0 76%;
+    max-width: 76%;
   }
 
   .app-shell .course-sidebar {
-    padding: 1.5rem 1.25rem;
+    padding: 1.5rem 1.15rem;
   }
 }
 
