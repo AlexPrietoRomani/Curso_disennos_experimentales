@@ -1055,3 +1055,119 @@ body {
     font-size: 2.1rem;
   }
 }
+
+/* ====== Mapa de círculos IA / LLM ====== */
+.ia-map-wrapper {
+  position: relative;
+  width: 260px;
+  height: 260px;
+  margin: 0 auto 1rem auto;
+}
+
+.ia-circle-main {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 2px dashed var(--bs-primary, #0d6efd);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-weight: 600;
+  color: #1f2933;
+  background: radial-gradient(circle at 30% 30%, #f8fafc, #e5f2ff);
+}
+
+.ia-circle-btn-main {
+  border-radius: 999px;
+  white-space: pre-line;
+  font-size: 0.85rem;
+  padding: 0.4rem 0.6rem;
+}
+
+/* Círculos internos */
+.ia-circle-sub {
+  position: absolute;
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ia-circle-btn {
+  border-radius: 999px;
+  width: 100px;
+  height: 100px;
+  white-space: pre-line;
+  font-size: 0.78rem;
+  line-height: 1.2;
+  padding: 0.4rem;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.15);
+}
+
+.ia-circle-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.25);
+}
+
+/* Posiciones relativas de cada subcírculo */
+.ia-circle-simbolica {
+  top: 8px;
+  left: 75px;
+}
+
+.ia-circle-ml {
+  top: 88px;
+  right: -8px;
+}
+
+.ia-circle-robotica {
+  bottom: -8px;
+  left: 8px;
+}
+
+.ia-circle-llm {
+  bottom: 18px;
+  right: 60px;
+}
+
+/* ====== Timeline bonita para la historia de IA ====== */
+.ia-timeline {
+  list-style: none;
+  margin: 0;
+  padding-left: 0;
+}
+
+.ia-timeline li {
+  position: relative;
+  padding-left: 1.6rem;
+  margin-bottom: 0.75rem;
+}
+
+.ia-timeline li::before {
+  content: "";
+  position: absolute;
+  left: 0.45rem;
+  top: 0.35rem;
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 999px;
+  background-color: var(--bs-primary, #0d6efd);
+}
+
+.ia-timeline li::after {
+  content: "";
+  position: absolute;
+  left: 0.72rem;
+  top: 0.9rem;
+  width: 2px;
+  height: calc(100% - 0.9rem);
+  background-color: rgba(15, 23, 42, 0.12);
+}
+
+.ia-timeline li:last-child::after {
+  height: 0;
+}
