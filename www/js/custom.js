@@ -1,3 +1,28 @@
+function applySessionLabelTitles(context) {
+  const $context = context ? $(context) : $(document);
+  $context.find('.session-list-item').each(function() {
+    const $item = $(this);
+    const labelText = $item.find('.session-list-label').text().trim();
+    if (labelText && $item.attr('title') !== labelText) {
+      $item.attr('title', labelText);
+    }
+  });
+}
+
+$(document).on('shiny:value', function(event) {
+  if (event.target && event.target.id === 'course_sidebar') {
+    applySessionLabelTitles(event.target);
+  }
+});
+
+$(document).on('mouseenter focus', '.session-list-item', function() {
+  applySessionLabelTitles(this);
+});
+
+$(document).ready(function() {
+  applySessionLabelTitles(document);
+});
+
 $(document).on('click', '.r-code', function() {
   const code = $(this).text().trim();
   navigator.clipboard.writeText(code).then(() => {
