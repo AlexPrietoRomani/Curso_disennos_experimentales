@@ -15,6 +15,7 @@ Imports:
     agricolae,
     broom,
     bslib,
+    bsicons,
     car,
     dplyr,
     dunn.test,

@@ -8,43 +8,84 @@
 pestanna1_session1_v3UI <- function(ns) {
   nav_panel(
     title = "Pestaña1: Qué es la IA",
+    icon = bs_icon("diagram-3"), # Icono para la pestaña
 
     # --- Fila 1: definición + mapa de círculos ---
     layout_column_wrap(
       width = 1/2,
+      fill = FALSE, # Permite que las tarjetas tengan alturas diferentes si es necesario
 
-      # Definición rápida, amigable
+      # --- Columna 1: Definición + contexto histórico ---
       card(
-        card_header("Definición operativa de Inteligencia Artificial"),
-        p(
-          "En este curso seguiremos la definición de Russell y Norvig: ",
-          "la Inteligencia Artificial (IA) es el estudio de ",
-          strong("agentes que perciben su entorno y actúan sobre él"),
-          " para alcanzar objetivos."
+        card_header(
+          class = "bg-primary text-white",
+          "Definición operativa y contexto histórico"
         ),
-        p(
-          "Dicho de forma simple: diseñamos programas que toman decisiones ",
-          "de manera (más o menos) autónoma a partir de datos, sensores o texto."
-        ),
-        tags$ul(
-          tags$li(
-            strong("Agente:"),
-            " algo que percibe el entorno y puede actuar (software, robot, servicio en la nube)."
+        card_body(
+          p(
+            "En este curso seguiremos la definición de Russell y Norvig: ",
+            "la Inteligencia Artificial (IA) es el estudio de ",
+            strong("agentes que perciben su entorno y actúan sobre él"),
+            " para alcanzar objetivos."
           ),
-          tags$li(
-            strong("Entorno:"),
-            " datos de sensores, imágenes, texto, registros agrícolas, etc."
+          p(
+            "La idea de construir inteligencia artificial no es nueva: va desde los autómatas míticos y la lógica de ",
+            "Ramon Llull y Leibniz, hasta la computación de Turing, la conferencia de Dartmouth y varios ",
+            "‘inviernos de la IA’. Hoy la IA moderna se apoya en ",
+            strong("aprendizaje automático, deep learning y modelos de lenguaje grandes (LLM)"),
+            ", que veremos a lo largo de la sesión."
           ),
-          tags$li(
-            strong("Objetivo:"),
-            " una medida de desempeño: reducir error, maximizar rendimiento, detectar riesgos, etc."
+          hr(),
+
+          # --- Pilares visuales ---
+          h5("Los 3 pilares de un agente", class = "mb-3"),
+          layout_column_wrap(
+            width = 1/3, fill = FALSE, gap = 10,
+            card(
+              class = "text-center border-light shadow-sm h-100",
+              card_body(
+                bs_icon("eye", size = "2em", class = "text-primary mb-2"),
+                h6("Agente", class = "mt-2 card-title"),
+                p(
+                  class = "small card-text text-muted",
+                  "Algo que percibe y actúa (software, robot, servicio en la nube)."
+                )
+              )
+            ),
+            card(
+              class = "text-center border-light shadow-sm h-100",
+              card_body(
+                bs_icon("globe-americas", size = "2em", class = "text-info mb-2"),
+                h6("Entorno", class = "mt-2 card-title"),
+                p(
+                  class = "small card-text text-muted",
+                  "Datos, sensores, texto, imágenes, registros agrícolas, etc."
+                )
+              )
+            ),
+            card(
+              class = "text-center border-light shadow-sm h-100",
+              card_body(
+                bs_icon("bullseye", size = "2em", class = "text-success mb-2"),
+                h6("Objetivo", class = "mt-2 card-title"),
+                p(
+                  class = "small card-text text-muted",
+                  "Medida de desempeño (reducir error, aumentar rendimiento, gestionar riesgo)."
+                )
+              )
+            )
           )
         )
       ),
 
-      # Mapa interactivo: círculos
+      # --- Columna 2: Mapa interactivo ---
       card(
         card_header("Mapa interactivo: ¿dónde se ubican los LLM dentro de la IA?"),
+
+        div(
+          class = "ia-map-legend text-muted small mb-2",
+          "Pasa el mouse por los círculos para ver el efecto visual y haz clic para fijar la explicación."
+        ),
 
         # Contenedor de círculos
         div(
@@ -56,7 +97,7 @@ pestanna1_session1_v3UI <- function(ns) {
             actionButton(
               ns("ia_btn_general"),
               label = "Inteligencia\nArtificial",
-              class  = "btn-light ia-circle-btn-main"
+              class  = "btn-light ia-circle-btn-main ia-circle-btn ia-selected"
             ),
 
             # Círculos internos: subcampos
@@ -64,7 +105,7 @@ pestanna1_session1_v3UI <- function(ns) {
               class = "ia-circle-sub ia-circle-simbolica",
               actionButton(
                 ns("ia_btn_simb"),
-                label = "IA simbólica",
+                label = "IA\nsimbólica",
                 class  = "btn-outline-primary ia-circle-btn"
               )
             ),
@@ -88,8 +129,8 @@ pestanna1_session1_v3UI <- function(ns) {
               class = "ia-circle-sub ia-circle-llm",
               actionButton(
                 ns("ia_btn_llm"),
-                label = "LLM /\nmodelos\nfundacionales",
-                class  = "btn-primary ia-circle-btn"
+                label = "LLM y modelos\nfundacionales",
+                class  = "btn-primary ia-circle-btn" # Destacado
               )
             )
           )
@@ -97,7 +138,17 @@ pestanna1_session1_v3UI <- function(ns) {
 
         hr(),
         # Aquí pintamos la ficha según el círculo seleccionado
-        uiOutput(ns("ia_map_detail"))
+        uiOutput(ns("ia_map_detail")),
+
+        # Script para resaltar el círculo seleccionado
+        tags$script(HTML(
+          sprintf("
+            $(document).on('click', '#%s .ia-map-wrapper .ia-circle-btn', function() {
+              $('#%s .ia-map-wrapper .ia-circle-btn').removeClass('ia-selected');
+              $(this).addClass('ia-selected');
+            });
+          ", ns(""), ns(""))
+        ))
       )
     ),
 
@@ -105,90 +156,157 @@ pestanna1_session1_v3UI <- function(ns) {
     layout_column_wrap(
       width = 1,
       card(
-        card_header("Historia y ejemplos de IA (interactivo)"),
-        navset_pill(   # pills quedan como botones
+        card_header("Historia y ejemplos de IA"),
+        navset_pill( # pills quedan como botones
           id = ns("ia_hist_tabs"),
 
+          # --- Tab: Línea Histórica (resumen del reporte) ---
           nav_panel(
             "Línea histórica",
-            tags$ul(
-              class = "ia-timeline",
-              tags$li(
-                strong("1950 – Turing: "),
-                "“Computing Machinery and Intelligence” y el juego de la imitación."
+            icon = bs_icon("calendar3"),
+            div(
+              class = "timeline-wrapper",
+
+              div(
+                class = "timeline-item",
+                div(class = "timeline-year", "Antigüedad – s. XVII"),
+                div(
+                  class = "timeline-content",
+                  strong("Autómatas y lógica temprana: "),
+                  "mitos de máquinas animadas, la lógica combinatoria de Ramon Llull ",
+                  "y los proyectos de Leibniz de mecanizar el razonamiento."
+                )
               ),
-              tags$li(
-                strong("1956 – Dartmouth: "),
-                "se acuña el término ",
-                em("Artificial Intelligence"),
-                " y nace el campo como disciplina."
+
+              div(
+                class = "timeline-item",
+                div(class = "timeline-year", "1950"),
+                div(
+                  class = "timeline-content",
+                  strong("Alan Turing: "),
+                  "formaliza la computación y propone el test de Turing sobre comportamiento inteligente."
+                )
               ),
-              tags$li(
-                strong("1960–1970: "),
-                "IA simbólica y sistemas expertos para diagnóstico y planificación."
+
+              div(
+                class = "timeline-item",
+                div(class = "timeline-year", "1956"),
+                div(
+                  class = "timeline-content",
+                  strong("Conferencia de Dartmouth: "),
+                  "nace la IA como campo académico y se inaugura la era de la IA simbólica."
+                )
               ),
-              tags$li(
-                strong("1980s – inviernos de la IA: "),
-                "expectativas infladas, límites computacionales y caída de financiamiento."
+
+              div(
+                class = "timeline-item",
+                div(class = "timeline-year", "1960–70s"),
+                div(
+                  class = "timeline-content",
+                  strong("GOFAI y sistemas expertos: "),
+                  "programas basados en reglas para demostración de teoremas, diagnóstico y planificación."
+                )
               ),
-              tags$li(
-                strong("1990–2000: "),
-                "revolución del ",
-                em("machine learning"),
-                " estadístico (SVM, árboles, redes neuronales)."
+
+              div(
+                class = "timeline-item",
+                div(class = "timeline-year", "1970–80s"),
+                div(
+                  class = "timeline-content",
+                  strong("Inviernos de la IA: "),
+                  "promesas no cumplidas y limitaciones de hardware provocan recortes de financiación."
+                )
               ),
-              tags$li(
-                strong("2010–2016: "),
-                em("deep learning"),
-                " en visión, voz y texto gracias a GPUs y grandes datasets."
+
+              div(
+                class = "timeline-item",
+                div(class = "timeline-year", "1990–00s"),
+                div(
+                  class = "timeline-content",
+                  strong("Aprendizaje automático estadístico: "),
+                  "árboles, SVM y redes neuronales poco profundas ganan terreno en tareas de predicción."
+                )
               ),
-              tags$li(
-                strong("2017 – Transformer: "),
-                "se introduce la arquitectura ",
-                em("Transformer"),
-                " que da origen a los LLM modernos."
+
+              div(
+                class = "timeline-item",
+                div(class = "timeline-year", "1997"),
+                div(
+                  class = "timeline-content",
+                  strong("Deep Blue: "),
+                  "un sistema especializado vence al campeón mundial de ajedrez, mostrando el poder del cómputo masivo."
+                )
               ),
-              tags$li(
-                strong("2018–hoy – LLM y modelos fundacionales: "),
-                "modelos como BERT, GPT-3/4 se adaptan a muchas tareas mediante ",
-                em("fine-tuning"),
-                " o ",
-                em("prompting"),
-                "."
+
+              div(
+                class = "timeline-item",
+                div(class = "timeline-year", "2010–16"),
+                div(
+                  class = "timeline-content",
+                  strong("Deep learning a gran escala: "),
+                  "GPUs y grandes datasets impulsan avances en visión, voz y texto."
+                )
+              ),
+
+              div(
+                class = "timeline-item",
+                div(class = "timeline-year", "2017"),
+                div(
+                  class = "timeline-content",
+                  strong("Transformer: "),
+                  "la arquitectura basada en atención permite entrenar modelos de lenguaje mucho más grandes."
+                )
+              ),
+
+              div(
+                class = "timeline-item",
+                div(class = "timeline-year", "2018–hoy"),
+                div(
+                  class = "timeline-content",
+                  strong("LLM, alucinaciones y grounding: "),
+                  "modelos como GPT o LLaMA muestran capacidades emergentes, pero requieren técnicas como RAG ",
+                  "y observabilidad para reducir alucinaciones y hacerlos utilizables en entornos críticos."
+                )
               )
             )
           ),
 
+          # --- Tab: Ejemplos (Mejorada con iconos y RAG) ---
           nav_panel(
             "Ejemplos en ciencia y agro",
+            icon = bs_icon("lightbulb"),
             layout_column_wrap(
               width = 1/2,
               card(
-                card_header("IA simbólica"),
+                card_header(bs_icon("code-square"), "IA simbólica"),
                 tags$ul(
                   tags$li("Sistemas expertos para diagnóstico de plagas según reglas IF–THEN."),
                   tags$li("Motores de reglas para decidir labores según umbrales climáticos.")
                 )
               ),
               card(
-                card_header("Aprendizaje automático clásico"),
+                card_header(bs_icon("graph-up-arrow"), "Aprendizaje automático clásico"),
                 tags$ul(
                   tags$li("Modelos de regresión / random forest para predecir rendimiento (kg/ha)."),
                   tags$li("Clasificación de lotes según riesgo fitosanitario a partir de clima + manejo.")
                 )
               ),
               card(
-                card_header("Deep learning / visión"),
+                card_header(bs_icon("images"), "Deep learning / visión"),
                 tags$ul(
                   tags$li("Redes convolucionales para conteo de plantas o frutos en imágenes de dron."),
                   tags$li("Segmentación de canopia para estimar cobertura y vigor.")
                 )
               ),
               card(
-                card_header("NLP y LLM"),
+                card_header(bs_icon("chat-square-text"), "NLP, LLM y RAG"),
                 tags$ul(
-                  tags$li("Modelos tipo GPT que resumen artículos, generan código en R/Python."),
-                  tags$li("Asistentes que proponen hipótesis y diseños experimentales a partir de tu biblioteca.")
+                  tags$li("Modelos tipo GPT que resumen artículos, generan código en R/Python y proponen hipótesis/diseños experimentales."),
+                  tags$li(
+                    "Sistemas de ",
+                    strong("Generación Aumentada por Recuperación (RAG)"),
+                    " que conectan el LLM con tu biblioteca de documentos para reducir alucinaciones."
+                  )
                 )
               )
             )
@@ -202,31 +320,196 @@ pestanna1_session1_v3UI <- function(ns) {
 pestanna2_session1_v3UI <- function(ns) {
   nav_panel(
     title = "Pestaña2: Qué es un LLM",
+    icon  = bs_icon("chat-square-dots"),
+
+    # --- Fila 1: definición + fortalezas/limitaciones ---
     layout_column_wrap(
       width = 1/2,
+      fill  = FALSE,
+
+      # Columna 1: definición y jerarquía dentro de la IA
       card(
-        card_header("¿Qué hace un LLM?"),
-        tags$ol(
-          tags$li("Convierte tu texto a ", strong("tokens"), " y vectores (embeddings)."),
-          tags$li("Usa un ", strong("Transformer"), " (auto-atención) para ponderar contexto relevante."),
-          tags$li("Predice el ", strong("siguiente token"), " miles de veces hasta completar la respuesta."),
-          tags$li("Limitaciones: conocimiento ‘congelado’, ", em("alucinaciones"), " y falta de citas nativas.")
+        card_header(
+          class = "bg-primary text-white",
+          "¿Qué es un modelo de lenguaje grande (LLM)?"
         ),
-        tags$pre(style = "white-space:pre-wrap;",
-"Texto → tokens → embeddings → [Bloques Transformer con atención] → probabilidad del siguiente token → texto")
-      ),
-      card(
-        card_header("Qué hace bien y qué no"),
-        tags$ul(
-          tags$li(strong("Muy bueno:"), " idear, reescribir, resumir, proponer estructuras de código o análisis."),
-          tags$li(strong("Riesgoso solo:"), " dar números, parámetros o citas específicas sin comprobar."),
-          tags$li(strong("Necesita apoyo de:"), " bases de papers, PDFs propios, flujos de verificación.")
-        ),
-        div(
-          class = "alert alert-warning",
-          tags$strong("Regla de oro:"),
-          " ideación libre con LLM ≠ evidencia. Para afirmaciones fácticas: cita o no lo digas."
+        card_body(
+          p(
+            "En este curso llamamos ",
+            strong("modelo de lenguaje grande (LLM)"),
+            " a una red neuronal de propósito general entrenada con enormes corpus de texto ",
+            "para predecir la siguiente palabra (token) en una secuencia.",
+            " Modelos como GPT-3/4 o PaLM son ejemplos típicos ",
+            "(Brown et al., 2020; Bommasani et al., 2021)."
+          ),
+          tags$ul(
+            tags$li(
+              strong("Modelo de lenguaje:"),
+              " aprende patrones estadísticos del texto (probabilidades de secuencias)."
+            ),
+            tags$li(
+              strong("Grande:"),
+              " contiene miles de millones de parámetros, lo que le permite resolver muchas tareas ",
+              "con el mismo modelo (traducción, resumen, código, etc.)."
+            ),
+            tags$li(
+              strong("Generativo:"),
+              " produce respuestas token a token, condicionadas por el contexto del prompt."
+            )
+          ),
+          hr(),
+          h6("¿Dónde vive un LLM dentro de la IA?"),
+          div(
+            class = "llm-hierarchy",
+            span("IA",               class = "llm-level llm-level-ia"),
+            span("ML",               class = "llm-level llm-level-ml"),
+            span("Deep Learning",    class = "llm-level llm-level-dl"),
+            span("NLP",              class = "llm-level llm-level-nlp"),
+            span("LLM",              class = "llm-level llm-level-llm")
+          ),
+          p(
+            class = "small text-muted mb-0",
+            "Todos los LLM son modelos de procesamiento de lenguaje natural (NLP), ",
+            "pero no todo modelo de NLP es un LLM: los LLM son la familia de ",
+            strong("modelos de lenguaje de gran escala para tareas generativas"),
+            " (Bommasani et al., 2021)."
+          )
         )
+      ),
+
+      # Columna 2: fortalezas y límites (incluye alucinaciones de forma resumida)
+      card(
+        card_header("¿Qué hace bien un LLM y dónde se equivoca?"),
+        card_body(
+          layout_column_wrap(
+            width = 1/2,
+            fill  = FALSE,
+
+            # Fortalezas
+            div(
+              h6(bs_icon("hand-thumbs-up"), " Fortalezas"),
+              tags$ul(
+                class = "small",
+                tags$li(
+                  "Produce texto coherente en muchos dominios con poco ejemplo ",
+                  em("(few-shot / zero-shot)"),
+                  " (Brown et al., 2020)."
+                ),
+                tags$li(
+                  "Integra un contexto amplio (miles de tokens) y patrones complejos ",
+                  "gracias a la arquitectura ",
+                  em("Transformer"),
+                  " (Vaswani et al., 2017)."
+                ),
+                tags$li(
+                  "Puede seguir cadenas de razonamiento cuando lo guiamos paso a paso ",
+                  em("(Chain-of-Thought prompting; Wei et al., 2022).")
+                )
+              )
+            ),
+
+            # Limitaciones
+            div(
+              h6(bs_icon("exclamation-triangle"), " Limitaciones estructurales"),
+              tags$ul(
+                class = "small",
+                tags$li(
+                  "No tiene una ‘base de conocimiento’ verificable: ",
+                  "solo estima la siguiente palabra más probable ",
+                  "a partir de patrones en los datos de entrenamiento."
+                ),
+                tags$li(
+                  "Puede generar contenido plausible pero falso o no verificable ",
+                  em("(alucinaciones/“confabulaciones”)"),
+                  " (Huang et al., 2023; Rawte et al., 2023; Zhang et al., 2023)."
+                ),
+                tags$li(
+                  "Su conocimiento está ‘congelado’ en la fecha de entrenamiento; ",
+                  "no ve eventos posteriores salvo que lo conectemos a fuentes externas ",
+                  "(RAG / grounding, ver pestañas 3 y 4)."
+                )
+              )
+            )
+          ),
+          div(
+            class = "alert alert-warning small mt-2",
+            strong("Regla de uso en la sesión: "),
+            "usa el LLM como generador de borradores e ideas; ",
+            "la evidencia dura debe venir de artículos, datos o documentos externos ",
+            "con citas explícitas."
+          )
+        )
+      )
+    ),
+
+    # --- Fila 2: pipeline interno del LLM (interactivo) ---
+    layout_column_wrap(
+      width = 1,
+      card(
+        card_header("Cómo funciona un LLM por dentro (pipeline de generación)"),
+
+        p(
+          "Cuando envías un prompt, el modelo sigue siempre la misma tubería: ",
+          "convierte tu texto en números, lo procesa con bloques ",
+          em("Transformer"),
+          " y vuelve a texto (Vaswani et al., 2017; Brown et al., 2020)."
+        ),
+
+        # Botones/etapas del flujo
+        div(
+          class = "llm-flow",
+          actionButton(
+            ns("llm_step_input"),
+            label = "1. Texto de entrada",
+            class = "btn-light llm-step-btn llm-step-selected"
+          ),
+          span(class = "llm-flow-arrow", bs_icon("arrow-right")),
+          actionButton(
+            ns("llm_step_tokens"),
+            label = "2. Tokens",
+            class = "btn-outline-primary llm-step-btn"
+          ),
+          span(class = "llm-flow-arrow", bs_icon("arrow-right")),
+          actionButton(
+            ns("llm_step_embed"),
+            label = "3. Embeddings + posición",
+            class = "btn-outline-primary llm-step-btn"
+          ),
+          span(class = "llm-flow-arrow", bs_icon("arrow-right")),
+          actionButton(
+            ns("llm_step_transformer"),
+            label = "4. Bloques Transformer",
+            class = "btn-outline-primary llm-step-btn"
+          ),
+          span(class = "llm-flow-arrow", bs_icon("arrow-right")),
+          actionButton(
+            ns("llm_step_output"),
+            label = "5. Softmax y muestreo",
+            class = "btn-outline-primary llm-step-btn"
+          )
+        ),
+
+        # Detalle dinámico de la etapa seleccionada
+        div(
+          class = "llm-step-detail",
+          uiOutput(ns("llm_step_detail"))
+        ),
+
+        tags$pre(
+          class = "llm-flow-ascii mt-3",
+"Texto → tokens → embeddings + posición → [Bloques Transformer con auto-atención] →
+  logits → softmax → muestreo (temperatura/top-k) → texto generado"
+        ),
+
+        # Script JS para resaltar el botón seleccionado
+        tags$script(HTML(
+          sprintf("
+            $(document).on('click', '#%s .llm-flow .llm-step-btn', function() {
+              $('#%s .llm-flow .llm-step-btn').removeClass('llm-step-selected');
+              $(this).addClass('llm-step-selected');
+            });
+          ", ns(""), ns(""))
+        ))
       )
     )
   )
@@ -581,79 +864,278 @@ pestanna1_session1_v3_server <- function(input, output, session) {
   output$ia_map_detail <- renderUI({
     dom <- selected_domain()
 
+    # “Tip” común al final de cada definición
+    tip_card <- card(
+      class = "border-secondary-subtle mt-2",
+      card_body(
+        class = "p-2 small",
+        bs_icon("cursor", class = "me-1"),
+        "Haz clic en otro círculo para cambiar la definición o vuelve a ‘Inteligencia Artificial’ para ver la vista general."
+      )
+    )
+
     switch(
       dom,
 
       # --- Vista general IA ---
       ia_general = tagList(
-        h4("Inteligencia Artificial (vista general)"),
+        h4(bs_icon("bounding-box"), " Inteligencia Artificial (vista general)"),
         p(
-          "La IA engloba técnicas muy distintas: desde reglas simbólicas escritas por personas ",
-          "hasta modelos de aprendizaje profundo entrenados con millones de ejemplos."
+          "La IA es un campo amplio que reúne enfoques simbólicos, estadísticos y neuronales. ",
+          "Su historia combina momentos de euforia (promesas de máquinas inteligentes generales) ",
+          "con ‘inviernos de la IA’, cuando las limitaciones de hardware y datos frenaron el progreso."
+        ),
+        p(
+          "Los modelos de lenguaje grandes que usamos hoy se apoyan en esa trayectoria: primero reglas simbólicas, ",
+          "después aprendizaje automático y, finalmente, redes neuronales profundas basadas en la arquitectura ",
+          em("Transformer"),
+          "."
         ),
         tags$ul(
-          tags$li(strong("Entrada:"), " datos (sensores, imágenes, texto, registros)."),
-          tags$li(strong("Salida:"),  " decisiones, predicciones, recomendaciones."),
+          tags$li(strong("Entrada:"), " datos de sensores, imágenes, texto, registros, señales, etc."),
+          tags$li(strong("Salida:"),  " decisiones, predicciones, recomendaciones o textos generados."),
           tags$li(
             strong("Rol del humano:"),
-            " definir objetivos, supervisar el sistema y validar resultados."
+            " formular objetivos, curar los datos, vigilar sesgos y validar resultados antes de usarlos en producción."
           )
-        )
+        ),
+        tip_card
       ),
 
       # --- IA simbólica / reglas ---
       ia_simb = tagList(
-        h4("IA simbólica / basada en reglas"),
+        h4(bs_icon("code-square"), " IA simbólica / basada en reglas"),
         p(
-          "Trabaja con símbolos y reglas explícitas del tipo IF–THEN. ",
-          "Es transparente y fácil de auditar, pero cuesta escalarla a problemas complejos."
+          "Esta corriente (a veces llamada ",
+          em("Good Old-Fashioned AI"),
+          ") intenta capturar la inteligencia como lógica explícita: ",
+          "reglas IF–THEN, ontologías y motores de inferencia."
         ),
         tags$ul(
-          tags$li("Sistemas expertos para diagnóstico de plagas o enfermedades."),
-          tags$li("Motores de reglas para recomendar fertilización o riego según umbrales.")
-        )
+          tags$li("Ejemplos clásicos: demostradores de teoremas, sistemas expertos médicos o legales."),
+          tags$li("Ventaja: alta explicabilidad; cada conclusión se puede rastrear a una regla concreta."),
+          tags$li("Limitación: difícil de mantener y escalar cuando el dominio es amplio, ruidoso o cambia rápido.")
+        ),
+        tip_card
       ),
 
       # --- Machine Learning ---
       ia_ml = tagList(
-        h4("Aprendizaje automático (Machine Learning)"),
+        h4(bs_icon("graph-up-arrow"), " Aprendizaje automático (Machine Learning)"),
         p(
-          "En vez de escribir reglas a mano, dejamos que el modelo las ‘aprenda’ a partir de datos etiquetados ",
-          "o de patrones encontrados en los datos."
+          "En el aprendizaje automático no escribimos reglas a mano: dejamos que el modelo las ‘aprenda’ ",
+          "a partir de ejemplos etiquetados o de patrones en los datos."
         ),
         tags$ul(
-          tags$li("Regresión, árboles, random forest, SVM, redes neuronales."),
-          tags$li("Predicción de rendimiento, clasificación de lotes, detección de anomalías."),
-          tags$li("Dentro de ML vive el ", strong("deep learning"), " que usamos para visión y texto.")
-        )
+          tags$li("Modelos de regresión, árboles de decisión, random forest, SVM, redes neuronales, etc."),
+          tags$li("Muy eficaz para predicción de rendimiento, clasificación de lotes o detección de anomalías."),
+          tags$li(
+            "Dentro de ML, el ",
+            strong("deep learning"),
+            " usa redes con muchas capas y es la base de la visión por computador, el reconocimiento de voz ",
+            "y los modelos de lenguaje grandes."
+          )
+        ),
+        tip_card
       ),
 
       # --- Robótica y agentes físicos ---
       ia_robotica = tagList(
-        h4("Robótica y agentes físicos"),
+        h4(bs_icon("robot"), " Robótica y agentes físicos"),
         p(
-          "Combina percepción (sensores, cámaras), planificación y control para actuar en el mundo físico."
+          "La robótica combina percepción (sensores, cámaras), planificación y control para que un agente actúe ",
+          "en el mundo físico. Puede usar tanto reglas simbólicas como aprendizaje automático o refuerzo."
         ),
         tags$ul(
-          tags$li("Robots móviles para labores agrícolas o monitoreo de invernaderos."),
-          tags$li("Vehículos autónomos, drones, brazos robóticos de cosecha."),
-          tags$li("Suelen integrar visión por computador, control en tiempo real y a veces aprendizaje por refuerzo.")
-        )
+          tags$li("Robots móviles o brazos robóticos que realizan labores agrícolas o de logística."),
+          tags$li("Drones que inspeccionan cultivos, infraestructuras o animales."),
+          tags$li("Sistemas que aprenden políticas de control mediante aprendizaje por refuerzo en simulación.")
+        ),
+        tip_card
       ),
 
       # --- LLM / modelos fundacionales ---
       ia_llm = tagList(
-        h4("Modelos de lenguaje grandes (LLM)"),
+        h4(bs_icon("chat-square-text"), " Modelos de lenguaje grandes (LLM)"),
         p(
-          "Son modelos de deep learning entrenados sobre enormes corpus de texto para predecir el siguiente token. ",
-          "Al usar arquitecturas tipo ",
+          "Los LLM son modelos de ",
+          strong("procesamiento de lenguaje natural (NLP)"),
+          " basados en deep learning y la arquitectura ",
           em("Transformer"),
-          ", capturan patrones complejos en el lenguaje."
+          ". Se entrenan con enormes corpus de texto para predecir el siguiente token."
         ),
         tags$ul(
-          tags$li("Se ubican dentro de ", strong("NLP"), " → deep learning → machine learning → IA."),
-          tags$li("Pueden resumir, traducir, responder preguntas, generar código y más."),
-          tags$li("En investigación, son potentes para idear y redactar, pero necesitan apoyo de fuentes (RAG, NotebookLM) para ser trazables.")
+          tags$li(
+            strong("Posición en el mapa:"),
+            " son un subgrupo de NLP → deep learning → machine learning → IA."
+          ),
+          tags$li(
+            strong("Arquitectura básica:"),
+            " embeddings de tokens + bloques Transformer con auto-atención multi-cabeza + capa de salida ",
+            "que produce una distribución de probabilidad sobre el vocabulario."
+          ),
+          tags$li(
+            strong("Capacidades emergentes:"),
+            " al escalar a miles de millones de parámetros aparecen habilidades como el razonamiento paso a paso ",
+            em("(chain-of-thought)"),
+            " y la adaptación a nuevas tareas sólo cambiando el ",
+            em("prompt"),
+            "."
+          ),
+          tags$li(
+            strong("Limitación clave:"),
+            " optimizan la fluidez estadística del texto, no la verdad. Por eso pueden ",
+            strong("alucinar"),
+            " datos o citas; más adelante veremos cómo técnicas de ",
+            strong("grounding y RAG"),
+            " conectan el LLM con fuentes verificables para reducir este problema."
+          )
+        ),
+        tip_card
+      )
+    )
+  })
+}
+
+# Pestaña 2: Qué es un LLM
+pestanna2_session1_v3_server <- function(input, output, session) {
+
+  # Etapa seleccionada en el flujo del LLM
+  selected_step <- reactiveVal("step_input")
+
+  observeEvent(input$llm_step_input,       { selected_step("step_input")       })
+  observeEvent(input$llm_step_tokens,      { selected_step("step_tokens")      })
+  observeEvent(input$llm_step_embed,       { selected_step("step_embed")       })
+  observeEvent(input$llm_step_transformer, { selected_step("step_transformer") })
+  observeEvent(input$llm_step_output,      { selected_step("step_output")      })
+
+  output$llm_step_detail <- renderUI({
+    step <- selected_step()
+
+    switch(
+      step,
+
+      # 1) Texto de entrada
+      step_input = tagList(
+        h5(bs_icon("keyboard"), " 1. Texto de entrada"),
+        p(
+          "Escribes un prompt: una instrucción, una pregunta o un trozo de texto ",
+          "sobre el que quieres trabajar."
+        ),
+        tags$ul(
+          tags$li("El sistema puede añadir contexto oculto (rol, reglas, idioma, etc.)."),
+          tags$li(
+            "Se normaliza el texto (codificación, mayúsculas/minúsculas, caracteres especiales) ",
+            "antes de pasar a la tokenización."
+          )
+        )
+      ),
+
+      # 2) Tokens
+      step_tokens = tagList(
+        h5(bs_icon("braces"), " 2. Tokens: el texto se trocea"),
+        p(
+          "El texto no se procesa palabra por palabra, sino como una secuencia de ",
+          strong("tokens"),
+          ": piezas más pequeñas (sub-palabras, símbolos, signos de puntuación)."
+        ),
+        tags$ul(
+          tags$li(
+            "La tokenización suele usar variantes de ",
+            em("byte-pair encoding (BPE)"),
+            " u otros esquemas descritos en la literatura reciente ",
+            "(Li et al., 2024; artículo de Wikipedia sobre Large language models)."
+          ),
+          tags$li(
+            "Cada token se mapea a un identificador numérico; el prompt completo se convierte ",
+            "en una secuencia de IDs."
+          ),
+          tags$li(
+            "Algunos tokens especiales marcan inicio/fin, saltos de línea, etc. ",
+            "También existen ‘glitch tokens’ que pueden causar comportamientos raros."
+          )
+        )
+      ),
+
+      # 3) Embeddings + posición
+      step_embed = tagList(
+        h5(bs_icon("grid-3x3-gap"), " 3. Embeddings + codificación posicional"),
+        p(
+          "Cada ID de token se transforma en un vector denso de números llamado ",
+          strong("embedding"),
+          ", que captura relaciones semánticas (tokens similares → vectores cercanos)."
+        ),
+        tags$ul(
+          tags$li(
+            "Se suma una ",
+            strong("codificación posicional"),
+            " que indica en qué lugar de la secuencia está cada token ",
+            "(Vaswani et al., 2017)."
+          ),
+          tags$li(
+            "El resultado: una matriz de tamaño ",
+            em("[número de tokens] × [dimensión del embedding]"),
+            " que entra al bloque Transformer."
+          )
+        )
+      ),
+
+      # 4) Bloques Transformer
+      step_transformer = tagList(
+        h5(bs_icon("diagram-3"), " 4. Bloques Transformer: auto-atención"),
+        p(
+          "El corazón del LLM son los bloques ",
+          em("Transformer"),
+          " apilados (por ejemplo, 12, 24 o más capas).",
+          " Cada bloque aplica ",
+          strong("auto-atención multi-cabeza"),
+          " y capas feed-forward (Vaswani et al., 2017)."
+        ),
+        tags$ul(
+          tags$li(
+            strong("Q, K, V (queries, keys, values):"),
+            " para cada token se calculan tres proyecciones lineales; ",
+            "las similitudes Q·K determinan qué tokens deben ‘mirarse’ entre sí."
+          ),
+          tags$li(
+            "La auto-atención produce una versión ",
+            strong("contextualizada"),
+            " de cada token, que incorpora información del resto de la secuencia."
+          ),
+          tags$li(
+            "En modelos generativos se usa atención enmascarada: cada posición sólo ve ",
+            "tokens anteriores, preservando la naturaleza de predicción paso a paso."
+          )
+        )
+      ),
+
+      # 5) Softmax y muestreo
+      step_output = tagList(
+        h5(bs_icon("cursor-text"), " 5. Softmax y muestreo: elegir la siguiente palabra"),
+        p(
+          "Tras los bloques Transformer, cada posición produce un vector de ",
+          em("logits"),
+          " (un número por token posible del vocabulario)."
+        ),
+        tags$ul(
+          tags$li(
+            "Una capa lineal + función ",
+            strong("softmax"),
+            " convierten esos logits en una distribución de probabilidad ",
+            "sobre el vocabulario."
+          ),
+          tags$li(
+            "El modelo selecciona el siguiente token mediante ",
+            strong("muestreo"),
+            " (temperatura, top-k, top-p, etc.), ",
+            "lo añade al texto y repite el proceso muchas veces."
+          ),
+          tags$li(
+            "La prioridad es la ",
+            strong("fluidez estadística"),
+            " del texto, no la verdad fáctica; por eso puede alucinar ",
+            "si no se conecta a fuentes externas (Lewis et al., 2020; Huang et al., 2023)."
+          )
         )
       )
     )

@@ -1,5 +1,7 @@
-/* ===== Paleta y tipografía principal ===== */
-/* Tokens globales reutilizables para toda la plataforma */
+/* =========================================================
+   1. TOKENS GLOBALES: paleta y tipografía
+   ========================================================= */
+/* Variables reutilizables para toda la plataforma */
 :root {
   --agro-green: #2F855A;
   --deep-forest: #22543D;
@@ -10,6 +12,9 @@
   --card-shadow: 0 24px 40px rgba(34, 84, 61, 0.18);
 }
 
+/* =========================================================
+   2. BASE: html, body y contenedor general (.app-shell)
+   ========================================================= */
 html {
   scroll-behavior: smooth;
 }
@@ -24,6 +29,7 @@ body {
   min-height: 100vh;
 }
 
+/* Contenedor principal para que ocupe todo el ancho de la página */
 .app-shell .container {
   max-width: none;
   width: 100%;
@@ -31,12 +37,15 @@ body {
   padding-right: clamp(1rem, 3vw, 3rem);
 }
 
+/* Enlaces dentro de la app */
 .app-shell a,
 .app-shell .btn-link {
   color: var(--data-blue);
 }
 
-/* ===== Navegación principal ===== */
+/* =========================================================
+   3. NAVEGACIÓN PRINCIPAL SUPERIOR
+   ========================================================= */
 .app-shell .primary-nav {
   position: sticky;
   top: 0;
@@ -51,6 +60,7 @@ body {
   position: relative;
 }
 
+/* Marca / logo texto */
 .app-shell .primary-nav .brand-link {
   font-family: 'Montserrat', 'Poppins', sans-serif;
   font-weight: 700;
@@ -64,6 +74,7 @@ body {
   color: var(--agro-green);
 }
 
+/* Lista de links de navegación */
 .app-shell .nav-links {
   list-style: none;
   display: flex;
@@ -72,6 +83,7 @@ body {
   padding: 0;
 }
 
+/* Botón de toggle para navegación móvil */
 .app-shell .nav-toggle {
   display: none;
   align-items: center;
@@ -94,6 +106,7 @@ body {
   background-color: rgba(47, 133, 90, 0.12);
 }
 
+/* Barras del ícono hamburguesa */
 .app-shell .nav-toggle-bar {
   display: block;
   width: 24px;
@@ -103,6 +116,7 @@ body {
   transition: transform 0.3s ease, opacity 0.3s ease;
 }
 
+/* Estado abierto del toggle */
 .app-shell .nav-toggle[aria-expanded="true"] .nav-toggle-bar:nth-of-type(1) {
   transform: translateY(6px) rotate(45deg);
 }
@@ -115,6 +129,7 @@ body {
   transform: translateY(-6px) rotate(-45deg);
 }
 
+/* Enlaces de la barra */
 .app-shell .nav-link {
   font-weight: 600;
   color: rgba(31, 41, 51, 0.8);
@@ -127,7 +142,9 @@ body {
   text-decoration: none;
 }
 
-/* ===== Secciones base ===== */
+/* =========================================================
+   4. SECCIONES GENÉRICAS (landing, bio, skills, proyectos, etc.)
+   ========================================================= */
 .app-shell .section {
   padding: 4rem 0;
 }
@@ -153,7 +170,9 @@ body {
   color: rgba(31, 41, 51, 0.75);
 }
 
-/* ===== Hero ===== */
+/* =========================================================
+   5. HERO DE LA LANDING (presentación general)
+   ========================================================= */
 .app-shell .hero-section {
   background: linear-gradient(135deg, rgba(47, 133, 90, 0.12), rgba(43, 108, 176, 0.08));
   padding-top: 6rem;
@@ -186,13 +205,17 @@ body {
   font-weight: 500;
 }
 
+/* Grupo de botones de llamada a la acción */
 .app-shell .hero-cta {
   display: flex;
   flex-wrap: wrap;
   gap: 1rem;
 }
 
-/* CTA buttons aligned with agro palette */
+/* =========================================================
+   6. BOTONES (CTA principal y secundario)
+   ========================================================= */
+/* Botón primario */
 .app-shell .btn-primary {
   background-color: var(--agro-green);
   border-color: var(--agro-green);
@@ -217,6 +240,7 @@ body {
   box-shadow: 0 8px 16px rgba(34, 84, 61, 0.16);
 }
 
+/* Botón outline */
 .app-shell .btn-outline-primary {
   color: var(--deep-forest);
   border-color: var(--deep-forest);
@@ -240,6 +264,7 @@ body {
   box-shadow: 0 8px 16px rgba(34, 84, 61, 0.12);
 }
 
+/* Tarjetas visuales en el hero */
 .app-shell .hero-stat,
 .app-shell .hero-typing {
   max-width: 100%;
@@ -248,7 +273,9 @@ body {
   margin-bottom: 1.5rem;
 }
 
-/* ===== Sobre mí ===== */
+/* =========================================================
+   7. SECCIÓN "SOBRE MÍ"
+   ========================================================= */
 .app-shell .bio-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
@@ -277,7 +304,9 @@ body {
   box-shadow: 0 12px 25px rgba(34, 84, 61, 0.12);
 }
 
-/* ===== Skills ===== */
+/* =========================================================
+   8. SECCIÓN SKILLS / HABILIDADES
+   ========================================================= */
 .app-shell .skills-section .row {
   background: #ffffff;
   border-radius: 24px;
@@ -292,7 +321,9 @@ body {
   color: var(--deep-data-blue);
 }
 
-/* ===== Proyectos ===== */
+/* =========================================================
+   9. SECCIÓN PROYECTOS
+   ========================================================= */
 .app-shell .projects-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
@@ -344,7 +375,9 @@ body {
   text-decoration: underline;
 }
 
-/* ===== CV ===== */
+/* =========================================================
+   10. SECCIÓN CV / DESCARGA CURRÍCULUM
+   ========================================================= */
 .app-shell .cv-section {
   text-align: center;
   background: linear-gradient(135deg, rgba(43, 108, 176, 0.12), rgba(47, 133, 90, 0.12));
@@ -356,7 +389,9 @@ body {
   font-weight: 600;
 }
 
-/* ===== Contacto ===== */
+/* =========================================================
+   11. SECCIÓN CONTACTO
+   ========================================================= */
 .app-shell .contact-section {
   background: #ffffff;
 }
@@ -386,7 +421,10 @@ body {
   text-decoration: underline;
 }
 
-/* ===== Sección de cursos existente ===== */
+/* =========================================================
+   12. LANDING DE CURSOS (cuadro de cursos del repositorio)
+   ========================================================= */
+/* Fondo de la landing de cursos */
 .app-shell .landing-page {
   background: linear-gradient(135deg, rgba(47, 133, 90, 0.12), rgba(43, 108, 176, 0.08));
   min-height: calc(100vh - 40px);
@@ -395,11 +433,13 @@ body {
   padding: 4rem 0;
 }
 
+/* Intro de la landing de cursos */
 .app-shell .landing-intro {
   max-width: 720px;
   margin: 0 auto 3rem auto;
 }
 
+/* Etiqueta superior tipo "kicker" */
 .app-shell .landing-kicker {
   display: inline-flex;
   align-items: center;
@@ -428,6 +468,7 @@ body {
   margin-top: 1rem;
 }
 
+/* Grid de tarjetas de cursos */
 .app-shell .course-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
@@ -435,6 +476,7 @@ body {
   margin-top: 2.5rem;
 }
 
+/* Tarjeta individual de curso en la landing */
 .app-shell .course-card {
   position: relative;
   border: none;
@@ -451,6 +493,7 @@ body {
   transition: transform 0.35s ease, box-shadow 0.35s ease;
 }
 
+/* Hover sobre la tarjeta */
 .app-shell .course-card:hover,
 .app-shell .course-card:focus {
   transform: translateY(-10px);
@@ -458,6 +501,7 @@ body {
   outline: none;
 }
 
+/* Capa de gradiente extra encima de la imagen */
 .app-shell .course-card-overlay {
   position: absolute;
   inset: 0;
@@ -465,6 +509,7 @@ body {
   pointer-events: none;
 }
 
+/* Contenido interno de la tarjeta */
 .app-shell .course-card-body {
   position: relative;
   padding: 2.75rem 2.25rem;
@@ -497,14 +542,19 @@ body {
   margin: 0;
 }
 
+/* =========================================================
+   13. PÁGINA DE CURSO (interior: hero + controles + layout)
+   ========================================================= */
 .app-shell .course-page {
   padding-bottom: 4rem;
 }
 
+/* Permite que el curso use todo el ancho */
 .app-shell .course-page .container {
   max-width: none;
 }
 
+/* Hero superior de la página de curso */
 .app-shell .course-hero {
   background: linear-gradient(135deg, rgba(34, 84, 61, 0.95), rgba(27, 63, 107, 0.9));
   color: #ffffff;
@@ -540,6 +590,7 @@ body {
   color: rgba(255, 255, 255, 0.85);
 }
 
+/* Barra de controles justo debajo del hero */
 .app-shell .course-controls {
   margin-top: -2.5rem;
   background: #ffffff;
@@ -550,6 +601,7 @@ body {
   z-index: 2;
 }
 
+/* Barra de selección de parte, reset, etc. */
 .app-shell .course-control-bar {
   display: flex;
   flex-wrap: wrap;
@@ -558,6 +610,7 @@ body {
   gap: 1rem;
 }
 
+/* Etiqueta de “Parte activa” */
 .app-shell .course-active-part {
   display: inline-flex;
   align-items: center;
@@ -573,6 +626,7 @@ body {
   color: var(--data-blue);
 }
 
+/* Enlace para reiniciar el curso */
 .app-shell .reset-course {
   display: inline-flex;
   align-items: center;
@@ -590,15 +644,19 @@ body {
   transform: translateX(-4px);
 }
 
+/* Layout principal de la página de curso (sidebar + contenido) */
 .app-shell .course-layout {
   margin-top: 3rem;
 }
 
+/* Ajuste del gutter de bootstrap para este layout */
 .app-shell .course-layout .row {
   --bs-gutter-x: 1rem;
 }
 
-/* ===== Sidebar de sesiones ===== */
+/* =========================================================
+   14. SIDEBAR DE SESIONES (índice del curso)
+   ========================================================= */
 .app-shell .course-sidebar {
   background: #ffffff;
   border-radius: 22px;
@@ -610,6 +668,7 @@ body {
   overflow-y: auto;
 }
 
+/* Scrollbar del sidebar */
 .app-shell .course-sidebar::-webkit-scrollbar {
   width: 6px;
 }
@@ -619,6 +678,7 @@ body {
   border-radius: 999px;
 }
 
+/* Encabezado del sidebar */
 .app-shell .sidebar-header {
   display: flex;
   flex-direction: column;
@@ -642,6 +702,7 @@ body {
   color: var(--deep-forest);
 }
 
+/* Resumen de selección actual (curso/parte) */
 .app-shell .sidebar-selection {
   display: flex;
   flex-direction: column;
@@ -666,6 +727,7 @@ body {
   color: var(--deep-forest);
 }
 
+/* Acordeón de partes (Parte I, Parte II, etc.) */
 .app-shell .course-sidebar-accordion .accordion-item {
   border: none;
   background: transparent;
@@ -712,12 +774,14 @@ body {
   background: #ffffff;
 }
 
+/* Lista de sesiones dentro de cada parte */
 .app-shell .session-list {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
 }
 
+/* Botón de cada sesión */
 .app-shell .session-list-item {
   display: flex;
   align-items: center;
@@ -740,6 +804,7 @@ body {
   transform: translateX(4px);
 }
 
+/* Estado activo de la sesión seleccionada */
 .app-shell .session-list-item.active {
   background: var(--agro-green);
   border-color: var(--agro-green);
@@ -747,6 +812,7 @@ body {
   box-shadow: 0 16px 32px rgba(47, 133, 90, 0.2);
 }
 
+/* Índice visual de la sesión (número) */
 .app-shell .session-list-index {
   display: inline-flex;
   align-items: center;
@@ -760,11 +826,13 @@ body {
   font-weight: 700;
 }
 
+/* Índice cuando la sesión está activa */
 .app-shell .session-list-item.active .session-list-index {
   background: rgba(255, 255, 255, 0.18);
   color: #ffffff;
 }
 
+/* Etiqueta con el título de la sesión */
 .app-shell .session-list-label {
   flex: 1 1 auto;
   font-size: 0.95rem;
@@ -773,18 +841,23 @@ body {
   white-space: nowrap;
 }
 
+/* En hover/focus soltamos el wrap para ver títulos largos */
 .app-shell .session-list-item:focus .session-list-label,
 .app-shell .session-list-item:hover .session-list-label {
   overflow: visible;
   white-space: normal;
 }
 
+/* =========================================================
+   15. CONTENIDO DE SESIÓN (header, tabs y cuerpo)
+   ========================================================= */
 .app-shell .course-content {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
 }
 
+/* Encabezado dentro de la sesión (pill + título) */
 .app-shell .session-detail-header {
   margin-top: 3rem;
   margin-bottom: 2rem;
@@ -793,6 +866,7 @@ body {
   gap: 1rem;
 }
 
+/* Pill superior que indica parte/sesión */
 .app-shell .session-detail-pill {
   display: inline-flex;
   align-items: center;
@@ -807,12 +881,14 @@ body {
   color: var(--deep-forest);
 }
 
+/* Título principal de la sesión */
 .app-shell .session-detail-title {
   font-family: 'Montserrat', 'Poppins', sans-serif;
   font-size: 2.1rem;
   font-weight: 700;
 }
 
+/* Contenedor principal de los contenidos de sesión, incl. pestañas */
 .app-shell .session-detail-body {
   background: #ffffff;
   border-radius: 24px;
@@ -821,6 +897,7 @@ body {
   overflow: hidden;
 }
 
+/* Adaptar wrappers de DataTables y navs a todo el ancho */
 .app-shell .session-detail-body .dataTables_wrapper,
 .app-shell .session-detail-body .tab-content,
 .app-shell .session-detail-body .bslib-navs-card,
@@ -828,6 +905,7 @@ body {
   width: 100%;
 }
 
+/* Scroll horizontal en tablas grandes */
 .app-shell .session-detail-body .dataTables_wrapper {
   overflow-x: auto;
 }
@@ -840,6 +918,7 @@ body {
   border: none !important;
 }
 
+/* Quitamos estilos de card extra en navs */
 .app-shell .session-detail-body .bslib-navs-card,
 .app-shell .session-detail-body .card.bslib-navs-card {
   background: transparent;
@@ -852,6 +931,7 @@ body {
   padding: 0;
 }
 
+/* Contenedor de pestañas (.nav-tabs / .nav-pills) dentro de la sesión */
 .app-shell .session-detail-body .nav-tabs,
 .app-shell .session-detail-body .nav-pills {
   display: flex;
@@ -861,20 +941,12 @@ body {
   margin-bottom: 1.75rem;
 }
 
-/* En pantallas grandes: una sola fila de pestañas, con scroll si no alcanza */
-@media (min-width: 992px) {
-  .app-shell .session-detail-body .nav-tabs,
-  .app-shell .session-detail-body .nav-pills {
-    flex-wrap: nowrap;
-    overflow-x: auto;
-  }
-}
-
+/* Estilo de cada pestaña (nav-link) */
 .app-shell .session-detail-body .nav-tabs .nav-link,
 .app-shell .session-detail-body .nav-pills .nav-link {
   flex: 0 0 auto;
   min-width: 110px;
-  max-width: 180px;              /* un poco más compacto para que entren todas */
+  max-width: 180px;              /* compacto para que entren varias */
   text-align: left;
   border: none;
   border-radius: 14px;
@@ -886,10 +958,10 @@ body {
   transition: all 0.25s ease;
   white-space: nowrap;
   overflow: hidden;
-  text-overflow: ellipsis;       /* recorta el texto largo en estado “plegado” */
+  text-overflow: ellipsis;       /* recorta el texto largo por defecto */
 }
 
-/* Cuando una pestaña está expandida (hover/activa), dejamos que se vea todo el título */
+/* Cuando la pestaña está expandida (hover/activa) mostramos todo el título */
 .app-shell .session-detail-body .nav-tabs .nav-link.is-expanded,
 .app-shell .session-detail-body .nav-tabs .nav-link.active,
 .app-shell .session-detail-body .nav-pills .nav-link.is-expanded,
@@ -899,6 +971,7 @@ body {
   overflow: visible;
 }
 
+/* Hover/focus sobre pestañas */
 .app-shell .session-detail-body .nav-tabs .nav-link:hover,
 .app-shell .session-detail-body .nav-tabs .nav-link:focus,
 .app-shell .session-detail-body .nav-pills .nav-link:hover,
@@ -907,6 +980,7 @@ body {
   color: var(--deep-data-blue);
 }
 
+/* Estado activo de la pestaña */
 .app-shell .session-detail-body .nav-tabs .nav-link.active,
 .app-shell .session-detail-body .nav-pills .nav-link.active {
   background-color: var(--agro-green);
@@ -914,6 +988,7 @@ body {
   box-shadow: 0 16px 32px rgba(47, 133, 90, 0.24);
 }
 
+/* Contenido de cada tab-pane */
 .app-shell .session-detail-body .tab-content {
   border: none;
   padding: 0;
@@ -924,6 +999,7 @@ body {
   padding: 0;
 }
 
+/* Estado vacío cuando una sección no tiene contenido */
 .app-shell .empty-state {
   background: rgba(43, 108, 176, 0.1);
   border-radius: 16px;
@@ -933,7 +1009,11 @@ body {
   color: var(--deep-data-blue);
 }
 
-/* ===== Responsivo ===== */
+
+/* =========================================================
+   16. RESPONSIVE / MEDIA QUERIES
+   ========================================================= */
+/* ----- Ajustes para <= 1200px ----- */
 @media (max-width: 1200px) {
   .app-shell .course-sidebar {
     position: static;
@@ -946,8 +1026,9 @@ body {
   }
 }
 
+/* ----- Ajustes para >= 1200px (layout con sidebar más angosto) ----- */
 @media (min-width: 1200px) {
-  /* Plan de estudio un poco más ancho, pero contenido sigue predominando */
+  /* Sidebar ~24% y contenido ~76% */
   .app-shell .course-layout .col-12.col-xl-4 {
     flex: 0 0 24%;
     max-width: 24%;
@@ -963,11 +1044,14 @@ body {
   }
 }
 
+/* ----- Ajustes para <= 992px (nav móvil, tabs con scroll) ----- */
 @media (max-width: 992px) {
+  /* Mostrar botón hamburguesa */
   .app-shell .nav-toggle {
     display: inline-flex;
   }
 
+  /* Menú móvil desplegable */
   .app-shell .nav-links {
     display: none;
     position: absolute;
@@ -983,6 +1067,7 @@ body {
     min-width: 220px;
   }
 
+  /* Menú cuando está abierto */
   .app-shell .nav-links.is-open {
     display: flex;
   }
@@ -991,6 +1076,7 @@ body {
     width: 100%;
   }
 
+  /* Reducir tamaño del título de hero */
   .app-shell .hero-title {
     font-size: 2.4rem;
   }
@@ -1002,8 +1088,16 @@ body {
   .app-shell .session-list-label {
     font-size: 0.92rem;
   }
+
+  /* En pantallas grandes pero < 992px: pestañas en una fila scrollable */
+  .app-shell .session-detail-body .nav-tabs,
+  .app-shell .session-detail-body .nav-pills {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+  }
 }
 
+/* ----- Ajustes para <= 768px ----- */
 @media (max-width: 768px) {
   .app-shell .primary-nav {
     padding: 0.75rem 0;
@@ -1018,7 +1112,9 @@ body {
   }
 }
 
+/* ----- Ajustes para <= 576px ----- */
 @media (max-width: 576px) {
+  /* Botones de hero en columna */
   .app-shell .hero-cta {
     flex-direction: column;
     align-items: stretch;
@@ -1055,6 +1151,7 @@ body {
   }
 }
 
+/* ----- Ajustes para <= 420px ----- */
 @media (max-width: 420px) {
   .app-shell .primary-nav .container {
     flex-wrap: wrap;
@@ -1093,11 +1190,34 @@ body {
   }
 }
 
-/* ====== Mapa de círculos IA / LLM ====== */
+/* ----- Ajustes específicos del widget IA en pantallas pequeñas ----- */
+@media (max-width: 768px) {
+  .ia-map-wrapper {
+    width: 260px;
+    height: 260px;
+  }
+
+  .ia-circle-sub {
+    width: 105px;
+    height: 105px;
+  }
+
+  .ia-circle-btn {
+    width: 100px;
+    height: 100px;
+    font-size: 0.72rem;
+  }
+}
+
+/* =========================================================
+   18. SESION 1: PESTAÑA 1 — QUE ES LA IA
+   ========================================================= */
+/* Contenedor del mapa de círculos IA */
 .ia-map-wrapper {
   position: relative;
-  width: 260px;
-  height: 260px;
+  width: 320px;
+  height: 320px;
+  max-width: 100%;
   margin: 0 auto 1rem auto;
 }
 
@@ -1116,95 +1236,245 @@ body {
   background: radial-gradient(circle at 30% 30%, #f8fafc, #e5f2ff);
 }
 
+/* botón central */
 .ia-circle-btn-main {
   border-radius: 999px;
   white-space: pre-line;
   font-size: 0.85rem;
-  padding: 0.4rem 0.6rem;
+  padding: 0.5rem 0.8rem;
 }
 
 /* Círculos internos */
 .ia-circle-sub {
   position: absolute;
-  width: 110px;
-  height: 110px;
+  width: 120px;
+  height: 120px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
+/* Estilo base de todos los círculos */
 .ia-circle-btn {
-  border-radius: 999px;
-  width: 100px;
-  height: 100px;
+  border-radius: 999px !important;
+  width: 110px;
+  height: 110px;
   white-space: pre-line;
   font-size: 0.78rem;
   line-height: 1.2;
   padding: 0.4rem;
-  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.15);
+  box-shadow: 0 3px 10px rgba(15, 23, 42, 0.18);
+  transition:
+    transform 0.15s ease-out,
+    box-shadow 0.15s ease-out,
+    background-color 0.15s ease-out,
+    color 0.15s ease-out;
 }
 
-.ia-circle-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.25);
+/* Hover visible */
+.ia-circle-btn:hover,
+.ia-circle-btn-main:hover {
+  cursor: pointer;
+  transform: translateY(-4px) scale(1.03);
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.28);
+}
+
+/* Estado seleccionado (se aplica desde JS) */
+.ia-circle-btn.ia-selected {
+  background-color: var(--bs-success, #16a34a) !important;
+  color: #ffffff !important;
+  box-shadow: 0 10px 24px rgba(22, 163, 74, 0.45);
 }
 
 /* Posiciones relativas de cada subcírculo */
 .ia-circle-simbolica {
-  top: 8px;
-  left: 75px;
+  top: 4%;
+  left: 14%;
 }
-
 .ia-circle-ml {
-  top: 88px;
-  right: -8px;
+  top: 10%;
+  right: 4%;
 }
-
 .ia-circle-robotica {
-  bottom: -8px;
-  left: 8px;
+  bottom: -2%;
+  left: 4%;
 }
-
 .ia-circle-llm {
-  bottom: 18px;
-  right: 60px;
+  bottom: 12%;
+  right: 18%;
 }
 
-/* ====== Timeline bonita para la historia de IA ====== */
-.ia-timeline {
-  list-style: none;
-  margin: 0;
-  padding-left: 0;
+/* Ajuste para pantallas pequeñas */
+@media (max-width: 768px) {
+  .ia-map-wrapper {
+    width: 260px;
+    height: 260px;
+  }
+  .ia-circle-sub {
+    width: 105px;
+    height: 105px;
+  }
+  .ia-circle-btn {
+    width: 100px;
+    height: 100px;
+    font-size: 0.72rem;
+  }
 }
 
-.ia-timeline li {
+/* LÍNEA HISTÓRICA IA (lista cronológica) */
+.timeline-wrapper {
   position: relative;
-  padding-left: 1.6rem;
+  padding-left: 30px;
+  /* Crea la línea vertical central */
+  border-left: 3px solid var(--bs-primary-bg-subtle, #cfe2ff);
+  margin-top: 1rem;
+}
+
+.timeline-item {
+  position: relative;
+  margin-bottom: 2rem;
+}
+
+/* Círculo en la línea */
+.timeline-item::before {
+  content: '';
+  position: absolute;
+  /* (30px padding-left) - (15px width / 2) - (3px border-left / 2) */
+  left: -38.5px; 
+  top: 3px;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background-color: var(--bs-primary, #0d6efd);
+  border: 3px solid var(--bs-primary-bg-subtle, #cfe2ff);
+  z-index: 1;
+}
+
+.timeline-year {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--bs-primary, #0d6efd);
+  margin-bottom: 0.25rem;
+}
+
+.timeline-content {
+  font-size: 0.92rem;
+}
+
+/* Destacar el último item (Hoy) */
+.timeline-item:last-child {
+  margin-bottom: 0.5rem;
+}
+
+.timeline-item:last-child::before {
+  background-color: var(--bs-success, #16a34a); /* Verde para "Hoy" */
+}
+
+/* =========================================================
+   18. SESION 1: PESTAÑA 2 — LLM (jerarquía + flujo interno)
+   ========================================================= */
+
+/* Jerarquía IA → ML → DL → NLP → LLM */
+.llm-hierarchy {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  align-items: center;
+  margin-top: 0.5rem;
   margin-bottom: 0.75rem;
 }
 
-.ia-timeline li::before {
-  content: "";
-  position: absolute;
-  left: 0.45rem;
-  top: 0.35rem;
-  width: 0.6rem;
-  height: 0.6rem;
+.llm-level {
   border-radius: 999px;
-  background-color: var(--bs-primary, #0d6efd);
+  padding: 0.25rem 0.7rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  background-color: var(--bs-light, #f8fafc);
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  color: #1f2933;
 }
 
-.ia-timeline li::after {
-  content: "";
-  position: absolute;
-  left: 0.72rem;
-  top: 0.9rem;
-  width: 2px;
-  height: calc(100% - 0.9rem);
-  background-color: rgba(15, 23, 42, 0.12);
+.llm-level-ia  { background-color: #edf2ff; }
+.llm-level-ml  { background-color: #e0fbfc; }
+.llm-level-dl  { background-color: #e6fffa; }
+.llm-level-nlp { background-color: #fff7ed; }
+.llm-level-llm {
+  background-color: var(--bs-success, #16a34a);
+  color: #ffffff;
 }
 
-.ia-timeline li:last-child::after {
-  height: 0;
+/* Flujo de etapas del LLM */
+.llm-flow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  align-items: center;
+  margin: 0.75rem 0 1rem 0;
+}
+
+.llm-step-btn {
+  border-radius: 999px !important;
+  font-size: 0.8rem;
+  padding: 0.4rem 0.9rem;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.15);
+  background-color: #ffffff;
+  border: 1px solid rgba(148, 163, 184, 0.8);
+  transition:
+    transform 0.15s ease-out,
+    box-shadow 0.15s ease-out,
+    background-color 0.15s ease-out,
+    color 0.15s ease-out;
+}
+
+.llm-step-btn:hover {
+  cursor: pointer;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(15, 23, 42, 0.25);
+}
+
+.llm-step-btn.llm-step-selected {
+  background-color: var(--bs-success, #16a34a) !important;
+  color: #ffffff !important;
+  border-color: rgba(22, 163, 74, 0.9) !important;
+}
+
+.llm-flow-arrow {
+  font-size: 0.9rem;
+  color: rgba(100, 116, 139, 0.9);
+}
+
+/* Bloque de detalle del paso */
+.llm-step-detail {
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+}
+
+.llm-step-detail h5 {
+  font-size: 1rem;
+  margin-bottom: 0.4rem;
+}
+
+/* Versión monoespaciada de la tubería */
+.llm-flow-ascii {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+               "Liberation Mono", "Courier New", monospace;
+  font-size: 0.78rem;
+  background-color: #0f172a;
+  color: #e5e7eb;
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.75rem;
+}
+
+/* Responsive: apilar botones en pantallas pequeñas */
+@media (max-width: 768px) {
+  .llm-flow {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .llm-step-btn {
+    width: 100%;
+    text-align: left;
+  }
 }
