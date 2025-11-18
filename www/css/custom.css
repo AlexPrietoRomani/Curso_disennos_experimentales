@@ -1478,3 +1478,378 @@ body {
     text-align: left;
   }
 }
+
+/* =========================================================
+   19. SESION 1: PESTAÑA 3 — Alucinación LLM
+   ========================================================= */
+
+/* Lista base reutilizable */
+.hall-type-list {
+  list-style: none;
+  padding-left: 0;
+  margin-left: 0;
+}
+
+.hall-type-list li {
+  margin-bottom: 0.4rem;
+}
+
+/* Callout suave para riesgo / mensajes clave */
+.hall-risk-callout {
+  border-radius: 0.5rem;
+  padding: 0.6rem 0.75rem;
+  background-color: #fef9c3; /* amarillo suave */
+  border: 1px solid rgba(202, 138, 4, 0.35);
+  color: #78350f;
+}
+
+/* Selector de benchmarks (TruthfulQA / Consistency / RAG) */
+.hall-bench-selector {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0.6rem 0 0.8rem 0;
+}
+
+.hall-bench-btn {
+  border-radius: 999px !important;
+  font-size: 0.78rem;
+  padding: 0.35rem 0.8rem;
+  border-width: 1px;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.12);
+  background-color: #ffffff;
+  transition:
+    transform 0.15s ease-out,
+    box-shadow 0.15s ease-out,
+    background-color 0.15s ease-out,
+    color 0.15s ease-out,
+    border-color 0.15s ease-out;
+}
+
+.hall-bench-btn:hover {
+  cursor: pointer;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(15, 23, 42, 0.22);
+}
+
+/* Estado seleccionado, aplicado desde JS */
+.hall-bench-btn.hall-bench-selected {
+  background-color: var(--bs-success, #16a34a) !important;
+  color: #ffffff !important;
+  border-color: rgba(22, 163, 74, 0.9) !important;
+}
+
+/* Panel de detalle del benchmark */
+.hall-bench-detail {
+  border-radius: 0.6rem;
+  padding: 0.75rem 0.9rem;
+  background-color: #f8fafc;
+  border: 1px solid rgba(148, 163, 184, 0.48);
+  font-size: 0.9rem;
+}
+
+/* Responsive: apilar botones en pantallas pequeñas */
+@media (max-width: 768px) {
+  .hall-bench-selector {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .hall-bench-btn {
+    width: 100%;
+    text-align: left;
+  }
+}
+
+/* =========================================================
+   19. SESION 1: PESTAÑA 4 — RAG / NotebookLM
+   ========================================================= */
+
+/* Columnas de comparación LLM vs RAG */
+.rag-col-compare {
+  background-color: #f9fafb;
+  border-radius: 0.75rem;
+  padding: 0.6rem 0.8rem;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+}
+
+/* Flujo de etapas RAG (NotebookLM) */
+.rag-flow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  align-items: center;
+  margin: 0.9rem 0 1.1rem 0;
+}
+
+.rag-step-btn {
+  border-radius: 999px !important;
+  font-size: 0.8rem;
+  padding: 0.4rem 0.9rem;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.15);
+  background-color: #ffffff;
+  border: 1px solid rgba(148, 163, 184, 0.9);
+  transition:
+    transform 0.15s ease-out,
+    box-shadow 0.15s ease-out,
+    background-color 0.15s ease-out,
+    color 0.15s ease-out;
+}
+
+.rag-step-btn:hover {
+  cursor: pointer;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(15, 23, 42, 0.25);
+}
+
+/* Estado seleccionado en el flujo RAG */
+.rag-step-btn.rag-step-selected {
+  background-color: var(--bs-success, #16a34a) !important;
+  color: #ffffff !important;
+  border-color: rgba(22, 163, 74, 0.9) !important;
+}
+
+.rag-flow-arrow {
+  font-size: 0.9rem;
+  color: rgba(100, 116, 139, 0.9);
+}
+
+/* Bloque de detalle del paso */
+.rag-step-detail {
+  font-size: 0.9rem;
+}
+
+.rag-step-detail h5 {
+  font-size: 1rem;
+  margin-bottom: 0.4rem;
+}
+
+/* Versión monoespaciada del pipeline RAG */
+.rag-flow-ascii {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+               "Liberation Mono", "Courier New", monospace;
+  font-size: 0.78rem;
+  background-color: #020617;
+  color: #e5e7eb;
+  border-radius: 0.5rem;
+  padding: 0.6rem 0.8rem;
+}
+
+/* Responsive: flujo vertical en pantallas pequeñas */
+@media (max-width: 768px) {
+  .rag-flow {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .rag-step-btn {
+    width: 100%;
+    text-align: left;
+  }
+}
+
+/* =========================================================
+   19. SESION 1: PESTAÑA 5 — Flujo 4 pasos (Descubrir–Curar–Consultar–Idear)
+   ========================================================= */
+
+/* NAV / STEPPER DE LOS 4 PASOS */
+.rag-steps-nav .nav-tabs {
+  border-bottom: none;
+  margin-bottom: 0.75rem;
+}
+
+.rag-steps-nav .nav-link {
+  border-radius: 999px;
+  margin-right: 0.4rem;
+  margin-bottom: 0.4rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  background-color: #f3f4f6;
+  border: 1px solid rgba(148, 163, 184, 0.6);
+  color: #111827;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.9rem;
+}
+
+.rag-steps-nav .nav-link .rag-step-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  background-color: var(--bs-primary, #0d6efd);
+  color: #ffffff;
+}
+
+.rag-steps-nav .nav-link.active {
+  background-color: var(--bs-success, #16a34a);
+  border-color: rgba(22, 163, 74, 0.9);
+  color: #ffffff;
+}
+
+.rag-steps-nav .nav-link.active .rag-step-number {
+  background-color: #ffffff;
+  color: var(--bs-success, #16a34a);
+}
+
+/* GENERADOR BOOLEANO: TEXTAREA DE PREVIEW */
+.kw-preview-wrapper textarea {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+               "Liberation Mono", "Courier New", monospace;
+  font-size: 0.8rem;
+  background-color: #0f172a;
+  color: #e5e7eb;
+  border-radius: 0.5rem;
+  min-height: 3.2rem;
+}
+
+/* LISTA EN COLUMNA GUIA RAPIDA */
+.rag-discover-list li + li {
+  margin-top: 0.4rem;
+}
+
+/* Responsive: tabs verticales en pantallas pequeñas */
+@media (max-width: 768px) {
+  .rag-steps-nav .nav-tabs {
+    flex-wrap: wrap;
+  }
+
+  .rag-steps-nav .nav-link {
+    width: 100%;
+  }
+}
+
+/* =========================================================
+   20. SESION 1: PESTAÑA 6 — Catálogo herramientas IA
+   ========================================================= */
+
+.tool-catalog-intro {
+  font-size: 0.92rem;
+}
+
+/* Contenedor del select + tabla */
+.tool-catalog-controls .form-select {
+  max-width: 360px;
+}
+
+.tool-table-wrapper {
+  border-radius: 0.5rem;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  padding: 0.5rem;
+  background-color: #f9fafb;
+}
+
+/* Chips de categoría */
+.tool-cat {
+  display: inline-block;
+  padding: 0.15rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border: 1px solid rgba(148, 163, 184, 0.6);
+  background-color: #ffffff;
+  color: #0f172a;
+}
+
+/* Colores por categoría principal */
+.tool-cat-descubrir {
+  background-color: #e0f2fe; /* azul claro */
+  border-color: #60a5fa;
+}
+
+.tool-cat-consultar-con-citas {
+  background-color: #dcfce7; /* verde claro */
+  border-color: #22c55e;
+}
+
+.tool-cat-gestion-bibliografica
+.tool-cat-gestion-bibliografica {
+  background-color: #fef3c7; /* amarillo */
+  border-color: #f59e0b;
+}
+
+.tool-cat-screening {
+  background-color: #fee2e2; /* rojo suave */
+  border-color: #ef4444;
+}
+
+/* Badge para el flujo 4 pasos */
+.tool-step-badge {
+  display: inline-block;
+  font-size: 0.78rem;
+  border-radius: 999px;
+  padding: 0.15rem 0.55rem;
+  background-color: #0f172a;
+  color: #e5e7eb;
+  white-space: nowrap;
+}
+
+/* Ajustes DataTable (filtro superior y celdas) */
+.tool-table-wrapper .dataTables_filter {
+  margin-bottom: 0.25rem;
+}
+
+.tool-table-wrapper table.dataTable tbody td {
+  vertical-align: top;
+  font-size: 0.88rem;
+}
+
+/* =========================================================
+   20. SESIÓN 1: PESTAÑA 7 — PROMPT PERFECTO
+   ========================================================= */
+
+/* Lista de principios de prompt: un poco más compacta */
+.prompt-principles-list {
+  margin-top: 0.5rem;
+  margin-bottom: 0;
+  padding-left: 1.1rem;
+}
+
+/* Chip / pastilla informativa bajo el contexto */
+.prompt-helper-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: 0.35rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  background-color: rgba(15, 23, 42, 0.03);
+  border: 1px dashed rgba(148, 163, 184, 0.8);
+}
+
+/* Vista previa del prompt: estilo tipo consola */
+.prompt-preview-wrapper textarea.form-control {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+               "Liberation Mono", "Courier New", monospace;
+  font-size: 0.8rem;
+  background-color: #0f172a;
+  color: #e5e7eb;
+  border-radius: 0.6rem;
+  border: 1px solid rgba(15, 23, 42, 0.7);
+}
+
+/* Snippets de ejemplo del banco de prompts */
+.prompt-snippet {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+               "Liberation Mono", "Courier New", monospace;
+  font-size: 0.78rem;
+  white-space: pre-wrap;
+  background: radial-gradient(circle at 0% 0%, #020617 0, #111827 40%, #020617 100%);
+  color: #e5e7eb;
+  border-radius: 0.7rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  box-shadow: 0 6px 20px rgba(15, 23, 42, 0.5);
+}
+
+/* Responsive: que la vista previa sea cómoda en pantallas pequeñas */
+@media (max-width: 768px) {
+  .prompt-preview-wrapper textarea.form-control {
+    min-height: 220px;
+  }
+}
