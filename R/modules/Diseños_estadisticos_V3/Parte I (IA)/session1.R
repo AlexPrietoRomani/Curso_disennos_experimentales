@@ -1600,7 +1600,7 @@ Restricciones:
 
 pestanna8_session1_v3UI <- function(ns) {
   nav_panel(
-    title = "Pestaña9: Referencias bibliográficas",
+    title = "Pestaña8: Referencias bibliográficas",
     layout_column_wrap(
       width = 1,
       card(
