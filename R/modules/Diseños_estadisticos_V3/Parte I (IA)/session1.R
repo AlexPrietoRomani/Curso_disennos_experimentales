@@ -9,7 +9,7 @@
 pestanna1_session1_v3UI <- function(ns) {
   nav_panel(
     title = "Pestaña1: Qué es la IA",
-    icon = bs_icon("diagram-3"), # Icono para la pestaña
+    icon = icon("sitemap"), # Icono para la pestaña
 
     # --- Fila 1: definición + mapa de círculos ---
     layout_column_wrap(
@@ -164,7 +164,7 @@ pestanna1_session1_v3UI <- function(ns) {
           # --- Tab: Línea Histórica (resumen del reporte) ---
           nav_panel(
             "Línea histórica",
-            icon = bs_icon("calendar3"),
+            icon = icon("calendar"),
             div(
               class = "timeline-wrapper",
 
@@ -275,7 +275,7 @@ pestanna1_session1_v3UI <- function(ns) {
           # --- Tab: Ejemplos (Mejorada con iconos y RAG) ---
           nav_panel(
             "Ejemplos en ciencia y agro",
-            icon = bs_icon("lightbulb"),
+            icon = icon("lightbulb"),
             layout_column_wrap(
               width = 1/2,
               card(
@@ -322,7 +322,7 @@ pestanna1_session1_v3UI <- function(ns) {
 pestanna2_session1_v3UI <- function(ns) {
   nav_panel(
     title = "Pestaña2: Qué es un LLM",
-    icon  = bs_icon("chat-square-dots"),
+    icon  = icon("comments"),
 
     # --- Fila 1: definición + fortalezas/limitaciones ---
     layout_column_wrap(
@@ -521,7 +521,7 @@ pestanna2_session1_v3UI <- function(ns) {
 pestanna3_session1_v3UI <- function(ns) {
   nav_panel(
     title = "Pestaña3: Qué es la alucinación de un LLM",
-    icon  = bs_icon("exclamation-octagon"),
+    icon  = icon("exclamation-triangle"),
 
     # --- Fila 1: definición + causas/impacto ---
     layout_column_wrap(
@@ -750,7 +750,7 @@ pestanna3_session1_v3UI <- function(ns) {
 pestanna4_session1_v3UI <- function(ns) {
   nav_panel(
     title = "Pestaña4: Cómo usar RAG / NotebookLM",
-    icon  = bs_icon("journal-richtext"),
+    icon  = icon("book"),
 
     # --- Fila 1: LLM general vs RAG + resumen de NotebookLM ---
     layout_column_wrap(
@@ -941,11 +941,12 @@ pestanna4_session1_v3UI <- function(ns) {
 pestanna5_session1_v3UI <- function(ns) {
   nav_panel(
     title = "Pestaña5: Flujo 4 pasos para búsquedas con IA",
-    icon  = bs_icon("search"),
+    icon  = icon("search"),
 
-    navset_tab(
-      id    = ns("steps_tabs"),
+    div(
       class = "rag-steps-nav",
+      navset_tab(
+        id    = ns("steps_tabs"),
 
       # -------------------------
       # 1) DESCUBRIR
@@ -1226,6 +1227,7 @@ Restricciones:
           )
         )
       )
+      )
     )
   )
 }
@@ -1234,7 +1236,7 @@ Restricciones:
 pestanna6_session1_v3UI <- function(ns) {
   nav_panel(
     title = "Pestaña6: Guías: ResearchRabbit, NotebookLM & Rayyan.ai",
-    icon  = bs_icon("collection"),
+    icon  = icon("layer-group"),
 
     layout_column_wrap(
       width = 1,
@@ -1340,7 +1342,7 @@ pestanna6_session1_v3UI <- function(ns) {
 pestanna7_session1_v3UI <- function(ns) {
   nav_panel(
     title = "Pestaña7: El prompt perfecto",
-    icon  = bs_icon("magic"),
+    icon  = icon("magic"),
 
     # --- Fila 0: Principios de un buen prompt ---
     layout_column_wrap(
