@@ -43,3 +43,15 @@ support_mailto_link <- function(subject = "Soporte cursos", body = NULL) {
   )
   sprintf("mailto:%s?%s", email, query)
 }
+
+# Sanitize ID for HTML elements
+sanitize_id <- function(text) {
+  id <- iconv(text, from = "", to = "ASCII//TRANSLIT")
+  if (is.na(id)) {
+    id <- text
+  }
+  id <- tolower(id)
+  id <- gsub("[^a-z0-9]+", "_", id)
+  id <- gsub("(^_|_$)", "", id)
+  id
+}

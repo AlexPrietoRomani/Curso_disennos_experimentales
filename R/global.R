@@ -23,6 +23,12 @@ source("R/helpers/utils.R")
 # 1.1) Módulos de autenticación
 source("R/modules/auth/register.R")
 source("R/modules/auth/password_reset.R")
+source("R/modules/auth/login_ui.R")
+
+# 1.2) Módulos de UI (Landing, Cursos, Shared)
+source("R/modules/landing/landing_ui.R")
+source("R/modules/courses/courses_ui.R")
+source("R/modules/shared/navbar.R")
 
 # 2) Paquetes: instala automáticamente los críticos si no están
 auto_install_pkgs <- c("mongolite", "sodium", "openssl", "emayili", "shinyjs")

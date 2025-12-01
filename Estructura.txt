@@ -5,8 +5,18 @@ Curso_disennos_experimentales/
 │   ├── global.R
 │   ├── authentication.R    # Utilidades para autenticación (MongoDB + contraseñas)
 │   ├── ui.R                 # Define tema general y delega renderizado dinámico en server
-│   ├── server.R             # Gestiona navegación landing/cursos, módulos y descarga de CV
+│   ├── server.R             # Gestiona navegación y lógica principal
 │   └── modules/
+│       ├── auth/            # Módulos de autenticación
+│       │   ├── login_ui.R
+│       │   ├── register.R
+│       │   └── password_reset.R
+│       ├── landing/         # Módulos de Landing Page
+│       │   └── landing_ui.R
+│       ├── courses/         # Módulos de Cursos
+│       │   └── courses_ui.R
+│       ├── shared/          # Componentes compartidos
+│       │   └── navbar.R
 │       ├── Diseños_estadisticos_V2/
 │       │   ├── Parte I (Básica)/
 │       │   │   ├── session1.R
