@@ -139,7 +139,7 @@ server <- function(input, output, session) {
           div(
             class = "col-lg-5 text-center",
             tags$img(
-              src = "https://media.licdn.com/dms/image/v2/D4E03AQHe7d1z40IRvw/profile-displayphoto-shrink_800_800/B4EZdXkQIzHQAc-/0/1749520811003?e=1764201600&v=beta&t=Or660-mvTYk_XE7ZldpeFH0al8WJuOseQYe1SawSKpA",
+              src = "https://media.licdn.com/dms/image/v2/D4E03AQHe7d1z40IRvw/profile-displayphoto-shrink_800_800/B4EZdXkQIzHQAc-/0/1749520811003?e=1766016000&v=beta&t=55huZY-aTj78-q1f0IArMj4OtqL29xIBRG_pHxKjAe0",
               class = "hero-stat",
               alt = "Imagen de perfíl linkedin"
             )

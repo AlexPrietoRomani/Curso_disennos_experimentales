@@ -1032,8 +1032,8 @@ pestanna5_session1_v3UI <- function(ns) {
 
               div(
                 class = "d-flex gap-2 mt-2",
-                actionButton(ns("kw_build"), "Construir cadena", icon = bs_icon("magic")),
-                downloadButton(ns("kw_download"), "Descargar (.txt)")
+                  actionButton(ns("kw_build"), "Construir cadena"),
+                  downloadButton(ns("kw_download"), "Descargar (.txt)")
               ),
 
               p(
@@ -1464,7 +1464,7 @@ pestanna7_session1_v3UI <- function(ns) {
           ),
 
           hr(),
-          actionButton(ns("pr_reset"), "Limpiar", icon = bs_icon("trash")),
+          actionButton(ns("pr_reset"), "Limpiar"),
           downloadButton(ns("pr_descargar"), "Descargar prompt (.txt)")
         )
       ),
