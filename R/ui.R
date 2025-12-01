@@ -5,6 +5,7 @@ library(bslib)
 
 ui <- fluidPage(
   withMathJax(),
+  shinyjs::useShinyjs(),
   theme = bs_theme(
     version = 5,
     bootswatch = "flatly",

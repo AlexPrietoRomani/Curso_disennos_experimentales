@@ -13,10 +13,19 @@ if (file.exists(project_renviron)) {
 }
 
 # 1) Autenticación
-source("R/authentication.R")
+# 1) Autenticación y Helpers
+# source("R/authentication.R") # Deprecated
+source("R/helpers/auth.R")
+source("R/helpers/db.R")
+source("R/helpers/email.R")
+source("R/helpers/utils.R")
+
+# 1.1) Módulos de autenticación
+source("R/modules/auth/register.R")
+source("R/modules/auth/password_reset.R")
 
 # 2) Paquetes: instala automáticamente los críticos si no están
-auto_install_pkgs <- c("mongolite", "sodium", "openssl")
+auto_install_pkgs <- c("mongolite", "sodium", "openssl", "emayili", "shinyjs")
 
 ensure_default_repos <- function() {
   repos <- getOption("repos"); if (is.null(repos)) repos <- character()
