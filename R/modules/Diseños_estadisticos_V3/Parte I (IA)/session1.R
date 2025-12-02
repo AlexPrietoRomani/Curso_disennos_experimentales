@@ -314,6 +314,44 @@ pestanna1_session1_v3UI <- function(ns) {
           )
         )
       )
+    ),
+
+    # --- Sección adicional: Imagen explicativa ---
+    layout_column_wrap(
+      width = 1,
+      card(
+        card_header(
+          class = "bg-info text-white",
+          "Ubicación de los LLM en el ecosistema de IA"
+        ),
+        card_body(
+          class = "text-center",
+          p(
+            class = "mb-3",
+            "Los Modelos de Lenguaje Grandes (LLM) son una evolución del aprendizaje automático ",
+            "y forman parte de los modelos fundacionales modernos. Las siguientes imágenes ilustran ",
+            "su posición dentro del panorama general de la Inteligencia Artificial:"
+          ),
+          # Botón para cambiar entre imágenes
+          div(
+            class = "mb-3",
+            actionButton(
+              ns("toggle_llm_image"),
+              label = "Cambiar visualización",
+              icon = icon("exchange-alt"),
+              class = "btn-sm btn-outline-info"
+            )
+          ),
+          # Imagen dinámica
+          uiOutput(ns("llm_image_display")),
+          p(
+            class = "text-muted small mt-3",
+            "Los LLM representan la convergencia del aprendizaje profundo (deep learning), ",
+            "el procesamiento de lenguaje natural (NLP) y arquitecturas como Transformers, ",
+            "permitiendo aplicaciones desde asistentes conversacionales hasta análisis de datos agrícolas."
+          )
+        )
+      )
     )
   )
 }
@@ -1665,6 +1703,34 @@ pestanna1_session1_v3_server <- function(input, output, session) {
   observeEvent(input$ia_btn_ml,       { selected_domain("ia_ml")       })
   observeEvent(input$ia_btn_robotica, { selected_domain("ia_robotica") })
   observeEvent(input$ia_btn_llm,      { selected_domain("ia_llm")      })
+
+  # ---- Lógica para alternancia de imágenes LLM ----
+  # Estado de la imagen actual (TRUE = IA_LLM.png, FALSE = Dendograma_LLM.png)
+  current_image <- reactiveVal(TRUE)
+  
+  # Alternar entre imágenes al hacer clic
+  observeEvent(input$toggle_llm_image, {
+    current_image(!current_image())
+  })
+  
+  # Renderizar la imagen actual
+  output$llm_image_display <- renderUI({
+    if (current_image()) {
+      # Primera imagen: Ubicación de LLMs
+      img(
+        src = "images/sesiones/Diseños_estadisticos_V3/session1/IA_LLM.png",
+        alt = "Diagrama mostrando la ubicación de los LLM en la jerarquía de IA",
+        style = "max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);"
+      )
+    } else {
+      # Segunda imagen: Dendograma LLM
+      img(
+        src = "images/sesiones/Diseños_estadisticos_V3/session1/Dendograma_LLM.png",
+        alt = "Dendograma mostrando la evolución y clasificación de LLMs",
+        style = "max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);"
+      )
+    }
+  })
 
   output$ia_map_detail <- renderUI({
     dom <- selected_domain()
