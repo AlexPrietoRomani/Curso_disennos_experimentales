@@ -1,243 +1,106 @@
-# ===============================================================
-# session8.R  —  Sesión 8: Diseños de Bloques Aumentados (DBA)
-# Módulo Shiny: UI + Server
-# Requisitos sugeridos: bslib, shiny, DT, dplyr, readr, ggplot2,
-#                       augmentedRCBD, lmerTest, emmeans, agricolae (opcional)
-# ===============================================================
+# R/modules/Diseños_estadisticos_V3/Parte III (Avanzada)/session8.R
 
-# ---------------------------
-# UI
-# ---------------------------
-session8_v3UI <- function(id) {
-  ns <- NS(id)
-  tagList(
-    div(class = "session-title",
-        h3("Sesión 8: Diseños de Bloques Aumentados")
+# -------------------------------------------------------------------------
+# UI Functions per Tab
+# -------------------------------------------------------------------------
+
+# Pestaña 1: Conceptos
+pestanna1_session8_v3UI <- function(ns) {
+  bslib::nav_panel(
+    title = "1) Conceptos",
+    h4(class = "section-header", "¿Qué es un Diseño de Bloques Aumentados (DBA)?"),
+    div(class = "alert alert-info",
+        p(
+          strong("Contexto:"), " Tienes muchos tratamientos nuevos (genotipos) con ",
+          em("poca semilla"), " (solo alcanza para 1 repetición) y unos pocos ",
+          strong("testigos (checks)"), " con suficiente semilla para repetirse."
+        )
     ),
-    # Contenedor principal con pestañas
-    navset_tab(
-      # ====== Pestaña 1: Contexto & Objetivos ======
-      nav_panel(
-        title = "1) Contexto & objetivos",
-        layout_columns(
-          col_widths = c(6,6),
-          card(
-            h4("¿Cuándo usar un Diseño de Bloques Aumentados (DBA)?"),
-            tags$ul(
-              tags$li("Fases tempranas de fitomejoramiento con muchas líneas y poca semilla."),
-              tags$li("Se replican solo los ", strong("testigos"), " (checks); las nuevas entradas van ", strong("sin replicar"), "."),
-              tags$li("Los testigos actúan como 'sensores' para estimar efectos de ", em("bloque"),
-                      " y el ", em("CME"), " (error experimental) que se usan para ajustar las medias.")
-            ),
-            p("Enfoque clásico (Federer, 1961): ANOVA con testigos → efectos de bloque → ",
-              strong("medias ajustadas"), " para las nuevas entradas."),
-            p("Enfoque moderno (LMM): trata ", em("bloque"), " como aleatorio y permite ",
-              em("recuperar información inter-bloque"), " para estimaciones más precisas de medias (BLUEs) o predicciones (BLUPs)."),
-            tags$hr(),
-            p(em("Aprenderás a ejecutar ambos enfoques y compararlos de forma transparente."))
-          ),
-          card(
-            h4("Objetivos de aprendizaje"),
-            tags$ol(
-              tags$li("Explicar la estructura del DBA: testigos vs. nuevas entradas en bloques."),
-              tags$li("Ejecutar el análisis clásico con ", code("augmentedRCBD()"), "."),
-              tags$li("Ajustar un LMM con ", code("lmerTest::lmer()"), " y obtener LS-means con ", code("emmeans"), "."),
-              tags$li("Comparar rankings y entender por qué LMM suele ser más robusto."),
-              tags$li("Explorar con simulaciones cómo los parámetros del ensayo afectan al ajuste.")
-            ),
-            div(style="font-size: 0.92rem;",
-                tags$details(
-                  tags$summary("Notas rápidas"),
-                  tags$ul(
-                    tags$li("Si no declaras los testigos, ", code("augmentedRCBD()"),
-                            " puede inferirlos por replicación."),
-                    tags$li("Varianza de bloque grande = ajuste importante; con LMM puedes 'tomar prestada' información entre bloques."),
-                    tags$li("Para BLUPs, modela ", code("gen"), " como aleatorio: ", code("yield ~ (1|gen) + (1|block)"))
-                  )
-                )
-            )
-          )
-        )
+    fluidRow(
+      column(
+        width = 6,
+        h5("Estructura"),
+        tags$ul(
+          tags$li(strong("Testigos (Checks):"), " Se repiten en todos (o casi todos) los bloques. Permiten estimar el error y el efecto de bloque."),
+          tags$li(strong("Nuevos (Entries):"), " Aparecen solo una vez en todo el ensayo. Se 'ajustan' usando la información de los testigos.")
+        ),
+        h5("Análisis"),
+        p("Históricamente se usaba un ajuste intra-bloque manual. Hoy, el estándar es ",
+          strong("LMM (Modelos Mixtos)"), " donde los bloques son aleatorios y los tratamientos pueden ser fijos o aleatorios (BLUPs para selección).")
       ),
-
-      # ====== Pestaña 2: Estructura & Diseño ======
-      nav_panel(
-        title = "2) Estructura & diseño",
-        layout_columns(
-          col_widths = c(4,8),
-          card(
-            h4("Fuente de datos"),
-            radioButtons(ns("data_source"), NULL,
-                         choices = c("Usar ejemplo (Pattersen1994)" = "example",
-                                     "Cargar CSV propio" = "upload"),
-                         selected = "example"),
-            conditionalPanel(
-              condition = sprintf("input['%s'] == 'upload'", ns("data_source")),
-              fileInput(ns("file_csv"), "Sube tu CSV", accept = c(".csv"))
-            ),
-            tags$hr(),
-            h5("Mapeo de columnas"),
-            uiOutput(ns("ui_colmap")),
-            tags$hr(),
-            checkboxInput(ns("manual_checks"), "Especificar testigos manualmente", FALSE),
-            conditionalPanel(
-              condition = sprintf("input['%s']", ns("manual_checks")),
-              textAreaInput(ns("checks_text"),
-                            "Nombres de testigos (separados por coma):",
-                            placeholder = "Ej.: st, ci, wa")
-            ),
-            tags$hr(),
-            checkboxInput(ns("use_agricolae_gen"),
-                          "Generar diseño de ejemplo (opcional, agricolae::design.dau)", FALSE),
-            conditionalPanel(
-              condition = sprintf("input['%s']", ns("use_agricolae_gen")),
-              numericInput(ns("gen_b"), "N° de bloques (b)", 6, min = 2, step = 1),
-              numericInput(ns("gen_c"), "N° de testigos (c)", 3, min = 1, step = 1),
-              numericInput(ns("gen_k"), "Entradas nuevas por bloque (k)", 5, min = 1, step = 1),
-              actionButton(ns("btn_gen"), "Generar diseño")
-            )
-          ),
-          card(
-            h4("Vista del libro de campo / datos"),
-            div(style="margin-bottom:8px;",
-                helpText("Se espera al menos: una columna de bloque, una de genotipo y una de respuesta (rendimiento).")
-            ),
-            DT::DTOutput(ns("tbl_preview")),
-            tags$hr(),
-            fluidRow(
-              column(6, verbatimTextOutput(ns("txt_summary_short"))),
-              column(6, verbatimTextOutput(ns("txt_checks_info")))
-            )
-          )
+      column(
+        width = 6,
+        h5("Ventajas"),
+        tags$ul(
+          tags$li("Permite evaluar cientos de líneas en etapas tempranas."),
+          tags$li("Uso eficiente del espacio y semilla."),
+          tags$li("Flexible en tamaño de bloque.")
+        ),
+        div(class = "note-cloud",
+            p("Paquete clave: ", code("agricolae"), " (función design.dau) o ", code("FielDHub"), ".")
         )
-      ),
+      )
+    )
+  )
+}
 
-      # ====== Pestaña 3: Análisis clásico (Federer) ======
-      nav_panel(
-        title = "3) Análisis clásico (augmentedRCBD)",
-        layout_columns(
-          col_widths = c(4,8),
-          card(
-            h4("Parámetros"),
-            selectInput(ns("classic_method"),
-                        "Método de comparación múltiple",
-                        choices = c("lsd", "tukey", "none"),
-                        selected = "lsd"),
-            checkboxInput(ns("classic_group"), "Agrupar por letras (CLD)", TRUE),
-            actionButton(ns("btn_run_classic"), "Ejecutar análisis clásico")
+# Pestaña 2: Generar Diseño
+pestanna2_session8_v3UI <- function(ns) {
+  bslib::nav_panel(
+    title = "2) Generar Diseño",
+    p("Genera un DBA usando ", code("agricolae::design.dau"), "."),
+    sidebarLayout(
+      sidebarPanel(
+        width = 4,
+        textInput(ns("checks_txt"), "Testigos (separados por coma):", value = "CheckA, CheckB, CheckC"),
+        numericInput(ns("n_new"), "Número de Nuevos Tratamientos:", value = 90, min = 10),
+        numericInput(ns("n_blocks"), "Número de Bloques:", value = 5, min = 2),
+        actionButton(ns("btn_gen_dba"), "Generar DBA", class = "btn btn-primary w-100"),
+        hr(),
+        uiOutput(ns("ui_dl_dba"))
+      ),
+      mainPanel(
+        width = 8,
+        tags$h5("Resumen del Diseño"),
+        verbatimTextOutput(ns("out_dba_summary")),
+        tags$h5("Fieldbook (primeras filas)"),
+        DT::dataTableOutput(ns("tbl_dba_book")),
+        hr(),
+        tags$h5("Distribución en Bloques"),
+        plotOutput(ns("plot_dba_map"), height = "350px")
+      )
+    )
+  )
+}
+
+# Pestaña 3: Análisis (Simulación)
+pestanna3_session8_v3UI <- function(ns) {
+  bslib::nav_panel(
+    title = "3) Análisis (Simulación)",
+    p("Simula datos para un DBA y compáralo con un análisis naive."),
+    sidebarLayout(
+      sidebarPanel(
+        width = 4,
+        tags$h5("Parámetros"),
+        numericInput(ns("sim_mu"), "Media General:", 100),
+        numericInput(ns("sim_sigma_g"), "SD Genotipos (Nuevos):", 10),
+        numericInput(ns("sim_sigma_b"), "SD Bloques:", 15),
+        numericInput(ns("sim_sigma_e"), "SD Residual:", 5),
+        actionButton(ns("btn_sim_dba"), "Simular y Analizar", class = "btn btn-success w-100")
+      ),
+      mainPanel(
+        width = 8,
+        bslib::navset_card_pill(
+          bslib::nav_panel("Análisis Clásico (augmentedRCBD)",
+                    p("Usa el paquete ", code("augmentedRCBD"), " (si disponible) o ANOVA ajustado."),
+                    verbatimTextOutput(ns("out_aug_classic"))
           ),
-          card(
-            h4("Resultados"),
-            tabsetPanel(
-              tabPanel("ANOVA (solo testigos / ajuste)", verbatimTextOutput(ns("out_classic_anova"))),
-              tabPanel("Efectos de bloque", verbatimTextOutput(ns("out_block_eff"))),
-              tabPanel("Medias ajustadas (todas)", DT::DTOutput(ns("tbl_classic_means"))),
-              tabPanel("Comparaciones (si aplica)", DT::DTOutput(ns("tbl_classic_comparisons")))
-            )
-          )
-        )
-      ),
-
-      # ====== Pestaña 4: LMM integrado ======
-      nav_panel(
-        title = "4) LMM integrado (lmerTest + emmeans)",
-        layout_columns(
-          col_widths = c(4,8),
-          card(
-            h4("Modelo"),
-            radioButtons(ns("lmm_gen_role"), "Tratamiento (gen):",
-                         choices = c("Fijo (BLUEs / LS-means)" = "fixed",
-                                     "Aleatorio (BLUPs)" = "random"),
-                         selected = "fixed"),
-            actionButton(ns("btn_run_lmm"), "Ajustar LMM")
-          ),
-          card(
-            h4("Salida"),
-            tabsetPanel(
-              tabPanel("Resumen modelo", verbatimTextOutput(ns("out_lmm_summary"))),
-              tabPanel("VarCorr (componentes de varianza)", verbatimTextOutput(ns("out_varcorr"))),
-              tabPanel("LS-means (si gen = fijo)", DT::DTOutput(ns("tbl_lsmeans"))),
-              tabPanel("BLUPs (si gen = aleatorio)", DT::DTOutput(ns("tbl_blups")))
-            )
-          )
-        )
-      ),
-
-      # ====== Pestaña 5: Comparativa & ranking ======
-      nav_panel(
-        title = "5) Comparativa & ranking",
-        layout_columns(
-          col_widths = c(4,8),
-          card(
-            h4("Opciones"),
-            numericInput(ns("topN"), "Top N para mostrar", value = 15, min = 3, step = 1)
-          ),
-          card(
-            h4("Comparativa medias ajustadas"),
-            plotOutput(ns("plt_compare"), height = "340px"),
-            DT::DTOutput(ns("tbl_compare_top"))
-          )
-        )
-      ),
-
-      # ====== Pestaña 6: Ejercicios prácticos ======
-      nav_panel(
-        title = "6) Ejercicios prácticos (simulación)",
-        layout_columns(
-          col_widths = c(4,8),
-          card(
-            h4("Parámetros de simulación"),
-            numericInput(ns("sim_b"), "Bloques (b)", 6, min = 2),
-            numericInput(ns("sim_c"), "Testigos (c)", 3, min = 1),
-            numericInput(ns("sim_k"), "Entradas nuevas por bloque (k)", 5, min = 1),
-            numericInput(ns("sim_mu"), "Media general (μ)", 2800, step = 10),
-            numericInput(ns("sim_sd_block"), "Desv.Est. de bloque", 120, min = 0),
-            numericInput(ns("sim_sd_res"), "Desv.Est. residual", 180, min = 0),
-            actionButton(ns("btn_sim"), "Simular y analizar")
-          ),
-          card(
-            h4("Resultados de la simulación"),
-            p("Se ejecuta el análisis clásico (augmentedRCBD) y el LMM de forma automática para el set simulado."),
-            DT::DTOutput(ns("tbl_sim_compare")),
-            plotOutput(ns("plt_sim_compare"), height = "320px")
-          )
-        )
-      ),
-
-      # ====== Pestaña 7: Referencias ======
-      nav_panel(
-        title = "7) Referencias (APA)",
-        card(
-          h4("Fuentes clave"),
-          tags$ul(
-            tags$li("Federer, W. T. (1961). Augmented designs with one-way elimination of heterogeneity. ",
-                    em("Biometrics, 17(3)"), " 447–473. doi:10.2307/2527837"),
-            tags$li("Yates, F. (1940). The recovery of inter-block information in balanced incomplete block designs. ",
-                    em("Annals of Eugenics, 10(1)"), " 317–325."),
-            tags$li("Paquete ", code("augmentedRCBD"), " (CRAN): ",
-                    a("https://cran.r-project.org/package=augmentedRCBD",
-                      href="https://cran.r-project.org/package=augmentedRCBD", target="_blank")),
-            tags$li(code("augmentedRCBD()"), " (Referencia): ",
-                    a("aravind-j.github.io/augmentedRCBD/reference/augmentedRCBD.html",
-                      href="https://aravind-j.github.io/augmentedRCBD/reference/augmentedRCBD.html", target="_blank")),
-            tags$li("Vignette: Data Analysis with augmentedRCBD: ",
-                    a("aravind-j.github.io/.../Data_Analysis_with_augmentedRCBD.html",
-                      href="https://aravind-j.github.io/augmentedRCBD/articles/Data_Analysis_with_augmentedRCBD.html", target="_blank")),
-            tags$li("Tutorial DSFAIR (Pattersen1994): ",
-                    a("schmidtpaul.github.io/DSFAIR/augmented_Pattersen1994.html",
-                      href="https://schmidtpaul.github.io/DSFAIR/augmented_Pattersen1994.html", target="_blank")),
-            tags$li(code("agricolae::design.dau"), " (manual): ",
-                    a("rdrr.io/cran/agricolae/man/design.dau.html",
-                      href="https://rdrr.io/cran/agricolae/man/design.dau.html", target="_blank")),
-            tags$li("lmerTest (CRAN): ",
-                    a("https://cran.r-project.org/package=lmerTest",
-                      href="https://cran.r-project.org/package=lmerTest", target="_blank")),
-            tags$li("emmeans (CRAN): ",
-                    a("https://cran.r-project.org/package=emmeans",
-                      href="https://cran.r-project.org/package=emmeans", target="_blank")),
-            tags$li("lme4::VarCorr (help): ",
-                    a("search.r-project.org/CRAN/refmans/lme4/html/VarCorr.html",
-                      href="https://search.r-project.org/CRAN/refmans/lme4/html/VarCorr.html", target="_blank"))
+          bslib::nav_panel("Análisis LMM (lme4)",
+                    p("Modelo: Y ~ Tipo + (1|Bloque) + (1|Genotipo:Tipo) ... o similar."),
+                    tags$div(class="alert alert-secondary",
+                             "Aquí asumimos Genotipos como Aleatorios (BLUPs) para ranking."),
+                    verbatimTextOutput(ns("out_aug_lmm")),
+                    plotOutput(ns("plot_blups"), height = "300px")
           )
         )
       )
@@ -245,408 +108,231 @@ session8_v3UI <- function(id) {
   )
 }
 
-# ---------------------------
-# SERVER
-# ---------------------------
-session8_v3Server <- function(input, output, session) {
-
-  # ---- Helpers de disponibilidad de paquetes ----
-  .need_pkg <- function(pkgs) {
-    missing <- pkgs[!vapply(pkgs, requireNamespace, logical(1), quietly = TRUE)]
-    if (length(missing)) {
-      stop(sprintf("Faltan paquetes: %s\nInstálalos con install.packages(c(%s))",
-                   paste(missing, collapse = ", "),
-                   paste(sprintf('"%s"', missing), collapse = ", ")),
-           call. = FALSE)
-    }
-  }
-
-  # ---- Datos (carga / mapeo de columnas) ----
-  # Reactivo: dataset base
-  dat_base <- reactive({
-    if (input$data_source == "example") {
-      # Pattersen1994 (DSFAIR)
-      # Si falla la descarga, produce error claro
-      url <- "https://raw.githubusercontent.com/SchmidtPaul/DSFAIR/master/data/Pattersen1994.csv"
-      df <- try(suppressWarnings(read.csv(url, stringsAsFactors = FALSE)), silent = TRUE)
-      if (inherits(df, "try-error") || !nrow(df)) {
-        stop("No se pudo leer el dataset de ejemplo desde DSFAIR. Verifica tu conexión.")
-      }
-      # Esperado: columnas block, gen, yield
-      df
-    } else {
-      file <- input$file_csv
-      validate(need(!is.null(file), "Sube un CSV para continuar."))
-      df <- try(suppressWarnings(read.csv(file$datapath, stringsAsFactors = FALSE)), silent = TRUE)
-      if (inherits(df, "try-error") || !nrow(df)) {
-        stop("No se pudo leer el CSV subido.")
-      }
-      df
-    }
-  })
-
-  # UI dinámico para mapear columnas
-  output$ui_colmap <- renderUI({
-    df <- dat_base()
-    cols <- names(df)
-    ns <- session$ns
-    tagList(
-      selectInput(ns("col_block"), "Columna de bloque", choices = cols,
-                  selected = if ("block" %in% cols) "block" else cols[1]),
-      selectInput(ns("col_gen"), "Columna de genotipo (tratamiento)", choices = cols,
-                  selected = if ("gen" %in% cols) "gen" else cols[2]),
-      selectInput(ns("col_y"), "Columna de respuesta (rendimiento)", choices = cols,
-                  selected = if ("yield" %in% cols) "yield" else cols[3])
+# Pestaña 4: Ejercicios
+pestanna4_session8_v3UI <- function(ns) {
+  bslib::nav_panel(
+    title = "4) Ejercicios",
+    tags$ol(
+      tags$li("Diseña un ensayo para 200 líneas nuevas y 4 testigos en 10 bloques."),
+      tags$li("¿Cuántas parcelas totales necesitas? (Verifica en la pestaña 2)."),
+      tags$li("Simula datos con alta variabilidad de bloque (SD=20)."),
+      tags$li("Corre el análisis LMM y extrae los BLUPs de los genotipos nuevos."),
+      tags$li("Identifica el 'Top 5' de genotipos superiores a los testigos.")
     )
-  })
+  )
+}
 
-  # Dataset armonizado (block, gen, yield)
-  dat_harmonized <- reactive({
-    df <- dat_base()
-    req(input$col_block, input$col_gen, input$col_y)
-    # Selección y renombre seguro
-    df <- df[, c(input$col_block, input$col_gen, input$col_y), drop = FALSE]
-    names(df) <- c("block", "gen", "yield")
-    # Coerción a tipos esperados
-    df$block <- as.factor(df$block)
-    df$gen   <- as.factor(df$gen)
-    df$yield <- suppressWarnings(as.numeric(df$yield))
-    validate(need(!anyNA(df$yield), "Hay NA en 'yield' tras coerción. Revisa tu columna de respuesta."))
-    df
-  })
+# Pestaña 5: Referencias
+pestanna5_session8_v3UI <- function(ns) {
+  bslib::nav_panel(
+    title = "Referencias",
+    tags$ul(
+      tags$li("Federer, W.T. (1956). Augmented (or hoonuiaku) designs."),
+      tags$li("agricolae: Statistical Procedures for Agricultural Research."),
+      tags$li("augmentedRCBD: Analysis of Augmented Randomised Complete Block Designs. ",
+              tags$a(href="https://cran.r-project.org/package=augmentedRCBD", target="_blank", "CRAN Link"))
+    )
+  )
+}
 
-  # Vista previa + resumen corto
-  output$tbl_preview <- DT::renderDT({
-    DT::datatable(head(dat_harmonized(), 20), options = list(pageLength = 10), rownames = FALSE)
-  })
+# -------------------------------------------------------------------------
+# Main UI
+# -------------------------------------------------------------------------
 
-  output$txt_summary_short <- renderPrint({
-    df <- dat_harmonized()
-    cat("Observaciones:", nrow(df), "\n")
-    cat("Bloques:", nlevels(df$block), "— niveles:", paste(levels(df$block), collapse = ", "), "\n")
-    cat("Genotipos:", nlevels(df$gen), "— algunos:", paste(head(levels(df$gen), 8), collapse = ", "), "...\n")
-    s <- summary(df$yield)
-    print(s)
-  })
+session8_v3UI <- function(id) {
+  ns <- NS(id)
+  tagList(
+    div(class = "session-title",
+        h3("Sesión 8: Diseños de Bloques Aumentados (DBA)")
+    ),
+    navset_tab(
+      pestanna1_session8_v3UI(ns),
+      pestanna2_session8_v3UI(ns),
+      pestanna3_session8_v3UI(ns),
+      pestanna4_session8_v3UI(ns),
+      pestanna5_session8_v3UI(ns)
+    )
+  )
+}
 
-  # Identificación de testigos
-  # - Manual (texto) o automática por replicación total en todos los bloques
-  auto_checks <- reactive({
-    df <- dat_harmonized()
-    # frecuencia por bloque
-    tab <- table(df$gen, df$block)
-    # testigo = aparece en todos los bloques (replicado en cada bloque)
-    gens_all_blocks <- rownames(tab)[apply(tab > 0, 1, all)]
-    sort(gens_all_blocks)
-  })
+# -------------------------------------------------------------------------
+# Server Functions per Tab
+# -------------------------------------------------------------------------
 
-  checks_vec <- reactive({
-    if (isTRUE(input$manual_checks) && nzchar(input$checks_text)) {
-      ch <- trimws(unlist(strsplit(input$checks_text, ",")))
-      as.character(ch[ch != ""])
-    } else {
-      auto_checks()
+pestanna1_session8_v3_server <- function(input, output, session) {
+  # No server logic needed
+}
+
+pestanna2_session8_v3_server <- function(input, output, session, dba_design, has_pkg) {
+  ns <- session$ns
+  
+  observeEvent(input$btn_gen_dba, {
+    if (!has_pkg("agricolae")) {
+      showNotification("Instale 'agricolae' para usar esta función.", type="error")
+      return()
     }
+
+    checks <- strsplit(input$checks_txt, "\\s*,\\s*")[[1]]
+    checks <- checks[checks != ""]
+    n_new <- input$n_new
+    n_blocks <- input$n_blocks
+
+    if (length(checks) < 1) {
+      showNotification("Ingrese al menos 1 testigo.", type="error")
+      return()
+    }
+
+    new_trts <- paste0("New", 1:n_new)
+    trts <- c(checks, new_trts)
+
+    tryCatch({
+      des <- agricolae::design.dau(trt1 = checks, trt2 = new_trts, r = n_blocks, serie = 2, seed = 123)
+      dba_design(des)
+      showNotification("Diseño DBA generado.", type="message")
+    }, error = function(e) {
+      showNotification(paste("Error generando diseño:", e$message), type="error")
+    })
   })
 
-  output$txt_checks_info <- renderPrint({
-    ch <- checks_vec()
-    cat("Testigos detectados:", if (length(ch)) paste(ch, collapse = ", ") else "(ninguno)")
+  output$out_dba_summary <- renderPrint({
+    des <- dba_design(); shiny::req(des)
+    cat("Parámetros del diseño:\n")
+    print(des$parameters)
+    cat("\nDimensiones del Fieldbook:\n")
+    print(dim(des$book))
   })
 
-  # ---- (Opcional) Generación de diseño con agricolae::design.dau ----
-  observeEvent(input$btn_gen, {
-    .need_pkg(c("agricolae", "dplyr"))
-    b <- input$gen_b; cks <- input$gen_c; k <- input$gen_k
-    validate(need(b > 1 && cks >= 1 && k >= 1, "Parámetros inválidos."))
+  output$tbl_dba_book <- DT::renderDataTable({
+    des <- dba_design(); shiny::req(des)
+    DT::datatable(des$book, options = list(pageLength = 5, scrollX = TRUE))
+  })
 
-    # Creamos etiquetas
-    checks <- paste0("T", seq_len(cks))
-    n_new  <- b * k
-    news   <- paste0("N", seq_len(n_new))
-
-    # Agricolae genera diseño base de aumentados (checks replicados; new sin replicar)
-    set.seed(123)
-    des <- agricolae::design.dau(trt1 = checks, r = b, trt2 = news, seed = 123)
-
-    # Construimos data.frame con estructura block, gen, yield (yield vacío)
+  output$plot_dba_map <- renderPlot({
+    des <- dba_design(); shiny::req(des)
     fb <- des$book
-    names(fb) <- tolower(names(fb))
-    # Esperados en book: block, plots, trt1/trt2
-    # Unificamos tratamiento en 'gen'
-    fb$gen <- ifelse(!is.na(fb$trt1), fb$trt1, fb$trt2)
-    df <- fb[, c("block", "gen")]
-    df$yield <- NA_real_
+    library(ggplot2)
+    fb <- fb %>% dplyr::group_by(block) %>% dplyr::mutate(pos = 1:dplyr::n())
 
-    showModal(modalDialog(
-      title = "Diseño generado",
-      div("Se generó un diseño aumentado con:",
-          tags$ul(
-            tags$li(sprintf("%d bloques", b)),
-            tags$li(sprintf("%d testigos", cks)),
-            tags$li(sprintf("%d entradas nuevas (total)", n_new))
-          ),
-          "Puedes exportar el 'book' original desde agricolae si lo deseas."
-      ),
-      easyClose = TRUE
-    ))
+    checks <- des$parameters$trt1
+    fb$Type <- ifelse(fb$trt %in% checks, "Check", "New")
 
-    # Sobrescribir fuente de datos (solo en memoria de esta sesión)
-    # Nota: no sustituimos dat_base(); mostramos en preview
-    output$tbl_preview <- DT::renderDT({
-      DT::datatable(head(df, 25), options = list(pageLength = 10), rownames = FALSE)
-    })
-
-  }, ignoreInit = TRUE)
-
-  # =========================================================
-  #  Pestaña 3 — Análisis clásico: augmentedRCBD
-  # =========================================================
-  classic_fit <- eventReactive(input$btn_run_classic, {
-    .need_pkg(c("augmentedRCBD"))
-    df <- dat_harmonized()
-    ch <- checks_vec()
-    method <- input$classic_method
-    group  <- isTRUE(input$classic_group)
-
-    validate(need(nlevels(df$block) >= 2, "Se requieren ≥ 2 bloques"))
-    validate(need(nlevels(df$gen)   >= 3, "Se requieren ≥ 3 genotipos"))
-
-    # augmentedRCBD infiere checks si no se pasan
-    out <- augmentedRCBD::augmentedRCBD(
-      block     = df$block,
-      treatment = df$gen,
-      y         = df$yield,
-      checks    = if (length(ch)) ch else NULL,
-      method.comp = method,
-      group       = group,
-      simplify    = TRUE,
-      console     = FALSE
-    )
-    out
+    ggplot(fb, aes(x = factor(block), y = pos, fill = Type, label = trt)) +
+      geom_tile(color = "white") +
+      geom_text(size = 3) +
+      scale_fill_manual(values = c("Check" = "#ff7f0e", "New" = "#1f77b4")) +
+      labs(x = "Bloque", y = "Posición en Bloque", title = "Mapa del Diseño DBA") +
+      theme_minimal()
   })
 
-  # Salidas clásicas
-  output$out_classic_anova <- renderPrint({
-    out <- classic_fit()
-    cat("ANOVA (Treatment Adjusted / Block Adjusted)\n")
-    # El objeto simplificado devuelve data.frames; mostramos ambos si existen
-    if (!is.null(out$`ANOVA, Treatment Adjusted`)) {
-      cat("\n--- ANOVA, Treatment Adjusted ---\n")
-      print(out$`ANOVA, Treatment Adjusted`)
-    }
-    if (!is.null(out$`ANOVA, Block Adjusted`)) {
-      cat("\n--- ANOVA, Block Adjusted ---\n")
-      print(out$`ANOVA, Block Adjusted`)
-    }
-    if (!is.null(out$`Overall adjusted mean`)) {
-      cat("\nOverall adjusted mean:", out$`Overall adjusted mean`, "\n")
-    }
-    if (!is.null(out$`CV`)) {
-      cat("CV (%):", round(as.numeric(out$`CV`), 3), "\n")
-    }
+  output$ui_dl_dba <- renderUI({
+    shiny::req(dba_design())
+    downloadButton(ns("dl_dba_csv"), "Descargar Fieldbook", class = "btn-secondary w-100")
   })
 
-  output$out_block_eff <- renderPrint({
-    out <- classic_fit()
-    if (!is.null(out$`Block effects`)) {
-      cat("Efectos de bloque (factor de ajuste por bloque):\n")
-      print(out$`Block effects`)
+  output$dl_dba_csv <- downloadHandler(
+    filename = function() { "dba_design.csv" },
+    content = function(file) {
+      write.csv(dba_design()$book, file, row.names = FALSE)
+    }
+  )
+}
+
+pestanna3_session8_v3_server <- function(input, output, session, dba_design, sim_dba_data, has_pkg) {
+  output$out_aug_classic <- renderPrint({
+    df <- sim_dba_data(); shiny::req(df)
+    if (has_pkg("augmentedRCBD")) {
+      tbl <- table(df$trt)
+      checks <- names(tbl)[tbl > 1]
+      cat("Checks detectados:", paste(checks, collapse=", "), "\n\n")
+
+      res <- augmentedRCBD::augmentedRCBD(df$block, df$trt, df$Y, method.comp = "lsd", alpha=0.05, group=FALSE, console=TRUE)
+      print(res$ANOVA)
     } else {
-      cat("No disponible en salida.")
+      cat("Paquete 'augmentedRCBD' no instalado. Mostrando ANOVA simple (lm).\n")
+      m <- lm(Y ~ factor(block) + factor(trt), data=df)
+      print(anova(m))
     }
   })
 
-  output$tbl_classic_means <- DT::renderDT({
-    out <- classic_fit()
-    req(out$Means)
-    DT::datatable(out$Means, options = list(pageLength = 10), rownames = FALSE)
+  output$out_aug_lmm <- renderPrint({
+    df <- sim_dba_data(); shiny::req(df)
+    library(lmerTest)
+    m <- lmer(Y ~ (1|block) + (1|trt), data=df)
+    print(summary(m))
+
+    session$userData$dba_lmm <- m
   })
 
-  output$tbl_classic_comparisons <- DT::renderDT({
-    out <- classic_fit()
-    if (!is.null(out$Comparisons)) {
-      DT::datatable(out$Comparisons, options = list(pageLength = 10), rownames = FALSE)
+  output$plot_blups <- renderPlot({
+    m <- session$userData$dba_lmm; shiny::req(m)
+    ran <- lme4::ranef(m)$trt
+    ran$Trt <- rownames(ran)
+    names(ran)[1] <- "BLUP"
+
+    top <- ran %>% dplyr::arrange(desc(BLUP)) %>% head(20)
+
+    ggplot2::ggplot(top, ggplot2::aes(x = reorder(Trt, BLUP), y = BLUP)) +
+      ggplot2::geom_col(fill = "steelblue") +
+      ggplot2::coord_flip() +
+      ggplot2::labs(x = "Genotipo", y = "BLUP (Efecto Estimado)", title = "Top 20 Genotipos (BLUPs)") +
+      ggplot2::theme_minimal()
+  })
+}
+
+pestanna4_session8_v3_server <- function(input, output, session) {
+  # No server logic needed
+}
+
+pestanna5_session8_v3_server <- function(input, output, session) {
+  # No server logic needed
+}
+
+# -------------------------------------------------------------------------
+# Main Server
+# -------------------------------------------------------------------------
+
+session8_v3Server <- function(input, output, session) {
+  ns <- session$ns
+
+  # Helpers
+  has_pkg <- function(p) requireNamespace(p, quietly=TRUE)
+
+  # Reactives
+  dba_design <- reactiveVal(NULL)
+
+  sim_dba_data <- eventReactive(input$btn_sim_dba, {
+    des <- dba_design()
+    if (is.null(des)) {
+      checks <- c("C1", "C2")
+      new_trts <- paste0("N", 1:20)
+      des <- agricolae::design.dau(checks, new_trts, r=4, serie=2, seed=123)
     }
-  })
+    fb <- des$book
 
-  # =========================================================
-  #  Pestaña 4 — LMM integrado: lmerTest + emmeans
-  # =========================================================
-  lmm_fit <- eventReactive(input$btn_run_lmm, {
-    .need_pkg(c("lmerTest"))
-    df <- dat_harmonized()
-    validate(need(nlevels(df$block) >= 2, "Se requieren ≥ 2 bloques"))
-
-    if (identical(input$lmm_gen_role, "fixed")) {
-      # gen fijo → BLUEs via emmeans
-      fit <- lmerTest::lmer(yield ~ gen + (1|block), data = df)
-      return(list(model = fit, role = "fixed"))
-    } else {
-      # gen aleatorio → BLUPs
-      fit <- lmerTest::lmer(yield ~ 1 + (1|gen) + (1|block), data = df)
-      return(list(model = fit, role = "random"))
-    }
-  })
-
-  output$out_lmm_summary <- renderPrint({
-    obj <- lmm_fit(); fit <- obj$model
-    print(summary(fit))
-  })
-
-  output$out_varcorr <- renderPrint({
-    obj <- lmm_fit(); fit <- obj$model
-    print(lme4::VarCorr(fit), comp = "Variance")
-  })
-
-  output$tbl_lsmeans <- DT::renderDT({
-    obj <- lmm_fit(); fit <- obj$model
-    req(obj$role == "fixed")
-    .need_pkg(c("emmeans"))
-    em <- emmeans::emmeans(fit, ~ gen)
-    DT::datatable(as.data.frame(em), options = list(pageLength = 10), rownames = FALSE)
-  })
-
-  output$tbl_blups <- DT::renderDT({
-    obj <- lmm_fit(); fit <- obj$model
-    req(obj$role == "random")
-    re <- lme4::ranef(fit)
-    # BLUPs de gen
-    if (!is.null(re$gen)) {
-      bl <- data.frame(gen = rownames(re$gen), BLUP = re$gen[,"(Intercept)"], row.names = NULL)
-      DT::datatable(bl, options = list(pageLength = 10), rownames = FALSE)
-    }
-  })
-
-  # =========================================================
-  #  Pestaña 5 — Comparativa & ranking
-  # =========================================================
-  comp_tbl <- reactive({
-    out_c <- classic_fit()
-    obj_l <- lmm_fit()
-
-    # Clásico: columna "Adjusted Means"
-    cm <- out_c$Means
-    validate(need(!is.null(cm) && "Adjusted Means" %in% names(cm),
-                  "No encuentro 'Adjusted Means' en salida clásica."))
-    df_c <- cm[, c("Treatment", "Adjusted Means")]
-    names(df_c) <- c("gen", "classic_adj")
-
-    # LMM:
-    if (obj_l$role == "fixed") {
-      .need_pkg(c("emmeans"))
-      em <- as.data.frame(emmeans::emmeans(obj_l$model, ~ gen))
-      df_l <- em[, c("gen", "emmean")]
-      names(df_l) <- c("gen", "lmm_est")
-    } else {
-      bl <- lme4::ranef(obj_l$model)$gen
-      df_l <- data.frame(gen = rownames(bl), lmm_est = bl[, "(Intercept)"], row.names = NULL)
-    }
-
-    # Unimos
-    merge(df_c, df_l, by = "gen", all = TRUE)
-  })
-
-  output$plt_compare <- renderPlot({
-    .need_pkg(c("ggplot2"))
-    tb <- comp_tbl()
-    tb <- tb[complete.cases(tb[, c("classic_adj", "lmm_est")]), ]
-    ggplot2::ggplot(tb, ggplot2::aes(x = classic_adj, y = lmm_est)) +
-      ggplot2::geom_point() +
-      ggplot2::geom_smooth(method = "lm", se = FALSE, linewidth = 0.6) +
-      ggplot2::labs(x = "Clásico: Media ajustada (augmentedRCBD)",
-                    y = if (identical(lmm_fit()$role, "fixed")) "LMM: LS-mean (emmeans)"
-                         else "LMM: BLUP (random gen)",
-                    title = "Comparativa Clásico vs. LMM") +
-      ggplot2::theme_minimal(base_size = 12)
-  })
-
-  output$tbl_compare_top <- DT::renderDT({
-    tb <- comp_tbl()
-    # ranking por LMM
-    tb <- tb[order(-tb$lmm_est), ]
-    DT::datatable(head(tb, input$topN), options = list(pageLength = 10), rownames = FALSE)
-  })
-
-  # =========================================================
-  #  Pestaña 6 — Ejercicios prácticos (simulación)
-  # =========================================================
-  sim_compare <- eventReactive(input$btn_sim, {
-    .need_pkg(c("dplyr", "augmentedRCBD", "lmerTest", "emmeans"))
-
-    b  <- input$sim_b
-    c0 <- input$sim_c
-    k  <- input$sim_k
     mu <- input$sim_mu
-    sd_block <- input$sim_sd_block
-    sd_res   <- input$sim_sd_res
+    s_g <- input$sim_sigma_g
+    s_b <- input$sim_sigma_b
+    s_e <- input$sim_sigma_e
 
-    validate(need(b >= 2 && c0 >= 1 && k >= 1, "Parámetros inválidos"))
+    trts <- unique(fb$trt)
+    eff_t <- rnorm(length(trts), 0, s_g); names(eff_t) <- trts
 
-    set.seed(4242)
-    # Construimos bloques y testigos
-    blocks <- factor(seq_len(b))
-    checks <- paste0("st", seq_len(c0))
+    blks <- unique(fb$block)
+    eff_b <- rnorm(length(blks), 0, s_b); names(eff_b) <- blks
 
-    # Entradas nuevas: b*k en total
-    news   <- paste0("N", seq_len(b * k))
-
-    # Libro de campo simulado: cada bloque contiene todos los testigos + k nuevas
-    df_list <- lapply(seq_len(b), function(j) {
-      data.frame(
-        block = factor(j, levels = seq_len(b)),
-        gen   = c(checks, news[((j-1)*k + 1):(j*k)]),
-        stringsAsFactors = FALSE
-      )
-    })
-    df <- dplyr::bind_rows(df_list)
-    df$gen <- factor(df$gen)
-
-    # Efectos simulados
-    eff_block <- rnorm(b, mean = 0, sd = sd_block)
-    names(eff_block) <- levels(blocks)
-
-    # Pequeño efecto de gen para ilustrar (media 0)
-    eff_gen <- rnorm(nlevels(df$gen), 0, sd = sd_res/4)
-    names(eff_gen) <- levels(df$gen)
-
-    # Respuesta
-    df$yield <- mu + eff_block[as.character(df$block)] + eff_gen[as.character(df$gen)] + rnorm(nrow(df), 0, sd_res)
-
-    # --- Análisis clásico
-    out_c <- augmentedRCBD::augmentedRCBD(
-      block = df$block, treatment = df$gen, y = df$yield,
-      checks = checks, method.comp = "lsd", group = TRUE, simplify = TRUE, console = FALSE
-    )
-
-    # --- LMM (gen fijo)
-    fit_lmm <- lmerTest::lmer(yield ~ gen + (1|block), data = df)
-    em <- as.data.frame(emmeans::emmeans(fit_lmm, ~ gen))
-
-    # Unión
-    cm <- out_c$Means[, c("Treatment", "Adjusted Means")]
-    names(cm) <- c("gen", "classic_adj")
-    tb <- merge(cm, em[, c("gen", "emmean")], by = "gen", all = TRUE)
-    names(tb)[names(tb) == "emmean"] <- "lmm_est"
-    list(df = df, classic = out_c, lmm = fit_lmm, table = tb)
+    fb$Y <- NA
+    for(i in 1:nrow(fb)) {
+      t_val <- as.character(fb$trt[i])
+      b_val <- as.character(fb$block[i])
+      fb$Y[i] <- mu + eff_t[t_val] + eff_b[b_val] + rnorm(1, 0, s_e)
+    }
+    fb
   })
 
-  output$tbl_sim_compare <- DT::renderDT({
-    out <- sim_compare()
-    DT::datatable(head(out$table[order(-out$table$lmm_est), ], 20),
-                  options = list(pageLength = 10), rownames = FALSE)
-  })
-
-  output$plt_sim_compare <- renderPlot({
-    .need_pkg(c("ggplot2"))
-    out <- sim_compare(); tb <- out$table
-    ggplot2::ggplot(tb, ggplot2::aes(x = classic_adj, y = lmm_est)) +
-      ggplot2::geom_point() +
-      ggplot2::geom_smooth(method = "lm", se = FALSE, linewidth = 0.6) +
-      ggplot2::labs(x = "Clásico: Media ajustada (augmentedRCBD)",
-                    y = "LMM: LS-mean (emmeans)",
-                    title = "Simulación: efecto del ruido de bloque vs. residual") +
-      ggplot2::theme_minimal(base_size = 12)
-  })
-
+  # Call tab servers
+  pestanna1_session8_v3_server(input, output, session)
+  pestanna2_session8_v3_server(input, output, session, dba_design, has_pkg)
+  pestanna3_session8_v3_server(input, output, session, dba_design, sim_dba_data, has_pkg)
+  pestanna4_session8_v3_server(input, output, session)
+  pestanna5_session8_v3_server(input, output, session)
 }

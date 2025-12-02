@@ -1,477 +1,412 @@
-# session7.R
-# Sesión 7: Diseños de Filas y Columnas (Control Espacial Avanzado)
-# Requiere: shiny, bslib, FielDHub, DT, dplyr, tidyr, purrr, lme4, lmerTest, broom.mixed, ggplot2
+# R/modules/Diseños_estadisticos_V3/Parte III (Avanzada)/session7.R
 
-# ------------------------------
-# UI
-# ------------------------------
-session7_v3UI <- function(id) {
-  ns <- NS(id)
-  tagList(
-    div(class = "session-title",
-        h3("Sesión 7: Diseños de Filas y Columnas (Control Espacial Avanzado)")
+# -------------------------------------------------------------------------
+# UI Functions per Tab
+# -------------------------------------------------------------------------
+
+# Pestaña 1: Conceptos
+pestanna1_session7_v3UI <- function(ns) {
+  bslib::nav_panel(
+    title = "1) Conceptos",
+    h4(class = "section-header", "¿Qué es un diseño Fila-Columna?"),
+    div(class = "alert alert-info",
+        p(
+          strong("Definición:"), " Diseño donde el bloqueo se realiza en ",
+          em("dos direcciones perpendiculares"), " simultáneamente (filas y columnas) ",
+          "para controlar gradientes espaciales complejos."
+        )
     ),
-    # Navegación principal
-    navset_tab(
-      # -------- Pestaña 1: Fundamento & objetivo ----------
-      nav_panel(
-        title = "Fundamento & objetivo",
-        layout_column_wrap(
-          width = 1/2,
-          card(
-            card_header("¿Cuándo usar Row–Column (R-C)?"),
-            p("Cuando existen gradientes espaciales en dos direcciones (por ejemplo Norte–Sur y Este–Oeste) ",
-              "que inflan el error si solo bloqueas en una sola dirección (RCBD). R-C implementa ",
-              strong("bloqueo doble (fila y columna)"), " y el análisis debe reflejarlo con ",
-              code("efectos aleatorios cruzados"), " en el LMM: ",
-              code("~ genotipo + (1|fila) + (1|columna)"),
-              "."
-            ),
-            tags$ul(
-              tags$li("Generación del diseño optimizado (dos etapas) con ", code("FielDHub::row_column()"), "."),
-              tags$li("FieldBook trae coordenadas ", code("ROW"), " y ", code("COLUMN"), ", ",
-                      "número de parcela ", code("PLOT"), " y asignación de ", code("TREATMENT"), "."),
-              tags$li("Visualización con ", code("plot(rcd)"), " y exportación del FieldBook.")
-            ),
-            p(em("Base teórica y funciones verificadas en la viñeta oficial y referencias de FielDHub."))
-          ),
-          card(
-            card_header("Objetivo de aprendizaje"),
-            tags$ol(
-              tags$li("Generar un diseño R-C resoluble, ajustar un LMM con efectos cruzados y comparar precisión."),
-              tags$li("Cuantificar la varianza espacial capturada por filas y columnas vía ", code("VarCorr()"), "."),
-              tags$li("Explorar decisiones de diseño (nº filas, réplicas) y su impacto en la precisión.")
-            ),
-            p(
-              "Recursos: viñeta ", code("Row-Column Design"),
-              " (algoritmo de dos etapas, parámetros y estructura del field book), ",
-              code("row_column()"), " y ", code("plot.FielDHub"), "."
-            ),
-            tags$details(
-              summary("Notas de referencia"),
-              HTML(paste0(
-                "• FielDHub Row–Column vignette (optimización filas/columnas, iteraciones): ",
-                tags$code("CRAN FielDHub – Row-Column Design"), "<br/>",
-                "• Función ", code("row_column()"), " (argumentos, retorno con ", code("$fieldBook"), "): ",
-                tags$code("rdrr.io – row_column"), "<br/>",
-                "• Método ", code("plot.FielDHub"), " (dibuja el layout y requiere coords en field book): ",
-                tags$code("rdrr.io – plot.FielDHub"), "<br/>",
-                "• ", code("VarCorr()"), " en ", code("lme4"), " para extraer componentes de varianza."
-              ))
-            )
-          )
+    fluidRow(
+      column(
+        width = 6,
+        h5("Cuadrado Latino vs. Row-Column General"),
+        tags$ul(
+          tags$li(strong("Cuadrado Latino:"), " Restricción fuerte: N° tratamientos = N° filas = N° columnas. Muy rígido."),
+          tags$li(strong("Row-Column (General):"), " Más flexible. Permite N° tratamientos ≠ N° filas/columnas. ",
+                  "Usualmente se generan diseños 'alpha-latinizados' o resolubles.")
+        ),
+        h5("Modelo LMM típico"),
+        withMathJax(
+          helpText("$$y_{ijk} = \\mu + \\tau_k + \\text{Fila}_i + \\text{Columna}_j + \\epsilon_{ijk}$$"),
+          p("Donde Fila y Columna suelen modelarse como ", strong("efectos aleatorios"),
+            " para recuperar información inter-bloque (REML).")
         )
       ),
-
-      # -------- Pestaña 2: Generar diseño (FielDHub) ----------
-      nav_panel(
-        title = "Generar diseño",
-        layout_columns(
-          col_widths = c(4, 8),
-          card(
-            card_header("Parámetros del diseño R-C"),
-            numericInput(ns("t"), "Nº de tratamientos (t):", value = 45, min = 3, step = 1),
-            numericInput(ns("nrows"), "Filas por réplica (nrows):", value = 5, min = 2, step = 1),
-            numericInput(ns("r"), "Nº de réplicas (r):", value = 3, min = 2, step = 1),
-            numericInput(ns("l"), "Nº de localidades (l):", value = 1, min = 1, step = 1),
-            textInput(ns("locname"), "Nombre de localidad:", value = "FARGO_2025"),
-            numericInput(ns("plotStart"), "Plot inicial:", value = 101, min = 1, step = 1),
-            numericInput(ns("iters"), "Iteraciones de optimización:", value = 1000, min = 100, step = 100),
-            numericInput(ns("seed"), "Seed:", value = 1244, min = 1, step = 1),
-            actionButton(ns("goDesign"), "Generar diseño", class = "btn-primary")
-          ),
-          card(
-            card_header("Resumen de diseño"),
-            verbatimTextOutput(ns("designSummary")),
-            div(class = "mt-2",
-                p("Este diseño está optimizado en dos etapas: primero columnas (bloques incompletos), ",
-                  "luego filas (A-Efficiency) con permutas dentro de columnas; por defecto ~1000 iteraciones. ",
-                  "Ver viñeta oficial Row–Column para detalles del algoritmo.")
-            )
-          )
-        )
-      ),
-
-      # -------- Pestaña 3: Mapa & FieldBook ----------
-      nav_panel(
-        title = "Mapa & FieldBook",
-        navs_tab(
-          nav_panel(
-            "Mapa",
-            p("Visualiza el layout del campo generado. Puedes usar esta figura para validar distribución."),
-            plotOutput(ns("fieldPlot"), height = "560px")
-          ),
-          nav_panel(
-            "FieldBook",
-            p("Libro de campo con coordenadas y tratamientos. Descárgalo para siembra y recojo de datos."),
-            DT::DTOutput(ns("fieldTable")),
-            downloadButton(ns("dlFieldBook"), "Descargar CSV")
-          )
-        )
-      ),
-
-      # -------- Pestaña 4: LMM & VarCorr ----------
-      nav_panel(
-        title = "LMM & VarCorr",
-        layout_columns(
-          col_widths = c(4, 8),
-          card(
-            card_header("Datos de respuesta"),
-            p("O bien sube el fieldbook con tu respuesta medida, o simula una respuesta basada en gradientes."),
-            fileInput(ns("respFile"), "Cargar CSV con respuesta", accept = c(".csv")),
-            checkboxInput(ns("simulateResp"), "Simular respuesta (si no cargas CSV)", value = TRUE),
-            conditionalPanel(
-              condition = sprintf("input['%s']", ns("simulateResp")),
-              sliderInput(ns("mu"), "Media base:", min = 50, max = 500, value = 300, step = 5),
-              sliderInput(ns("grad_row"), "Gradiente por fila (efecto lineal):", min = 0, max = 10, value = 4, step = 0.5),
-              sliderInput(ns("grad_col"), "Gradiente por columna (efecto lineal):", min = 0, max = 10, value = 2, step = 0.5),
-              sliderInput(ns("sd_eps"), "σ residual (ruido):", min = 1, max = 50, value = 12, step = 1)
-            ),
-            hr(),
-            selectInput(ns("col_gen"), "Columna genotipo:", choices = NULL),
-            selectInput(ns("col_row"), "Columna fila:", choices = NULL),
-            selectInput(ns("col_col"), "Columna columna:", choices = NULL),
-            selectInput(ns("col_y"), "Columna respuesta:", choices = NULL),
-            actionButton(ns("fitLMM"), "Ajustar LMM", class = "btn-success")
-          ),
-          card(
-            card_header("Resultados del modelo"),
-            navs_tab(
-              nav_panel("ANOVA (fijos)",
-                        verbatimTextOutput(ns("anovaTxt"))
-              ),
-              nav_panel("VarCorr & proporciones",
-                        tableOutput(ns("varcompTbl")),
-                        verbatimTextOutput(ns("varNarrative"))
-              ),
-              nav_panel("Diagnóstico rápido",
-                        plotOutput(ns("diagQQ"), height = "280px"),
-                        plotOutput(ns("diagResFit"), height = "280px")
-              )
-            )
-          )
-        )
-      ),
-
-      # -------- Pestaña 5: Ejercicios prácticos ----------
-      nav_panel(
-        title = "Ejercicios prácticos",
-        navs_tab(
-          nav_panel(
-            "Experimento 1: Gradientes 2D",
-            layout_columns(
-              col_widths = c(4, 8),
-              card(
-                card_header("Configura gradientes"),
-                sliderInput(ns("ex1_grad_row"), "Gradiente fila (fuerte = 2D claro):", min = 0, max = 12, value = 6, step = 0.5),
-                sliderInput(ns("ex1_grad_col"), "Gradiente columna:", min = 0, max = 12, value = 4, step = 0.5),
-                sliderInput(ns("ex1_sd"), "σ residual:", min = 2, max = 40, value = 10, step = 1),
-                actionButton(ns("runEx1"), "Comparar RCBD vs R-C", class = "btn-primary")
-              ),
-              card(
-                card_header("Resultado comparativo"),
-                tableOutput(ns("ex1CompareTbl")),
-                p(em("Observa cómo el LMM con efectos cruzados reduce σ² residual frente a RCBD cuando hay gradiente 2D."))
-              )
-            )
-          ),
-          nav_panel(
-            "Experimento 2: Filas y réplicas",
-            layout_columns(
-              col_widths = c(4, 8),
-              card(
-                card_header("Parámetros de diseño"),
-                sliderInput(ns("ex2_rows"), "Filas por réplica:", min = 3, max = 12, value = 5, step = 1),
-                sliderInput(ns("ex2_reps"), "Réplicas:", min = 2, max = 6, value = 3, step = 1),
-                actionButton(ns("runEx2"), "Re-diseñar y evaluar", class = "btn-secondary")
-              ),
-              card(
-                card_header("Impacto en varianzas"),
-                tableOutput(ns("ex2VarTbl")),
-                p(em("Más réplicas reducen la incertidumbre global; más filas ayudan cuando el gradiente N–S domina."))
-              )
-            )
-          )
-        )
-      ),
-
-      # -------- Pestaña 6: Referencias ----------
-      nav_panel(
-        title = "Referencias",
-        card(
-          card_header("Fuentes clave (APA breve)"),
-          HTML(paste(
-            "<ul>",
-            "<li>Murillo, D. A., Gezan, S. A., Heilman, A. M., Walk, T. C., Aparicio, J. S., & Horsley, R. D. ",
-            "(2021). <i>FielDHub: A Shiny App for Design of Experiments in Life Sciences</i>. JOSS, 6(61), 3122.",
-            " (ver viñetas CRAN de Row–Column y funciones).</li>",
-            "<li>FielDHub – <code>row_column()</code> (man page) y método <code>plot.FielDHub</code> (referencias en línea).</li>",
-            "<li>Bates, D., Mächler, M., Bolker, B., & Walker, S. (2015). <i>Fitting Linear Mixed-Effects Models Using lme4</i>. JSS, 67(1). ",
-            "Uso de <code>VarCorr()</code> para extraer componentes de varianza.</li>",
-            "</ul>"
-          ))
+      column(
+        width = 6,
+        h5("Ventajas en campo"),
+        tags$ul(
+          tags$li("Controla heterogeneidad en dos direcciones (ej. pendiente y fertilidad)."),
+          tags$li("Mayor precisión que RCBD si hay gradientes bidireccionales."),
+          tags$li("Común en mejoramiento genético (ensayos grandes).")
+        ),
+        div(class = "note-cloud",
+            p("Herramienta clave: ", code("FielDHub"), " o ", code("agricolae"), " para generar; ",
+              code("lme4/lmerTest"), " para analizar.")
         )
       )
     )
   )
 }
 
-# ------------------------------
-# SERVER
-# ------------------------------
-session7_v3Server <- function(input, output, session) {
+# Pestaña 2: Generar Diseño
+pestanna2_session7_v3UI <- function(ns) {
+  bslib::nav_panel(
+    title = "2) Generar Diseño",
+    p("Genera un diseño Row-Column optimizado usando ", code("FielDHub::row_column"), "."),
+    sidebarLayout(
+      sidebarPanel(
+        width = 4,
+        numericInput(ns("n_trts"), "Número de Tratamientos:", value = 20, min = 4, step = 1),
+        helpText("Se intentará ajustar una grilla rectangular (R x C) cercana."),
+        numericInput(ns("n_rows"), "Número de Filas (Rows):", value = 4, min = 2),
+        numericInput(ns("n_cols"), "Número de Columnas (Cols):", value = 5, min = 2),
+        numericInput(ns("n_reps"), "Número de Repeticiones (Copias del diseño):", value = 1, min = 1),
+        actionButton(ns("btn_gen_rc"), "Generar Diseño", class = "btn btn-primary w-100"),
+        hr(),
+        uiOutput(ns("ui_dl_rc"))
+      ),
+      mainPanel(
+        width = 8,
+        tags$h5("Mapa del diseño generado"),
+        plotOutput(ns("plot_rc_map"), height = "400px"),
+        hr(),
+        tags$h5("Fieldbook (primeras filas)"),
+        DT::dataTableOutput(ns("tbl_rc_book"))
+      )
+    )
+  )
+}
+
+# Pestaña 3: Análisis (Simulación)
+pestanna3_session7_v3UI <- function(ns) {
+  bslib::nav_panel(
+    title = "3) Análisis (Simulación)",
+    p("Simula datos con gradientes de fila y columna para comparar RCBD vs. Row-Column (LMM)."),
+    sidebarLayout(
+      sidebarPanel(
+        width = 4,
+        tags$h5("Parámetros de simulación"),
+        numericInput(ns("sim_mu"), "Media general:", 100),
+        numericInput(ns("sim_sigma_g"), "SD Genotipo (Señal):", 5),
+        numericInput(ns("sim_sigma_row"), "SD Fila (Ruido):", 8),
+        numericInput(ns("sim_sigma_col"), "SD Columna (Ruido):", 8),
+        numericInput(ns("sim_sigma_e"), "SD Residual:", 4),
+        actionButton(ns("btn_sim_run"), "Simular y Analizar", class = "btn btn-success w-100")
+      ),
+      mainPanel(
+        width = 8,
+        bslib::navset_card_pill(
+          bslib::nav_panel("Visualización Espacial",
+                    plotOutput(ns("plot_sim_spatial"), height = "350px"),
+                    helpText("Muestra la respuesta simulada (Y) en el campo.")
+          ),
+          bslib::nav_panel("Comparación Modelos",
+                    tags$h5("Modelo 1: RCBD (Ignora filas/cols, solo usa rep)"),
+                    verbatimTextOutput(ns("out_rcbd")),
+                    tags$hr(),
+                    tags$h5("Modelo 2: Row-Column LMM (Fila + Columna aleatorias)"),
+                    verbatimTextOutput(ns("out_rclmm")),
+                    tags$div(class="alert alert-warning",
+                             "Observa la reducción del error estándar de las diferencias (SED) o el AIC si corresponde.")
+          ),
+          bslib::nav_panel("VarCorr & Heredabilidad",
+                    tags$h5("Componentes de Varianza (LMM)"),
+                    verbatimTextOutput(ns("out_vc")),
+                    tags$p("Si Fila/Columna capturan mucha varianza, el diseño fue exitoso.")
+          )
+        )
+      )
+    )
+  )
+}
+
+# Pestaña 4: Ejercicios
+pestanna4_session7_v3UI <- function(ns) {
+  bslib::nav_panel(
+    title = "4) Ejercicios",
+    tags$ol(
+      tags$li("Genera un diseño para 24 tratamientos en una grilla de 4x6."),
+      tags$li("Simula una situación con fuerte gradiente de columna (SD Columna = 15) y poco efecto fila."),
+      tags$li("Ajusta el modelo Row-Column y verifica en 'VarCorr' que la varianza de Columna sea alta."),
+      tags$li("Compara con un RCBD simple: ¿cuánto mejora el error estándar de los genotipos al usar Row-Column?"),
+      tags$li("Exporta el fieldbook y practícalo en tu propio software si lo deseas.")
+    )
+  )
+}
+
+# Pestaña 5: Referencias
+pestanna5_session7_v3UI <- function(ns) {
+  bslib::nav_panel(
+    title = "Referencias",
+    tags$ul(
+      tags$li("FielDHub: A Shiny App for Design of Experiments in Agriculture. ",
+              tags$a(href="https://cran.r-project.org/package=FielDHub", target="_blank", "CRAN Link")),
+      tags$li("John, J.A. & Williams, E.R. (1995). Cyclic and Computer Generated Designs."),
+      tags$li("Piepho, H.P. et al. (2003). A comparison of results from a resolvable row-column design... ",
+              em("Theoretical and Applied Genetics."))
+    )
+  )
+}
+
+# -------------------------------------------------------------------------
+# Main UI
+# -------------------------------------------------------------------------
+
+session7_v3UI <- function(id) {
+  ns <- NS(id)
+  tagList(
+    div(class = "session-title",
+        h3("Sesión 7: Diseños Fila-Columna (Row-Column Designs)")
+    ),
+    navset_tab(
+      pestanna1_session7_v3UI(ns),
+      pestanna2_session7_v3UI(ns),
+      pestanna3_session7_v3UI(ns),
+      pestanna4_session7_v3UI(ns),
+      pestanna5_session7_v3UI(ns)
+    )
+  )
+}
+
+# -------------------------------------------------------------------------
+# Server Functions per Tab
+# -------------------------------------------------------------------------
+
+pestanna1_session7_v3_server <- function(input, output, session) {
+  # No server logic needed
+}
+
+pestanna2_session7_v3_server <- function(input, output, session, rc_design, has_pkg) {
   ns <- session$ns
-  pkgs <- c("FielDHub","DT","dplyr","tidyr","purrr","lme4","lmerTest","broom.mixed","ggplot2")
-  to_load <- pkgs[!pkgs %in% (.packages())]
-  if (length(to_load)) {
-    suppressPackageStartupMessages(lapply(to_load, require, character.only = TRUE))
-  }
+  
+  observeEvent(input$btn_gen_rc, {
+    if (!has_pkg("FielDHub")) {
+      showNotification("Instale 'FielDHub' para usar esta función.", type="error")
+      return()
+    }
 
-  # ---- 2) Generar diseño ----
-  rcd <- eventReactive(input$goDesign, {
-    validate(
-      need(requireNamespace("FielDHub", quietly = TRUE),
-           "Instala el paquete FielDHub.")
-    )
-    showNotification("Generando diseño Row–Column optimizado…", type = "message", duration = 2)
-    FielDHub::row_column(
-      t = input$t,
-      nrows = input$nrows,
-      r = input$r,
-      l = input$l,
-      plotNumber = input$plotStart,
-      locationNames = input$locname,
-      seed = input$seed,
-      iterations = input$iters
-    )
+    nt <- input$n_trts
+    nr <- input$n_rows
+    nc <- input$n_cols
+    reps <- input$n_reps
+
+    if (nt > nr*nc) {
+      showNotification("Error: N tratamientos > N celdas (Filas x Cols). Aumente filas o columnas.", type="error")
+      return()
+    }
+
+    tryCatch({
+      des <- FielDHub::row_column(t = nt, nrows = nr, ncols = nc, plotNumber = 101)
+      rc_design(des)
+      showNotification("Diseño generado con FielDHub.", type="message")
+
+    }, error = function(e) {
+      showNotification(paste("FielDHub error/no encontrado. Usando generador simple.", e$message), type="warning")
+
+      trts <- paste0("T", 1:nt)
+      n_cells <- nr * nc
+      trts_full <- c(trts, rep("Blank", n_cells - nt))
+      layout_vec <- sample(trts_full)
+      book <- expand.grid(Row = 1:nr, Col = 1:nc)
+      book$Trt <- layout_vec
+      full_book <- data.frame()
+      for (r in 1:reps) {
+        b <- book
+        b$Rep <- r
+        b$Trt <- sample(trts_full)
+        full_book <- rbind(full_book, b)
+      }
+      rc_design(list(fieldBook = full_book))
+    })
   })
 
-  output$designSummary <- renderPrint({
-    req(rcd())
-    print(rcd())
+  output$plot_rc_map <- renderPlot({
+    des <- rc_design(); shiny::req(des)
+    fb <- des$fieldBook
+    names(fb) <- toupper(names(fb))
+    c_row <- grep("ROW", names(fb), value=TRUE)[1]
+    c_col <- grep("COL", names(fb), value=TRUE)[1]
+    c_trt <- grep("TRT|TREAT|ENTRY", names(fb), value=TRUE)[1]
+    shiny::req(c_row, c_col, c_trt)
+
+    library(ggplot2)
+    ggplot(fb, aes_string(x = c_col, y = c_row, fill = c_trt, label = c_trt)) +
+      geom_tile(color = "white") +
+      geom_text(size = 3) +
+      scale_y_reverse() +
+      facet_wrap(~REP) +
+      theme_minimal() +
+      guides(fill = "none") +
+      labs(title = "Mapa del Diseño (Por Repetición)")
   })
 
-  # ---- 3) Mapa & FieldBook ----
-  output$fieldPlot <- renderPlot({
-    req(rcd())
-    plot(rcd())  # método S3 plot.FielDHub
+  output$tbl_rc_book <- DT::renderDataTable({
+    des <- rc_design(); shiny::req(des)
+    DT::datatable(des$fieldBook, options = list(pageLength = 5, scrollX = TRUE))
   })
 
-  fb <- reactive({
-    req(rcd())
-    # En viñeta/refs, el fieldBook contiene: ID, LOCATION, PLOT, REP, ROW, COLUMN, ENTRY, TREATMENT
-    as.data.frame(rcd()$fieldBook)
+  output$ui_dl_rc <- renderUI({
+    shiny::req(rc_design())
+    downloadButton(ns("dl_rc_csv"), "Descargar Fieldbook", class = "btn-secondary w-100")
   })
 
-  output$fieldTable <- DT::renderDT({
-    req(fb())
-    DT::datatable(fb(), options = list(pageLength = 10, scrollX = TRUE))
-  }, server = FALSE)
-
-  output$dlFieldBook <- downloadHandler(
-    filename = function() sprintf("FieldBook_%s.csv", gsub("\\s+","_", input$locname)),
+  output$dl_rc_csv <- downloadHandler(
+    filename = function() { "row_col_design.csv" },
     content = function(file) {
-      req(fb())
-      write.csv(fb(), file, row.names = FALSE)
+      write.csv(rc_design()$fieldBook, file, row.names = FALSE)
     }
   )
+}
 
-  # ---- 4) LMM & VarCorr ----
-  # Actualiza choices de columnas al cargar CSV o cuando hay fieldbook generado
-  observe({
-    df <- NULL
-    if (!is.null(input$respFile$datapath)) {
-      df <- tryCatch(read.csv(input$respFile$datapath, check.names = FALSE), error = function(e) NULL)
-    } else if (!is.null(fb())) {
-      df <- fb()
+pestanna3_session7_v3_server <- function(input, output, session, rc_design, sim_data) {
+  output$plot_sim_spatial <- renderPlot({
+    sim <- sim_data(); shiny::req(sim)
+    df <- sim$data
+    c_row <- sim$cols$row
+    c_col <- sim$cols$col
+
+    ggplot2::ggplot(df, ggplot2::aes_string(x = c_col, y = c_row, fill = "Y")) +
+      ggplot2::geom_tile() +
+      ggplot2::scale_fill_viridis_c() +
+      ggplot2::scale_y_reverse() +
+      ggplot2::labs(title = "Respuesta Simulada (Y) en Campo") +
+      ggplot2::theme_minimal()
+  })
+
+  output$out_rcbd <- renderPrint({
+    sim <- sim_data(); shiny::req(sim)
+    df <- sim$data
+    c_trt <- sim$cols$trt
+    if(!"REP" %in% names(df)) df$REP <- "1"
+
+    fmla <- as.formula(paste("Y ~", c_trt, "+ (1|REP)"))
+    if (length(unique(df$REP)) < 2) {
+      cat("Solo 1 repetición: Ajustando CRD (Y ~ Trt)\n")
+      m <- lm(as.formula(paste("Y ~", c_trt)), data=df)
+      print(anova(m))
+    } else {
+      library(lmerTest)
+      m <- lmer(fmla, data=df)
+      print(anova(m))
     }
-    if (is.null(df)) return()
-    cols <- names(df)
-    updateSelectInput(session, "col_gen", choices = cols, selected = intersect(cols, c("TREATMENT","ENTRY","GENOTIPO"))[1])
-    updateSelectInput(session, "col_row", choices = cols, selected = intersect(cols, c("ROW","Fila","fila"))[1])
-    updateSelectInput(session, "col_col", choices = cols, selected = intersect(cols, c("COLUMN","Col","columna"))[1])
-    updateSelectInput(session, "col_y",   choices = cols, selected = intersect(cols, c("RENDIMIENTO","Yield","Y"))[1])
   })
 
-  # arma dataset de trabajo (carga o simula respuesta)
-  data_for_model <- reactive({
-    df <- NULL
-    if (!is.null(input$respFile$datapath)) {
-      df <- read.csv(input$respFile$datapath, check.names = FALSE)
-    } else if (!is.null(fb())) {
-      df <- fb()
+  output$out_rclmm <- renderPrint({
+    sim <- sim_data(); shiny::req(sim)
+    df <- sim$data
+    c_trt <- sim$cols$trt
+    c_row <- sim$cols$row
+    c_col <- sim$cols$col
+    if(!"REP" %in% names(df)) df$REP <- "1"
+
+    library(lmerTest)
+    df[[c_row]] <- factor(df[[c_row]])
+    df[[c_col]] <- factor(df[[c_col]])
+
+    if (length(unique(df$REP)) < 2) {
+      fmla <- as.formula(paste("Y ~", c_trt, "+ (1|", c_row, ") + (1|", c_col, ")"))
+    } else {
+      fmla <- as.formula(paste("Y ~", c_trt, "+ (1|REP) + (1|REP:", c_row, ") + (1|REP:", c_col, ")"))
     }
-    req(df)
 
-    # si se solicita simulación de respuesta, genera Y en función de gradientes
-    if (isTRUE(input$simulateResp)) {
-      req(all(c("ROW","COLUMN") %in% names(df)))
-      # Efectos lineales por fila/columna + ruido
-      df <- df |>
-        dplyr::mutate(
-          .row_i = as.numeric(ROW),
-          .col_j = as.numeric(COLUMN),
-          Y = input$mu + input$grad_row * scale(.row_i)[,1] + input$grad_col * scale(.col_j)[,1] +
-            rnorm(dplyr::n(), sd = input$sd_eps)
-        )
-      # si había una col de respuesta ya en el CSV, la dejamos y añadimos Y; usuario elegirá cual.
-      if (!("RENDIMIENTO" %in% names(df))) {
-        df$RENDIMIENTO <- df$Y
-      }
+    m <- lmer(fmla, data=df)
+    print(anova(m))
+    cat("\n--- Componentes de Varianza ---\n")
+    print(lme4::VarCorr(m))
+  })
+
+  output$out_vc <- renderPrint({
+    sim <- sim_data(); shiny::req(sim)
+    df <- sim$data
+    c_trt <- sim$cols$trt
+    c_row <- sim$cols$row
+    c_col <- sim$cols$col
+    if(!"REP" %in% names(df)) df$REP <- "1"
+    df[[c_row]] <- factor(df[[c_row]])
+    df[[c_col]] <- factor(df[[c_col]])
+
+    if (length(unique(df$REP)) < 2) {
+      fmla <- as.formula(paste("Y ~", c_trt, "+ (1|", c_row, ") + (1|", c_col, ")"))
+    } else {
+      fmla <- as.formula(paste("Y ~", c_trt, "+ (1|REP) + (1|REP:", c_row, ") + (1|REP:", c_col, ")"))
     }
-    df
+    m <- lmerTest::lmer(fmla, data=df)
+    print(summary(m)$varcor)
+  })
+}
+
+pestanna4_session7_v3_server <- function(input, output, session) {
+  # No server logic needed
+}
+
+pestanna5_session7_v3_server <- function(input, output, session) {
+  # No server logic needed
+}
+
+# -------------------------------------------------------------------------
+# Main Server
+# -------------------------------------------------------------------------
+
+session7_v3Server <- function(input, output, session) {
+  ns <- session$ns
+
+  # Helpers
+  has_pkg <- function(p) requireNamespace(p, quietly=TRUE)
+
+  # Reactives
+  rc_design <- reactiveVal(NULL)
+
+  sim_data <- eventReactive(input$btn_sim_run, {
+    des <- rc_design()
+    if (is.null(des)) {
+      nr=4; nc=5; nt=20
+      book <- expand.grid(Row=1:nr, Col=1:nc)
+      book$Trt <- paste0("T", sample(1:nt))
+      book$Rep <- 1
+      fb <- book
+    } else {
+      fb <- des$fieldBook
+    }
+
+    names(fb) <- toupper(names(fb))
+    c_row <- grep("ROW", names(fb), value=TRUE)[1]
+    c_col <- grep("COL", names(fb), value=TRUE)[1]
+    c_trt <- grep("TRT|TREAT|ENTRY", names(fb), value=TRUE)[1]
+
+    mu <- input$sim_mu
+    s_g <- input$sim_sigma_g
+    s_r <- input$sim_sigma_row
+    s_c <- input$sim_sigma_col
+    s_e <- input$sim_sigma_e
+
+    trts <- unique(fb[[c_trt]])
+    eff_t <- rnorm(length(trts), 0, s_g); names(eff_t) <- trts
+
+    rows <- unique(fb[[c_row]])
+    eff_r <- rnorm(length(rows), 0, s_r); names(eff_r) <- rows
+
+    cols <- unique(fb[[c_col]])
+    eff_c <- rnorm(length(cols), 0, s_c); names(eff_c) <- cols
+
+    fb$Y <- NA
+    for(i in 1:nrow(fb)) {
+      t_val <- as.character(fb[[c_trt]][i])
+      r_val <- as.character(fb[[c_row]][i])
+      c_val <- as.character(fb[[c_col]][i])
+
+      et <- if(t_val %in% names(eff_t)) eff_t[t_val] else 0
+
+      fb$Y[i] <- mu + et + eff_r[r_val] + eff_c[c_val] + rnorm(1, 0, s_e)
+    }
+
+    list(data = fb, cols = list(row=c_row, col=c_col, trt=c_trt))
   })
 
-  # Ajuste del modelo
-  fit_obj <- eventReactive(input$fitLMM, {
-    df <- data_for_model()
-    req(df, input$col_gen, input$col_row, input$col_col, input$col_y)
-    validate(
-      need(all(c(input$col_gen, input$col_row, input$col_col, input$col_y) %in% names(df)),
-           "Verifica que las columnas seleccionadas existen.")
-    )
-    # Prepara factores y respuesta
-    df <- df |>
-      dplyr::mutate(
-        GEN = factor(.data[[input$col_gen]]),
-        Fila = factor(.data[[input$col_row]]),
-        Col  = factor(.data[[input$col_col]]),
-        Resp = as.numeric(.data[[input$col_y]])
-      )
-
-    # Modelo LMM con efectos cruzados fila/columna
-    # Nota: usamos lmerTest para F y p-val aproximados (Satterthwaite)
-    mdl <- lmerTest::lmer(Resp ~ GEN + (1|Fila) + (1|Col), data = df)
-    list(
-      df = df,
-      mdl = mdl
-    )
-  })
-
-  output$anovaTxt <- renderPrint({
-    req(fit_obj())
-    # ANOVA tipo III para efectos fijos (GEN)
-    print(anova(fit_obj()$mdl, type = 3))
-  })
-
-  output$varcompTbl <- renderTable({
-    req(fit_obj())
-    vc <- lme4::VarCorr(fit_obj()$mdl)
-    vc_df <- as.data.frame(vc)
-    # Mantener solo varianzas (no correl)
-    out <- vc_df |>
-      dplyr::select(grp = grp, var1, vcov) |>
-      dplyr::mutate(
-        componente = dplyr::case_when(
-          grp == "Fila" ~ "Var(Fila)",
-          grp == "Col"  ~ "Var(Columna)",
-          grp == "Residual" ~ "Var(Residual)",
-          TRUE ~ grp
-        )
-      ) |>
-      dplyr::select(Componente = componente, Grupo = grp, Variable = var1, Varianza = vcov)
-    # Añade proporciones
-    total <- sum(out$Varianza, na.rm = TRUE)
-    out$Proporcion <- out$Varianza / total
-    out
-  }, digits = 4)
-
-  output$varNarrative <- renderPrint({
-    req(fit_obj())
-    vc <- lme4::VarCorr(fit_obj()$mdl)
-    vc_df <- as.data.frame(vc)
-    v_row <- vc_df$vcov[vc_df$grp == "Fila"]
-    v_col <- vc_df$vcov[vc_df$grp == "Col"]
-    v_res <- vc_df$vcov[vc_df$grp == "Residual"]
-    total <- sum(c(v_row, v_col, v_res), na.rm = TRUE)
-    pr <- function(x) sprintf("%.1f%%", 100*x/total)
-    cat("Descomposición de varianza (aprox.):\n")
-    cat(sprintf("  • Var(Fila)      = %.3f  (%s)\n", v_row, pr(v_row)))
-    cat(sprintf("  • Var(Columna)   = %.3f  (%s)\n", v_col, pr(v_col)))
-    cat(sprintf("  • Var(Residual)  = %.3f  (%s)\n", v_res, pr(v_res)))
-    cat("\nInterpretación:\n")
-    cat("- La suma Var(Fila)+Var(Columna) cuantifica ruido espacial estructurado capturado por el bloqueo.\n")
-    cat("- Var(Residual) es el ruido no estructurado restante; reducirla mejora potencia.\n")
-  })
-
-  # Diagnósticos simples
-  output$diagQQ <- renderPlot({
-    req(fit_obj())
-    e <- resid(fit_obj()$mdl)
-    qqnorm(e); qqline(e)
-  })
-
-  output$diagResFit <- renderPlot({
-    req(fit_obj())
-    df <- data.frame(fit = fitted(fit_obj()$mdl), res = resid(fit_obj()$mdl))
-    ggplot(df, aes(fit, res)) +
-      geom_point(alpha = 0.6) +
-      geom_hline(yintercept = 0, linetype = 2) +
-      labs(x = "Ajustados", y = "Residuos") +
-      theme_minimal()
-  })
-
-  # ---- 5) Ejercicios prácticos ----
-
-  # Experimento 1: Comparar RCBD vs R-C bajo gradientes 2D
-  observeEvent(input$runEx1, {
-    req(rcd())
-    base <- fb()
-    # Simulación: efecto fila/col + residual
-    set.seed(123)
-    d <- base |>
-      dplyr::mutate(
-        GEN = factor(TREATMENT),
-        Fila = factor(ROW),
-        Col  = factor(COLUMN),
-        y    = 300 +
-          input$ex1_grad_row * scale(as.numeric(ROW))[,1] +
-          input$ex1_grad_col * scale(as.numeric(COLUMN))[,1] +
-          rnorm(dplyr::n(), sd = input$ex1_sd)
-      )
-
-    # Modelo RCBD (bloque = REP) para comparar
-    m_rcbd <- lmerTest::lmer(y ~ GEN + (1|REP), data = d)
-    # Modelo R-C con efectos cruzados
-    m_rc <- lmerTest::lmer(y ~ GEN + (1|Fila) + (1|Col), data = d)
-
-    vc_rcbd <- as.data.frame(lme4::VarCorr(m_rcbd))
-    vc_rc   <- as.data.frame(lme4::VarCorr(m_rc))
-
-    get_res <- function(vcdf) vcdf$vcov[vcdf$grp == "Residual"]
-
-    comp <- data.frame(
-      Modelo = c("RCBD: y ~ GEN + (1|REP)", "R-C: y ~ GEN + (1|Fila) + (1|Col)"),
-      Sigma2_residual = c(get_res(vc_rcbd), get_res(vc_rc))
-    )
-    output$ex1CompareTbl <- renderTable(comp, digits = 3)
-  })
-
-  # Experimento 2: Cambiar filas y réplicas, observar varianzas
-  observeEvent(input$runEx2, {
-    req(input$ex2_rows, input$ex2_reps)
-    # re-generar diseño con mismos t y l, pero nrows y r variables
-    rcd2 <- FielDHub::row_column(
-      t = 45, nrows = input$ex2_rows, r = input$ex2_reps, l = 1,
-      plotNumber = 101, locationNames = "TEST",
-      seed = 2025, iterations = 800
-    )
-    d2 <- as.data.frame(rcd2$fieldBook) |>
-      dplyr::mutate(
-        GEN = factor(TREATMENT),
-        Fila = factor(ROW),
-        Col  = factor(COLUMN),
-        y    = 300 +
-          6 * scale(as.numeric(ROW))[,1] + 4 * scale(as.numeric(COLUMN))[,1] +
-          rnorm(dplyr::n(), sd = 10)
-      )
-    m2 <- lmerTest::lmer(y ~ GEN + (1|Fila) + (1|Col), data = d2)
-    vc2 <- as.data.frame(lme4::VarCorr(m2))
-    out <- vc2 |>
-      dplyr::select(Componente = grp, Varianza = vcov) |>
-      dplyr::mutate(
-        Param = paste0("nrows=", input$ex2_rows, ", r=", input$ex2_reps)
-      )
-    output$ex2VarTbl <- renderTable(out, digits = 3)
-  })
+  # Call tab servers
+  pestanna1_session7_v3_server(input, output, session)
+  pestanna2_session7_v3_server(input, output, session, rc_design, has_pkg)
+  pestanna3_session7_v3_server(input, output, session, rc_design, sim_data)
+  pestanna4_session7_v3_server(input, output, session)
+  pestanna5_session7_v3_server(input, output, session)
 }

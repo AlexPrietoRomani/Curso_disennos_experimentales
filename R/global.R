@@ -130,6 +130,12 @@ register_module_source <- function(module_name, file) {
   if (!nzchar(module_name)) return()
   if (!exists(module_name, envir = module_sources, inherits = FALSE)) {
     assign(module_name, file, envir = module_sources)
+  } else {
+    # Si ya existe, agregamos el archivo a la lista si no está
+    current <- get(module_name, envir = module_sources)
+    if (!file %in% current) {
+      assign(module_name, c(current, file), envir = module_sources)
+    }
   }
 }
 
@@ -158,14 +164,25 @@ ensure_module_loaded <- function(module_name) {
   if (!nzchar(module_name)) return(FALSE)
   ui_fun_name <- paste0(module_name, "UI")
   server_fun_name <- paste0(module_name, "Server")
+  
   ui_loaded <- exists(ui_fun_name, mode = "function", inherits = TRUE)
   server_loaded <- exists(server_fun_name, mode = "function", inherits = TRUE)
-  if (ui_loaded || server_loaded) return(TRUE)
+  
+  # Si ya están ambas cargadas, retornamos TRUE
+  if (ui_loaded && server_loaded) return(TRUE)
+  
   if (!exists(module_name, envir = module_sources, inherits = FALSE)) {
     warning(sprintf("No se encontró el archivo fuente para el módulo '%s'.", module_name), call. = FALSE)
     return(FALSE)
   }
-  source(get(module_name, envir = module_sources), local = FALSE, encoding = "UTF-8")
+  
+  # Cargar todos los archivos asociados al módulo
+  files <- get(module_name, envir = module_sources)
+  for (f in files) {
+    source(f, local = FALSE, encoding = "UTF-8")
+  }
+  
+  # Verificamos de nuevo
   exists(ui_fun_name, mode = "function", inherits = TRUE) ||
     exists(server_fun_name, mode = "function", inherits = TRUE)
 }
