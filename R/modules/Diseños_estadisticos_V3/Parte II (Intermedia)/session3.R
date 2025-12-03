@@ -558,6 +558,122 @@ pestanna4_session3_v3UI <- function(ns) {
   )
 }
 
+# Pestaña Extra: Esquemas Visuales y Conceptuales
+pestanna_extra_session3_v3UI <- function(ns) {
+  # Definir la ruta base para facilitar cambios futuros
+  # Nota: En Shiny, la ruta relativa empieza en 'www', por lo que en el src
+  # ponemos lo que sigue después de www/
+  img_path <- "images/sesiones/Diseños_estadisticos_V3/session3/"
+  
+  bslib::nav_panel(
+    title = "Extra: Esquemas Visuales",
+    icon = icon("chalkboard"), # Icono de pizarra
+    
+    div(class = "container-fluid",
+      h4(class = "section-header", "Conceptos Gráficos de Regresión"),
+      p("Esta sección traduce las ecuaciones matemáticas a intuiciones visuales para facilitar la interpretación biológica y el diagnóstico."),
+      
+      # Navegación interna con pestañas subrayadas para un look limpio
+      bslib::navset_card_underline(
+        
+        # --- Sub-pestaña 1: La Mecánica de OLS ---
+        bslib::nav_panel(
+          title = "La Máquina OLS",
+          div(class = "row align-items-center",
+            div(class = "col-md-7",
+              tags$img(
+                src = paste0(img_path, "ols_mechanism_visualization.png"), 
+                class = "img-fluid shadow-sm border rounded",
+                alt = "Interpretación geométrica de Mínimos Cuadrados Ordinarios",
+                style = "width: 100%; min-height: 300px; object-fit: contain; background-color: #ffffff;"
+              )
+            ),
+            div(class = "col-md-5",
+              div(class = "card bg-light border-0",
+                div(class = "card-body",
+                  h5("¿Qué significa 'Mínimos Cuadrados'?"),
+                  p("Cuando R ejecuta ", code("lm(y ~ x)"), ", no está adivinando. Está resolviendo un problema geométrico:"),
+                  tags$ol(
+                    tags$li("Calcula la distancia vertical (residuo) de cada punto a la línea."),
+                    tags$li("Eleva esa distancia al cuadrado (formando los cuadrados azules de la imagen)."),
+                    tags$li("Mueve la línea hasta que la ", strong("suma total del área"), " de esos cuadrados sea la mínima posible.")
+                  ),
+                  hr(),
+                  p(class = "small text-muted", 
+                    "Por esto los valores atípicos (outliers) 'tiran' tanto de la línea: un residuo grande, al elevarse al cuadrado, penaliza muchísimo al modelo.")
+                )
+              )
+            )
+          )
+        ),
+        
+        # --- Sub-pestaña 2: Diagnóstico Visual ---
+        bslib::nav_panel(
+          title = "Guía de Diagnóstico",
+          div(class = "row",
+            div(class = "col-md-12 mb-2",
+              p("El gráfico de 'Residuos vs. Ajustados' es el detector de mentiras del modelo. Aprende a leer sus patrones.")
+            ),
+            div(class = "col-md-8 offset-md-2",
+              tags$img(
+                src = paste0(img_path, "diagnostic_patterns_panel.png"), 
+                class = "img-fluid shadow border rounded mb-3",
+                alt = "Patrones de diagnóstico: Homocedasticidad vs Heterocedasticidad vs No linealidad",
+                style = "width: 100%;"
+              )
+            ),
+            div(class = "col-md-12",
+              div(class = "d-flex justify-content-around",
+                div(class = "p-3 bg-light border rounded", style = "width: 30%;",
+                    strong("1. Nube sin forma"), br(), "Significa que el modelo ha capturado toda la señal y solo queda ruido aleatorio. ¡Es lo que buscamos!"),
+                div(class = "p-3 bg-light border rounded", style = "width: 30%;",
+                    strong("2. El Megáfono"), br(), "Indica Heterocedasticidad. La varianza crece con la media. Solución: Transformar Y (log) o usar modelos ponderados (WLS)."),
+                div(class = "p-3 bg-light border rounded", style = "width: 30%;",
+                    strong("3. La Sonrisa (U)"), br(), "Indica que falta un término cuadrático. Estás intentando ajustar una curva con una recta.")
+              )
+            )
+          )
+        ),
+        
+        # --- Sub-pestaña 3: Interpretación Biológica ---
+        bslib::nav_panel(
+          title = "Modelos en la Biología",
+          div(class = "row align-items-center",
+             div(class = "col-md-4",
+               div(class = "card h-100 border-primary",
+                 div(class = "card-header bg-primary text-white", "Lineal"),
+                 div(class = "card-body",
+                   p("$$y = \\beta_0 + \\beta_1 x$$"),
+                   p(small("Uso: Rangos cortos de insumo.")),
+                   hr(),
+                   p("Asume que la planta responde igual a la primera dosis que a la última. No contempla saciedad ni toxicidad.")
+                 )
+               )
+             ),
+             div(class = "col-md-8",
+               tags$img(
+                 src = paste0(img_path, "agronomic_curves_interpretation.png"), 
+                 class = "img-fluid shadow-sm rounded",
+                 alt = "Comparación de curvas lineal, cuadrática y logarítmica",
+                 style = "width: 100%;"
+               )
+             ),
+             div(class = "col-md-12 mt-3",
+               div(class = "alert alert-secondary",
+                 h6("Claves de decisión agronómica:"),
+                 tags$ul(
+                   tags$li(strong("Cuadrático:"), " Úsalo si esperas un óptimo biológico (dosis máxima antes de quemar el cultivo). Busca el vértice de la parábola."),
+                   tags$li(strong("Logarítmico:"), " Úsalo para 'Ley de rendimientos decrecientes'. Añadir más fertilizante ayuda, pero cada vez menos.")
+                 )
+               )
+             )
+          )
+        )
+      )
+    )
+  )
+}
+
 # Pestaña 5: Referencias
 pestanna5_session3_v3UI <- function(ns) {
   bslib::nav_panel(
@@ -604,6 +720,7 @@ session3_v3UI <- function(id) {
       pestanna2_session3_v3UI(ns),
       pestanna3_session3_v3UI(ns),
       pestanna4_session3_v3UI(ns),
+      pestanna_extra_session3_v3UI(ns),
       pestanna5_session3_v3UI(ns)
     )
   )
