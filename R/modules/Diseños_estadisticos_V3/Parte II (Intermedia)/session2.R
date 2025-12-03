@@ -805,6 +805,111 @@ pestanna5_session2_v3UI <- function(ns) {
   )
 }
 
+# Pestaña Extra: Material Visual y Esquemas Conceptuales
+pestanna_extra_session2_v3UI <- function(ns) {
+  nav_panel(
+    title = "Extra: Esquemas Visuales",
+    icon = icon("chalkboard-user"), # Icono profesional
+    
+    div(class = "container-fluid",
+      h4(class = "section-header", "Consolidación Visual de Conceptos"),
+      p("Esta sección resume la teoría matemática y práctica mediante esquemas visuales. ",
+        "El objetivo es conectar la intuición agronómica con la formulación estadística."),
+      
+      # Sub-navegación interna mediante Pills
+      navset_card_pill(
+        
+        # --- Sub-pestaña 1: La Pizarra Teórica ---
+        nav_panel(
+          title = "La Pizarra (Modelos)",
+          div(class = "row align-items-center",
+            div(class = "col-md-8",
+              # Aquí va la imagen de la pizarra
+              # Asegúrate de tener el archivo en la carpeta www/images/
+              # Si no tienes la imagen aún, esto mostrará un placeholder
+              tags$img(
+                src = "images/sesiones/Diseños_estadisticos_V3/session2/whiteboard_models_anova.png", 
+                class = "img-fluid shadow-sm border rounded",
+                alt = "Pizarra comparativa de modelos lineales DCA vs RCBD",
+                style = "width: 100%; min-height: 300px; background-color: #f0f0f0;" 
+              )
+            ),
+            div(class = "col-md-4",
+              div(class = "card bg-light border-0",
+                div(class = "card-body",
+                  h5("Puntos Clave de la Ecuación"),
+                  tags$ul(
+                    tags$li(strong("DCA:"), " Todo lo que no es Tratamiento ($\\tau_i$) va al Error ($\\varepsilon_{ij}$)."),
+                    tags$li(strong("RCBD:"), " Introducimos ($\\beta_j$) para capturar variabilidad sistemática."),
+                    tags$li(strong("La Resta Mágica:"), " Al restar el efecto bloque del error total, el ", em("CM(Error)"), " disminuye, facilitando encontrar diferencias significativas (F más grande).")
+                  ),
+                  hr(),
+                  p(class = "small text-muted", 
+                    "Fuente: Adaptado de Montgomery, D. C. (2019). Design and Analysis of Experiments.")
+                )
+              )
+            )
+          )
+        ),
+        
+        # --- Sub-pestaña 2: Aleatorización de Campo ---
+        nav_panel(
+          title = "Esquemas de Campo",
+          div(class = "row",
+            div(class = "col-md-12 mb-3",
+              p("La diferencia fundamental no es solo matemática, es física. Observa cómo se restringe la aleatorización.")
+            ),
+            div(class = "col-md-6",
+              div(class = "card h-100",
+                div(class = "card-header", strong("DCA: Homogeneidad")),
+                div(class = "card-body text-center",
+                    tags$img(
+                      src = "images/sesiones/Diseños_estadisticos_V3/session2/layout_crd_visual.png", 
+                      class = "img-fluid mb-2",
+                      alt = "Esquema de campo DCA",
+                      style = "max-height: 300px;"
+                    ),
+                    p(class = "small", "Cualquier tratamiento puede caer en cualquier lugar. Ideal para laboratorios o invernaderos controlados.")
+                )
+              )
+            ),
+            div(class = "col-md-6",
+              div(class = "card h-100",
+                div(class = "card-header", strong("RCBD: Gradientes")),
+                div(class = "card-body text-center",
+                    tags$img(
+                      src = "images/sesiones/Diseños_estadisticos_V3/session2/layout_rcbd_visual.png", 
+                      class = "img-fluid mb-2",
+                      alt = "Esquema de campo RCBD con gradiente",
+                      style = "max-height: 300px;"
+                    ),
+                    p(class = "small", "La aleatorización ocurre SOLO dentro de cada bloque. Controlamos el gradiente (flecha de color).")
+                )
+              )
+            )
+          )
+        ),
+        
+        # --- Sub-pestaña 3: Infografía de Decisión ---
+        nav_panel(
+          title = "Infografía Resumen",
+          div(class = "text-center",
+            tags$img(
+              src = "images/sesiones/Diseños_estadisticos_V3/session2/infographic_decision_tree.png", 
+              class = "img-fluid shadow",
+              style = "max-width: 80%; border: 1px solid #ddd; padding: 10px;",
+              alt = "Árbol de decisión para diseño experimental"
+            ),
+            br(), br(),
+            div(class = "alert alert-info d-inline-block",
+                "Recuerda: Bloquear reduce los Grados de Libertad del error. Solo bloquea si estás seguro de que hay heterogeneidad. (Kuehl, 2000).")
+          )
+        )
+      )
+    )
+  )
+}
+
 # Pestaña 6: Scripts listos para copiar (UI mejorada)
 pestanna6_session2_v3UI <- function(ns) {
   nav_panel(
@@ -1047,6 +1152,7 @@ session2_v3UI <- function(id) {
       pestanna3_session2_v3UI(ns),
       pestanna4_session2_v3UI(ns),
       pestanna5_session2_v3UI(ns),
+      pestanna_extra_session2_v3UI(ns),
       pestanna6_session2_v3UI(ns),
       pestanna7_session2_v3UI(ns)
     )
