@@ -8,7 +8,6 @@
 *.Rbuildignore
 *.Renviron
 Curso_disennos_experimentales.Rproj
-intermedio.R
 *.Rproj
 credentials.sqlite
 
@@ -16,8 +15,8 @@ credentials.sqlite
 # Note: This file is not tracked by git, but it is included here for reference.
 /.Rproj.user/
 /renv/
-intermedio.R
 /.Renviron/
 /rsconnect/
-/scripts/
+/scripts
+/listas_usuarios
 /rsconnect
