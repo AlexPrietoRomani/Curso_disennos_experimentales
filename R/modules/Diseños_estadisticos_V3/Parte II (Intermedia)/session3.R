@@ -644,7 +644,7 @@ pestanna_extra_session3_v3UI <- function(ns) {
                  div(class = "card-header bg-primary text-white", "Lineal"),
                  div(class = "card-body",
                    p("$$y = \\beta_0 + \\beta_1 x$$"),
-                   p(small("Uso: Rangos cortos de insumo.")),
+                   p(tags$small("Uso: Rangos cortos de insumo.")),
                    hr(),
                    p("Asume que la planta responde igual a la primera dosis que a la última. No contempla saciedad ni toxicidad.")
                  )
