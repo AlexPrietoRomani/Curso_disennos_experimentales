@@ -8,77 +8,219 @@
 pestanna1_session3_v3UI <- function(ns) {
   bslib::nav_panel(
     title = "1) MRLS & Datos",
-    tags$div(class = "mb-3",
+    
+    # -------------------------------------------------------------------
+    # Bloque 0: Contexto y objetivos de la pestaña
+    # -------------------------------------------------------------------
+    bslib::card(
+      bslib::card_header("Contexto y objetivos de la Sesión 3 (MRLS)"),
       tags$p(
-        "Objetivo: Ajustar e interpretar el Modelo de Regresión Lineal Simple (MRLS), ",
-        "construir un dataset práctico (simular o cargar CSV) y fijar la línea base (β₀, β₁, R², p-valor). ",
-        "Seguiremos buenas prácticas de inferencia y diagnóstico antes de concluir. ",
-        "Fundamentos en MRLS e inferencia (Gelman & Hill, 2007)."
+        "En esta pestaña trabajaremos con el ",
+        strong("Modelo de Regresión Lineal Simple (MRLS)"),
+        " de la forma ",
+        HTML("&nbsp;"), 
+        "\\( y = \\beta_0 + \\beta_1 x + \\varepsilon \\), ",
+        "donde estimamos ", HTML("&beta;"), " por ",
+        strong("Mínimos Cuadrados Ordinarios (OLS)"),
+        " minimizando la suma de residuos al cuadrado."
+      ),
+      tags$ul(
+        tags$li("Construir un conjunto de datos práctico: ",
+                strong("simulado"), " (x = insumo, y = respuesta) ",
+                "o ", strong("importado desde CSV"), "."),
+        tags$li("Ajustar un MRLS con ", code("lm(y ~ x)"), 
+                " y revisar un resumen clásico (`summary(lm)`)."),
+        tags$li("Fijar una línea base con β₀, β₁, R² y p-valor antes de pasar a diagnósticos y modelos no lineales.")
+      ),
+      tags$p(
+        class = "small text-muted",
+        "Referencias sugeridas: Gelman & Hill (2007) para regresión aplicada; ",
+        "OLS como estimador estándar en MRLS. Ver documentación de R base y libros de regresión para más detalles."
       )
     ),
 
+    # -------------------------------------------------------------------
+    # Bloque 1: Datos de práctica (simulación o CSV)
+    # -------------------------------------------------------------------
     bslib::card(
-      bslib::card_header("Datos de práctica"),
+      bslib::card_header("Datos de práctica (x = insumo, y = respuesta)"),
       fluidRow(
+        # ---------------- Columna izquierda: controles de datos ----------------
         column(
           width = 4,
-          radioButtons(ns("s3_data_mode"), "Fuente de datos:",
-                       choices = c("Simular" = "sim", "Cargar CSV" = "csv"),
-                       selected = "sim"),
+          
+          div(
+            class = "mb-2 small text-muted text-uppercase fw-bold",
+            "Paso 1 · Elegir fuente de datos"
+          ),
+          radioButtons(
+            ns("s3_data_mode"), "Fuente de datos:",
+            choices  = c("Simular (modo docente)" = "sim",
+                         "Cargar CSV propio"      = "csv"),
+            selected = "sim"
+          ),
+          
+          # ---- Modo simulación ----
           conditionalPanel(
             condition = sprintf("input['%s'] == 'sim'", ns("s3_data_mode")),
-            sliderInput(ns("s3_n"),
-                        "n (observaciones):", min = 20, max = 500, value = 100, step = 10),
-            sliderInput(ns("s3_beta0"), "β₀ (intercepto):", min = -200, max = 200, value = 500, step = 5),
-            sliderInput(ns("s3_beta1"), "β₁ (pendiente):", min = -10, max = 10, value = 2, step = 0.1),
-            sliderInput(ns("s3_sigma"), "σ (ruido):", min = 1, max = 100, value = 40, step = 1),
-            checkboxInput(ns("s3_quadratic_truth"),
-                          "Generar verdad con curvatura suave (parabólica)", value = TRUE),
-            sliderInput(ns("s3_beta2_truth"), "β₂ (curvatura 'verdad'):",
-                        min = -0.05, max = 0.05, value = -0.01, step = 0.001),
-            actionButton(ns("s3_gen"), "Generar datos", icon = icon("random"),
-                         class = "btn-primary w-100 mt-2")
+            
+            tags$small(
+              class = "text-muted",
+              "Contexto sugerido: x = dosis o nivel de insumo (kg/ha, plantas/ha, etc.); ",
+              "y = respuesta (rendimiento, biomasa, índice, etc.)."
+            ),
+            tags$hr(),
+            
+            sliderInput(
+              ns("s3_n"),
+              "n (observaciones):",
+              min = 20, max = 500, value = 100, step = 10
+            ),
+            sliderInput(
+              ns("s3_beta0"),
+              HTML("&beta;₀ (intercepto):"),
+              min = -200, max = 200, value = 500, step = 5
+            ),
+            sliderInput(
+              ns("s3_beta1"),
+              HTML("&beta;₁ (pendiente):"),
+              min = -10, max = 10, value = 2, step = 0.1
+            ),
+            sliderInput(
+              ns("s3_sigma"),
+              HTML("&sigma; (ruido):"),
+              min = 1, max = 100, value = 40, step = 1
+            ),
+            
+            tags$hr(class = "my-2"),
+            div(
+              class = "mb-1 small text-muted text-uppercase fw-bold",
+              "Verdad subyacente (opcionalmente curva)"
+            ),
+            checkboxInput(
+              ns("s3_quadratic_truth"),
+              "Generar verdad con curvatura suave (parabólica)",
+              value = TRUE
+            ),
+            sliderInput(
+              ns("s3_beta2_truth"),
+              HTML("&beta;₂ (curvatura de la 'verdad')"),
+              min = -0.05, max = 0.05, value = -0.01, step = 0.001
+            ),
+            
+            actionButton(
+              ns("s3_gen"),
+              "Generar datos simulados",
+              icon  = icon("random"),
+              class = "btn-primary w-100 mt-2"
+            ),
+            tags$small(
+              class = "text-muted",
+              "Nota: si β₂ ≠ 0, la 'verdad' es ligeramente curva, pero aquí ajustaremos un modelo lineal ",
+              "(intencionalmente simplificado)."
+            )
           ),
+          
+          # ---- Modo CSV ----
           conditionalPanel(
             condition = sprintf("input['%s'] == 'csv'", ns("s3_data_mode")),
-            fileInput(ns("s3_file"), "Sube un CSV con columnas 'x' y 'y'",
-                      accept = c(".csv", "text/csv")),
-            checkboxInput(ns("s3_has_header"), "CSV con cabecera", TRUE),
-            selectInput(ns("s3_sep"), "Separador", choices = c("," = ",", ";" = ";", "\t" = "\t"), selected = ","),
-            checkboxInput(ns("s3_show_preview"), "Previsualizar primeras filas", TRUE)
+            tags$small(
+              class = "text-muted",
+              "Sube un archivo con dos columnas numéricas llamadas ",
+              code("x"), " (insumo) y ", code("y"), " (respuesta)."
+            ),
+            tags$hr(),
+            fileInput(
+              ns("s3_file"),
+              "Sube un CSV con columnas 'x' y 'y'",
+              accept = c(".csv", "text/csv")
+            ),
+            checkboxInput(
+              ns("s3_has_header"),
+              "CSV con cabecera",
+              TRUE
+            ),
+            selectInput(
+              ns("s3_sep"),
+              "Separador",
+              choices  = c("Coma (,)" = ",", "Punto y coma (;)" = ";", "Tab" = "\t"),
+              selected = ","
+            ),
+            checkboxInput(
+              ns("s3_show_preview"),
+              "Previsualizar primeras filas",
+              TRUE
+            ),
+            tags$small(
+              class = "text-muted",
+              "Valores no numéricos o NA se omiten automáticamente al leer el archivo."
+            )
           )
         ),
+        
+        # ---------------- Columna derecha: tabla + gráfico base ----------------
         column(
           width = 8,
           bslib::card(
-            bslib::card_header("Exploración"),
+            bslib::card_header("Exploración de los datos (tabla + nube de puntos)"),
+            tags$small(
+              class = "text-muted",
+              "Primero revisa si los datos tienen sentido en la escala y si la relación aparente es razonablemente ",
+              "monótona/lineal antes de ajustar modelos."
+            ),
             DT::dataTableOutput(ns("s3_tbl_preview")),
+            tags$hr(),
             plotOutput(ns("s3_scatter_base"), height = "330px")
           )
         )
       )
     ),
 
+    # -------------------------------------------------------------------
+    # Bloque 2: MRLS – Ajuste e interpretación
+    # -------------------------------------------------------------------
     bslib::card(
-      bslib::card_header("MRLS: Ajuste e interpretación"),
+      bslib::card_header("MRLS: Ajuste, resumen clásico y lectura rápida"),
       fluidRow(
+        # -------- Columna izquierda: teoría + summary(lm) --------
         column(
           width = 6,
           tags$p(
-            "Ajustamos \\( y = \\beta_0 + \\beta_1 x + \\varepsilon \\) por Mínimos Cuadrados. ",
-            "Interpretación estándar de β₀ (cuando x=0) y β₁ (cambio medio en y por unidad de x). ",
-            "R² y p-valores guían evidencia de asociación; revisar supuestos antes de concluir ",
-            "(Gelman & Hill, 2007)."
+            "Ajustamos el modelo lineal: ",
+            "\\( y = \\beta_0 + \\beta_1 x + \\varepsilon \\), ",
+            "donde \\(\\varepsilon \\sim N(0, \\sigma^2)\\) bajo los supuestos clásicos. ",
+            "La estimación de ", HTML("&beta;"), " se realiza por Mínimos Cuadrados Ordinarios (OLS), ",
+            "minimizando la suma de cuadrados de los residuos. ",
+            "R² mide proporción de variabilidad explicada; p-valores evalúan evidencia contra H₀: β₁ = 0."
           ),
+          tags$small(
+            class = "text-muted",
+            "Buenas prácticas: antes de interpretar β₁ como efecto de 'x' sobre 'y', ",
+            "verificar supuestos con diagnóstico gráfico (Pestaña 2)."
+          ),
+          tags$hr(),
           verbatimTextOutput(ns("s3_lm_summary"))
         ),
+        
+        # -------- Columna derecha: gráfico + TL;DR del modelo --------
         column(
           width = 6,
           plotOutput(ns("s3_fit_plot"), height = "330px"),
           tags$small(
-            "Sombreado: IC (95%) del MRLS. Visualización con ", code("ggplot2"), 
-            " para evaluar tendencia inicial. ", 
-            "Documentación de ", code("geom_smooth()"), " y fórmulas personalizadas. "
+            "La banda sombreada representa el intervalo de confianza (95%) de la recta ajustada. ",
+            "Visualmente, buscamos una tendencia aproximadamente lineal y una dispersión homogénea ",
+            "alrededor de la recta."
+          ),
+          tags$hr(),
+          tags$strong("Resumen rápido del MRLS (lectura para informe):"),
+          tags$br(),
+          tags$small(
+            class = "text-muted",
+            "Útil para escribir la conclusión del análisis sin revisar todo el `summary(lm)`."
+          ),
+          tags$pre(
+            style = "background:#0f172a; color:#e5e7eb; border-radius:0.5rem; padding:0.5rem; font-size:0.8rem;",
+            textOutput(ns("s3_lm_tldr"))
           )
         )
       )
@@ -90,45 +232,127 @@ pestanna1_session3_v3UI <- function(ns) {
 pestanna2_session3_v3UI <- function(ns) {
   bslib::nav_panel(
     title = "2) Diagnóstico",
-    tags$p(
-      "Las inferencias (p-valores/IC) suponen residuos aproximadamente normales, independencia y varianza constante. ",
-      "Se inspeccionan residuos vs. ajustados (homocedasticidad) y Q-Q Normal (normalidad). ",
-      "Para heterocedasticidad por grupos, Levene es útil (Fox & Weisberg)."
-    ),
-
-    fluidRow(
-      column(
-        width = 4,
-        bslib::card(
-          bslib::card_header("Configuración de diagnóstico"),
-          selectInput(ns("s3_diag_model"), "Modelo para diagnosticar:",
-                      choices = c("Lineal (y ~ x)" = "lin")),
-          sliderInput(ns("s3_bins_groups"),
-                      "Agrupar x en k quantiles (para Levene):", min = 2, max = 8, value = 4),
-          actionButton(ns("s3_run_diag"), "Ejecutar diagnóstico", class = "btn-secondary w-100")
+    withMathJax(
+      # 1) Introducción teórica breve
+      tags$div(class = "mb-3",
+        tags$p(
+          strong("Objetivo: "),
+          "verificar si el Modelo de Regresión Lineal Simple (MRLS) es compatible con sus supuestos básicos."
         ),
-        bslib::card(
-          bslib::card_header("Prueba formal (opcional)"),
-          tags$p(
-            "Si está disponible el paquete ", code("car"), ", se ejecuta ",
-            code("leveneTest"), "."
+        tags$ul(
+          tags$li(
+            strong("Linealidad:"),
+            " la relación media entre \\(x\\) e \\(y\\) es aproximadamente lineal."
           ),
-          verbatimTextOutput(ns("s3_levene_out"))
+          tags$li(
+            strong("Homoscedasticidad:"),
+            " la varianza de los residuos es aproximadamente constante a lo largo del rango de \\(x\\) ",
+            "(no se abre ni se cierra el 'abanico')."
+          ),
+          tags$li(
+            strong("Normalidad (aprox.):"),
+            " los residuos se distribuyen de forma aproximadamente normal; importante para IC y p-valores."
+          ),
+          tags$li(
+            strong("Independencia:"),
+            " las observaciones son independientes (no hay autocorrelación temporal/espacial evidente)."
+          )
+        ),
+        tags$p(
+          class = "small text-muted",
+          "Aquí trabajaremos sobre el modelo lineal base \\( y = \\beta_0 + \\beta_1 x + \\varepsilon \\). ",
+          "Las ideas siguen textos como Gelman & Hill (2007) y Fox & Weisberg (2019, paquete ",
+          code("car"),
+          ")."
         )
       ),
-      column(
-        width = 8,
-        bslib::card(
-          bslib::card_header("Gráficos de diagnóstico"),
-          fluidRow(
-            column(6, plotOutput(ns("s3_resid_fitted"), height = "280px")),
-            column(6, plotOutput(ns("s3_qqplot"), height = "280px"))
+
+      fluidRow(
+        # Columna izquierda: configuración + pruebas formales
+        column(
+          width = 4,
+          bslib::card(
+            bslib::card_header("Configuración de diagnóstico"),
+            tags$p(
+              "Usaremos por defecto el modelo lineal base ",
+              code("y ~ x"),
+              ". En extensiones futuras se podría añadir el cuadrático/logarítmico."
+            ),
+            selectInput(
+              ns("s3_diag_model"),
+              "Modelo para diagnosticar:",
+              choices = c("Lineal (y ~ x)" = "lin"),
+              selected = "lin"
+            ),
+            sliderInput(
+              ns("s3_bins_groups"),
+              "Agrupar x en k quantiles (para Levene):",
+              min = 2, max = 8, value = 4
+            ),
+            actionButton(
+              ns("s3_run_diag"),
+              "Ejecutar diagnóstico",
+              class = "btn-secondary w-100"
+            ),
+            tags$hr(class = "my-2"),
+            tags$small(
+              strong("Guía rápida: "),
+              "1) Haz clic en 'Ejecutar diagnóstico'. 2) Revisa la nube de residuos ",
+              "(¿patrones claros?). 3) Revisa el Q-Q plot (¿cola muy pesada?). ",
+              "4) Lee el resumen de Levene (si hay grupos de varianza muy distintos)."
+            )
           ),
-          tags$small(
-            "Criterio visual: Nube aleatoria alrededor de 0 (varianza constante); ",
-            "Q-Q cercano a la línea (residuos ~ normales). ",
-            "Ante heterocedasticidad: considerar transformaciones o ponderación; interpretar como hallazgo ",
-            "biológico (variabilidad que crece con el nivel del insumo) antes de 'corregir'."
+
+          bslib::card(
+            bslib::card_header("Prueba formal (opcional)"),
+            tags$p(
+              "Si está disponible el paquete ", code("car"), ", se ejecuta ",
+              code("leveneTest(resid ~ grupo_x)"),
+              " sobre grupos de ", code("x"), " definidos por cuantiles."
+            ),
+            verbatimTextOutput(ns("s3_levene_out")),
+            tags$small(
+              class = "text-muted",
+              "Regla práctica: p-valor Levene < 0.05 ⇒ evidencia de varianzas distintas entre grupos ",
+              "(heterocedasticidad). p-valor grande ⇒ no se detecta una diferencia clara en varianzas."
+            )
+          )
+        ),
+
+        # Columna derecha: gráficos + lectura rápida
+        column(
+          width = 8,
+          bslib::card(
+            bslib::card_header("Gráficos de diagnóstico del MRLS"),
+            fluidRow(
+              column(
+                width = 6,
+                plotOutput(ns("s3_resid_fitted"), height = "280px"),
+                tags$small(
+                  strong("Residuos vs. Ajustados: "),
+                  "busque una 'nube sin forma'. Evitar: ",
+                  "patrones en U, V o abanico (varianza que aumenta/disminuye con el nivel)."
+                )
+              ),
+              column(
+                width = 6,
+                plotOutput(ns("s3_qqplot"), height = "280px"),
+                tags$small(
+                  strong("Q-Q Normal: "),
+                  "puntos aproximadamente sobre la línea roja ⇒ residuos ~ normales. ",
+                  "Desviaciones sistemáticas en colas pueden indicar asimetría o colas pesadas."
+                )
+              )
+            ),
+            tags$hr(),
+            tags$strong("Lectura rápida del diagnóstico"),
+            tags$p(
+              class = "small text-muted mb-1",
+              "Este resumen combina la inspección visual con el resultado de Levene ",
+              "(si aplica). Úselo como apoyo; la interpretación final debe considerar el ",
+              "contexto agronómico y la magnitud de los efectos."
+            ),
+            textOutput(ns("s3_diag_tldr"))
           )
         )
       )
@@ -140,59 +364,151 @@ pestanna2_session3_v3UI <- function(ns) {
 pestanna3_session3_v3UI <- function(ns) {
   bslib::nav_panel(
     title = "3) No lineales & Selección",
-    tags$p(
-      "Muchas relaciones agrobiológicas son no lineales (rendimientos decrecientes, óptimos). ",
-      "Comparamos modelos lineal, cuadrático y logarítmico con el mismo subconjunto de datos ",
-      "(si hay x≤0, se filtran para el log). Selección con AIC (parsimonia) y R² ajustado."
+    
+    # Introducción teórica breve
+    tags$div(
+      class = "mb-3",
+      tags$p(
+        "En agronomía muchas respuestas no son estrictamente lineales: ",
+        "aparecen rendimientos decrecientes, óptimos de dosis o densidad y efectos de saturación. ",
+        "En esta pestaña comparamos, sobre el mismo conjunto de datos, tres familias sencillas:"
+      ),
+      tags$ul(
+        tags$li(
+          strong("Lineal: "), code("y ~ x"),
+          " — relación aproximadamente proporcional; sin óptimo interno."
+        ),
+        tags$li(
+          strong("Cuadrático: "), code("y ~ x + I(x^2)"),
+          " — permite curvatura y un óptimo interno ",
+          HTML("\\(x^* = -\\beta_1 / (2\\beta_2)\\) cuando \\(\\beta_2 < 0\\); "),
+          "típico en curvas dosis–respuesta o densidad–rendimiento."
+        ),
+        tags$li(
+          strong("Logarítmico: "), code("y ~ log(x)"),
+          " — rendimientos decrecientes: el impacto marginal de aumentar ",
+          "x se reduce a medida que crece el insumo; precursor de modelos más complejos ",
+          "(Gompertz, logístico, etc.)."
+        )
+      ),
+      tags$p(
+        "La selección se basa en dos ejes: ",
+        strong("parsimonia (AIC)"),
+        " y ",
+        strong("capacidad explicativa (R² ajustado)"),
+        ". Cuando varios modelos tienen ΔAIC pequeño, la decisión final debe ser",
+        " biológica (forma de la curva, plausibilidad agronómica) más que puramente numérica."
+      )
     ),
 
+    # ------------------------------------------------------------------
+    # 1) Ajuste paralelo y tabla de selección
+    # ------------------------------------------------------------------
     bslib::card(
-      bslib::card_header("Ajuste paralelo y comparación"),
+      bslib::card_header("Ajuste paralelo de modelos y selección (AIC + R²aj)"),
       fluidRow(
         column(
           width = 4,
+          tags$div(
+            class = "mb-2 small text-muted text-uppercase fw-bold",
+            "Paso 1 · Elige modelos y base de datos"
+          ),
           checkboxGroupInput(
             ns("s3_models_to_fit"),
             "Modelos a considerar",
             choices = c(
-              "Lineal: y ~ x" = "lin",
+              "Lineal: y ~ x"             = "lin",
               "Cuadrático: y ~ x + I(x^2)" = "quad",
-              "Logarítmico: y ~ log(x)" = "log"
+              "Logarítmico: y ~ log(x)"   = "log"
             ),
             selected = c("lin", "quad", "log")
           ),
-          checkboxInput(ns("s3_lock_same_data"),
-                        "Forzar misma base de datos para todos (usa x>0 si incluye log)",
-                        value = TRUE),
-          actionButton(ns("s3_run_compare"), "Ajustar y comparar", class = "btn-primary w-100")
+          checkboxInput(
+            ns("s3_lock_same_data"),
+            "Forzar misma base de datos para todos (usa solo x > 0 si incluye log)",
+            value = TRUE
+          ),
+          actionButton(
+            ns("s3_run_compare"),
+            "Ajustar y comparar",
+            class = "btn btn-primary w-100 mt-2"
+          ),
+          tags$hr(),
+          tags$div(
+            class = "small text-muted",
+            tags$strong("Lectura rápida de la tabla:"),
+            tags$ul(
+              tags$li(code("R2_aj"), ": fracción de variación explicada, penalizada por nº de parámetros."),
+              tags$li(code("AIC"), ": menor ⇒ mejor equilibrio ajuste–complejidad."),
+              tags$li(
+                code("ΔAIC"), ": diferencia respecto al mejor AIC.",
+                " Regla orientativa: ΔAIC ≤ 2 (modelos prácticamente equivalentes), ",
+                "entre 4–7 (soporte sustancialmente menor), > 10 (poco soporte)."
+              ),
+              tags$li(
+                code("Peso_AIC"), ": probabilidad relativa (normalizada) de que el modelo sea el ‘mejor’ ",
+                "dentro del conjunto evaluado."
+              )
+            )
+          )
         ),
         column(
           width = 8,
           DT::dataTableOutput(ns("s3_tbl_models")),
-          tags$small(
-            "AIC más bajo ⇒ modelo más parsimonioso (Akaike, 1974; Burnham & Anderson, 2004). ",
-            "R²aj penaliza predictores innecesarios; útil pero centrado en ajuste retrospectivo. ",
-            "Elegir con criterio biológico cuando AIC sea cercano."
+          tags$div(
+            class = "mt-2 small",
+            tags$strong("Interpretación automática (AIC):"),
+            tags$br(),
+            textOutput(ns("s3_best_model_msg"))
           )
         )
       )
     ),
 
+    # ------------------------------------------------------------------
+    # 2) Comparación visual de curvas
+    # ------------------------------------------------------------------
     bslib::card(
-      bslib::card_header("Comparación visual de curvas"),
+      bslib::card_header("Comparación visual de curvas sobre los mismos datos"),
       plotOutput(ns("s3_compare_plot"), height = "360px"),
       tags$small(
-        "Curvas superpuestas con ", code("ggplot2::geom_smooth"), 
-        ". Si el logarítmico está seleccionado, se traza sobre x>0."
+        "Los puntos muestran los datos observados (x ~ insumo; y ~ respuesta). ",
+        "Las curvas de colores representan las predicciones de cada modelo ",
+        "ajustado sobre un rango común de x. El modelo logarítmico sólo se dibuja ",
+        "para x > 0 (dominio de log(x)). La leyenda indica la familia de modelo."
       )
     ),
 
+    # ------------------------------------------------------------------
+    # 3) Notas de interpretabilidad agronómica
+    # ------------------------------------------------------------------
     bslib::card(
-      bslib::card_header("Notas de interpretabilidad"),
+      bslib::card_header("Notas de interpretabilidad y buenas prácticas"),
       tags$ul(
-        tags$li("Cuadrático: permite óptimo \\( x^* = -\\beta_1 / (2\\beta_2) \\); útil en densidad o dosis con saturación/caída (Yahuza, 2011)."),
-        tags$li("Logarítmico: rendimientos decrecientes y asintóticos; precursor de Gompertz/logístico usados en crecimiento (Besteiro et al., 2023)."),
-        tags$li("Documentación AIC en R: ", code("stats::AIC"), " y ", code("extractAIC"), ".")
+        tags$li(
+          strong("No todo es R²: "),
+          "un modelo más curvo puede inflar R²aj pero ser agronómicamente poco plausible ",
+          "(p.ej., predice rendimientos decrecientes excesivos o máximos en rangos no muestreados)."
+        ),
+        tags$li(
+          strong("Cuadrático (óptimos de dosis/densidad): "),
+          "si \\(\\beta_2 < 0\\), el óptimo parabólico ",
+          HTML("\\(x^* = -\\beta_1 / (2\\beta_2)\\)"),
+          " puede interpretarse como dosis o densidad recomendada, ",
+          "siempre que caiga dentro del rango de x observado."
+        ),
+        tags$li(
+          strong("Logarítmico (rendimientos decrecientes): "),
+          "útil cuando cada incremento adicional del insumo aporta menos que el previo; ",
+          "permite discutir conceptos tipo “mitad de la respuesta máxima con el ",
+          "primer tramo de dosis” sin llegar a un máximo estricto."
+        ),
+        tags$li(
+          strong("Selección final: "),
+          "si varios modelos tienen ΔAIC ≤ 2, considéralos candidatos similares; ",
+          "elige apoyándote en la biología del cultivo, el rango de x disponible y la ",
+          "destinación del modelo (extrapolar, definir óptimos, comunicar a no estadísticos)."
+        )
       )
     )
   )
@@ -297,7 +613,19 @@ session3_v3UI <- function(id) {
 # Server Functions per Tab
 # -------------------------------------------------------------------------
 
-pestanna1_session3_v3_server <- function(input, output, session, df_rv, make_sim_data, read_csv_xy, s3_model_lin) {
+# Pestaña 1: MRLS & Datos
+pestanna1_session3_v3_server <- function(
+  input, output, session,
+  df_rv,          # reactiveVal con el data.frame (x, y)
+  make_sim_data,  # función para simular datos
+  read_csv_xy,    # función para leer CSV (x, y)
+  s3_model_lin    # reactive: lm(y ~ x, data = df_rv())
+) {
+  # ---------------------------------------------------------------
+  # 1) Generación / carga de datos
+  # ---------------------------------------------------------------
+  
+  # Modo simulación
   observeEvent(input$s3_gen, {
     df_rv(
       make_sim_data(
@@ -310,279 +638,945 @@ pestanna1_session3_v3_server <- function(input, output, session, df_rv, make_sim
       )
     )
   })
-
+  
+  # Modo CSV
   observeEvent(input$s3_file, {
     req(input$s3_data_mode == "csv")
     f <- input$s3_file$datapath
-    tryCatch({
-      df_rv(read_csv_xy(f, header = isTRUE(input$s3_has_header), sep = input$s3_sep))
-    }, error = function(e) {
-      showModal(modalDialog(title = "Error al leer CSV", paste(e), easyClose = TRUE))
-    })
+    
+    tryCatch(
+      {
+        df_rv(
+          read_csv_xy(
+            path   = f,
+            header = isTRUE(input$s3_has_header),
+            sep    = input$s3_sep
+          )
+        )
+      },
+      error = function(e) {
+        showModal(
+          modalDialog(
+            title = "Error al leer CSV",
+            tags$p(
+              "No se pudo leer el archivo. Revisa que tenga columnas ",
+              code("x"), " y ", code("y"), 
+              " numéricas y que el separador sea el correcto."
+            ),
+            tags$pre(conditionMessage(e)),
+            easyClose = TRUE
+          )
+        )
+      }
+    )
   })
-
+  
+  # ---------------------------------------------------------------
+  # 2) Tabla de exploración
+  # ---------------------------------------------------------------
   output$s3_tbl_preview <- DT::renderDataTable({
-    df <- df_rv(); req(nrow(df) > 1)
+    df <- df_rv()
+    req(nrow(df) > 1)
+    
     if (isTRUE(input$s3_show_preview)) {
-      DT::datatable(head(df, 10), rownames = FALSE,
-                    options = list(dom = "tip", pageLength = 10))
+      DT::datatable(
+        head(df, 10),
+        rownames = FALSE,
+        options  = list(dom = "tip", pageLength = 10)
+      )
     } else {
-      DT::datatable(df, rownames = FALSE,
-                    options = list(pageLength = 10))
+      DT::datatable(
+        df,
+        rownames = FALSE,
+        options  = list(pageLength = 10)
+      )
     }
   })
-
+  
+  # ---------------------------------------------------------------
+  # 3) Gráfico base (nube de puntos)
+  # ---------------------------------------------------------------
   output$s3_scatter_base <- renderPlot({
-    df <- df_rv(); req(nrow(df) > 1)
+    df <- df_rv()
+    req(nrow(df) > 1)
+    
+    n_obs <- nrow(df)
+    modo  <- if (identical(input$s3_data_mode, "csv")) "Datos CSV" else "Datos simulados"
+    
     ggplot2::ggplot(df, ggplot2::aes(x = x, y = y)) +
-      ggplot2::geom_point(alpha = 0.65, size = 2.8) +
+      ggplot2::geom_point(alpha = 0.65, size = 2.5) +
       ggplot2::theme_bw() +
-      ggplot2::labs(title = "Datos de práctica (x ~ insumo; y ~ respuesta)",
-                    x = "x (insumo)", y = "y (respuesta)")
+      ggplot2::labs(
+        title    = sprintf("%s (x ~ insumo; y ~ respuesta)", modo),
+        subtitle = sprintf("n = %d observaciones", n_obs),
+        x        = "x (insumo)",
+        y        = "y (respuesta)"
+      )
   })
-
+  
+  # ---------------------------------------------------------------
+  # 4) Resumen clásico del MRLS (summary(lm))
+  # ---------------------------------------------------------------
   output$s3_lm_summary <- renderPrint({
-    m <- s3_model_lin(); summary(m)
+    m <- s3_model_lin()
+    summary(m)
   })
-
+  
+  # ---------------------------------------------------------------
+  # 5) Gráfico del ajuste MRLS con IC95%
+  # ---------------------------------------------------------------
   output$s3_fit_plot <- renderPlot({
-    df <- df_rv(); req(nrow(df) > 1)
+    df <- df_rv()
+    req(nrow(df) > 1)
+    
     ggplot2::ggplot(df, ggplot2::aes(x = x, y = y)) +
       ggplot2::geom_point(alpha = 0.6) +
-      ggplot2::geom_smooth(method = "lm", formula = y ~ x, se = TRUE) +
+      ggplot2::geom_smooth(
+        method  = "lm",
+        formula = y ~ x,
+        se      = TRUE
+      ) +
       ggplot2::theme_bw() +
-      ggplot2::labs(title = "MRLS: y ~ x (con IC95%)", x = "x", y = "y")
+      ggplot2::labs(
+        title = "MRLS: y ~ x (recta ajustada + IC95%)",
+        x     = "x (insumo)",
+        y     = "y (respuesta)"
+      )
+  })
+  
+  # ---------------------------------------------------------------
+  # 6) Resumen rápido (TL;DR) del modelo lineal
+  # ---------------------------------------------------------------
+  output$s3_lm_tldr <- renderText({
+    m  <- s3_model_lin()
+    sm <- summary(m)
+    
+    # Tamaño de muestra, R2 y R2 ajustado
+    n      <- stats::nobs(m)
+    r2     <- sm$r.squared
+    r2_adj <- sm$adj.r.squared
+    
+    coefs <- sm$coefficients
+    # β0 y β1
+    b0  <- coefs[1, 1]
+    b1  <- coefs[2, 1]
+    se1 <- coefs[2, 2]
+    p1  <- coefs[2, 4]
+    
+    # Texto p-valor amigable
+    p_txt <- if (is.na(p1)) {
+      "p-valor(β₁) = NA"
+    } else if (p1 < 1e-4) {
+      "p-valor(β₁) < 0.0001"
+    } else {
+      sprintf("p-valor(β₁) = %.4f", p1)
+    }
+    
+    paste0(
+      "Modelo: y ~ x\n",
+      sprintf("n = %d | R2 = %.3f | R2 ajustado = %.3f\n", n, r2, r2_adj),
+      sprintf("β0 (intercepto) ≈ %.3f\n", b0),
+      sprintf("β1 (pendiente)  ≈ %.3f (SE = %.3f)\n", b1, se1),
+      p_txt, "\n\n",
+      if (!is.na(p1) && p1 < 0.05) {
+        "Interpretación rápida: hay evidencia estadística de asociación lineal entre x e y (β₁ ≠ 0). "
+      } else {
+        "Interpretación rápida: con estos datos no hay evidencia estadística fuerte de una pendiente distinta de 0. "
+      },
+      "Recuerda revisar los diagnósticos (Pestaña 2) antes de interpretar causalmente."
+    )
   })
 }
 
+# Pestaña 2: Diagnóstico
 pestanna2_session3_v3_server <- function(input, output, session, df_rv, s3_model_lin) {
+
+  # Disparador explícito (para que req() funcione con botón)
   observeEvent(input$s3_run_diag, {
+    # No hacemos nada; solo sirve para que los req(input$s3_run_diag > 0)
+    # sepan que el usuario pidió diagnóstico.
     invisible(TRUE)
   })
 
+  # -----------------------------
+  # 1) Gráfico Residuos vs Ajustados
+  # -----------------------------
   output$s3_resid_fitted <- renderPlot({
-    req(input$s3_run_diag)
+    req(input$s3_run_diag > 0)
+
     m <- s3_model_lin()
-    df_plot <- tibble::tibble(fitted = stats::fitted(m), resid = stats::residuals(m))
+    df_plot <- tibble::tibble(
+      fitted = stats::fitted(m),
+      resid  = stats::residuals(m)
+    )
+
     ggplot2::ggplot(df_plot, ggplot2::aes(x = fitted, y = resid)) +
-      ggplot2::geom_hline(yintercept = 0, linetype = "dashed", color = "gray50") +
+      ggplot2::geom_hline(
+        yintercept = 0,
+        linetype   = "dashed",
+        color      = "gray50"
+      ) +
       ggplot2::geom_point(alpha = 0.7) +
       ggplot2::theme_bw() +
-      ggplot2::labs(title = "Residuos vs. Ajustados", x = "Valores ajustados", y = "Residuos")
+      ggplot2::labs(
+        title = "Residuos vs. Valores ajustados",
+        x     = "Valores ajustados (ŷ)",
+        y     = "Residuos (y - ŷ)"
+      )
   })
 
+  # -----------------------------
+  # 2) Q-Q plot de residuos
+  # -----------------------------
   output$s3_qqplot <- renderPlot({
-    req(input$s3_run_diag)
-    m <- s3_model_lin()
+    req(input$s3_run_diag > 0)
+
+    m  <- s3_model_lin()
     df <- tibble::tibble(resid = stats::residuals(m))
+
     ggplot2::ggplot(df, ggplot2::aes(sample = resid)) +
-      ggplot2::stat_qq() + ggplot2::stat_qq_line(color = "red") +
+      ggplot2::stat_qq(alpha = 0.7) +
+      ggplot2::stat_qq_line(color = "red") +
       ggplot2::theme_bw() +
-      ggplot2::labs(title = "Q-Q Normal de Residuos")
+      ggplot2::labs(
+        title = "Q-Q Normal de Residuos",
+        x     = "Cuantiles teóricos N(0,1)",
+        y     = "Cuantiles de residuos"
+      )
   })
 
+  # -----------------------------
+  # 3) Prueba de Levene (opcional)
+  # -----------------------------
   output$s3_levene_out <- renderPrint({
-    req(input$s3_run_diag)
-    df <- df_rv(); req(nrow(df) > 3)
+    req(input$s3_run_diag > 0)
+
+    df <- df_rv()
+    req(nrow(df) > 3)
+
+    # Agrupar x en k quantiles (bins para Levene)
     k <- input$s3_bins_groups
-    bins <- cut(df$x, breaks = stats::quantile(df$x, probs = seq(0, 1, length.out = k + 1),
-                                               na.rm = TRUE), include.lowest = TRUE)
-    m <- s3_model_lin()
-    resid <- stats::residuals(m)
-    tmp <- tibble::tibble(resid = resid, bin = bins)
-    if (requireNamespace("car", quietly = TRUE)) {
-      car::leveneTest(resid ~ bin, data = tmp, center = median)
-    } else {
-      cat("Paquete 'car' no disponible. Instale 'car' para ejecutar Levene:\n",
-          "install.packages('car')\n")
+    # Evitar problemas si hay muchos valores iguales
+    probs <- seq(0, 1, length.out = k + 1)
+
+    qx <- tryCatch(
+      stats::quantile(df$x, probs = probs, na.rm = TRUE),
+      error = function(e) NA
+    )
+    if (anyNA(qx)) {
+      cat("No se pudieron calcular cuantiles de x para Levene (valores faltantes o constantes).\n")
+      return(invisible(NULL))
     }
+
+    bins <- cut(
+      df$x,
+      breaks = qx,
+      include.lowest = TRUE,
+      right = TRUE
+    )
+
+    m     <- s3_model_lin()
+    resid <- stats::residuals(m)
+
+    tmp <- tibble::tibble(
+      resid = resid,
+      bin   = bins
+    )
+
+    if (requireNamespace("car", quietly = TRUE)) {
+      out <- car::leveneTest(resid ~ bin, data = tmp, center = median)
+      print(out)
+    } else {
+      cat(
+        "Paquete 'car' no disponible.\n",
+        "Para ejecutar Levene instale y cargue 'car':\n",
+        "  install.packages('car')\n",
+        "  library(car)\n"
+      )
+    }
+  })
+
+  # -----------------------------
+  # 4) Resumen textual TL;DR del diagnóstico
+  # -----------------------------
+  output$s3_diag_tldr <- renderText({
+    req(input$s3_run_diag > 0)
+
+    df <- df_rv()
+    req(nrow(df) > 3)
+
+    m      <- s3_model_lin()
+    resid  <- stats::residuals(m)
+    fitted <- stats::fitted(m)
+
+    # a) Medida simple de heterocedasticidad (correlación |resid| ~ fitted)
+    cor_abs <- suppressWarnings(
+      stats::cor(abs(resid), fitted, use = "complete.obs")
+    )
+
+    # b) Intentar extraer p-valor de Levene si 'car' está disponible
+    p_lev <- NA_real_
+    if (requireNamespace("car", quietly = TRUE)) {
+      # Reproducimos lo de arriba de forma silenciosa
+      k <- input$s3_bins_groups
+      probs <- seq(0, 1, length.out = k + 1)
+      qx <- tryCatch(
+        stats::quantile(df$x, probs = probs, na.rm = TRUE),
+        error = function(e) NA
+      )
+      if (!anyNA(qx)) {
+        bins <- cut(
+          df$x,
+          breaks = qx,
+          include.lowest = TRUE,
+          right = TRUE
+        )
+        tmp <- tibble::tibble(
+          resid = resid,
+          bin   = bins
+        )
+        lev_out <- tryCatch(
+          car::leveneTest(resid ~ bin, data = tmp, center = median),
+          error = function(e) NULL
+        )
+        if (!is.null(lev_out)) {
+          # Suponiendo estructura típica: columna "Pr(>F)"
+          if ("Pr(>F)" %in% colnames(lev_out)) {
+            p_lev <- as.numeric(lev_out[1, "Pr(>F)"])
+          }
+        }
+      }
+    }
+
+    # c) Construir mensaje amigable
+    partes <- list()
+
+    # Linealidad / homocedasticidad (proxy por cor_abs)
+    if (is.finite(cor_abs)) {
+      if (abs(cor_abs) < 0.1) {
+        partes <- c(
+          partes,
+          "No se observa un patrón fuerte de aumento/disminución de la dispersión de residuos con el nivel de ŷ (correlación |resid|–ŷ cercana a 0)."
+        )
+      } else {
+        partes <- c(
+          partes,
+          paste0(
+            "La correlación entre |residuo| y ŷ es ~",
+            sprintf("%.2f", cor_abs),
+            ", lo que sugiere cierto patrón de heterocedasticidad (abanico). Conviene revisar si hay transformaciones o modelos no lineales más apropiados."
+          )
+        )
+      }
+    }
+
+    # Levene (si disponible)
+    if (is.finite(p_lev)) {
+      if (p_lev < 0.05) {
+        partes <- c(
+          partes,
+          paste0(
+            "La prueba de Levene detecta diferencias de varianza entre grupos de x (p ≈ ",
+            sprintf("%.3f", p_lev),
+            "). Esto respalda la sospecha de heterocedasticidad."
+          )
+        )
+      } else {
+        partes <- c(
+          partes,
+          paste0(
+            "La prueba de Levene no detecta diferencias claras de varianza entre grupos de x (p ≈ ",
+            sprintf("%.3f", p_lev),
+            ")."
+          )
+        )
+      }
+    } else {
+      partes <- c(
+        partes,
+        "No se pudo calcular un p-valor de Levene (paquete 'car' ausente o problema numérico)."
+      )
+    }
+
+    # Nota final
+    partes <- c(
+      partes,
+      "Use estos resultados como guía: si los gráficos son razonables y no hay señales fuertes de heterocedasticidad, el MRLS es una aproximación útil. Si ve patrones claros, considere modelos no lineales (pestaña 3) o transformaciones."
+    )
+
+    paste(partes, collapse = " ")
   })
 }
 
+# Pestaña 3: No lineales & Selección
 pestanna3_session3_v3_server <- function(input, output, session, df_rv) {
+
+  # Helper para ajustar lm de forma segura (devuelve NULL si falla)
   safe_lm <- function(formula, data) {
-    tryCatch(stats::lm(formula, data = data), error = function(e) NULL)
+    tryCatch(
+      stats::lm(formula, data = data),
+      error = function(e) NULL
+    )
   }
 
+  # ------------------------------------------------------------------
+  # 1) Ajuste paralelo de modelos y tabla de resumen
+  # ------------------------------------------------------------------
   s3_fit_models <- eventReactive(input$s3_run_compare, {
-    df <- df_rv(); req(nrow(df) > 3)
+    df <- df_rv()
+    shiny::req(nrow(df) > 3)
+
     want <- input$s3_models_to_fit
     if (length(want) == 0) {
-      showModal(modalDialog(title = "Sin modelos", "Seleccione al menos un modelo.", easyClose = TRUE))
+      shiny::showModal(
+        shiny::modalDialog(
+          title = "Sin modelos seleccionados",
+          "Seleccione al menos un modelo (lineal, cuadrático y/o logarítmico).",
+          easyClose = TRUE
+        )
+      )
       return(NULL)
     }
 
+    # Si se incluye log, y está activo el check, usamos una base común con x > 0
     if (isTRUE(input$s3_lock_same_data) && "log" %in% want) {
       df_use <- dplyr::filter(df, is.finite(x), x > 0)
     } else {
       df_use <- df
     }
+
     if (nrow(df_use) < 5) {
-      showModal(modalDialog(title = "Datos insuficientes",
-                            "Menos de 5 observaciones tras filtrado (x>0).",
-                            easyClose = TRUE))
+      shiny::showModal(
+        shiny::modalDialog(
+          title = "Datos insuficientes",
+          "Menos de 5 observaciones tras el filtrado (p.ej. x > 0). Amplíe el rango o revise el CSV.",
+          easyClose = TRUE
+        )
+      )
       return(NULL)
     }
 
+    # Ajustar modelos candidatos
     fits <- list()
-    if ("lin" %in% want)  fits$lin  <- safe_lm(y ~ x, data = df_use)
-    if ("quad" %in% want) fits$quad <- safe_lm(y ~ x + I(x^2), data = df_use)
-    if ("log" %in% want)  fits$log  <- safe_lm(y ~ log(x), data = dplyr::filter(df_use, x > 0))
+    if ("lin"  %in% want) fits$lin  <- safe_lm(y ~ x,                data = df_use)
+    if ("quad" %in% want) fits$quad <- safe_lm(y ~ x + I(x^2),       data = df_use)
+    if ("log"  %in% want) fits$log  <- safe_lm(y ~ log(x),           data = dplyr::filter(df_use, x > 0))
 
+    # Construir tabla de resumen (R2_aj, AIC, coeficientes)
     res <- purrr::imap_dfr(fits, function(mod, name) {
       if (is.null(mod)) return(NULL)
       sm <- summary(mod)
       tibble::tibble(
-        Modelo     = name,
-        `R2_aj`    = unname(sm$adj.r.squared),
-        AIC        = tryCatch(stats::AIC(mod), error = function(e) NA_real_),
-        n          = stats::nobs(mod),
-        `β0`       = unname(stats::coef(mod)[1]),
-        `β1`       = unname(stats::coef(mod)[2]),
-        `β2`       = ifelse(name == "quad" && length(stats::coef(mod)) >= 3,
-                            unname(stats::coef(mod)[3]), NA_real_)
+        Modelo      = name,
+        R2_aj       = unname(sm$adj.r.squared),
+        AIC         = tryCatch(stats::AIC(mod), error = function(e) NA_real_),
+        n           = stats::nobs(mod),
+        `β0`        = unname(stats::coef(mod)[1]),
+        `β1`        = if (length(stats::coef(mod)) >= 2) unname(stats::coef(mod)[2]) else NA_real_,
+        `β2`        = ifelse(
+          name == "quad" && length(stats::coef(mod)) >= 3,
+          unname(stats::coef(mod)[3]),
+          NA_real_
+        )
       )
     })
-    if (nrow(res)) {
-      res <- dplyr::mutate(res, Modelo = dplyr::recode(Modelo,
-                              lin = "Lineal (y~x)",
-                              quad = "Cuadrático (y~x+I(x^2))",
-                              log = "Logarítmico (y~log(x))"))
+
+    if (nrow(res) > 0) {
+      # Calcular ΔAIC y peso de Akaike
+      finite_idx <- which(is.finite(res$AIC))
+      if (length(finite_idx) > 0) {
+        AIC_min <- min(res$AIC[finite_idx])
+        res$Delta_AIC <- res$AIC - AIC_min
+        lik <- exp(-0.5 * res$Delta_AIC)
+        lik[!is.finite(lik)] <- NA_real_
+        sum_lik <- sum(lik[finite_idx], na.rm = TRUE)
+        res$Peso_AIC <- if (sum_lik > 0) lik / sum_lik else NA_real_
+      } else {
+        res$Delta_AIC <- NA_real_
+        res$Peso_AIC  <- NA_real_
+      }
+
+      # Etiquetas legibles
+      res <- dplyr::mutate(
+        res,
+        Modelo = dplyr::recode(
+          Modelo,
+          lin  = "Lineal (y ~ x)",
+          quad = "Cuadrático (y ~ x + I(x^2))",
+          log  = "Logarítmico (y ~ log(x))"
+        )
+      )
+
+      # Ordenar por AIC creciente
       res <- dplyr::arrange(res, AIC)
     }
-    list(fits = fits, table = res, df_use = df_use)
+
+    list(
+      fits   = fits,
+      table  = res,
+      df_use = df_use
+    )
   })
 
+  # Tabla de resumen con estrella en el mejor AIC
   output$s3_tbl_models <- DT::renderDataTable({
-    fm <- s3_fit_models(); req(!is.null(fm), nrow(fm$table) > 0)
-    best_row <- which.min(fm$table$AIC)
+    fm <- s3_fit_models()
+    shiny::req(!is.null(fm), nrow(fm$table) > 0)
+
     out <- fm$table
+
+    # Redondeos para visualización
+    out$R2_aj      <- round(out$R2_aj, 4)
+    out$AIC        <- round(out$AIC, 2)
+    out$Delta_AIC  <- round(out$Delta_AIC, 2)
+    out$Peso_AIC   <- round(out$Peso_AIC, 3)
+    out$`β0`       <- round(out$`β0`, 3)
+    out$`β1`       <- round(out$`β1`, 3)
+    out$`β2`       <- round(out$`β2`, 5)
+
+    # Marcar mejor modelo por AIC (ΔAIC mínimo entre valores finitos)
     out$`← Mejor (AIC)` <- ""
-    out$`← Mejor (AIC)`[best_row] <- "★"
-    DT::datatable(out, rownames = FALSE, options = list(pageLength = 5))
+    finite_idx <- which(is.finite(out$AIC))
+    if (length(finite_idx) > 0) {
+      best_i <- finite_idx[which.min(out$AIC[finite_idx])]
+      out$`← Mejor (AIC)`[best_i] <- "★"
+    }
+
+    DT::datatable(
+      out,
+      rownames = FALSE,
+      options = list(
+        pageLength = 5,
+        dom        = "tip"
+      )
+    )
   })
 
+  # Mensaje interpretativo automático sobre AIC
+  output$s3_best_model_msg <- renderText({
+    fm <- s3_fit_models()
+    shiny::req(!is.null(fm), nrow(fm$table) > 0)
+
+    tab <- fm$table
+    finite_idx <- which(is.finite(tab$AIC))
+    if (length(finite_idx) == 0) {
+      return("No se pudo calcular AIC para los modelos ajustados. Revise el ajuste o el conjunto de datos.")
+    }
+
+    best_i <- finite_idx[which.min(tab$AIC[finite_idx])]
+    best   <- tab[best_i, ]
+
+    # Texto base con nombre + AIC + peso
+    msg <- sprintf(
+      "Mejor según AIC: %s (AIC ≈ %.2f, ΔAIC = 0, Peso_AIC ≈ %.3f).",
+      best$Modelo,
+      best$AIC,
+      best$Peso_AIC
+    )
+
+    # Buscar modelos competidores con ΔAIC ≤ 2
+    compet_idx <- which(
+      is.finite(tab$Delta_AIC) &
+        tab$Delta_AIC <= 2 &
+        seq_len(nrow(tab)) != best_i
+    )
+
+    if (length(compet_idx) > 0) {
+      compet_names <- paste(tab$Modelo[compet_idx], collapse = "; ")
+      msg <- paste0(
+        msg,
+        " Hay modelos competidores con ΔAIC ≤ 2: ",
+        compet_names,
+        ". En este caso, use criterio agronómico (forma de la curva, óptimos dentro del rango, ",
+        "simplicidad para comunicar) más que una diferencia mínima de AIC."
+      )
+    } else {
+      msg <- paste0(
+        msg,
+        " No hay otros modelos con ΔAIC ≤ 2; el modelo seleccionado tiene claramente ",
+        "más soporte dentro del conjunto evaluado."
+      )
+    }
+
+    msg
+  })
+
+  # ------------------------------------------------------------------
+  # 2) Comparación visual de curvas sobre el rango de x
+  # ------------------------------------------------------------------
   output$s3_compare_plot <- renderPlot({
-    fm <- s3_fit_models(); req(!is.null(fm), nrow(fm$table) > 0)
-    df <- df_rv()
+    fm <- s3_fit_models()
+    shiny::req(!is.null(fm), nrow(fm$table) > 0)
+
+    df   <- df_rv()
+    fits <- fm$fits
     want <- input$s3_models_to_fit
+
+    # Gráfico base con puntos
     p <- ggplot2::ggplot(df, ggplot2::aes(x = x, y = y)) +
       ggplot2::geom_point(alpha = 0.6) +
       ggplot2::theme_bw() +
-      ggplot2::labs(title = "Comparación visual de modelos", x = "x", y = "y")
+      ggplot2::labs(
+        title = "Comparación visual de modelos (curvas sobre los datos)",
+        x     = "x (insumo)",
+        y     = "y (respuesta)"
+      )
 
-    if ("lin" %in% want && !is.null(fm$fits$lin)) {
-      p <- p + ggplot2::geom_smooth(method = "lm", se = FALSE, formula = y ~ x,
-                                    color = "#1f77b4")
+    # Secuencia de x para dibujar las curvas
+    x_range <- range(df$x, na.rm = TRUE)
+    x_grid  <- seq(from = x_range[1], to = x_range[2], length.out = 200)
+
+    curves_list <- list()
+
+    # Lineal
+    if ("lin" %in% want && !is.null(fits$lin)) {
+      curves_list$lin <- tibble::tibble(
+        x      = x_grid,
+        y_hat  = stats::predict(fits$lin, newdata = data.frame(x = x_grid)),
+        Modelo = "Lineal"
+      )
     }
-    if ("quad" %in% want && !is.null(fm$fits$quad)) {
-      p <- p + ggplot2::geom_smooth(method = "lm", se = FALSE, formula = y ~ x + I(x^2),
-                                    color = "#d62728")
+
+    # Cuadrático
+    if ("quad" %in% want && !is.null(fits$quad)) {
+      curves_list$quad <- tibble::tibble(
+        x      = x_grid,
+        y_hat  = stats::predict(fits$quad, newdata = data.frame(x = x_grid)),
+        Modelo = "Cuadrático"
+      )
     }
-    if ("log" %in% want && !is.null(fm$fits$log)) {
-      p <- p + ggplot2::geom_smooth(method = "lm", se = FALSE, formula = y ~ log(x),
-                                    data = dplyr::filter(df, x > 0),
-                                    color = "#2ca02c")
+
+    # Logarítmico (solo para x > 0)
+    if ("log" %in% want && !is.null(fits$log)) {
+      x_pos <- x_grid[x_grid > 0]
+      if (length(x_pos) > 0) {
+        curves_list$log <- tibble::tibble(
+          x      = x_pos,
+          y_hat  = stats::predict(fits$log, newdata = data.frame(x = x_pos)),
+          Modelo = "Logarítmico"
+        )
+      }
     }
+
+    if (length(curves_list) > 0) {
+      df_curves <- dplyr::bind_rows(curves_list)
+
+      p <- p +
+        ggplot2::geom_line(
+          data = df_curves,
+          ggplot2::aes(x = x, y = y_hat, color = Modelo),
+          linewidth = 1.1
+        ) +
+        ggplot2::scale_color_manual(
+          values = c(
+            "Lineal"       = "#1f77b4",
+            "Cuadrático"   = "#d62728",
+            "Logarítmico"  = "#2ca02c"
+          ),
+          name = "Modelo"
+        )
+    }
+
     p
   })
 }
 
+# Pestaña 4: Ejercicios prácticos
 pestanna4_session3_v3_server <- function(input, output, session, df_rv) {
+
+  # ------------------------------------------------------------------
+  # 1) Ajuste del modelo focal (OLS o WLS) según selección del usuario
+  # ------------------------------------------------------------------
   s3_fit_focal <- reactive({
-    df <- df_rv(); req(nrow(df) > 3)
-    exm <- input$s3_ex_model
-    if (isTRUE(input$s3_ex_use_weights)) {
-      m0 <- stats::lm(y ~ x, data = df)
-      yhat <- pmax(fitted(m0), .Machine$double.eps)
-      w <- 1 / (yhat^2)
-      mod <- switch(
-        exm,
-        lin  = stats::lm(y ~ x, data = df, weights = w),
-        quad = stats::lm(y ~ x + I(x^2), data = df, weights = w),
-        log  = stats::lm(y ~ log(x), data = dplyr::filter(df, x > 0), weights = w[df$x > 0]),
-        NULL
+    df  <- df_rv()
+    req(nrow(df) > 3)
+
+    exm <- req(input$s3_ex_model)
+
+    # Subconjuntos para el caso logarítmico
+    df_log <- dplyr::filter(df, is.finite(x), x > 0)
+
+    # Chequeo: si el modelo escogido es log y no hay suficientes datos x>0
+    if (exm == "log" && nrow(df_log) < 5) {
+      showModal(
+        modalDialog(
+          title = "Datos insuficientes para modelo logarítmico",
+          "Para el modelo y ~ log(x) se requieren suficientes observaciones con x>0. ",
+          "En tus datos actuales, hay menos de 5 observaciones con x>0. ",
+          "Elige otro modelo o revisa el rango de x.",
+          easyClose = TRUE
+        )
       )
-    } else {
-      mod <- switch(
-        exm,
-        lin  = stats::lm(y ~ x, data = df),
-        quad = stats::lm(y ~ x + I(x^2), data = df),
-        log  = stats::lm(y ~ log(x), data = dplyr::filter(df, x > 0), weights = NULL),
-        NULL
-      )
+      return(NULL)
     }
+
+    # Definición de fórmula y data base según modelo
+    if (exm == "lin") {
+      form <- y ~ x
+      df_use <- df
+    } else if (exm == "quad") {
+      form <- y ~ x + I(x^2)
+      df_use <- df
+    } else { # "log"
+      form <- y ~ log(x)
+      df_use <- df_log
+    }
+
+    use_wls <- isTRUE(input$s3_ex_use_weights)
+
+    if (!use_wls) {
+      # Mínimos cuadrados ordinarios (OLS)
+      mod <- stats::lm(form, data = df_use)
+    } else {
+      # Mínimos cuadrados ponderados (WLS) con pesos 1/ŷ^2
+      # 1) Ajuste preliminar para obtener ŷ
+      m0   <- stats::lm(form, data = df_use)
+      yhat <- pmax(stats::fitted(m0), .Machine$double.eps)
+      w    <- 1 / (yhat^2)
+
+      # 2) Ajuste ponderado
+      mod  <- stats::lm(form, data = df_use, weights = w)
+    }
+
     mod
   })
 
+  # ------------------------------------------------------------------
+  # 2) Salida explicativa del modelo focal (para usar como base de reporte)
+  # ------------------------------------------------------------------
   output$s3_explain_model <- renderPrint({
-    m <- s3_fit_focal(); req(!is.null(m))
-    sm <- summary(m)
+    m <- s3_fit_focal()
+    req(!is.null(m))
+
+    sm  <- summary(m)
     aic <- tryCatch(stats::AIC(m), error = function(e) NA_real_)
-    cat("== Resumen del modelo focal ==\n")
-    print(sm$call); cat("\n")
-    cat(sprintf("n = %d | R2 adj = %.4f | AIC = %.2f\n\n",
-                stats::nobs(m), sm$adj.r.squared, aic))
+
+    # Tipo de modelo
+    form_chr <- deparse(formula(m))
+
+    # Texto introductorio
+    cat("== Resumen del modelo focal ==\n\n")
+    cat("Fórmula ajustada:\n")
+    print(sm$call)
+    cat("\n")
+
+    # Métricas globales
+    cat(
+      sprintf(
+        "n = %d | R2 ajustado = %.4f | AIC = %.2f\n\n",
+        stats::nobs(m),
+        sm$adj.r.squared,
+        aic
+      )
+    )
+
+    # Recordatorio conceptual sobre R²aj y AIC
+    cat("Notas rápidas:\n")
+    cat("- R2 ajustado cuantifica la proporción de variación explicada, penalizando predictores extra.\n")
+    cat("- AIC más bajo indica modelo más parsimonioso (mejor equilibrio ajuste-complejidad);\n")
+    cat("  diferencias de AIC < 2 suelen considerarse evidencia similar entre modelos competidores.\n\n")
+
+    # Tabla de coeficientes
+    cat("Coeficientes (estimado, error estándar, t, p-valor):\n")
     print(sm$coefficients)
-    if (length(stats::coef(m)) >= 3 && grepl("I\\(x\\^2\\)", names(stats::coef(m))[3], fixed = TRUE)) {
-      b1 <- unname(stats::coef(m)[2]); b2 <- unname(stats::coef(m)[3])
+    cat("\n")
+
+    # Interpretación básica de coeficientes (cuando aplica)
+    coefs <- stats::coef(m)
+
+    if ("x" %in% names(coefs)) {
+      b1 <- unname(coefs["x"])
+      cat(
+        sprintf(
+          "Interpretación β1 (x): un incremento de 1 unidad en x se asocia,\n",
+          "en promedio, con un cambio de %.3f unidades en y (manteniendo el resto igual).\n",
+          b1
+        )
+      )
+    }
+
+    # Caso cuadrático: vértice / dosis óptima
+    if (length(coefs) >= 3 && "I(x^2)" %in% names(coefs)) {
+      b1 <- unname(coefs["x"])
+      b2 <- unname(coefs["I(x^2)"])
       if (!is.na(b2) && b2 != 0) {
-        x_opt <- -b1 / (2*b2)
-        cat(sprintf("\nÓptimo parabólico (vértice): x* = %.3f\n", x_opt))
+        x_opt <- -b1 / (2 * b2)
+        cat("\nModelo cuadrático detectado.\n")
+        cat(
+          sprintf(
+            "Óptimo parabólico (vértice): x* = -β1 / (2β2) ≈ %.3f.\n",
+            x_opt
+          )
+        )
+
+        # Rango de x observado
+        df_all <- df_rv()
+        xr     <- range(df_all$x, na.rm = TRUE)
+
+        cat(
+          sprintf(
+            "Rango observado de x en los datos: [%.3f, %.3f].\n",
+            xr[1], xr[2]
+          )
+        )
+
+        if (x_opt >= xr[1] && x_opt <= xr[2]) {
+          cat(
+            "x* cae DENTRO del rango observado: interpretable como dosis o densidad óptima aproximada.\n"
+          )
+        } else {
+          cat(
+            "x* cae FUERA del rango observado: interpretar con cautela, puede ser una extrapolación.\n"
+          )
+        }
       }
     }
+
+    # Nota sobre ponderación WLS, si se está usando
+    if (isTRUE(input$s3_ex_use_weights)) {
+      cat(
+        "\nPonderación:\n",
+        "- Modelo ajustado con Weighted Least Squares (WLS) usando pesos 1/ŷ^2.\n",
+        "- Esta elección es coherente con un patrón de heterocedasticidad donde var(ε) crece\n",
+        "  aproximadamente con el cuadrado de la media (var(ε) ≈ c·μ^2).\n",
+        "  Es una DEMO didáctica; en práctica, la estructura de varianzas se debe justificar\n",
+        "  con diagnóstico y conocimiento del sistema.\n",
+        sep = ""
+      )
+    } else {
+      cat(
+        "\nPonderación:\n",
+        "- Modelo ajustado por Mínimos Cuadrados Ordinarios (OLS) sin pesos.\n",
+        "  Revise la pestaña de Diagnóstico para confirmar que la varianza residual\n",
+        "  es aproximadamente constante y que no hay patrones sistemáticos.\n",
+        sep = ""
+      )
+    }
+
+    cat("\n")
   })
 
+  # ------------------------------------------------------------------
+  # 3) Gráfico del modelo focal sobre los datos
+  # ------------------------------------------------------------------
   output$s3_ex_plot <- renderPlot({
-    df <- df_rv(); req(nrow(df) > 3)
-    exm <- input$s3_ex_model
-    p <- ggplot2::ggplot(df, ggplot2::aes(x = x, y = y)) +
+    df  <- df_rv()
+    req(nrow(df) > 3)
+
+    exm <- req(input$s3_ex_model)
+
+    base_plot <- ggplot2::ggplot(df, ggplot2::aes(x = x, y = y)) +
       ggplot2::geom_point(alpha = 0.6) +
       ggplot2::theme_bw() +
-      ggplot2::labs(title = "Modelo focal sobre datos", x = "x", y = "y")
+      ggplot2::labs(
+        title = "Modelo focal superpuesto a los datos",
+        x     = "x (insumo)",
+        y     = "y (respuesta)"
+      )
+
     if (exm == "lin") {
-      p + ggplot2::geom_smooth(method = "lm", formula = y ~ x, se = TRUE, color = "#1f77b4")
+      base_plot +
+        ggplot2::geom_smooth(
+          method  = "lm",
+          formula = y ~ x,
+          se      = TRUE,
+          color   = "#1f77b4"
+        )
+
     } else if (exm == "quad") {
-      p + ggplot2::geom_smooth(method = "lm", formula = y ~ x + I(x^2), se = TRUE, color = "#d62728")
-    } else {
-      p + ggplot2::geom_smooth(method = "lm", formula = y ~ log(x), se = TRUE,
-                               data = dplyr::filter(df, x > 0), color = "#2ca02c")
+      base_plot +
+        ggplot2::geom_smooth(
+          method  = "lm",
+          formula = y ~ x + I(x^2),
+          se      = TRUE,
+          color   = "#d62728"
+        )
+
+    } else { # log
+      base_plot +
+        ggplot2::geom_smooth(
+          method  = "lm",
+          formula = y ~ log(x),
+          se      = TRUE,
+          data    = dplyr::filter(df, is.finite(x), x > 0),
+          color   = "#2ca02c"
+        )
     }
   })
 
+  # ------------------------------------------------------------------
+  # 4) Descarga de reporte de texto (.txt)
+  # ------------------------------------------------------------------
   output$s3_dl_report <- downloadHandler(
     filename = function() {
       paste0("Sesion3_regresion_resumen_", Sys.Date(), ".txt")
     },
     content = function(file) {
-      m <- s3_fit_focal(); req(!is.null(m))
-      sm <- summary(m)
+      m <- s3_fit_focal()
+      req(!is.null(m))
+
+      sm  <- summary(m)
       aic <- tryCatch(stats::AIC(m), error = function(e) NA_real_)
+
+      coefs <- stats::coef(m)
+
       sink(file)
       cat("Sesión 3 – Resumen de modelo focal\n")
-      cat("-----------------------------------\n\n")
-      print(sm$call); cat("\n")
+      cat("=================================\n\n")
+
+      cat("Fórmula del modelo:\n")
+      print(sm$call)
+      cat("\n")
+
       cat(sprintf("n = %d\nR2 ajustado = %.4f\nAIC = %.2f\n\n",
                   stats::nobs(m), sm$adj.r.squared, aic))
-      cat("Coeficientes:\n")
-      print(sm$coefficients); cat("\n")
-      if (length(stats::coef(m)) >= 3 && grepl("I\\(x\\^2\\)", names(stats::coef(m))[3], fixed = TRUE)) {
-        b1 <- unname(stats::coef(m)[2]); b2 <- unname(stats::coef(m)[3])
+
+      cat("Tabla de coeficientes:\n")
+      print(sm$coefficients)
+      cat("\n")
+
+      # Óptimo cuadrático si aplica
+      if (length(coefs) >= 3 && "I(x^2)" %in% names(coefs)) {
+        b1 <- unname(coefs["x"])
+        b2 <- unname(coefs["I(x^2)"])
         if (!is.na(b2) && b2 != 0) {
-          x_opt <- -b1 / (2*b2)
-          cat(sprintf("Óptimo (parabólico): x* = %.3f\n\n", x_opt))
+          x_opt <- -b1 / (2 * b2)
+          cat(sprintf("Óptimo (parabólico) estimado: x* = %.3f\n", x_opt))
+
+          df_all <- df_rv()
+          xr     <- range(df_all$x, na.rm = TRUE)
+          cat(sprintf("Rango observado de x: [%.3f, %.3f]\n", xr[1], xr[2]))
+          if (x_opt >= xr[1] && x_opt <= xr[2]) {
+            cat("Nota: x* se encuentra dentro del rango observado (interpretación más confiable).\n\n")
+          } else {
+            cat("Nota: x* cae fuera del rango observado (extrapolación; interpretar con cautela).\n\n")
+          }
         }
       }
-      cat("Notas:\n")
-      cat("- Selección de modelo por AIC (menor mejor; parsimonia). ",
-          "Referencias: Akaike (1974); Burnham & Anderson (2004, 2002).\n")
-      cat("- Verificar supuestos con diagnóstico gráfico (residuos vs ajustados; Q-Q). ",
-          "Si hay heterocedasticidad marcada, considere transformaciones o modelos ponderados.\n")
+
+      cat("Notas adicionales:\n")
+      cat("- Selección de modelo: AIC más bajo suele indicar mejor equilibrio ajuste-complejidad.\n")
+      cat("  Diferencias de AIC inferiores a ~2 sugieren soporte similar entre modelos.\n")
+      cat("- R2 ajustado indica proporción de variación explicada, penalizando por número de parámetros.\n")
+      cat("- Verifique supuestos mediante diagnóstico gráfico (residuos vs ajustados; Q-Q de residuos).\n")
+      if (isTRUE(input$s3_ex_use_weights)) {
+        cat("- Este ajuste utilizó Weighted Least Squares (WLS) con pesos 1/ŷ^2\n")
+        cat("  como demostración de manejo de heterocedasticidad (varianza que crece con la media).\n")
+      } else {
+        cat("- Este ajuste utilizó Mínimos Cuadrados Ordinarios (OLS) sin ponderación.\n")
+      }
+
+      cat("\nSugerencia para conclusión agronómica:\n")
+      cat("- Describa el sentido de los coeficientes (signo y magnitud),\n")
+      cat("  comente la forma de la curva (lineal, óptimo, rendimientos decrecientes),\n")
+      cat("  e indique si la evidencia estadística respalda una respuesta del cultivo\n")
+      cat("  al rango de insumo ensayado.\n")
       sink()
     }
   )
 }
 
+# Pestaña 5: Referencias
 pestanna5_session3_v3_server <- function(input, output, session) {
   # No server logic needed
 }
@@ -595,6 +1589,7 @@ session3_v3Server <- function(input, output, session) {
   ns <- session$ns
 
   # Helpers
+  ## Simulate data function
   make_sim_data <- function(n, b0, b1, sigma, quad, b2) {
     set.seed(123)
     x <- sort(runif(n, min = 1, max = 200))
@@ -604,6 +1599,7 @@ session3_v3Server <- function(input, output, session) {
     tibble::tibble(x = x, y = y)
   }
 
+  ## Read CSV function
   read_csv_xy <- function(path, header = TRUE, sep = ",") {
     df <- utils::read.table(path, header = header, sep = sep, dec = ".", quote = "\"'",
                             comment.char = "", stringsAsFactors = FALSE)
@@ -618,6 +1614,7 @@ session3_v3Server <- function(input, output, session) {
   }
 
   # Reactives
+  ## Data reactiveVal
   df_rv <- reactiveVal({
     make_sim_data(
       n     = 100,
@@ -629,15 +1626,26 @@ session3_v3Server <- function(input, output, session) {
     )
   })
 
+  ## Linear model reactive
   s3_model_lin <- reactive({
     df <- df_rv(); req(nrow(df) > 1)
     stats::lm(y ~ x, data = df)
   })
 
   # Call tab servers
+
+  ## Pestaña1: MRLS & Datos
   pestanna1_session3_v3_server(input, output, session, df_rv, make_sim_data, read_csv_xy, s3_model_lin)
+
+  ## Pestaña2: Diagnóstico
   pestanna2_session3_v3_server(input, output, session, df_rv, s3_model_lin)
+
+  ## Pestaña3: No lineales & Selección
   pestanna3_session3_v3_server(input, output, session, df_rv)
+
+  ## Pestaña4: Ejercicios prácticos
   pestanna4_session3_v3_server(input, output, session, df_rv)
+
+  ## Pestaña5: Referencias
   pestanna5_session3_v3_server(input, output, session)
 }
