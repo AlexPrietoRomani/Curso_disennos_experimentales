@@ -49,7 +49,7 @@ create_user <- function(username, email, password, first_name, last_name) {
     first_name = first_name,
     last_name = last_name,
     password_hash = hashed_pw,
-    status = "pending", # Default status
+    status = "active", # Default status (no approval needed)
     created_at = Sys.time(),
     roles = I(list(c("user"))), # Default role
     stringsAsFactors = FALSE
