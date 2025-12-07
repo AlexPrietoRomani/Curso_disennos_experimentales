@@ -1852,3 +1852,35 @@ body {
     min-height: 220px;
   }
 }
+
+/* =========================================================
+   21. UTILITIES / CLASES FALTANTES
+   ========================================================= */
+
+/* Bloques de código R en las sesiones (usado en pre.r-code) */
+.r-code {
+  display: block;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 0.85rem;
+  color: #2d3748;
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  overflow-x: auto;
+}
+
+/* Título principal de la sesión (usado en div.session-title) */
+.session-title {
+  margin-bottom: 1.5rem;
+  border-bottom: 3px solid rgba(47, 133, 90, 0.15);
+  padding-bottom: 0.75rem;
+}
+
+.session-title h3 {
+  font-family: 'Montserrat', 'Poppins', sans-serif;
+  color: var(--deep-forest);
+  font-weight: 700;
+  margin: 0;
+}
