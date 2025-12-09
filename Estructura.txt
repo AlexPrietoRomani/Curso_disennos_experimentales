@@ -11,8 +11,6 @@ Curso_disennos_experimentales/
 │       │   ├── login_ui.R
 │       │   ├── register.R
 │       │   └── password_reset.R
-│       ├── landing/         # Módulos de Landing Page
-│       │   └── landing_ui.R
 │       ├── courses/         # Módulos de Cursos
 │       │   └── courses_ui.R
 │       ├── shared/          # Componentes compartidos
@@ -43,11 +41,9 @@ Curso_disennos_experimentales/
 │               └── session8.R
 ├── www/
 │   ├── css/
-│   │   └── custom.css       # Estilos para landing, navegación, cursos y secciones de proyectos/CV
+│   │   └── custom.css       # Estilos para autenticación, navegación y cursos
 │   ├── js/
 │   │   └── custom.js
-│   ├── docs/
-│   │   └── Alex_Prieto_Romani_CV.pdf   # Archivo temporal para la descarga del CV (reemplazar por el oficial)
 │   └── images/
 │       ├── courses/     # Portadas de los cursos (ej. www/images/courses/disenos_estadisticos_v2.jpg)
 │       └── sesiones/    # Miniaturas para cada sesión (ej. www/images/sesiones/disenos_estadisticos_v2_parte_i_sesion_1.jpg)

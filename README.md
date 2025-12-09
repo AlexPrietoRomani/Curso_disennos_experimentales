@@ -1,6 +1,6 @@
 # Plataforma Shiny de Diseños Experimentales
 
-Esta aplicación reúne el contenido de los cursos "Diseños estadísticos" en un entorno Shiny que también funciona como carta de presentación profesional. Incluye una landing page, navegación por cursos/sesiones y un portafolio de proyectos para mostrar experiencia aplicada en agricultura de precisión.
+Esta aplicación reúne el contenido de los cursos "Diseños estadísticos" en un entorno Shiny restringido para alumnos. Incluye autenticación de usuarios y navegación por cursos/sesiones.
 
 Toda la estructura de carpetas y módulos se documenta en `Estructura.txt` para facilitar el mantenimiento del proyecto.
 
@@ -24,12 +24,8 @@ Toda la estructura de carpetas y módulos se documenta en `Estructura.txt` para 
 
 ## Personalización básica
 
-- Reemplaza el CV de ejemplo en `www/docs/` por la versión oficial manteniendo el mismo nombre de archivo.
-- Ajusta la información de proyectos en `R/server.R` para reflejar nuevos trabajos.
 - Actualiza las imágenes de cursos y sesiones colocando archivos `.jpg` en `www/images/courses/` y `www/images/sesiones/`.
 
 ## Contacto
 
 - ✉️ [alexprieto1997@gmail.com](mailto:alexprieto1997@gmail.com)
-- 💼 [linkedin.com/in/alex-prieto-romani](https://www.linkedin.com/in/alex-prieto-romani/)
-- 💻 [github.com/AlexPrietoRomani](https://github.com/AlexPrietoRomani)

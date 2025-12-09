@@ -2,7 +2,7 @@
 server <- function(input, output, session) {
 
 
-  view_state <- reactiveVal("landing")
+  view_state <- reactiveVal("login")
   user_authenticated <- reactiveVal(FALSE)
   user_info <- reactiveVal(NULL)
   login_error <- reactiveVal(NULL)
@@ -11,41 +11,13 @@ server <- function(input, output, session) {
   selected_part <- reactiveVal(NULL)
   selected_session <- reactiveVal(NULL)
 
-  projects_info <- list(
-    list(
-      name = "Predicción de viento con series temporales",
-      description = "Aplicación Shiny para pronosticar velocidad y dirección del viento usando modelos de series temporales y visualizaciones interactivas.",
-      link = "https://github.com/AlexPrietoRomani/app_viento",
-      tags = c("Series de tiempo", "Pronóstico", "Shiny")
-    ),
-    list(
-      name = "Detección de enfermedades en café",
-      description = "Entrenamiento y despliegue de un modelo YOLO ajustado para reconocer enfermedades en hojas de café a partir de imágenes etiquetadas.",
-      link = "https://github.com/AlexPrietoRomani/detection-diseases-coffee",
-      tags = c("Visión computacional", "YOLO", "Agtech")
-    ),
-    list(
-      name = "Generación y clasificación de imágenes",
-      description = "Suite en Streamlit para generar imágenes con modelos de difusión locales y clasificar resultados mediante modelos pre-entrenados.",
-      link = "https://github.com/AlexPrietoRomani/Generacion-Clasificacion-Imagenes-Streamlit",
-      tags = c("IA Generativa", "Clasificación", "Streamlit")
-    ),
-    list(
-      name = "DengAI: Predicción de brotes",
-      description = "Modelado predictivo para la competencia DengAI, estimando la incidencia de dengue combinando clima y series históricas.",
-      link = "https://github.com/AlexPrietoRomani/DengAI-Predicting-Disease-Spread",
-      tags = c("Competencia", "Modelado", "Salud pública")
-    )
-  )
 
   observeEvent(input$nav_target, {
-    if (identical(input$nav_target, "courses")) {
+    if (identical(input$nav_target, "courses") && isTRUE(user_authenticated())) {
       selected_course(NULL)
       selected_part(NULL)
       selected_session(NULL)
-      view_state(if (isTRUE(user_authenticated())) "course_select" else "login")
-    } else {
-      view_state("landing")
+      view_state("course_select")
     }
   }, ignoreNULL = TRUE)
 
@@ -56,13 +28,7 @@ server <- function(input, output, session) {
     view_state("course_select")
   })
 
-  observeEvent(input$open_course_login, {
-    if (isTRUE(user_authenticated())) {
-      view_state("course_select")
-    } else {
-      view_state("login")
-    }
-  })
+
 
   observeEvent(input$login_submit, {
     login_error(NULL)
@@ -89,7 +55,7 @@ server <- function(input, output, session) {
     selected_course(NULL)
     selected_part(NULL)
     selected_session(NULL)
-    view_state("landing")
+    view_state("login")
     updateTextInput(session, "login_username", value = "")
     updateTextInput(session, "login_password", value = "")
   })
@@ -248,25 +214,7 @@ server <- function(input, output, session) {
     state <- view_state()
     nav <- build_navbar(authenticated = isTRUE(user_authenticated()), user = user_info())
 
-    if (identical(state, "landing")) {
-      landing_content <- tagList(
-        build_hero_section(),
-        build_about_section(),
-        build_skills_section(),
-        build_courses_section(
-          entry_button = actionButton(
-            "open_course_login",
-            label = tagList(icon("graduation-cap"), span(" Ingresar a cursos")),
-            class = "btn btn-primary btn-lg"
-          )
-        ),
-        build_projects_section(projects_info),
-        build_cv_section(),
-        build_contact_section()
-      )
 
-      return(div(class = "app-shell", nav, landing_content))
-    }
 
     if (identical(state, "login")) {
       login_content <- build_login_section(login_error())
@@ -289,23 +237,12 @@ server <- function(input, output, session) {
 
     curso_actual <- selected_course()
     if (is.null(curso_actual)) {
-      view_state("landing")
-      landing_content <- tagList(
-        build_hero_section(),
-        build_about_section(),
-        build_skills_section(),
-        build_courses_section(
-          entry_button = actionButton(
-            "open_course_login",
-            label = tagList(icon("graduation-cap"), span(" Ingresar a cursos")),
-            class = "btn btn-primary btn-lg"
-          )
-        ),
-        build_projects_section(projects_info),
-        build_cv_section(),
-        build_contact_section()
-      )
-      return(div(class = "app-shell", nav, landing_content))
+      if (isTRUE(user_authenticated())) {
+        view_state("course_select")
+      } else {
+        view_state("login")
+      }
+      return()
     }
 
     parte_activa <- selected_part()

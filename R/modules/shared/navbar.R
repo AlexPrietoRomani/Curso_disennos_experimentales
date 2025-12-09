@@ -23,10 +23,6 @@ build_navbar <- function(authenticated = FALSE, user = NULL) {
       ),
       tags$ul(
         class = "nav-links",
-        tags$li(tags$a(href = "#courses", class = "nav-link", onclick = "Shiny.setInputValue('nav_target', 'courses', {priority: 'event'});", "Cursos")),
-        tags$li(tags$a(href = "#projects", class = "nav-link", onclick = "Shiny.setInputValue('nav_target', 'projects', {priority: 'event'});", "Proyectos")),
-        tags$li(tags$a(href = "#cv", class = "nav-link", onclick = "Shiny.setInputValue('nav_target', 'cv', {priority: 'event'});", "Descarga mi CV")),
-        tags$li(tags$a(href = "#contact", class = "nav-link", onclick = "Shiny.setInputValue('nav_target', 'contact', {priority: 'event'});", "Contáctame")),
         if (authenticated) {
           tagList(
             tags$li(
