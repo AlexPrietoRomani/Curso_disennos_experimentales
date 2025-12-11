@@ -1581,6 +1581,148 @@ m_ssp <- lmer(y ~ A*B*C +
   )
 }
 
+# Pestaña Extra: Esquemas Visuales
+pestanna_extra_session5_v3UI <- function(ns) {
+  # Definir la ruta base para las imágenes de esta sesión
+  img_path <- "images/sesiones/Diseños_estadisticos_V3/session5/"
+  
+  bslib::nav_panel(
+    title = "Extra: Esquemas Visuales",
+    icon = icon("project-diagram"), # Icono de diagrama/estructura
+    
+    tags$div(
+      class = "container-fluid py-3",
+      tags$h4(class = "text-primary mb-4", "Galería Conceptual: Diseños Split-Plot"),
+      tags$p(
+        class = "lead",
+        "Los diseños de parcelas divididas tienen una estructura jerárquica que puede ser difícil de visualizar. ",
+        "Esta pestaña utiliza esquemas para clarificar la disposición física, la sintaxis del modelo y la interpretación de errores."
+      ),
+      tags$hr(),
+      
+      # Navegación interna con pestañas subrayadas
+      bslib::navset_card_underline(
+        
+        # --- Sub-pestaña 1: Jerarquía Física ---
+        bslib::nav_panel(
+          title = "1. Jerarquía Física",
+          tags$div(
+            class = "row align-items-center",
+            tags$div(
+              class = "col-md-8",
+              tags$img(
+                src = paste0(img_path, "split_plot_hierarchy_diagram.png"),
+                class = "img-fluid shadow-sm border rounded",
+                alt = "Diagrama de la jerarquía física de un diseño split-plot",
+                style = "width: 100%; object-fit: contain;"
+              )
+            ),
+            tags$div(
+              class = "col-md-4",
+              tags$div(
+                class = "alert alert-secondary mt-3 mt-md-0",
+                tags$h5("El Campo Anidado"),
+                tags$p(
+                  "Observa cómo el factor A (Riego) no se asigna al azar a cualquier cuadrado pequeño, sino a toda una franja grande (Parcela Principal)."
+                ),
+                tags$p(
+                  "Esto significa que todas las subparcelas dentro de esa franja comparten el mismo error de aplicación de A. Por eso el ", strong("Error A"), " es distinto y suele ser mayor que el Error B."
+                )
+              )
+            )
+          )
+        ),
+        
+        # --- Sub-pestaña 2: Sintaxis lmer() ---
+        bslib::nav_panel(
+          title = "2. Anatomía de la Fórmula",
+          tags$div(
+            class = "row justify-content-center",
+            tags$div(
+              class = "col-md-10",
+              tags$img(
+                src = paste0(img_path, "lmer_split_plot_formula.png"),
+                class = "img-fluid shadow border rounded mx-auto d-block",
+                alt = "Desglose de la fórmula lmer para split-plot",
+                style = "width: 100%;"
+              ),
+              tags$div(
+                class = "mt-3 p-3 bg-light border rounded",
+                tags$h6(class = "text-success", "El componente clave: (1 | Bloque:A)"),
+                tags$p(
+                  "Este término es el que le dice a R: 'Oye, hay un error extra asociado a cada parcela principal'. ",
+                  "Si lo omites, R asumirá que todas las subparcelas son independientes, convirtiendo tu modelo en un GLM incorrecto."
+                )
+              )
+            )
+          )
+        ),
+        
+        # --- Sub-pestaña 3: El Peligro del GLM ---
+        bslib::nav_panel(
+          title = "3. ¿Por qué no usar GLM?",
+          tags$div(
+            class = "row align-items-center",
+            tags$div(
+              class = "col-md-12 mb-3",
+              tags$img(
+                src = paste0(img_path, "glm_vs_lmm_error_comparison.png"),
+                class = "img-fluid shadow-sm border rounded",
+                alt = "Comparación de errores entre GLM y LMM",
+                style = "width: 100%;"
+              )
+            ),
+            tags$div(
+              class = "col-md-12",
+              tags$div(
+                class = "alert alert-danger border-danger",
+                tags$strong("El riesgo de Falsos Positivos:"),
+                " Al usar un GLM simple, comparas el efecto de A contra un ruido muy pequeño (Error B). ",
+                "Esto hace que A parezca mucho más significativo de lo que realmente es. El LMM usa el ruido correcto (Error A) para probar A."
+              )
+            )
+          )
+        ),
+        
+        # --- Sub-pestaña 4: Interpretación de Interacción ---
+        bslib::nav_panel(
+          title = "4. Leyendo la Interacción",
+          tags$div(
+            class = "row align-items-center",
+            tags$div(
+              class = "col-md-7",
+              tags$img(
+                src = paste0(img_path, "interaction_profiles_interpretation.png"),
+                class = "img-fluid shadow border rounded",
+                alt = "Guía para interpretar gráficos de interacción",
+                style = "width: 100%;"
+              )
+            ),
+            tags$div(
+              class = "col-md-5",
+              tags$div(
+                class = "card",
+                tags$div(
+                  class = "card-header bg-info text-white", 
+                  "Agronomía de la Interacción"
+                ),
+                tags$div(
+                  class = "card-body",
+                  tags$p("En un split-plot, la interacción A×B suele ser lo más interesante."),
+                  tags$ul(
+                    tags$li(strong("Sin Interacción:"), " Puedes recomendar el mejor nivel de N sin importar el Riego."),
+                    tags$li(strong("Con Interacción:"), " Tu recomendación de N DEPENDE del Riego disponible. Debes analizar cada escenario por separado.")
+                  )
+                )
+              )
+            )
+          )
+        )
+      ) # Fin navset_card_underline
+    )
+  )
+}
+
 # Pestaña 7: Referencias
 pestanna7_session5_v3UI <- function(ns) {
   bslib::nav_panel(
@@ -1727,6 +1869,7 @@ session5_v3UI <- function(id) {
       pestanna4_session5_v3UI(ns),
       pestanna5_session5_v3UI(ns),
       pestanna6_session5_v3UI(ns),
+      pestanna_extra_session5_v3UI(ns),
       pestanna7_session5_v3UI(ns)
     )
   )
@@ -2400,6 +2543,13 @@ pestanna6_session5_v3_server <- function(input, output, session) {
   # No se requiere lógica de servidor.
 }
 
+# Server de la Pestaña Extra
+pestanna_extra_session5_v3_server <- function(input, output, session) {
+  # Esta pestaña es estática y educativa.
+  # No requiere lógica de servidor dinámica.
+  return(NULL)
+}
+
 # Server de la Pestaña 7
 pestanna7_session5_v3_server <- function(input, output, session) {
   # Pestaña puramente informativa (sin lógica de servidor).
@@ -2519,5 +2669,6 @@ session5_v3Server <- function(input, output, session) {
   pestanna4_session5_v3_server(input, output, session)
   pestanna5_session5_v3_server(input, output, session, ex_df, icc_from_varcorr)
   pestanna6_session5_v3_server(input, output, session)
+  pestanna_extra_session5_v3_server(input, output, session)
   pestanna7_session5_v3_server(input, output, session)
 }
