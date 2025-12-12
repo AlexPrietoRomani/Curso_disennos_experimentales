@@ -255,3 +255,36 @@ partes_predeterminadas <- names(estructura_cursos[[curso_predeterminado]])
 obtener_info_sesion <- function(curso, parte, sesion) {
   estructura_cursos[[curso]][[parte]]$sesiones[[sesion]]
 }
+
+get_practice_files <- function(course_name, session_name) {
+  # Map course name to folder name
+  # "Diseños estadísticos V3" -> "Diseños_estadisticos_V3"
+  folder_name <- gsub(" ", "_", course_name)
+  folder_name <- gsub("estadísticos", "estadisticos", folder_name)
+  
+  base_path <- file.path("c:/Users/ALEX/OneDrive/Asesorias/Escuela CEDEPA/2da capacitación/Curso_disennos_experimentales/Clases", folder_name)
+  
+  if (!dir.exists(base_path)) return(character(0))
+  
+  # Extract session number (e.g. "Sesión 6" -> "6")
+  # Use regex to capture the number
+  num <- sub("Sesión\\s+(\\d+).*", "\\1", session_name, ignore.case = TRUE)
+  
+  # Pattern: session6.R or session6-something.R
+  # ^session{num}(\\-.+)?\\.R$
+  pattern <- sprintf("^session%s(-.+)?\\.R$", num)
+  
+  files <- list.files(base_path, pattern = pattern, full.names = FALSE)
+  
+  # Return full paths? Or just names?
+  # Return list with name and full path for easy usage
+  if (length(files) > 0) {
+    return(data.frame(
+      name = files,
+      path = file.path(base_path, files),
+      stringsAsFactors = FALSE
+    ))
+  } else {
+    return(NULL)
+  }
+}

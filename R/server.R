@@ -397,6 +397,37 @@ server <- function(input, output, session) {
     )
   })
 
+  # --- Files Download Logic ---
+  
+  current_practice_files <- reactive({
+    req(selected_course(), selected_session())
+    get_practice_files(selected_course(), selected_session())
+  })
+  
+  output$download_practice <- downloadHandler(
+    filename = function() {
+      files <- current_practice_files()
+      if (is.null(files)) return("practica.R")
+      
+      # If selector exists, use it; otherwise default to first
+      if (!is.null(input$practice_file_selector)) {
+        return(input$practice_file_selector)
+      }
+      return(files$name[1])
+    },
+    content = function(file) {
+      files <- current_practice_files()
+      req(files)
+      
+      target_name <- if (!is.null(input$practice_file_selector)) input$practice_file_selector else files$name[1]
+      source_path <- files$path[files$name == target_name]
+      
+      if (length(source_path) > 0) {
+        file.copy(source_path, file)
+      }
+    }
+  )
+
   output$contenido_ui <- renderUI({
     req(selected_course(), selected_part(), selected_session())
     info <- obtener_info_sesion(selected_course(), selected_part(), selected_session())
@@ -419,12 +450,37 @@ server <- function(input, output, session) {
       )
     }
 
+    # Prepare Download UI
+    files <- get_practice_files(selected_course(), selected_session())
+    download_ui <- NULL
+    
+    if (!is.null(files)) {
+      if (nrow(files) == 1) {
+        download_ui <- downloadButton("download_practice", label = "Descargar Práctica", class = "btn-download-practice", icon = icon("download"))
+      } else {
+        # Multiple files: Select + Button
+        download_ui <- div(
+          class = "practice-download-wrapper",
+          div(class="practice-selector",
+            selectInput("practice_file_selector", NULL, choices = files$name, width = "100%", selectize = TRUE)
+          ),
+          downloadButton("download_practice", label = "Descargar", class = "btn-download-practice", icon = icon("download"))
+        )
+      }
+    }
+
     div(
       class = "course-content",
       div(
-        class = "session-detail-header",
-        tags$span(class = "session-detail-pill", selected_part()),
-        tags$h2(class = "session-detail-title", selected_session())
+        class = "session-detail-header d-flex justify-content-between align-items-start",
+        div(
+          tags$span(class = "session-detail-pill", selected_part()),
+          tags$h2(class = "session-detail-title", selected_session())
+        ),
+        div(
+          class = "ms-3",
+          download_ui
+        )
       ),
       div(class = "session-detail-body", contenido)
     )
