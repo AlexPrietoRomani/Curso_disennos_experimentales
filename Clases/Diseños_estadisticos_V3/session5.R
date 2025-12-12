@@ -148,12 +148,10 @@ datos_eda_out <- datos_eda %>%
   left_join(limites_outlier, by = "Riego") %>%
   mutate(es_outlier = rendimiento < limite_inf | rendimiento > limite_sup)
 
-cat("\n=== Registros detectados como outliers (datos_eda_out) ===\n")
-print(
-  datos_eda_out %>%
-    filter(es_outlier) %>%
-    select(Bloque, Riego, Nitro, rendimiento, limite_inf, limite_sup)
-)
+glimpse(datos_eda_out)
+
+datos_eda_out %>%
+  dplyr::select(Bloque, Riego, Nitro, rendimiento, es_outlier)
 
 # ------------------------------------------------------------------------------
 # 3. ANÁLISIS EXPLORATORIO (EDA)
@@ -196,7 +194,7 @@ datos_eda <- datos_eda %>%
 # Vista rápida de las tres variables
 head(
   datos_eda %>%
-    select(rendimiento, porcentaje_daño, porcentaje_daño_100, asin_transform)
+    dplyr::select(rendimiento, porcentaje_daño, porcentaje_daño_100, asin_transform)
 )
 
 # Histograma antes de la transformación
