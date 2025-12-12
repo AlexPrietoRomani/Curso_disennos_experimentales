@@ -3,6 +3,7 @@ server <- function(input, output, session) {
 
 
   view_state <- reactiveVal("login")
+  session$userData$view_state <- view_state
   user_authenticated <- reactiveVal(FALSE)
   user_info <- reactiveVal(NULL)
   login_error <- reactiveVal(NULL)
@@ -13,11 +14,17 @@ server <- function(input, output, session) {
 
 
   observeEvent(input$nav_target, {
-    if (identical(input$nav_target, "courses") && isTRUE(user_authenticated())) {
-      selected_course(NULL)
-      selected_part(NULL)
-      selected_session(NULL)
-      view_state("course_select")
+    target <- input$nav_target
+    
+    if (identical(target, "courses") || identical(target, "home")) {
+      if (isTRUE(user_authenticated())) {
+        selected_course(NULL)
+        selected_part(NULL)
+        selected_session(NULL)
+        view_state("course_select")
+      } else {
+        view_state("login")
+      }
     }
   }, ignoreNULL = TRUE)
 
@@ -141,7 +148,7 @@ server <- function(input, output, session) {
       if (isTRUE(user_authenticated())) {
         view_state("course_select")
       } else {
-        view_state("landing")
+        view_state("login")
       }
       return()
     }
