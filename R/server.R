@@ -456,15 +456,28 @@ server <- function(input, output, session) {
     
     if (!is.null(files)) {
       if (nrow(files) == 1) {
-        download_ui <- downloadButton("download_practice", label = "Descargar Práctica", class = "btn-download-practice", icon = icon("download"))
+        # Single file case: direct stylized button
+        download_ui <- downloadButton(
+          "download_practice", 
+          label = "Descargar Práctica", 
+          class = "session-download-btn", 
+          icon = icon("download")
+        )
       } else {
-        # Multiple files: Select + Button
+        # Multiple files: Select + stylized Button
+        # We ensure they sit in a flex container on the right
         download_ui <- div(
-          class = "practice-download-wrapper",
+          class = "d-flex align-items-center gap-2",
+          # Removed inline style to allow custom.css to handle height and alignment
           div(class="practice-selector",
-            selectInput("practice_file_selector", NULL, choices = files$name, width = "100%", selectize = TRUE)
+            selectInput("practice_file_selector", NULL, choices = files$name, width = "220px", selectize = TRUE)
           ),
-          downloadButton("download_practice", label = "Descargar", class = "btn-download-practice", icon = icon("download"))
+          downloadButton(
+            "download_practice", 
+            label = "Descargar", 
+            class = "session-download-btn", 
+            icon = icon("download")
+          )
         )
       }
     }
@@ -472,13 +485,14 @@ server <- function(input, output, session) {
     div(
       class = "course-content",
       div(
-        class = "session-detail-header d-flex justify-content-between align-items-start",
+        class = "session-detail-header d-flex align-items-end w-100", # w-100 guarantees full width
         div(
-          tags$span(class = "session-detail-pill", selected_part()),
-          tags$h2(class = "session-detail-title", selected_session())
+          class = "me-auto text-start", # Force left alignment and push right sibling
+          tags$span(class = "session-detail-pill mb-2", selected_part()),
+          tags$h2(class = "session-detail-title mb-0", selected_session())
         ),
         div(
-          class = "ms-3",
+          class = "ms-auto text-end", # Force right alignment
           download_ui
         )
       ),

@@ -927,7 +927,7 @@ body {
   padding: 0;
 }
 
-.app-shell .session-detail-body .bslib-navs-card > .card-body {
+.app-shell .session-detail-body .bslib-navs-card>.card-body {
   padding: 0;
 }
 
@@ -946,7 +946,8 @@ body {
 .app-shell .session-detail-body .nav-pills .nav-link {
   flex: 0 0 auto;
   min-width: 110px;
-  max-width: 180px;              /* compacto para que entren varias */
+  max-width: 180px;
+  /* compacto para que entren varias */
   text-align: left;
   border: none;
   border-radius: 14px;
@@ -958,7 +959,8 @@ body {
   transition: all 0.25s ease;
   white-space: nowrap;
   overflow: hidden;
-  text-overflow: ellipsis;       /* recorta el texto largo por defecto */
+  text-overflow: ellipsis;
+  /* recorta el texto largo por defecto */
 }
 
 /* Cuando la pestaña está expandida (hover/activa) mostramos todo el título */
@@ -1028,6 +1030,7 @@ body {
 
 /* ----- Ajustes para >= 1200px (layout con sidebar más angosto) ----- */
 @media (min-width: 1200px) {
+
   /* Sidebar ~24% y contenido ~76% */
   .app-shell .course-layout .col-12.col-xl-4 {
     flex: 0 0 24%;
@@ -1046,6 +1049,7 @@ body {
 
 /* ----- Ajustes para <= 992px (nav móvil, tabs con scroll) ----- */
 @media (max-width: 992px) {
+
   /* Mostrar botón hamburguesa */
   .app-shell .nav-toggle {
     display: inline-flex;
@@ -1114,6 +1118,7 @@ body {
 
 /* ----- Ajustes para <= 576px ----- */
 @media (max-width: 576px) {
+
   /* Botones de hero en columna */
   .app-shell .hero-cta {
     flex-direction: column;
@@ -1292,14 +1297,17 @@ body {
   top: 4%;
   left: 14%;
 }
+
 .ia-circle-ml {
   top: 10%;
   right: 4%;
 }
+
 .ia-circle-robotica {
   bottom: -2%;
   left: 4%;
 }
+
 .ia-circle-llm {
   bottom: 12%;
   right: 18%;
@@ -1311,10 +1319,12 @@ body {
     width: 260px;
     height: 260px;
   }
+
   .ia-circle-sub {
     width: 105px;
     height: 105px;
   }
+
   .ia-circle-btn {
     width: 100px;
     height: 100px;
@@ -1341,7 +1351,7 @@ body {
   content: '';
   position: absolute;
   /* (30px padding-left) - (15px width / 2) - (3px border-left / 2) */
-  left: -38.5px; 
+  left: -38.5px;
   top: 3px;
   width: 15px;
   height: 15px;
@@ -1368,7 +1378,8 @@ body {
 }
 
 .timeline-item:last-child::before {
-  background-color: var(--bs-success, #16a34a); /* Verde para "Hoy" */
+  background-color: var(--bs-success, #16a34a);
+  /* Verde para "Hoy" */
 }
 
 /* =========================================================
@@ -1395,10 +1406,22 @@ body {
   color: #1f2933;
 }
 
-.llm-level-ia  { background-color: #edf2ff; }
-.llm-level-ml  { background-color: #e0fbfc; }
-.llm-level-dl  { background-color: #e6fffa; }
-.llm-level-nlp { background-color: #fff7ed; }
+.llm-level-ia {
+  background-color: #edf2ff;
+}
+
+.llm-level-ml {
+  background-color: #e0fbfc;
+}
+
+.llm-level-dl {
+  background-color: #e6fffa;
+}
+
+.llm-level-nlp {
+  background-color: #fff7ed;
+}
+
 .llm-level-llm {
   background-color: var(--bs-success, #16a34a);
   color: #ffffff;
@@ -1458,7 +1481,7 @@ body {
 /* Versión monoespaciada de la tubería */
 .llm-flow-ascii {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-               "Liberation Mono", "Courier New", monospace;
+    "Liberation Mono", "Courier New", monospace;
   font-size: 0.78rem;
   background-color: #0f172a;
   color: #e5e7eb;
@@ -1498,7 +1521,8 @@ body {
 .hall-risk-callout {
   border-radius: 0.5rem;
   padding: 0.6rem 0.75rem;
-  background-color: #fef9c3; /* amarillo suave */
+  background-color: #fef9c3;
+  /* amarillo suave */
   border: 1px solid rgba(202, 138, 4, 0.35);
   color: #78350f;
 }
@@ -1627,7 +1651,7 @@ body {
 /* Versión monoespaciada del pipeline RAG */
 .rag-flow-ascii {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-               "Liberation Mono", "Courier New", monospace;
+    "Liberation Mono", "Courier New", monospace;
   font-size: 0.78rem;
   background-color: #020617;
   color: #e5e7eb;
@@ -1700,7 +1724,7 @@ body {
 /* GENERADOR BOOLEANO: TEXTAREA DE PREVIEW */
 .kw-preview-wrapper textarea {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-               "Liberation Mono", "Courier New", monospace;
+    "Liberation Mono", "Courier New", monospace;
   font-size: 0.8rem;
   background-color: #0f172a;
   color: #e5e7eb;
@@ -1709,7 +1733,7 @@ body {
 }
 
 /* LISTA EN COLUMNA GUIA RAPIDA */
-.rag-discover-list li + li {
+.rag-discover-list li+li {
   margin-top: 0.4rem;
 }
 
@@ -1758,22 +1782,26 @@ body {
 
 /* Colores por categoría principal */
 .tool-cat-descubrir {
-  background-color: #e0f2fe; /* azul claro */
+  background-color: #e0f2fe;
+  /* azul claro */
   border-color: #60a5fa;
 }
 
 .tool-cat-consultar-con-citas {
-  background-color: #dcfce7; /* verde claro */
+  background-color: #dcfce7;
+  /* verde claro */
   border-color: #22c55e;
 }
 
 .tool-cat-gestion-bibliografica {
-  background-color: #fef3c7; /* amarillo */
+  background-color: #fef3c7;
+  /* amarillo */
   border-color: #f59e0b;
 }
 
 .tool-cat-screening {
-  background-color: #fee2e2; /* rojo suave */
+  background-color: #fee2e2;
+  /* rojo suave */
   border-color: #ef4444;
 }
 
@@ -1824,7 +1852,7 @@ body {
 /* Vista previa del prompt: estilo tipo consola */
 .prompt-preview-wrapper textarea.form-control {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-               "Liberation Mono", "Courier New", monospace;
+    "Liberation Mono", "Courier New", monospace;
   font-size: 0.8rem;
   background-color: #0f172a;
   color: #e5e7eb;
@@ -1835,7 +1863,7 @@ body {
 /* Snippets de ejemplo del banco de prompts */
 .prompt-snippet {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-               "Liberation Mono", "Courier New", monospace;
+    "Liberation Mono", "Courier New", monospace;
   font-size: 0.78rem;
   white-space: pre-wrap;
   background: radial-gradient(circle at 0% 0%, #020617 0, #111827 40%, #020617 100%);
@@ -1883,4 +1911,141 @@ body {
   color: var(--deep-forest);
   font-weight: 700;
   margin: 0;
+}
+
+/* =========================================================
+   22. CONTENIDO DE SESIÓN - DESCARGAS & FILTROS
+   ========================================================= */
+
+/* Estilo para los filtros de práctica */
+.practice-selector .selectize-control {
+  margin-bottom: 0;
+  /* Remove default margin from selectize */
+}
+
+.practice-selector .selectize-input {
+  border: 1px solid rgba(43, 108, 176, 0.25) !important;
+  border-radius: 999px !important;
+  background-color: #ffffff !important;
+  /* Solid background fix spacing issue */
+  color: var(--deep-forest) !important;
+  font-weight: 500;
+  box-shadow: none !important;
+  /* Match Download Button Height: 
+     Button padded 0.4rem vertical + 1px border.
+     Here we use hard pixels to force alignment cleanly over selectize's complexity.
+  */
+  padding: 6px 14px !important;
+  min-height: 38px !important;
+  line-height: 24px !important;
+  /* Vertical center text */
+  display: flex !important;
+  align-items: center;
+  transition: all 0.2s ease;
+}
+
+/* Fix internal spacing of items within selectize */
+.practice-selector .selectize-input>* {
+  vertical-align: middle !important;
+}
+
+.practice-selector .selectize-input input {
+  font-size: 0.9rem !important;
+}
+
+.practice-selector .selectize-input:hover {
+  border-color: var(--data-blue) !important;
+  background-color: #f8fafc !important;
+}
+
+.practice-selector .selectize-input.focus {
+  border-color: var(--data-blue) !important;
+  box-shadow: 0 0 0 3px rgba(43, 108, 176, 0.15) !important;
+}
+
+/* Dropdown */
+.practice-selector .selectize-dropdown {
+  border-radius: 12px !important;
+  border: 1px solid rgba(43, 108, 176, 0.15) !important;
+  box-shadow: 0 10px 20px rgba(34, 84, 61, 0.08) !important;
+  overflow: hidden !important;
+  margin-top: 8px !important;
+  z-index: 1060;
+  /* Ensure on top */
+}
+
+.practice-selector .selectize-dropdown .option {
+  padding: 8px 14px !important;
+  font-size: 0.95rem;
+  color: var(--charcoal);
+  cursor: pointer;
+}
+
+.practice-selector .selectize-dropdown .option.active,
+.practice-selector .selectize-dropdown .option:hover {
+  background-color: rgba(47, 133, 90, 0.08) !important;
+  color: var(--deep-forest) !important;
+}
+
+/* Botón de descarga estilizado */
+.app-shell .session-download-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background-color: transparent;
+  color: var(--deep-forest);
+  border: 1px solid var(--deep-forest);
+  border-radius: 999px;
+  /* Pill shape */
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-decoration: none;
+  transition: all 0.25s ease;
+  white-space: nowrap;
+
+  /* FIXED HEIGHT logic to match Selectize (38px) */
+  height: 38px;
+  padding: 0 1.2rem;
+  /* Vertical padding handled by height/flex */
+}
+
+.app-shell .session-download-btn:hover {
+  background-color: var(--deep-forest);
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(34, 84, 61, 0.15);
+}
+
+.app-shell .session-download-btn:active {
+  transform: translateY(0);
+}
+
+.app-shell .session-download-btn i,
+.app-shell .session-download-btn .fa {
+  font-size: 1rem;
+}
+
+/* Contenedor del encabezado de sesión - arreglos */
+.session-detail-header {
+  margin-bottom: 2rem;
+}
+
+.session-detail-header .session-detail-title {
+  margin-top: 0.5rem;
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: var(--deep-forest);
+}
+
+.session-detail-header .session-detail-pill {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  background-color: rgba(47, 133, 90, 0.12);
+  color: var(--deep-forest);
+  padding: 0.35rem 0.85rem;
+  border-radius: 6px;
+  display: inline-block;
 }
