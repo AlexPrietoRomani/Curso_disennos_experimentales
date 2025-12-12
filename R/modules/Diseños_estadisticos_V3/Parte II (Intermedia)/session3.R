@@ -79,7 +79,7 @@ pestanna1_session3_v3UI <- function(ns) {
             sliderInput(
               ns("s3_beta0"),
               HTML("&beta;₀ (intercepto):"),
-              min = -200, max = 200, value = 500, step = 5
+              min = -200, max = 1000, value = 500, step = 5
             ),
             sliderInput(
               ns("s3_beta1"),
