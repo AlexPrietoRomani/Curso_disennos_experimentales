@@ -997,6 +997,177 @@ Y_{ijk} = \\mu + A_i + B_j + (AB)_{ij} + u_k + u_{ik}^{(A)} + u_{jk}^{(B)} + \\v
   )
 }
 
+# Pestaña extra: Esquemas visuales y galería conceptual
+pestanna_extra_session6_v3UI <- function(ns) {
+  # Definir la ruta base para las imágenes de esta sesión
+  img_path <- "images/sesiones/Diseños_estadisticos_V3/session6/"
+  
+  bslib::nav_panel(
+    title = "Extra: Esquemas Visuales",
+    icon = icon("layer-group"), # Icono de capas/grupos
+    
+    tags$div(
+      class = "container-fluid py-3",
+      tags$h4(class = "text-primary mb-4", "Galería Conceptual: Diseños en Franjas (Strip-Plot)"),
+      tags$p(
+        class = "lead",
+        "El diseño strip-plot introduce una estructura de aleatorización cruzada que genera tres errores experimentales. ",
+        "Esta galería visualiza la disposición física, el modelo matemático y la comparación con otros diseños."
+      ),
+      tags$hr(),
+      
+      # Navegación interna con pestañas subrayadas
+      bslib::navset_card_underline(
+        
+        # --- Sub-pestaña 1: Estructura Física ---
+        bslib::nav_panel(
+          title = "1. Estructura Física",
+          tags$div(
+            class = "row align-items-center",
+            tags$div(
+              class = "col-md-8",
+              tags$img(
+                src = paste0(img_path, "strip_plot_mental_map.png"),
+                class = "img-fluid shadow-sm border rounded",
+                alt = "Croquis mental de un diseño strip-plot por bloque",
+                style = "width: 100%; object-fit: contain;"
+              )
+            ),
+            tags$div(
+              class = "col-md-4",
+              tags$div(
+                class = "alert alert-info mt-3 mt-md-0",
+                tags$h5("El Cruce de Franjas"),
+                tags$p(
+                  "A diferencia del split-plot, aquí no hay una parcela 'principal' que contenga a la otra. ",
+                  "El Factor A se aplica en franjas verticales y el Factor B en horizontales."
+                ),
+                tags$p(
+                  "La unidad experimental para la interacción es la intersección, que es mucho más pequeña y homogénea que las franjas completas."
+                )
+              )
+            )
+          )
+        ),
+        
+        # --- Sub-pestaña 2: El Modelo Matemático ---
+        bslib::nav_panel(
+          title = "2. Anatomía del Modelo",
+          tags$div(
+            class = "row justify-content-center",
+            tags$div(
+              class = "col-md-10",
+              tags$img(
+                src = paste0(img_path, "strip_plot_equation_anatomy.png"),
+                class = "img-fluid shadow border rounded mx-auto d-block",
+                alt = "Desglose de la ecuación del modelo strip-plot",
+                style = "width: 100%;"
+              ),
+              tags$div(
+                class = "mt-3 p-3 bg-light border rounded text-center",
+                tags$h6("Tres Fuentes de Ruido"),
+                tags$p(
+                  "Observa los términos griegos en color. Cada uno representa un error aleatorio distinto que debe usarse para probar su respectivo efecto fijo. ",
+                  "Usar un solo error residual (como en un factorial simple) invalidaría el análisis."
+                )
+              )
+            )
+          )
+        ),
+        
+        # --- Sub-pestaña 3: De Campo a Datos ---
+        bslib::nav_panel(
+          title = "3. Del Campo a la Tabla",
+          tags$div(
+            class = "row align-items-center",
+            tags$div(
+              class = "col-md-12 mb-3",
+              tags$img(
+                src = paste0(img_path, "fieldbook_structure_strip.png"),
+                class = "img-fluid shadow-sm border rounded",
+                alt = "Relación entre diseño físico y fieldbook",
+                style = "width: 100%;"
+              )
+            )
+          )
+        ),
+        
+        # --- Sub-pestaña 4: Matriz de Errores ---
+        bslib::nav_panel(
+          title = "4. Quién prueba a Quién",
+          tags$div(
+            class = "row justify-content-center",
+            tags$div(
+              class = "col-md-8",
+              tags$img(
+                src = paste0(img_path, "anova_error_matrix_strip.png"),
+                class = "img-fluid shadow border rounded",
+                alt = "Tabla de errores y precisión por efecto",
+                style = "width: 100%;"
+              )
+            ),
+            tags$div(
+              class = "col-md-4",
+              tags$div(
+                class = "card border-success",
+                tags$div(class = "card-header bg-success text-white", "La Joya del Strip-Plot"),
+                tags$div(
+                  class = "card-body",
+                  tags$p(
+                    "Fíjate en la precisión. El diseño sacrifica precisión en los efectos principales (A y B) para maximizar la precisión en la interacción (A×B)."
+                  ),
+                  tags$small("Úsalo cuando la interacción es tu prioridad científica.")
+                )
+              )
+            )
+          )
+        ),
+        
+        # --- Sub-pestaña 5: Flujo en R ---
+        bslib::nav_panel(
+          title = "5. Flujo en R",
+          tags$div(
+            class = "text-center",
+            tags$img(
+              src = paste0(img_path, "agricolae_workflow_strip.png"),
+              class = "img-fluid shadow-sm rounded",
+              alt = "Flujo de trabajo con agricolae::strip.plot",
+              style = "max-height: 500px;"
+            )
+          )
+        ),
+        
+        # --- Sub-pestaña 6: Comparativa de Diseños ---
+        bslib::nav_panel(
+          title = "6. Comparativa de Diseños",
+          tags$div(
+            class = "row align-items-center",
+            tags$div(
+              class = "col-md-12",
+              tags$img(
+                src = paste0(img_path, "design_comparison_factorial_split_strip.png"),
+                class = "img-fluid shadow border rounded",
+                alt = "Comparación visual: Factorial vs Split-Plot vs Strip-Plot",
+                style = "width: 100%;"
+              ),
+              tags$div(
+                class = "mt-4 p-3 bg-white border-top",
+                tags$h5("Resumen Visual"),
+                tags$ul(
+                  tags$li(strong("Factorial RCBD:"), " Aleatorización total. Máxima precisión para efectos principales, pero difícil de implementar si los factores son grandes (ej. riego)."),
+                  tags$li(strong("Split-Plot:"), " Jerarquía. Un factor grande contiene a uno pequeño. Ideal cuando un factor es difícil de mover."),
+                  tags$li(strong("Strip-Plot:"), " Cruce. Dos factores difíciles de mover se cruzan. Sacrifica efectos principales por una interacción ultra-precisa.")
+                )
+              )
+            )
+          )
+        )
+        
+      ) # Fin navset_card_underline
+    )
+  )
+}
+
 # Pestaña 7: Referencias
 pestanna7_session6_v3UI <- function(ns) {
   bslib::nav_panel(
@@ -1109,6 +1280,7 @@ session6_v3UI <- function(id) {
       pestanna4_session6_v3UI(ns),
       pestanna5_session6_v3UI(ns),
       pestanna6_session6_v3UI(ns),
+      pestanna_extra_session6_v3UI(ns),
       pestanna7_session6_v3UI(ns)
     )
   )
@@ -1178,7 +1350,7 @@ pestanna3_session6_v3_server <- function(
     r <- input$r_bloques
     
     # Validaciones básicas didácticas
-    validate(
+    shiny::validate(
       need(length(A) >= 2,
            "Debe especificar al menos 2 niveles para el Factor A (franjas verticales)."),
       need(length(B) >= 2,
@@ -1197,7 +1369,7 @@ pestanna3_session6_v3_server <- function(
       trt1  = A,
       trt2  = B,
       r     = r,
-      design = "RCBD"
+
     )
     
     # Guardar el objeto de diseño en el reactiveVal compartido
@@ -1306,16 +1478,29 @@ pestanna3_session6_v3_server <- function(
     )
     
     # Detectar nombres reales de columnas para A y B en el book
-    nm_A <- names(book)[which(names(book) %in% c("trt1", "labranza", "col"))[1]]
-    nm_B <- names(book)[which(names(book) %in% c("trt2", "riego", "row"))[1]]
+    # Detectar nombres reales de columnas para A y B en el book por eliminación
+    # Las columnas estándar son: plots, block. Las que sobran son los factores.
+    std_cols <- c("plots", "block", "r") 
+    factor_cols <- setdiff(names(book), std_cols)
+    
+    # Asumimos que la primera es A y la segunda es B (o por orden de aparición en design.strip)
+    # design.strip(trt1=A, trt2=B) -> suele poner A primero, luego B.
+    if (length(factor_cols) >= 2) {
+      nm_A <- factor_cols[1]
+      nm_B <- factor_cols[2]
+    } else {
+      # Fallback si falla la detección
+      nm_A <- names(book)[1] 
+      nm_B <- names(book)[2]
+    }
     
     # Unir con el book para saber qué celdas están asignadas
     grid <- grid |>
       dplyr::left_join(
         book |>
           dplyr::rename(
-            A = !!names(book)[which(names(book) %in% c("trt1", "labranza", "col"))[1]],
-            B = !!names(book)[which(names(book) %in% c("trt2", "riego", "row"))[1]]
+            A = !!dplyr::sym(nm_A),
+            B = !!dplyr::sym(nm_B)
           ) |>
           dplyr::mutate(
             A = factor(A, levels = A_levels),
@@ -1349,7 +1534,6 @@ pestanna3_session6_v3_server <- function(
 
 # Pestaña 4: ANOVA en franjas (strip-plot)
 pestanna4_session6_v3_server <- function(input, output, session,
-                                         design_obj,
                                          datos_para_analisis,
                                          strip_fit,
                                          has_pkg
@@ -1377,7 +1561,7 @@ pestanna4_session6_v3_server <- function(input, output, session,
     shiny::req(df)
     
     # Validar estructura mínima
-    validate(
+    shiny::validate(
       need(
         all(c("block", "col", "row", "Y") %in% names(df)),
         "El data.frame debe contener las columnas: block, col, row, Y."
@@ -1386,9 +1570,9 @@ pestanna4_session6_v3_server <- function(input, output, session,
     
     # Llamada al ANOVA de franjas
     fit <- agricolae::strip.plot(
-      block = df$block,
-      col   = df$col,
-      row   = df$row,
+      BLOCK = df$block,
+      COL   = df$col,
+      ROW   = df$row,
       Y     = df$Y
     )
     
@@ -1681,9 +1865,9 @@ pestanna5_session6_v3_server <- function(input, output, session,
   ex_fit <- reactive({
     df <- ex_data(); shiny::req(df)
     agricolae::strip.plot(
-      block = df$block,
-      col   = df$col,
-      row   = df$row,
+      BLOCK = df$block,
+      COL   = df$col,
+      ROW   = df$row,
       Y     = df$Y
     )
   })
@@ -1786,6 +1970,12 @@ pestanna6_session6_v3_server <- function(input, output, session) {
   # Pestaña puramente conceptual / estática: no se requiere lógica de servidor.
 }
 
+# Pestaña Extra: Conexiones con otros diseños multi-estrato
+pestanna_extra_session6_v3_server <- function(input, output, session) {
+  # Esta pestaña es estática y educativa.
+  return(NULL)
+}
+
 # Pestaña 7: Referencias
 pestanna7_session6_v3_server <- function(input, output, session) {
   # Pestaña puramente informativa: no se requiere lógica de servidor.
@@ -1824,21 +2014,42 @@ session6_v3Server <- function(input, output, session) {
     src <- input$fuente_datos
 
     if (identical(src, "ejemplo")) {
-      shiny::req(has_pkg("agricolae"))
-      data("plotted", package = "agricolae")
-      df <- agricolae::plotted
-      df |>
-        dplyr::rename(block = .data$block, col = .data$col, row = .data$row, Y = .data$Y) |>
-        dplyr::mutate(
-          block = factor(block),
-          col = factor(col),
-          row = factor(row)
-        )
+      # Usar un dataset manual en lugar de 'plotted' que parece no existir en CRAN agricolae actual
+      # Generamos un dataset balanceado simple inspirado en yield ~ A * B
+      
+      # Estructura: 3 bloques, 3 niveles A (a1, a2, a3), 3 niveles B (b1, b2, b3)
+      df_ex <- expand.grid(
+        block = factor(1:3),
+        col   = factor(c("a1", "a2", "a3")),
+        row   = factor(c("b1", "b2", "b3"))
+      )
+      
+      # Simular respuesta Y con efectos
+      set.seed(999)
+      # Efectos
+      eff_col <- c(a1=10, a2=12, a3=15)
+      eff_row <- c(b1=5, b2=5, b3=8)
+      
+      df_ex$Y <- 100 + 
+                 eff_col[df_ex$col] + 
+                 eff_row[df_ex$row] + 
+                 rnorm(nrow(df_ex), 0, 2) # Ruido
+
+      df <- df_ex
+      df
     } else {
       des <- design_obj(); shiny::req(des)
       book <- des$book
-      nm_A <- names(book)[which(names(book) %in% c("trt1","labranza","col"))[1]]
-      nm_B <- names(book)[which(names(book) %in% c("trt2","riego","row"))[1]]
+      # Detección robusta de nombres
+      std_cols <- c("plots", "block", "r") 
+      factor_cols <- setdiff(names(book), std_cols)
+      if (length(factor_cols) >= 2) {
+        nm_A <- factor_cols[1]
+        nm_B <- factor_cols[2]
+      } else {
+        nm_A <- names(book)[1]
+        nm_B <- names(book)[2]
+      }
 
       mu  <- input$media_base
       aamp <- input$efecto_A_amp
@@ -1888,12 +2099,13 @@ session6_v3Server <- function(input, output, session) {
     input, output, session,
     design_obj, datos_para_analisis, strip_fit, has_pkg
   )
-  pestanna4_session6_v3_server(input, output, session, datos_para_analisis, strip_fit)
+  pestanna4_session6_v3_server(input, output, session, datos_para_analisis, strip_fit, has_pkg)
   pestanna5_session6_v3_server(
     input, output, session,
     datos_para_analisis = datos_para_analisis,
     strip_fit          = strip_fit
   )
   pestanna6_session6_v3_server(input, output, session)
+  pestanna_extra_session6_v3_server(input, output, session)
   pestanna7_session6_v3_server(input, output, session)
 }
