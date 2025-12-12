@@ -7,9 +7,9 @@ build_navbar <- function(authenticated = FALSE, user = NULL) {
     div(
       class = "container d-flex align-items-center justify-content-between",
       tags$a(
-        href = "#home",
+        href = "https://alexprietoromani.github.io/",
         class = "brand-link",
-        onclick = "Shiny.setInputValue('nav_target', 'home', {priority: 'event'});",
+        target = "_blank",
         "Alex Prieto Romani"
       ),
       tags$button(
