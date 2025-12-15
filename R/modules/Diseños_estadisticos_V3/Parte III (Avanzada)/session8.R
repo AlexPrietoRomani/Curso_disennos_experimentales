@@ -978,6 +978,162 @@ pestanna6_session8_v3UI <- function(ns) {
   )
 }
 
+# Pestaña Extra: Galería Visual DBA
+pestanna_extra_session8_v3UI <- function(ns) {
+
+  # Base común por proyecto
+  base_path <- "images/sesiones/Diseños_estadisticos_V3/"
+  # Carpeta específica de la sesión 8
+  img_path  <- paste0(base_path, "session8/")
+
+  bslib::nav_panel(
+    title = "Extra: Esquemas Visuales",
+    icon  = icon("images"),
+
+    tags$div(
+      class = "container-fluid py-3",
+
+      tags$h4(class = "text-primary mb-3",
+              "Galería Conceptual: Diseños de Bloques Aumentados (DBA)"),
+
+      tags$p(
+        class = "lead",
+        "El DBA es la solución ingeniosa cuando tenemos 'mucha ambición pero poca semilla'. ",
+        "Esta galería visualiza cómo logramos comparar cientos de líneas nuevas usando unos pocos testigos como referencia."
+      ),
+
+      tags$hr(),
+
+      bslib::navset_card_underline(
+
+        # --- Sub-pestaña A: El Problema y la Estructura ---
+        bslib::nav_panel(
+          title = "A. Contexto y Diseño",
+          
+          # Fila 1: El problema de la semilla
+          tags$div(
+            class = "row mb-5 align-items-center",
+            tags$div(
+              class = "col-md-7",
+              tags$img(src = paste0(img_path, "dba_seed_constraint.png"),
+                       class = "img-fluid shadow-sm border rounded",
+                       style = "width: 100%;",
+                       alt = "Escasez de semilla en nuevos vs abundancia en testigos")
+            ),
+            tags$div(
+              class = "col-md-5",
+              tags$h5("1. El Problema de la Semilla"),
+              tags$p("En etapas tempranas (F3, F4, DH), apenas tenemos unos gramos de semilla por línea nueva."),
+              tags$div(class = "alert alert-warning",
+                       strong("Reto:"), " No podemos hacer repeticiones de los nuevos. ¿Cómo separamos la genética del ambiente?")
+            )
+          ),
+
+          # Fila 2: La Matriz Grid
+          tags$div(
+            class = "row align-items-center",
+            tags$div(
+              class = "col-md-5 order-md-2", # Imagen a la derecha en desktop
+              tags$img(src = paste0(img_path, "dba_matrix_layout.png"),
+                       class = "img-fluid shadow-sm border rounded",
+                       style = "width: 100%;",
+                       alt = "Layout del DBA mostrando patrones de testigos y nuevos")
+            ),
+            tags$div(
+              class = "col-md-7 order-md-1",
+              tags$h5("2. La Solución: Matriz Aumentada"),
+              tags$p("Creamos una grilla donde los **Testigos (Naranja)** forman un esqueleto repetido y constante."),
+              tags$p("Los huecos restantes se rellenan con los **Nuevos (Azul)**, que aparecen solo una vez."),
+              tags$small(class = "text-muted", "Nota cómo los naranjas conectan todos los bloques entre sí.")
+            )
+          )
+        ),
+
+        # --- Sub-pestaña B: Lógica Estadística ---
+        bslib::nav_panel(
+          title = "B. Lógica Estadística",
+
+          # Fila 3: El Ancla
+          tags$div(
+            class = "row mb-5 align-items-center",
+            tags$div(
+              class = "col-md-8 mx-auto text-center",
+              tags$img(src = paste0(img_path, "dba_statistical_anchor.png"),
+                       class = "img-fluid shadow border rounded",
+                       style = "max-height: 400px;",
+                       alt = "Los testigos actúan como anclas estadísticas para nivelar bloques")
+            ),
+            tags$div(
+              class = "col-md-12 mt-3",
+              tags$h5("3. El Concepto del 'Ancla'"),
+              tags$p("Imagina que cada bloque es un terreno a diferente altura (fertilidad). Los testigos (rojos) nos dicen 'cuán alto' está cada bloque. Usamos esa información para 'nivelar' el terreno y comparar justamente a los nuevos (grises), aunque estén en bloques distintos.")
+            )
+          ),
+
+          # Fila 4: Shrinkage BLUPs
+          tags$div(
+            class = "row align-items-center",
+            tags$div(
+              class = "col-md-6",
+              tags$img(src = paste0(img_path, "dba_blup_shrinkage.png"),
+                       class = "img-fluid shadow-sm border rounded",
+                       style = "width: 100%;",
+                       alt = "Efecto de encojimiento (shrinkage) de los BLUPs")
+            ),
+            tags$div(
+              class = "col-md-6",
+              tags$h5("4. BLUPs y el 'Shrinkage'"),
+              tags$p("Al usar Modelos Mixtos, no confiamos ciegamente en un dato único."),
+              tags$ul(
+                tags$li("Si un dato es extremo y tiene poca información (sin réplica), el modelo lo 'empuja' suavemente hacia la media (flechas)."),
+                tags$li("Esto evita seleccionar 'falsos positivos' por suerte ambiental."),
+                tags$li(strong("Resultado:"), " Un ranking más conservador y seguro.")
+              )
+            )
+          )
+        ),
+
+        # --- Sub-pestaña C: Flujo y Decisión ---
+        bslib::nav_panel(
+          title = "C. Flujo y Selección",
+
+          # Fila 5: Pipeline
+          tags$div(
+            class = "row mb-5 align-items-center",
+            tags$div(
+              class = "col-md-12",
+              tags$h5("5. El Pipeline de Análisis"),
+              tags$img(src = paste0(img_path, "dba_analysis_pipeline.png"),
+                       class = "img-fluid border rounded mb-2",
+                       style = "width: 100%;",
+                       alt = "Diagrama de flujo de datos en DBA"),
+              tags$p(class = "text-muted small", 
+                     "Los testigos alimentan la estimación del Error; los Nuevos reciben el ajuste.")
+            )
+          ),
+
+          # Fila 6: Embudo
+          tags$div(
+            class = "row align-items-center",
+            tags$div(
+              class = "col-md-4",
+              tags$h5("6. El Objetivo Final: Selección"),
+              tags$p("El DBA es un filtro masivo. De cientos de candidatos, el análisis estadístico nos permite separar el 'ruido' de la 'señal' y quedarnos solo con las pepitas de oro (líneas élite) para la siguiente etapa."),
+            ),
+            tags$div(
+              class = "col-md-8",
+              tags$img(src = paste0(img_path, "dba_selection_funnel.png"),
+                       class = "img-fluid shadow-lg border rounded",
+                       style = "width: 100%;",
+                       alt = "Embudo de selección filtrando genotipos")
+            )
+          )
+        )
+      )
+    )
+  )
+}
+
 # Pestaña 7: Referencias (DBA)
 pestanna7_session8_v3UI <- function(ns) {
   bslib::nav_panel(
@@ -1127,6 +1283,7 @@ session8_v3UI <- function(id) {
       pestanna4_session8_v3UI(ns),
       pestanna5_session8_v3UI(ns),
       pestanna6_session8_v3UI(ns),
+      pestanna_extra_session8_v3UI(ns),
       pestanna7_session8_v3UI(ns)
     )
   )
