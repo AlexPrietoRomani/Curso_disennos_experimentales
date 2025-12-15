@@ -269,7 +269,7 @@ get_practice_files <- function(course_name, session_name) {
   folder_name <- gsub(" ", "_", course_name)
   folder_name <- gsub("estadísticos", "estadisticos", folder_name)
   
-  base_path <- file.path("c:/Users/ALEX/OneDrive/Asesorias/Escuela CEDEPA/2da capacitación/Curso_disennos_experimentales/Clases", folder_name)
+  base_path <- file.path("Clases", folder_name)
   
   if (!dir.exists(base_path)) return(character(0))
   
