@@ -838,6 +838,163 @@ pestanna6_session7_v3UI <- function(ns) {
   )
 }
 
+# Pestaña extra: Esquemas visuales y galería conceptual
+pestanna_extra_session7_v3UI <- function(ns) {
+
+  # Base común por proyecto (tu estándar)
+  base_path <- "images/sesiones/Diseños_estadisticos_V3/"
+  # Carpeta específica de la sesión
+  img_path  <- paste0(base_path, "session7/")
+
+  bslib::nav_panel(
+    title = "Extra: Esquemas Visuales",
+    icon  = icon("layer-group"),
+
+    tags$div(
+      class = "container-fluid py-3",
+
+      tags$h4(class = "text-primary mb-3",
+              "Galería Conceptual: Diseño Fila–Columna (Row-Column)"),
+
+      tags$p(
+        class = "lead",
+        "Cuando el campo tiene variación en dos direcciones (por ejemplo, pendiente y fertilidad), ",
+        "un bloqueo simple (RCBD) controla solo una parte del ruido. El diseño fila–columna introduce ",
+        "bloqueo bidireccional y se analiza naturalmente con modelos mixtos (LMM)."
+      ),
+
+      tags$hr(),
+
+      bslib::navset_card_underline(
+
+        # --- Sub-pestaña A: Comparativa de gradientes ---
+        bslib::nav_panel(
+          title = "A. Comparativa Espacial",
+
+          tags$div(
+            class = "row align-items-center",
+
+            tags$div(
+              class = "col-md-8",
+              tags$img(
+                src   = paste0(img_path, "spatial_gradient_comparison.png"),
+                class = "img-fluid shadow-sm border rounded",
+                alt   = "Comparación de RCBD versus Row-Column bajo un gradiente espacial diagonal",
+                style = "width: 100%; object-fit: contain;"
+              ),
+              tags$div(
+                class = "mt-2 text-muted small",
+                "Archivo: spatial_gradient_comparison.png"
+              )
+            ),
+
+            tags$div(
+              class = "col-md-4",
+              tags$div(
+                class = "alert alert-info mt-3 mt-md-0",
+                tags$h5("¿Qué idea está transmitiendo?"),
+                tags$p(
+                  "En el panel RCBD, cada bloque es largo en una sola dirección: dentro del mismo bloque ",
+                  "todavía puede existir un cambio fuerte del gradiente (ruido no controlado)."
+                ),
+                tags$p(
+                  "En Row-Column, la grilla (filas y columnas) captura variación en dos ejes: ",
+                  "la comparación visual busca que se “vea” más homogeneidad local dentro de cada celda."
+                ),
+                tags$ul(
+                  tags$li(strong("Lectura rápida:"), " si el gradiente es cruzado/diagonal, piensa en bloqueo doble."),
+                  tags$li(strong("Mensaje estadístico:"), " menos varianza residual esperada; más precisión en medias ajustadas.")
+                )
+              )
+            )
+          )
+        ),
+
+        # --- Sub-pestaña B: Modelo LMM ---
+        bslib::nav_panel(
+          title = "B. El Modelo LMM",
+
+          tags$div(
+            class = "row justify-content-center",
+
+            tags$div(
+              class = "col-md-10",
+              tags$img(
+                src   = paste0(img_path, "lmm_formula_breakdown.png"),
+                class = "img-fluid shadow border rounded mx-auto d-block",
+                alt   = "Desglose visual de la ecuación del modelo mixto para diseño fila–columna",
+                style = "width: 100%;"
+              ),
+
+              tags$div(
+                class = "mt-3 p-3 bg-light border rounded",
+                tags$h6("Lectura guiada de la ecuación"),
+                tags$ul(
+                  tags$li(strong("Efecto fijo (τk):"), " es el “señal” (tratamientos/genotipos) que quieres comparar."),
+                  tags$li(strong("Efectos aleatorios (Ri, Cj):"), " representan variación espacial por fila y columna (bloqueo bidireccional)."),
+                  tags$li(strong("Residuo (εijk):"), " queda como ruido “más puro” tras filtrar estructura espacial.")
+                ),
+                tags$div(
+                  class = "mt-2",
+                  tags$span(class = "text-muted small",
+                            "Tip docente: acompaña esta imagen mostrando VarCorr() y cómo cae σ² residual al incorporar (1|Row) y (1|Col).")
+                )
+              )
+            )
+          )
+        ),
+
+        # --- Sub-pestaña C: Flujo de trabajo ---
+        bslib::nav_panel(
+          title = "C. Flujo de Trabajo",
+
+          tags$div(
+            class = "row align-items-center",
+
+            tags$div(
+              class = "col-md-8",
+              tags$img(
+                src   = paste0(img_path, "row_col_analysis_pipeline.png"),
+                class = "img-fluid shadow-sm border rounded",
+                alt   = "Pipeline de análisis en R para diseño fila–columna: de la tabla al reporte",
+                style = "width: 100%; object-fit: contain;"
+              ),
+              tags$div(
+                class = "mt-2 text-muted small",
+                "Archivo: row_col_analysis_pipeline.png"
+              )
+            ),
+
+            tags$div(
+              class = "col-md-4",
+              tags$div(
+                class = "card border-secondary mt-3 mt-md-0",
+                tags$div(class = "card-header bg-secondary text-white",
+                         "Checklist del pipeline"),
+                tags$div(
+                  class = "card-body",
+                  tags$ol(
+                    tags$li(strong("Estructura de datos:"), " columnas Row, Col, Trt y respuesta (Yield, etc.)."),
+                    tags$li(strong("EDA espacial:"), " heatmap/tiles por Row×Col para detectar gradientes."),
+                    tags$li(strong("Ajuste LMM:"), " modelo con fila y columna como efectos aleatorios."),
+                    tags$li(strong("Salida agronómica:"), " ANOVA/contrastes + VarCorr + medias ajustadas + ranking.")
+                  ),
+                  tags$div(
+                    class = "mt-2 p-2 bg-light border rounded",
+                    tags$div(class = "small text-muted", "Ejemplo de fórmula (referencial):"),
+                    tags$code("lmer(Y ~ Trt + (1|Row) + (1|Col), data = df)")
+                  )
+                )
+              )
+            )
+          )
+        )
+
+      )
+    )
+  )
+}
+
 # Pestaña 7: Referencias
 pestanna7_session7_v3UI <- function(ns) {
   bslib::nav_panel(
@@ -999,6 +1156,7 @@ session7_v3UI <- function(id) {
       pestanna4_session7_v3UI(ns),
       pestanna5_session7_v3UI(ns),
       pestanna6_session7_v3UI(ns),
+      pestanna_extra_session7_v3UI(ns),
       pestanna7_session7_v3UI(ns)
     )
   )
