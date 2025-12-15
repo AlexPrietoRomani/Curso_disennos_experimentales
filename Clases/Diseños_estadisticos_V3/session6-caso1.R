@@ -96,7 +96,8 @@ theme_set(theme_bw())
 # 1) Importar y preparar datos
 # ------------------------------------------------------------
 
-ruta_archivo <- "C:/Users/ALEX/OneDrive/Asesorias/Escuela CEDEPA/2da capacitación/Curso_disennos_experimentales/Clases/Diseños_estadisticos_V3/Libro1 (1).xlsx"
+# ruta_archivo <- "C:/Users/ALEX/OneDrive/Asesorias/Escuela CEDEPA/2da capacitación/Curso_disennos_experimentales/Clases/Diseños_estadisticos_V3/Libro1 (1).xlsx"
+ruta_archivo <- "Libro1 (1).xlsx" # Ruta relativa para fines didácticos
 
 datos_raw <- readxl::read_excel(
   path  = ruta_archivo,
