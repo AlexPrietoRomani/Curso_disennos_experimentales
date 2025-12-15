@@ -228,6 +228,13 @@ estructura_cursos <- list(
         "Sesión 7" = list(module = "session7_v3", id = "v3_p3_s7"),
         "Sesión 8" = list(module = "session8_v3", id = "v3_p3_s8")
       )
+    ),
+    "Parte IV (Extras)" = list(
+      sesiones = list(
+        "Sesión 9" = list(module = "session9_v3", id = "v3_p4_s9"),
+        "Sesión 10" = list(module = "session10_v3", id = "v3_p4_s10"),
+        "Sesión 11" = list(module = "session11_v3", id = "v3_p4_s11")
+      )
     )
   )
 )
