@@ -72,7 +72,7 @@ build_login_section <- function(error_message = NULL) {
             class = "login-support-block",
             span("¿Tienes problemas?"),
             tags$a(
-              href = support_mailto_link(subject = "Soporte Acceso CEDEPA"),
+              href = support_mailto_link(subject = "Soporte Acceso"),
               class = "login-link ms-1",
               "Contactar soporte"
             )

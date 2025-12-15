@@ -77,57 +77,10 @@ server <- function(input, output, session) {
   })
   
   # Password Reset Module
-  # We pass URL params to the module to handle token verification
-  url_params <- reactive({
-    query <- parseQueryString(session$clientData$url_search)
-    query
-  })
-  
-  passwordResetServer("reset_module", session, url_params)
+  passwordResetServer("reset_module", session)
   
   observeEvent(input$go_to_reset, {
     view_state("password_reset")
-  })
-  
-  # URL Handler for Admin Approval & Reset
-  observe({
-    query <- parseQueryString(session$clientData$url_search)
-    
-    if (!is.null(query$action)) {
-      if (query$action == "approve" && !is.null(query$user)) {
-        # Admin Approval Logic
-        # In a real app, we should verify the admin is logged in or use a secure token.
-        # For this MVP, we assume the link is secret enough or we check if current user is admin?
-        # But the admin clicks the link from email, so they might not be logged in.
-        # Let's just approve for now (MVP).
-        
-        tryCatch({
-          update_user_status(query$user, "active")
-          
-          # Get user email to send welcome
-          u <- get_user(query$user)
-          if (!is.null(u)) {
-            send_welcome_email(u$email, u$first_name)
-          }
-          
-          showModal(modalDialog(
-            title = "Usuario Aprobado",
-            paste("El usuario", query$user, "ha sido activado exitosamente."),
-            easyClose = TRUE
-          ))
-        }, error = function(e) {
-          showModal(modalDialog(
-            title = "Error",
-            paste("No se pudo aprobar el usuario:", e$message),
-            easyClose = TRUE
-          ))
-        })
-      }
-      
-      if (query$action == "reset") {
-        view_state("password_reset")
-      }
-    }
   })
 
   for (curso in names(estructura_cursos)) {

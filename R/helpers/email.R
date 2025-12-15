@@ -19,37 +19,7 @@ get_smtp_server <- function() {
   )
 }
 
-# Send approval request to admin
-send_approval_request_email <- function(new_user_data, approval_link) {
-  smtp <- get_smtp_server()
-  admin_email <- "alexprieto1997@gmail.com"
-  
-  # Ensure inputs are characters
-  username <- as.character(new_user_data$username)
-  email_addr <- as.character(new_user_data$email)
-  first_name <- as.character(new_user_data$first_name)
-  last_name <- as.character(new_user_data$last_name)
-  approval_link <- as.character(approval_link)
-  
-  message(">>> Sending approval email for: ", username)
-  
-  email <- emayili::envelope() |>
-    emayili::from(Sys.getenv("SMTP_USER")) |>
-    emayili::to(admin_email) |>
-    emayili::subject(paste("Nueva solicitud de acceso:", username)) |>
-    emayili::text(paste0(
-      "Hola Alex,\n\n",
-      "Se ha registrado un nuevo usuario:\n",
-      "Nombre: ", first_name, " ", last_name, "\n",
-      "Usuario: ", username, "\n",
-      "Email: ", email_addr, "\n\n",
-      "Para aprobar este usuario, haz clic en el siguiente enlace:\n",
-      approval_link, "\n\n",
-      "Saludos,\nTu App"
-    ))
-  
-  smtp(email, verbose = TRUE)
-}
+
 
 # Send welcome email to user (after approval)
 send_welcome_email <- function(user_email, username) {
@@ -67,33 +37,34 @@ send_welcome_email <- function(user_email, username) {
     emayili::subject("Bienvenido a la plataforma") |>
     emayili::text(paste0(
       "Hola ", username, ",\n\n",
-      "Tu cuenta ha sido aprobada exitosamente. Ya puedes iniciar sesión en la plataforma.\n\n",
-      "Saludos,\nEl Equipo"
+      "¡Bienvenido a la plataforma de Alex Prieto Romani!\n\n",
+      "Tu cuenta ha sido activada y ya puedes iniciar sesión.\n\n",
+      "Saludos,\nAlex Prieto Romani"
     ))
   
   smtp(email, verbose = TRUE)
 }
 
-# Send password reset email
-send_password_reset_email <- function(user_email, reset_link) {
+# Send password reset code (OTP)
+send_password_reset_code <- function(user_email, code) {
   smtp <- get_smtp_server()
   
   user_email <- as.character(user_email)
-  reset_link <- as.character(reset_link)
+  code <- as.character(code)
   
-  message(">>> Sending password reset email to: ", user_email)
+  message(">>> Sending password reset code to: ", user_email, " Code: ", code)
   
   email <- emayili::envelope() |>
     emayili::from(Sys.getenv("SMTP_USER")) |>
     emayili::to(user_email) |>
-    emayili::subject("Restablecimiento de contraseña") |>
+    emayili::subject("Código de recuperación de contraseña") |>
     emayili::text(paste0(
       "Hola,\n\n",
-      "Hemos recibido una solicitud para restablecer tu contraseña.\n",
-      "Haz clic en el siguiente enlace para crear una nueva contraseña:\n",
-      reset_link, "\n\n",
+      "Tu código de verificación para restablecer la contraseña es:\n\n",
+      "   ", code, "\n\n",
+      "Este código expirará en 15 minutos.\n",
       "Si no solicitaste esto, ignora este correo.\n\n",
-      "Saludos,\nTu App"
+      "Saludos,\nAlex Prieto Romani"
     ))
   
   smtp(email, verbose = TRUE)

@@ -130,6 +130,14 @@ registerServer <- function(id, parent_session) {
       )
       
       if (result$success) {
+        
+        # Send Welcome Email
+        tryCatch({
+          send_welcome_email(input$reg_email, input$reg_username)
+        }, error = function(e) {
+          warning("Error sending welcome email: ", e$message)
+        })
+        
         output$reg_error_msg <- renderUI({
           div(
             class = "alert alert-success text-center", 
