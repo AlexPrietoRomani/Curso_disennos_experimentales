@@ -3,36 +3,86 @@
 registerUI <- function(id) {
   ns <- NS(id)
   
-  tagList(
+  div(
+    class = "login-section",
     div(
-      class = "container",
-      style = "max-width: 500px; margin-top: 50px;",
+      class = "login-wrapper",
+      # Slightly wider wrapper for registration if needed, but 440px is standard mobile-first
       div(
-        class = "card shadow-sm",
+        class = "login-card", 
+        
+        # Header
         div(
-          class = "card-body p-4",
-          h3("Crear nueva cuenta", class = "card-title text-center mb-4"),
+          class = "login-header",
+          div(
+            class = "login-icon-circle",
+            icon("user-plus", class = "fa-lg")
+          ),
+          tags$h2(class = "login-title", "Crear Cuenta"),
+          tags$p(class = "login-subtitle", "Únete a la plataforma educativa")
+        ),
+        
+        # Body
+        div(
+          class = "login-body",
           
-          textInput(ns("reg_username"), "Usuario", placeholder = "Elige un nombre de usuario"),
-          textInput(ns("reg_email"), "Correo electrónico", placeholder = "nombre@ejemplo.com"),
+          div(
+            class = "login-form-group",
+            tags$label("Usuario"),
+            textInput(ns("reg_username"), label = NULL, placeholder = "Elige un usuario único", width = "100%")
+          ),
+          
+          div(
+            class = "login-form-group",
+            tags$label("Correo Electrónico"),
+            textInput(ns("reg_email"), label = NULL, placeholder = "nombre@ejemplo.com", width = "100%")
+          ),
+          
+          # Row for Names
           div(
             class = "row",
-            div(class = "col-md-6", textInput(ns("reg_first_name"), "Nombre")),
-            div(class = "col-md-6", textInput(ns("reg_last_name"), "Apellido"))
+            div(
+              class = "col-6",
+              div(
+                class = "login-form-group",
+                tags$label("Nombre"),
+                textInput(ns("reg_first_name"), label = NULL, width = "100%")
+              )
+            ),
+            div(
+              class = "col-6",
+              div(
+                class = "login-form-group",
+                tags$label("Apellido"),
+                textInput(ns("reg_last_name"), label = NULL, width = "100%")
+              )
+            )
           ),
-          passwordInput(ns("reg_password"), "Contraseña", placeholder = "Mínimo 8 caracteres"),
-          passwordInput(ns("reg_password_confirm"), "Confirmar contraseña"),
+          
+          div(
+            class = "login-form-group",
+            tags$label("Contraseña"),
+            passwordInput(ns("reg_password"), label = NULL, placeholder = "Mínimo 8 caracteres", width = "100%")
+          ),
+          
+          div(
+            class = "login-form-group mb-4",
+            tags$label("Confirmar Contraseña"),
+            passwordInput(ns("reg_password_confirm"), label = NULL, placeholder = "Repite la contraseña", width = "100%")
+          ),
           
           uiOutput(ns("reg_error_msg")),
           
-          div(
-            class = "d-grid gap-2 mt-4",
-            actionButton(ns("do_register"), "Registrarme", class = "btn btn-primary btn-lg")
+          actionButton(
+            ns("do_register"), 
+            "REGISTRARME", 
+            class = "btn-login-main mb-4"
           ),
           
           div(
-            class = "text-center mt-3",
-            actionLink(ns("go_to_login"), "Ya tengo cuenta, iniciar sesión")
+            class = "text-center",
+            span(class = "text-muted", " ¿Ya tienes cuenta? "),
+            actionLink(ns("go_to_login"), "Iniciar sesión", class = "login-link")
           )
         )
       )
@@ -49,14 +99,14 @@ registerServer <- function(id, parent_session) {
       if (input$reg_username == "" || input$reg_email == "" || 
           input$reg_password == "" || input$reg_first_name == "") {
         output$reg_error_msg <- renderUI({
-          div(class = "alert alert-danger", "Por favor completa todos los campos obligatorios.")
+          div(class = "alert alert-danger", icon("exclamation-circle"), " Completa todos los campos obligatorios.")
         })
         return()
       }
       
       if (input$reg_password != input$reg_password_confirm) {
         output$reg_error_msg <- renderUI({
-          div(class = "alert alert-danger", "Las contraseñas no coinciden.")
+          div(class = "alert alert-danger", icon("exclamation-circle"), " Las contraseñas no coinciden.")
         })
         return()
       }
@@ -65,7 +115,7 @@ registerServer <- function(id, parent_session) {
       complexity <- validate_password_complexity(input$reg_password)
       if (!complexity$valid) {
         output$reg_error_msg <- renderUI({
-          div(class = "alert alert-danger", complexity$message)
+          div(class = "alert alert-danger", icon("shield-alt"), " ", complexity$message)
         })
         return()
       }
@@ -83,13 +133,13 @@ registerServer <- function(id, parent_session) {
         output$reg_error_msg <- renderUI({
           div(
             class = "alert alert-success text-center", 
-            h4(icon("check-circle"), " ¡Cuenta creada!"),
-            p("Tu registro ha sido exitoso."),
-            p("Ya puedes iniciar sesión con tu usuario y contraseña.")
+            tags$h4(icon("check-circle"), " ¡Cuenta creada!"),
+            tags$p("Tu registro ha sido exitoso."),
+            tags$p("Ya puedes iniciar sesión con tu usuario.")
           )
         })
         
-        # Hide form elements to prevent resubmission and clarify state
+        # Hide form elements
         shinyjs::hide("reg_username")
         shinyjs::hide("reg_email")
         shinyjs::hide("reg_first_name")
@@ -100,7 +150,7 @@ registerServer <- function(id, parent_session) {
         
       } else {
         output$reg_error_msg <- renderUI({
-          div(class = "alert alert-danger", result$message)
+          div(class = "alert alert-danger", icon("times-circle"), " ", result$message)
         })
       }
     })

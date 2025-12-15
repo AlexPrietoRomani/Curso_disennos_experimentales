@@ -2,46 +2,80 @@
 
 passwordResetUI <- function(id) {
   ns <- NS(id)
-  tagList(
+  div(
+    class = "login-section",
     div(
-      class = "container",
-      style = "max-width: 500px; margin-top: 50px;",
+      class = "login-wrapper",
       div(
-        class = "card shadow-sm",
+        class = "login-card",
+        # Header
         div(
-          class = "card-body p-4",
-          h3("Recuperar contraseña", class = "card-title text-center mb-4"),
+          class = "login-header",
+          div(
+            class = "login-icon-circle",
+            icon("key", class = "fa-lg")
+          ),
+          tags$h2(class = "login-title", "Recuperar Acceso"),
+          tags$p(class = "login-subtitle", "Restablece tu contraseña de forma segura")
+        ),
+        
+        # Body
+        div(
+          class = "login-body",
           
           # Step 1: Request Link
           div(
             id = ns("step_request"),
-            p("Ingresa tu correo electrónico y te enviaremos un enlace para restablecer tu contraseña."),
-            textInput(ns("reset_email"), "Correo electrónico"),
-            uiOutput(ns("request_msg")),
+            tags$p(class = "text-muted mb-4 small text-center", 
+                   "Ingresa tu correo electrónico asociado y te enviaremos las instrucciones."),
+            
             div(
-              class = "d-grid gap-2 mt-3",
-              actionButton(ns("do_send_link"), "Enviar enlace", class = "btn btn-primary")
+              class = "login-form-group",
+              tags$label("Correo Electrónico"),
+              textInput(ns("reset_email"), label = NULL, placeholder = "nombre@ejemplo.com", width = "100%")
+            ),
+            
+            uiOutput(ns("request_msg")),
+            
+            actionButton(
+              ns("do_send_link"), 
+              "ENVIAR ENLACE", 
+              class = "btn-login-main mb-3"
             )
           ),
           
-          # Step 2: Set New Password (hidden by default, shown via server logic if token present)
+          # Step 2: Set New Password (hidden by default)
           shinyjs::hidden(
             div(
               id = ns("step_reset"),
-              p("Ingresa tu nueva contraseña."),
-              passwordInput(ns("new_password"), "Nueva contraseña"),
-              passwordInput(ns("new_password_confirm"), "Confirmar nueva contraseña"),
-              uiOutput(ns("reset_msg")),
+              tags$p(class = "text-muted mb-4 small text-center", "Crea una nueva contraseña para tu cuenta."),
+              
               div(
-                class = "d-grid gap-2 mt-3",
-                actionButton(ns("do_reset_pw"), "Cambiar contraseña", class = "btn btn-primary")
+                class = "login-form-group",
+                tags$label("Nueva contraseña"),
+                passwordInput(ns("new_password"), label = NULL, placeholder = "Mínimo 8 caracteres", width = "100%")
+              ),
+              
+              div(
+                class = "login-form-group",
+                tags$label("Confirmar contraseña"),
+                passwordInput(ns("new_password_confirm"), label = NULL, placeholder = "Repite la contraseña", width = "100%")
+              ),
+              
+              uiOutput(ns("reset_msg")),
+              
+              actionButton(
+                ns("do_reset_pw"), 
+                "CAMBIAR CONTRASEÑA", 
+                class = "btn-login-main mb-3"
               )
             )
           ),
           
+          # Footer Links
           div(
-            class = "text-center mt-3",
-            actionLink(ns("back_to_login"), "Volver al inicio de sesión")
+            class = "text-center mt-2",
+            actionLink(ns("back_to_login"), "Volver al inicio de sesión", class = "login-link")
           )
         )
       )
@@ -75,9 +109,6 @@ passwordResetServer <- function(id, parent_session, url_params = reactive(NULL))
     observeEvent(input$do_send_link, {
       email <- input$reset_email
       if (email == "") return()
-      
-      # Check if user exists (optional, to avoid leaking info, but useful for UX)
-      # For security, usually we say "If the email exists, we sent a link."
       
       token <- generate_token(32)
       save_reset_token(email, token)

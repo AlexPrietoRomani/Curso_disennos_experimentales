@@ -6,38 +6,48 @@ build_navbar <- function(authenticated = FALSE, user = NULL) {
     class = "primary-nav",
     div(
       class = "container d-flex align-items-center justify-content-between",
+      
+      # Brand / Logo
       tags$a(
         href = "https://alexprietoromani.github.io/",
-        class = "brand-link",
+        class = "brand-link d-flex align-items-center gap-2",
         target = "_blank",
-        "Alex Prieto Romani"
+        icon("leaf", class = "text-success"), # Added an icon for professionalism
+        span("Alex Prieto Romani")
       ),
+      
+      # Mobile Toggle (hidden on desktop via CSS usually)
       tags$button(
         type = "button",
         class = "nav-toggle",
         `aria-expanded` = "false",
-        `aria-label` = "Abrir menú de navegación",
+        `aria-label` = "Abrir menú",
         tags$span(class = "nav-toggle-bar"),
         tags$span(class = "nav-toggle-bar"),
         tags$span(class = "nav-toggle-bar")
       ),
-      tags$ul(
-        class = "nav-links",
+      
+      # Right Links
+      div(
+        class = "nav-links d-flex align-items-center gap-3",
         if (authenticated) {
           tagList(
-            tags$li(
-              class = "nav-item nav-user",
-              tags$span(
-                class = "nav-link disabled",
-                sprintf("Hola, %s", sanitize_credential_input(user$username %||% "usuario"))
+            
+            # User Greetings Badge
+            div(
+              class = "d-none d-md-flex align-items-center gap-2 px-3 py-1 rounded-pill bg-light text-muted border",
+              icon("user-circle"),
+              span(
+                class = "fw-bold small",
+                sanitize_credential_input(user$username %||% "Usuario")
               )
             ),
-            tags$li(
-              actionLink(
-                "logout",
-                label = tagList(icon("right-from-bracket"), span(" Cerrar sesión")),
-                class = "nav-link nav-link-action"
-              )
+            
+            # Logout Button (Styled as a ghost button or similar)
+            actionLink(
+              "logout",
+              label = tagList(icon("power-off"), span(" Salir")),
+              class = "btn btn-sm btn-outline-danger border-0 fw-semibold d-flex align-items-center gap-2"
             )
           )
         }

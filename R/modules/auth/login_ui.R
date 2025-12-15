@@ -3,48 +3,85 @@
 
 build_login_section <- function(error_message = NULL) {
   div(
-    id = "courses",
-    class = "section courses-section login-section",
+    class = "login-section",
     div(
-      class = "container",
-      tags$h2(class = "section-title", "Acceso a cursos"),
-      tags$p(
-        class = "section-intro",
-        "Inicia sesión con tus credenciales para acceder a los contenidos protegidos."
-      ),
+      class = "login-wrapper",
       div(
-        class = "login-card shadow-sm p-4 bg-white rounded",
-        style = "max-width: 500px; margin: 0 auto;", # Center and constrain width
-        if (!is.null(error_message)) {
-          div(class = "alert alert-danger", role = "alert", error_message)
-        },
-        textInput("login_username", "Usuario", placeholder = "usuario"),
-        passwordInput("login_password", "Contraseña", placeholder = "********"),
+        class = "login-card",
+        # Header Visual
         div(
-          class = "mt-4",
+          class = "login-header",
           div(
-            class = "d-grid gap-2 d-md-flex justify-content-md-between",
-            actionButton("login_submit", label = tagList(icon("lock"), span(" Iniciar sesión")), class = "btn btn-primary flex-grow-1 me-md-2"),
-            actionButton("go_to_register", label = tagList(icon("user-plus"), span(" Crear cuenta nueva")), class = "btn btn-outline-primary flex-grow-1")
+            class = "login-icon-circle",
+            icon("seedling", class = "fa-lg")
           ),
+          tags$h2(class = "login-title", "Acceso a Cursos"),
+          tags$p(class = "login-subtitle", "Autoria: Alex Prieto Romani")
+        ),
+        
+        # Form Body
+        div(
+          class = "login-body",
+          
+          if (!is.null(error_message)) {
+            div(
+              class = "alert alert-danger d-flex align-items-center mb-4", 
+              role = "alert", 
+              icon("exclamation-triangle", class="me-2"),
+              div(error_message)
+            )
+          },
+          
           div(
-            class = "text-center mt-3",
-            actionLink("go_to_reset", "¿Olvidaste tu contraseña?", class = "text-decoration-none text-muted")
+            class = "login-form-group",
+            tags$label("Usuario"),
+            textInput("login_username", label = NULL, placeholder = "Ej. usuario123", width = "100%")
+          ),
+          
+          div(
+            class = "login-form-group mb-4",
+            tags$label("Contraseña"),
+            passwordInput("login_password", label = NULL, placeholder = "••••••••", width = "100%")
+          ),
+          
+          actionButton(
+            "login_submit", 
+            label = "INICIAR SESIÓN", 
+            class = "btn-login-main mb-3"
+          ),
+          
+          div(
+            class = "text-center",
+            actionLink("go_to_reset", "¿Olvidaste tu contraseña?", class = "login-link small")
           )
         ),
-        tags$div(
-          class = "support-contact mt-4 text-center",
-          tags$p(class = "mb-2", "¿Necesitas ayuda con tus credenciales?"),
-          tags$a(
-            href = support_mailto_link(subject = "Soporte Cursos - Acceso"),
-            class = "btn btn-link",
-            icon("envelope"),
-            " Contactar soporte"
+        
+        # Footer / Secondary Actions
+        div(
+          class = "login-footer",
+          div(
+            class = "d-grid gap-2",
+            actionButton(
+              "go_to_register", 
+              label = "Crear Cuenta Nueva", 
+              class = "btn btn-register-secondary"
+            )
+          ),
+          
+          div(
+            class = "login-support-block",
+            span("¿Tienes problemas?"),
+            tags$a(
+              href = support_mailto_link(subject = "Soporte Acceso CEDEPA"),
+              class = "login-link ms-1",
+              "Contactar soporte"
+            )
+          ),
+          
+          div(
+            class = "login-secure-note",
+            icon("lock"), span("Acceso seguro cifrado")
           )
-        ),
-        tags$p(
-          class = "text-muted small mt-3 text-center",
-          "Las contraseñas se almacenan cifradas por su seguridad."
         )
       )
     )
