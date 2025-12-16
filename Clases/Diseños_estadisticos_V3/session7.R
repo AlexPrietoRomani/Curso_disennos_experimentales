@@ -87,7 +87,7 @@ head(fieldbook)
 #   - Efecto de columna (eff_col): gradiente Este–Oeste (p.ej. riego, pendiente).
 #   - Error residual (eps): ruido dentro de parcela (variabilidad no explicada).
 
-sd_trt <- 5    # SD entre tratamientos (señal genética)
+sd_trt <- 25    # SD entre tratamientos (señal genética)
 sd_row <- 3    # SD gradiente en filas (suave)
 sd_col <- 10   # SD gradiente en columnas (más fuerte)
 sd_eps <- 4    # SD residual (ruido de parcela)
