@@ -1330,9 +1330,9 @@ pestanna3_session7_v3_server <- function(input, output, session, rc_design, has_
     
     shiny::req(c_row, c_col, c_trt)
     
-    # Asegurar factores para ordenar bien en el gráfico
-    fb[[c_row]] <- factor(fb[[c_row]])
-    fb[[c_col]] <- factor(fb[[c_col]])
+    # Asegurar numéricos para scale_y_reverse (usando as.factor para evitar NAs si vienen como texto tipo 'Row1')
+    fb[[c_row]] <- as.numeric(as.factor(fb[[c_row]]))
+    fb[[c_col]] <- as.numeric(as.factor(fb[[c_col]]))
     
     if (length(c_rep) == 0) {
       fb$REP <- factor(1)
@@ -1402,6 +1402,10 @@ pestanna4_session7_v3_server <- function(input, output, session, rc_design, sim_
     df   <- sim$data
     c_row <- sim$cols$row
     c_col <- sim$cols$col
+    
+    # Asegurar numéricos para scale_y_reverse (defensa contra 'Row1' o factores)
+    df[[c_row]] <- as.numeric(as.factor(df[[c_row]]))
+    df[[c_col]] <- as.numeric(as.factor(df[[c_col]]))
     
     ggplot2::ggplot(df, ggplot2::aes(x = .data[[c_col]], y = .data[[c_row]], fill = .data[["Y"]])) +
       ggplot2::geom_tile(color = "white") +
