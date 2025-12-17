@@ -1000,7 +1000,8 @@ Y_{ijk} = \\mu + A_i + B_j + (AB)_{ij} + u_k + u_{ik}^{(A)} + u_{jk}^{(B)} + \\v
 # Pestaña extra: Esquemas visuales y galería conceptual
 pestanna_extra_session6_v3UI <- function(ns) {
   # Definir la ruta base para las imágenes de esta sesión
-  img_path <- "images/sesiones/Diseños_estadisticos_V3/session6/"
+  base_path <- "images/sesiones/Diseños_estadisticos_V3/optimizada/"
+  img_path  <- paste0(base_path, "session6/")
   
   bslib::nav_panel(
     title = "Extra: Esquemas Visuales",
