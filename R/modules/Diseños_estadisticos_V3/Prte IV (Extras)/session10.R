@@ -824,7 +824,7 @@ pestanna6_session10_v3UI <- function(ns) {
 pestanna_extra_session10_v3UI <- function(ns) {
   
   # Definición de rutas (tal como solicitaste)
-  base_path <- "images/sesiones/Diseños_estadisticos_V3/"
+  base_path <- "images/sesiones/Diseños_estadisticos_V3/optimizada/"
   img_path  <- paste0(base_path, "session10/")
   
   bslib::nav_panel(
