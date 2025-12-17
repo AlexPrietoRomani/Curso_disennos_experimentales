@@ -561,7 +561,7 @@ pestanna4_session3_v3UI <- function(ns) {
 # Pestaña Extra: Esquemas Visuales y Conceptuales
 pestanna_extra_session3_v3UI <- function(ns) {
   # Definir la ruta base para facilitar cambios futuros
-  base_path <- "images/sesiones/Diseños_estadisticos_V3/optimizada/"
+  base_path <- "images/sesiones/Disenos_estadisticos_V3/optimizada/"
   img_path  <- paste0(base_path, "session3/")
   
   bslib::nav_panel(
@@ -581,7 +581,7 @@ pestanna_extra_session3_v3UI <- function(ns) {
           div(class = "row align-items-center",
             div(class = "col-md-7",
               tags$img(
-                src = paste0(img_path, "ols_mechanism_visualization.png"), 
+                src = paste0(img_path, "ols_mechanism_visualization.webp"), 
                 class = "img-fluid shadow-sm border rounded",
                 alt = "Interpretación geométrica de Mínimos Cuadrados Ordinarios",
                 style = "width: 100%; min-height: 300px; object-fit: contain; background-color: #ffffff;"
@@ -615,7 +615,7 @@ pestanna_extra_session3_v3UI <- function(ns) {
             ),
             div(class = "col-md-8 offset-md-2",
               tags$img(
-                src = paste0(img_path, "diagnostic_patterns_panel.png"), 
+                src = paste0(img_path, "diagnostic_patterns_panel.webp"), 
                 class = "img-fluid shadow border rounded mb-3",
                 alt = "Patrones de diagnóstico: Homocedasticidad vs Heterocedasticidad vs No linealidad",
                 style = "width: 100%;"
@@ -651,7 +651,7 @@ pestanna_extra_session3_v3UI <- function(ns) {
              ),
              div(class = "col-md-8",
                tags$img(
-                 src = paste0(img_path, "agronomic_curves_interpretation.png"), 
+                 src = paste0(img_path, "agronomic_curves_interpretation.webp"), 
                  class = "img-fluid shadow-sm rounded",
                  alt = "Comparación de curvas lineal, cuadrática y logarítmica",
                  style = "width: 100%;"
