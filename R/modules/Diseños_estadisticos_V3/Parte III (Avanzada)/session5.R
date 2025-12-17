@@ -1584,7 +1584,7 @@ m_ssp <- lmer(y ~ A*B*C +
 # Pestaña Extra: Esquemas Visuales
 pestanna_extra_session5_v3UI <- function(ns) {
   # Definir la ruta base para las imágenes de esta sesión
-  base_path <- "images/sesiones/Diseños_estadisticos_V3/optimizada/"
+  base_path <- "images/sesiones/Disenos_estadisticos_V3/optimizada/"
   img_path  <- paste0(base_path, "session5/")
   
   bslib::nav_panel(
@@ -1612,7 +1612,7 @@ pestanna_extra_session5_v3UI <- function(ns) {
             tags$div(
               class = "col-md-8",
               tags$img(
-                src = paste0(img_path, "split_plot_hierarchy_diagram.png"),
+                src = paste0(img_path, "split_plot_hierarchy_diagram.webp"),
                 class = "img-fluid shadow-sm border rounded",
                 alt = "Diagrama de la jerarquía física de un diseño split-plot",
                 style = "width: 100%; object-fit: contain;"
@@ -1642,7 +1642,7 @@ pestanna_extra_session5_v3UI <- function(ns) {
             tags$div(
               class = "col-md-10",
               tags$img(
-                src = paste0(img_path, "lmer_split_plot_formula.png"),
+                src = paste0(img_path, "lmer_split_plot_formula.webp"),
                 class = "img-fluid shadow border rounded mx-auto d-block",
                 alt = "Desglose de la fórmula lmer para split-plot",
                 style = "width: 100%;"
@@ -1667,7 +1667,7 @@ pestanna_extra_session5_v3UI <- function(ns) {
             tags$div(
               class = "col-md-12 mb-3",
               tags$img(
-                src = paste0(img_path, "glm_vs_lmm_error_comparison.png"),
+                src = paste0(img_path, "glm_vs_lmm_error_comparison.webp"),
                 class = "img-fluid shadow-sm border rounded",
                 alt = "Comparación de errores entre GLM y LMM",
                 style = "width: 100%;"
@@ -1693,7 +1693,7 @@ pestanna_extra_session5_v3UI <- function(ns) {
             tags$div(
               class = "col-md-7",
               tags$img(
-                src = paste0(img_path, "interaction_profiles_interpretation.png"),
+                src = paste0(img_path, "interaction_profiles_interpretation.webp"),
                 class = "img-fluid shadow border rounded",
                 alt = "Guía para interpretar gráficos de interacción",
                 style = "width: 100%;"
