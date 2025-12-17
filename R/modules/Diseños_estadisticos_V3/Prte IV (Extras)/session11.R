@@ -829,7 +829,7 @@ pestanna6_session11_v3UI <- function(ns) {
 pestanna_extra_session11_v3UI <- function(ns) {
   
   # Definición de rutas
-  base_path <- "images/sesiones/Diseños_estadisticos_V3/optimizada/"
+  base_path <- "images/sesiones/Disenos_estadisticos_V3/optimizada/"
   img_path  <- paste0(base_path, "session11/")
   
   bslib::nav_panel(
@@ -857,7 +857,7 @@ pestanna_extra_session11_v3UI <- function(ns) {
             class = "row",
             div(class = "col-md-8 offset-md-2 text-center",
                 # Imagen
-                img(src = paste0(img_path, "mancova_hierarchy_quadrant.png"), 
+                img(src = paste0(img_path, "mancova_hierarchy_quadrant.webp"), 
                     class = "img-fluid rounded shadow-lg", 
                     style = "max-height: 550px; border: 1px solid #ddd; padding: 5px;"),
                 br(), br(),
@@ -884,7 +884,7 @@ pestanna_extra_session11_v3UI <- function(ns) {
           div(
             class = "row",
             div(class = "col-md-8 offset-md-2 text-center",
-                img(src = paste0(img_path, "mancova_geometric_adjustment.png"), 
+                img(src = paste0(img_path, "mancova_geometric_adjustment.webp"), 
                     class = "img-fluid rounded shadow-lg", 
                     style = "max-height: 550px; border: 1px solid #ddd; padding: 5px;"),
                 br(), br(),
@@ -905,7 +905,7 @@ pestanna_extra_session11_v3UI <- function(ns) {
           div(
             class = "row",
             div(class = "col-md-8 offset-md-2 text-center",
-                img(src = paste0(img_path, "mancova_matrix_equation.png"), 
+                img(src = paste0(img_path, "mancova_matrix_equation.webp"), 
                     class = "img-fluid rounded shadow-lg", 
                     style = "max-height: 550px; border: 1px solid #333; padding: 2px; background-color: #222;"),
                 br(), br(),
@@ -933,7 +933,7 @@ pestanna_extra_session11_v3UI <- function(ns) {
           div(
             class = "row",
             div(class = "col-md-8 offset-md-2 text-center",
-                img(src = paste0(img_path, "mancova_parallel_planes.png"), 
+                img(src = paste0(img_path, "mancova_parallel_planes.webp"), 
                     class = "img-fluid rounded shadow-lg", 
                     style = "max-height: 550px; border: 1px solid #ddd; padding: 5px;"),
                 br(), br(),
@@ -954,7 +954,7 @@ pestanna_extra_session11_v3UI <- function(ns) {
           div(
             class = "row",
             div(class = "col-md-8 offset-md-2 text-center",
-                img(src = paste0(img_path, "mancova_error_reduction.png"), 
+                img(src = paste0(img_path, "mancova_error_reduction.webp"), 
                     class = "img-fluid rounded shadow-lg", 
                     style = "max-height: 550px; border: 1px solid #ddd; padding: 5px;"),
                 br(), br(),
@@ -975,7 +975,7 @@ pestanna_extra_session11_v3UI <- function(ns) {
           div(
             class = "row",
             div(class = "col-md-8 offset-md-2 text-center",
-                img(src = paste0(img_path, "mancova_workflow.png"), 
+                img(src = paste0(img_path, "mancova_workflow.webp"), 
                     class = "img-fluid rounded shadow-lg", 
                     style = "max-height: 550px; border: 1px solid #ddd; padding: 5px;"),
                 br(), br(),
