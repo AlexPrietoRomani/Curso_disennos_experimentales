@@ -825,6 +825,178 @@ pestanna6_session11_v3UI <- function(ns) {
   )
 }
 
+# Pestaña Extra: Diagramas Conceptuales (MANCOVA)
+pestanna_extra_session11_v3UI <- function(ns) {
+  
+  # Definición de rutas
+  base_path <- "images/sesiones/Diseños_estadisticos_V3/optimizada/"
+  img_path  <- paste0(base_path, "session11/")
+  
+  bslib::nav_panel(
+    title = "Extra: Diagramas Conceptuales",
+    icon = icon("chalkboard-teacher"), # Icono de pizarra/enseñanza
+    
+    div(
+      class = "container-fluid",
+      style = "padding-top: 15px;",
+      
+      h4(class = "section-header", "Galería Visual: Entendiendo la MANCOVA"),
+      p(class = "text-muted", 
+        "La MANCOVA combina la complejidad multivariante con el ajuste de covariables. Estas visualizaciones desglosan la geometría, la matemática y el flujo de trabajo del análisis."),
+      
+      br(),
+      
+      bslib::navset_card_pill(
+        
+        # -----------------------------------------------------------------
+        # 1. Jerarquía (El Mapa)
+        # -----------------------------------------------------------------
+        bslib::nav_panel(
+          title = "1. El Mapa Estadístico",
+          div(
+            class = "row",
+            div(class = "col-md-8 offset-md-2 text-center",
+                # Imagen
+                img(src = paste0(img_path, "mancova_hierarchy_quadrant.png"), 
+                    class = "img-fluid rounded shadow-lg", 
+                    style = "max-height: 550px; border: 1px solid #ddd; padding: 5px;"),
+                br(), br(),
+                # Explicación
+                div(class = "alert alert-light text-start",
+                    h5("¿Dónde estamos?"),
+                    p("Este diagrama ubica la técnica en función de la complejidad de tus datos:"),
+                    tags$ul(
+                      tags$li("Si tienes 1 respuesta y no usas covariables: ", strong("ANOVA"), "."),
+                      tags$li("Si añades covariables a 1 respuesta: ", strong("ANCOVA"), "."),
+                      tags$li("Si tienes múltiples respuestas sin covariables: ", strong("MANOVA"), "."),
+                      tags$li("Si combinas múltiples respuestas Y ajuste por covariables: ", strong("MANCOVA"), ".")
+                    )
+                )
+            )
+          )
+        ),
+        
+        # -----------------------------------------------------------------
+        # 2. Geometría (El Ajuste)
+        # -----------------------------------------------------------------
+        bslib::nav_panel(
+          title = "2. Geometría del Ajuste",
+          div(
+            class = "row",
+            div(class = "col-md-8 offset-md-2 text-center",
+                img(src = paste0(img_path, "mancova_geometric_adjustment.png"), 
+                    class = "img-fluid rounded shadow-lg", 
+                    style = "max-height: 550px; border: 1px solid #ddd; padding: 5px;"),
+                br(), br(),
+                div(class = "alert alert-light text-start",
+                    h5("Ajustando los 'Centroides'"),
+                    p("En MANCOVA, no comparamos las medias crudas (los centros originales de las nubes de puntos). Comparar eso sería injusto si un tratamiento tenía plantas más vigorosas desde el inicio."),
+                    p("El análisis 'desliza' las nubes de datos a lo largo de la pendiente de la covariable hasta un punto común (la media de la covariable). Las ", strong("Medias Ajustadas"), " son las posiciones finales de estos centroides proyectados.")
+                )
+            )
+          )
+        ),
+        
+        # -----------------------------------------------------------------
+        # 3. La Pizarra (Fórmula)
+        # -----------------------------------------------------------------
+        bslib::nav_panel(
+          title = "3. La Ecuación Matricial",
+          div(
+            class = "row",
+            div(class = "col-md-8 offset-md-2 text-center",
+                img(src = paste0(img_path, "mancova_matrix_equation.png"), 
+                    class = "img-fluid rounded shadow-lg", 
+                    style = "max-height: 550px; border: 1px solid #333; padding: 2px; background-color: #222;"),
+                br(), br(),
+                div(class = "alert alert-light text-start",
+                    h5("Desglosando el Modelo General"),
+                    withMathJax(), 
+                    p("La ecuación se expande para incluir la matriz Z (Covariables):"),
+                    p("$$ \\mathbf{Y} = \\mathbf{X}\\mathbf{B} + \\mathbf{Z}\\mathbf{\\Gamma} + \\mathbf{E} $$"),
+                    tags$ul(
+                      tags$li(strong("Y:"), " Lo que medimos (Rendimiento, Brix, Firmeza)."),
+                      tags$li(strong("X:"), " Los tratamientos (Variedades)."),
+                      tags$li(strong("Z:"), " Lo que queremos controlar (Vigor Inicial)."),
+                      tags$li(strong("E:"), " El error residual (ahora más pequeño gracias a Z).")
+                    )
+                )
+            )
+          )
+        ),
+        
+        # -----------------------------------------------------------------
+        # 4. Supuestos (Planos Paralelos)
+        # -----------------------------------------------------------------
+        bslib::nav_panel(
+          title = "4. Homogeneidad de Pendientes",
+          div(
+            class = "row",
+            div(class = "col-md-8 offset-md-2 text-center",
+                img(src = paste0(img_path, "mancova_parallel_planes.png"), 
+                    class = "img-fluid rounded shadow-lg", 
+                    style = "max-height: 550px; border: 1px solid #ddd; padding: 5px;"),
+                br(), br(),
+                div(class = "alert alert-light text-start",
+                    h5("El Supuesto Crítico: Paralelismo"),
+                    p("Para que el ajuste sea válido, la relación entre la covariable y las respuestas debe ser similar para todos los tratamientos."),
+                    p("En 3D, esto se visualiza como ", strong("planos paralelos"), ". Si los planos se cruzan drásticamente, significa que hay interacción (el efecto de la covariable depende del tratamiento), y la MANCOVA estándar no se debe interpretar directamente.")
+                )
+            )
+          )
+        ),
+        
+        # -----------------------------------------------------------------
+        # 5. Reducción de Varianza
+        # -----------------------------------------------------------------
+        bslib::nav_panel(
+          title = "5. Ganancia de Precisión",
+          div(
+            class = "row",
+            div(class = "col-md-8 offset-md-2 text-center",
+                img(src = paste0(img_path, "mancova_error_reduction.png"), 
+                    class = "img-fluid rounded shadow-lg", 
+                    style = "max-height: 550px; border: 1px solid #ddd; padding: 5px;"),
+                br(), br(),
+                div(class = "alert alert-light text-start",
+                    h5("¿Por qué molestarse en medir la covariable?"),
+                    p("Esta imagen ilustra el beneficio. La variabilidad natural de las plantas (ruido) infla la Matriz de Error."),
+                    p("Al introducir la Covariable en el modelo, 'filtramos' esa variabilidad explicable. La Matriz de Error resultante es más pequeña. Como los tests estadísticos (Wilks, Pillai) son básicamente una división de [Efecto / Error], ", strong("un error más pequeño hace que sea más fácil detectar diferencias significativas entre tratamientos."), ".")
+                )
+            )
+          )
+        ),
+        
+        # -----------------------------------------------------------------
+        # 6. Workflow (Flujo de Decisión)
+        # -----------------------------------------------------------------
+        bslib::nav_panel(
+          title = "6. Flujo de Trabajo",
+          div(
+            class = "row",
+            div(class = "col-md-8 offset-md-2 text-center",
+                img(src = paste0(img_path, "mancova_workflow.png"), 
+                    class = "img-fluid rounded shadow-lg", 
+                    style = "max-height: 550px; border: 1px solid #ddd; padding: 5px;"),
+                br(), br(),
+                div(class = "alert alert-light text-start",
+                    h5("Ruta de Análisis Sugerida"),
+                    tags$ol(
+                      tags$li("Explorar datos: Scatterplots y correlaciones."),
+                      tags$li(strong("Test de Interacción:"), " Ajustar modelo Trat * Covariable. ¿Es significativo?"),
+                      tags$li("Si NO es significativo (Paralelismo OK) -> Ajustar modelo aditivo (Trat + Covariable)."),
+                      tags$li("Evaluar Test Global (Pillai/Wilks)."),
+                      tags$li("Si es significativo -> Analizar ANOVAs univariados corregidos o Medias Ajustadas (emmeans).")
+                    )
+                )
+            )
+          )
+        )
+      )
+    )
+  )
+}
+
 # Pestaña 7: Referencias (MANCOVA)
 pestanna7_session11_v3UI <- function(ns) {
   bslib::nav_panel(
@@ -937,6 +1109,7 @@ session11_v3UI <- function(id) {
       pestanna4_session11_v3UI(ns),
       pestanna5_session11_v3UI(ns),
       pestanna6_session11_v3UI(ns),
+      pestanna_extra_session11_v3UI(ns),
       pestanna7_session11_v3UI(ns)
     )
   )
