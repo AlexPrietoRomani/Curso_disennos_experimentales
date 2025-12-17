@@ -8,6 +8,11 @@
 #   - Practicar el chequeo de homogeneidad de pendientes (Trat×X).
 #   - Extender la idea a un RCBD con covariable.
 #
+# Nota:
+#   - anova(lm) en R entrega SS secuenciales (Type I): el orden de términos
+#     en la fórmula puede cambiar las SS de cada factor (diseños no ortogonales).
+#   - En este script mantenemos tu orden original para no cambiar nada del flujo.
+#   - En comentarios te indico cómo “leer” la tabla bajo ese comportamiento.
 ############################################################
 
 # ----------------------------------------------------------
@@ -56,10 +61,20 @@ cat(
 # ----------------------------------------------------------
 # 2. EJEMPLO 1: ANCOVA en un diseño completamente al azar (CRD)
 # ----------------------------------------------------------
+# Diseño:
 #   - k tratamientos
 #   - n_per unidades por tratamiento
-#   - Una covariable X continua (ex: vigor inicial)
-#   - Y generada según: Y = μ + τ_i + β (X - X̄..) + ε
+#   - Covariable X continua (ej: vigor inicial)
+#
+# Modelo de simulación:
+#   Y = μ + τ(trat) + β*(X - mean(X)) + error
+#
+# Intuición agronómica/experimental:
+#   - X captura una fuente de variación “pre-existente” (vigor, tamaño inicial, etc.)
+#   - Si X explica parte de Y, entonces ajustar por X:
+#       (i) reduce varianza residual,
+#      (ii) mejora precisión (SE más pequeños),
+#     (iii) aumenta potencia para detectar diferencias de tratamientos.
 # ----------------------------------------------------------
 
 # Parámetros "verdaderos" de la simulación
@@ -79,6 +94,9 @@ tau_vec <- runif(k_trat, -tau_amp, tau_amp)  # efectos de tratamiento
 names(tau_vec) <- trat_levels
 
 tau_vec
+# Interpretación (tau_vec):
+#   - Son diferencias “reales” de tratamiento alrededor de la media mu_true.
+#   - En un ANOVA/ANCOVA, esto es lo que intentamos detectar con evidencia estadística.
 
 # 2.2 Construimos el data frame simulado
 sim_CRD <- lapply(trat_levels, function(tr_i) {
@@ -95,6 +113,9 @@ sim_CRD <- lapply(trat_levels, function(tr_i) {
 sim_CRD$trat <- factor(sim_CRD$trat, levels = trat_levels)
 
 # Centramos la covariable (X - X̄..)
+# Nota docente:
+#   - Centrar X ayuda a interpretar el intercepto (la media ajustada a X = X̄),
+#     pero NO cambia la pendiente estimada ni las comparaciones entre tratamientos.
 X_centered <- sim_CRD$X - mean(sim_CRD$X)
 
 # Error aleatorio
@@ -118,7 +139,14 @@ head(sim_CRD)
 # ----------------------------------------------------------
 # 2.3 Gráfico: Y vs X coloreado por tratamiento
 # ----------------------------------------------------------
-
+# Qué mirar en este scatter:
+#   1) Tendencia global creciente/decreciente: evidencia visual de β ≠ 0.
+#   2) Si las “nubes” de puntos de cada tratamiento parecen paralelas:
+#        - sugiere homogeneidad de pendientes (pendiente común).
+#   3) Desplazamientos verticales entre tratamientos (a igual X):
+#        - sugiere efecto de tratamiento después de ajustar por X.
+#   4) Solapamiento fuerte entre colores:
+#        - puede indicar señal de tratamiento débil vs ruido.
 p_scatter_CRD <- ggplot(sim_CRD, aes(x = X, y = Y, colour = trat)) +
   geom_point(alpha = 0.7) +
   labs(
@@ -134,7 +162,25 @@ print(p_scatter_CRD)
 # ----------------------------------------------------------
 # 2.4 ANOVA vs ANCOVA (modelo aditivo)
 # ----------------------------------------------------------
-
+# Modelo 1 (ANOVA):     Y ~ trat
+# Modelo 2 (ANCOVA):    Y ~ trat + X
+#
+# Cómo leer la tabla de ANOVA (columnas):
+#   - Df: grados de libertad del término.
+#   - Sum Sq: suma de cuadrados asociada al término (según Type I en R).
+#   - Mean Sq: Sum Sq / Df.
+#   - F value: Mean Sq (término) / Mean Sq (residual).
+#   - Pr(>F): p-valor del test H0: “ese término no aporta” (en el sentido del modelo).
+#
+# OJO docente (Type I):
+#   - En anova(mod_anc_CRD) con fórmula Y ~ trat + X:
+#       * "trat" se evalúa ANTES que X (no ajustado por X en SS del numerador).
+#       * "X" se evalúa DESPUÉS de trat (X ajustado por trat).
+#   - Aun así, el MSE residual del modelo con X suele bajar, y eso cambia F.
+#   - Si tu objetivo inferencial es “trat ajustado por X” en SS parciales,
+#     típicamente se usa Type II/III (p.ej. car::Anova) o se reordena (Y ~ X + trat).
+#     (Aquí NO lo cambiamos, solo lo explicamos.)
+#
 # Modelo 1: ANOVA simple (sin covariable)
 mod_aov_CRD <- lm(Y ~ trat, data = sim_CRD)
 
@@ -142,6 +188,9 @@ mod_aov_CRD <- lm(Y ~ trat, data = sim_CRD)
 mod_anc_CRD <- lm(Y ~ trat + X, data = sim_CRD)
 
 # MS_residual de cada modelo
+# Interpretación:
+#   - MS_residual (MSE) ≈ estimación de σ² (variabilidad “no explicada” por el modelo).
+#   - ANCOVA suele reducir MSE si X explica una fracción importante de Y.
 ms_resid_aov_CRD <- sum(residuals(mod_aov_CRD)^2) / df.residual(mod_aov_CRD)
 ms_resid_anc_CRD <- sum(residuals(mod_anc_CRD)^2) / df.residual(mod_anc_CRD)
 
@@ -151,10 +200,20 @@ cat("============================================================\n\n")
 
 cat("Modelo 1: Y ~ trat  (ANOVA simple)\n")
 print(anova(mod_aov_CRD))
+# Cómo interpretar tu salida observada (ejemplo con set.seed(123)):
+#   - trat: p ~ 0.036 -> evidencia de diferencias entre tratamientos (sin ajustar por X).
+#   - Residuals: MSE ~ 74.1 -> ruido relativamente alto.
 cat("\nMS_residual (modelo 1) =", round(ms_resid_aov_CRD, 3), "\n\n")
 
 cat("Modelo 2: Y ~ trat + X  (ANCOVA aditiva)\n")
 print(anova(mod_anc_CRD))
+# Cómo interpretar tu salida observada:
+#   - X: p < 2e-16 -> X explica MUCHA variación de Y (β claramente ≠ 0).
+#   - Residuals: MSE ~ 19.8 (bajó desde ~74.1) -> el “ruido” bajó mucho.
+#     Esto implica:
+#       * mayor precisión,
+#       * intervalos más estrechos,
+#       * tests de tratamiento potencialmente más potentes.
 cat("\nMS_residual (modelo 2) =", round(ms_resid_anc_CRD, 3), "\n")
 cat(
   "Reducción relativa de MS_residual:",
@@ -172,11 +231,25 @@ cat(
   "β_hat (modelo 2)      =", round(beta_hat_CRD, 3),
   " | IC 95% = [", round(ci_beta_CRD[1], 3), ",", round(ci_beta_CRD[2], 3), "]\n\n"
 )
+# Interpretación de β y su IC:
+#   - β_hat es el cambio esperado en Y por 1 unidad de X (manteniendo constante trat).
+#   - Si el IC 95% NO incluye 0 -> evidencia de asociación lineal entre Y y X.
+#   - En tu salida: β_hat ~ 1.45 y el IC cubre ~1.5 -> recupera bien el valor verdadero.
 
 # ----------------------------------------------------------
 # 2.5 Test de homogeneidad de pendientes (Trat × X)
 # ----------------------------------------------------------
-
+# Objetivo:
+#   - Verificar si es razonable suponer una pendiente común β para todos los tratamientos.
+#
+# Modelos:
+#   - Aditivo (pendiente común):          Y ~ trat + X
+#   - Interacción (pendientes distintas): Y ~ trat * X  (incluye trat:X)
+#
+# Test:
+#   - H0: NO interacción -> pendientes iguales entre tratamientos.
+#   - Si p grande: no hay evidencia fuerte contra H0 -> usar modelo aditivo es razonable.
+#   - Si p pequeño: pendientes difieren -> interpretar interacción (ANCOVA con pendientes distintas).
 mod_add_CRD <- lm(Y ~ trat + X,        data = sim_CRD)  # pendiente común
 mod_int_CRD <- lm(Y ~ trat * X,        data = sim_CRD)  # pendientes específicas
 
@@ -195,11 +268,16 @@ cat(
   "    interpretar el modelo con interacción (Trat×X).\n\n",
   sep = ""
 )
+# En tu salida: p ~ 0.56 -> claramente grande -> asumimos pendientes paralelas (OK).
 
 # ----------------------------------------------------------
 # 2.6 Gráfico de rectas de ANCOVA (pendiente común por tratamiento)
 # ----------------------------------------------------------
-
+# Qué mirar:
+#   1) Rectas aproximadamente paralelas (consistente con test de interacción no significativo).
+#   2) Distancias verticales entre rectas: representan diferencias de tratamientos “ajustadas por X”.
+#   3) Si una recta está consistentemente arriba: tratamiento con mayor Y esperado para cualquier X.
+#
 # Generamos predicciones con el modelo aditivo (pendiente común)
 x_seq <- seq(min(sim_CRD$X), max(sim_CRD$X), length.out = 50)
 
@@ -234,11 +312,19 @@ print(p_rectas_CRD)
 # ----------------------------------------------------------
 # 3. EJEMPLO 2: ANCOVA en un RCBD con covariable
 # ----------------------------------------------------------
-#   - 3 tratamientos de riego: Riego_bajo, Riego_medio, Riego_alto
-#   - 4 bloques (block = 1, 2, 3, 4)
-#   - Covariable X_cov = vigor inicial
-#   - Respuesta Y = rendimiento (kg/ha)
-#   - Modelo verdadero: Y = μ + τ_trat + β (X_cov - X̄..) + B_block + ε
+# Contexto:
+#   - 3 tratamientos de riego
+#   - 4 bloques
+#   - Covariable X_cov (vigor inicial)
+#   - Respuesta Y (rendimiento kg/ha)
+#
+# Modelo “conceptual”:
+#   Y = μ + τ(trat) + Block(block) + β*(X_cov - mean(X_cov)) + error
+#
+# Nota docente:
+#   - En RCBD, el bloque captura heterogeneidad espacial/ambiental “grande”.
+#   - X_cov captura variabilidad continua (dentro de bloque y/o entre bloques).
+#   - ANCOVA en RCBD suele mejorar precisión si X_cov explica rendimiento.
 # ----------------------------------------------------------
 
 bloques <- factor(1:4)
@@ -302,6 +388,11 @@ head(datos_RCBD)
 # ----------------------------------------------------------
 
 # Dispersión Y vs X_cov por tratamiento y bloque
+# Qué mirar:
+#   1) Pendiente positiva global: sugiere β > 0 (vigor inicial ayuda al rendimiento).
+#   2) Diferencias verticales entre colores: sugiere efecto de riego a igual vigor.
+#   3) Patrones por forma (bloque): bloques con puntos sistemáticamente arriba/abajo
+#      indican efecto de bloque importante (heterogeneidad ambiental).
 p_scatter_RCBD <- ggplot(datos_RCBD, aes(x = X_cov, y = Y, colour = trat, shape = block)) +
   geom_point(size = 3) +
   labs(
@@ -316,6 +407,11 @@ p_scatter_RCBD <- ggplot(datos_RCBD, aes(x = X_cov, y = Y, colour = trat, shape 
 print(p_scatter_RCBD)
 
 # Distribución de X_cov por tratamiento
+# Por qué importa:
+#   - Idealmente, X_cov debería estar “razonablemente balanceada” entre tratamientos
+#     (producto de la aleatorización).
+#   - Si un tratamiento tiene X_cov sistemáticamente mayor/menor, el ANOVA sin ANCOVA
+#     puede atribuir a tratamiento lo que en realidad es covariable.
 p_box_RCBD <- ggplot(datos_RCBD, aes(x = trat, y = X_cov, fill = trat)) +
   geom_boxplot(alpha = 0.7) +
   geom_jitter(width = 0.1, alpha = 0.7, size = 2, colour = "black") +
@@ -333,11 +429,27 @@ print(p_box_RCBD)
 # ----------------------------------------------------------
 # 3.2 ANOVA clásico (con bloque) vs ANCOVA (con bloque + covariable)
 # ----------------------------------------------------------
-
-# Modelo A: ANOVA clásico RCBD (sin covariable)
+# Modelo A (ANOVA RCBD):     Y ~ block + trat
+# Modelo B (ANCOVA RCBD):    Y ~ block + trat + X_cov
+#
+# Lectura de la tabla:
+#   - "block": compara variación entre bloques vs residual (¿hay heterogeneidad por bloque?).
+#   - "trat":  evidencia de diferencias de tratamientos (bajo la estructura del modelo).
+#   - "X_cov": evidencia de relación lineal entre vigor y rendimiento, controlando block y trat.
+#
+# En tu salida observada:
+#   - En Modelo A: trat no fue significativo (p ~ 0.12) y MSE alto (~305k).
+#   - En Modelo B: al incluir X_cov:
+#       * MSE cae fuerte (~101k): gran parte del “ruido” era explicado por vigor.
+#       * trat se vuelve significativo (p ~ 0.021): aumenta potencia al bajar el MSE.
+#
+# Nota docente (Type I):
+#   - En anova(mod_anc_RCBD) con fórmula Y ~ block + trat + X_cov:
+#       * block entra primero (SS de block “sin ajustar” por trat ni X_cov).
+#       * trat entra segundo (SS de trat ajustada por block, pero no por X_cov en SS del numerador).
+#       * X_cov entra tercero (SS de X_cov ajustada por block + trat).
+#   - El MSE residual corresponde al modelo completo (incluyendo X_cov).
 mod_aov_RCBD <- lm(Y ~ block + trat, data = datos_RCBD)
-
-# Modelo B: ANCOVA fijo con bloque + covariable
 mod_anc_RCBD <- lm(Y ~ block + trat + X_cov, data = datos_RCBD)
 
 ms_resid_aov_RCBD <- sum(residuals(mod_aov_RCBD)^2) / df.residual(mod_aov_RCBD)
@@ -370,11 +482,20 @@ cat(
   "β_hat (modelo B)           =", round(beta_hat_RCBD, 2),
   " | IC 95% = [", round(ci_beta_RCBD[1], 2), ",", round(ci_beta_RCBD[2], 2), "]\n\n"
 )
+# Interpretación del β_hat en RCBD:
+#   - Es el incremento esperado en rendimiento por 1 unidad de vigor,
+#     manteniendo constante el bloque y el tratamiento.
+#   - En tu salida: β_hat ~ 120.5, IC amplio (n pequeño: solo 12 parcelas totales),
+#     pero el IC no incluye 0 => evidencia de relación vigor-rendimiento.
 
 # ----------------------------------------------------------
 # 3.3 Mini-diagnóstico de residuos en el RCBD (modelo B)
 # ----------------------------------------------------------
-
+# Qué buscamos con estos gráficos:
+#   1) Residuos vs Ajustados: ausencia de patrón (nube aleatoria alrededor de 0)
+#      sugiere varianza aproximadamente constante y forma funcional razonable.
+#   2) Residuos vs X_cov: si queda patrón, puede indicar no linealidad (faltó curvatura),
+#      o que la relación no es bien capturada por un término lineal.
 resid_RCBD <- augment(mod_anc_RCBD)
 
 p_resid_fitted <- ggplot(resid_RCBD, aes(x = .fitted, y = .resid)) +
