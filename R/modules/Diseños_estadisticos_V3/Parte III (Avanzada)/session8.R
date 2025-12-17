@@ -982,7 +982,7 @@ pestanna6_session8_v3UI <- function(ns) {
 pestanna_extra_session8_v3UI <- function(ns) {
 
   # Base común por proyecto
-  base_path <- "images/sesiones/Diseños_estadisticos_V3/"
+  base_path <- "images/sesiones/Diseños_estadisticos_V3/optimizada/"
   # Carpeta específica de la sesión 8
   img_path  <- paste0(base_path, "session8/")
 
