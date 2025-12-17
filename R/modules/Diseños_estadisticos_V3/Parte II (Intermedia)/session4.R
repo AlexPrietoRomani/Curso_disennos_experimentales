@@ -1250,7 +1250,7 @@ pestanna6_session4_v3UI <- function(ns) {
 # Pestaña Extra: Conceptos Visuales
 pestanna_extra_session4_v3UI <- function(ns) {
   # Definir la ruta base para las imágenes de esta sesión
-  base_path <- "images/sesiones/Diseños_estadisticos_V3/optimizada/"
+  base_path <- "images/sesiones/Disenos_estadisticos_V3/optimizada/"
   img_path  <- paste0(base_path, "session4/")
   
   bslib::nav_panel(
@@ -1278,7 +1278,7 @@ pestanna_extra_session4_v3UI <- function(ns) {
             tags$div(
               class = "col-md-8",
               tags$img(
-                src = paste0(img_path, "imbalance_anova_problem.png"),
+                src = paste0(img_path, "imbalance_anova_problem.webp"),
                 class = "img-fluid shadow-sm border rounded",
                 alt = "Esquema comparativo de diseño balanceado vs desbalanceado",
                 style = "width: 100%; object-fit: contain;"
@@ -1309,7 +1309,7 @@ pestanna_extra_session4_v3UI <- function(ns) {
             tags$div(
               class = "col-md-10",
               tags$img(
-                src = paste0(img_path, "decision_tree_fixed_random.png"),
+                src = paste0(img_path, "decision_tree_fixed_random.webp"),
                 class = "img-fluid shadow border rounded mx-auto d-block",
                 alt = "Árbol de decisión para efectos fijos vs aleatorios",
                 style = "max-height: 600px;"
@@ -1332,7 +1332,7 @@ pestanna_extra_session4_v3UI <- function(ns) {
             tags$div(
               class = "col-md-12 mb-3",
               tags$img(
-                src = paste0(img_path, "lmm_formula_anatomy.png"),
+                src = paste0(img_path, "lmm_formula_anatomy.webp"),
                 class = "img-fluid shadow-sm border rounded",
                 alt = "Desglose de la sintaxis de lmer() en R",
                 style = "width: 100%;"
@@ -1363,7 +1363,7 @@ pestanna_extra_session4_v3UI <- function(ns) {
             tags$div(
               class = "col-md-7",
               tags$img(
-                src = paste0(img_path, "variance_partition_icc.png"),
+                src = paste0(img_path, "variance_partition_icc.webp"),
                 class = "img-fluid shadow border rounded",
                 alt = "Gráfico de pastel mostrando la partición de varianza y el ICC",
                 style = "width: 100%;"
