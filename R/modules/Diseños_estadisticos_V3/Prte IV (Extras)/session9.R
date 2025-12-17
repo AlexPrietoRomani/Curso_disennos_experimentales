@@ -968,7 +968,7 @@ pestanna6_session9_v3UI <- function(ns) {
 pestanna_extra_session9_v3UI <- function(ns) {
   
   # Definición de rutas (estándar del proyecto)
-  base_path <- "images/sesiones/Diseños_estadisticos_V3/optimizada/"
+  base_path <- "images/sesiones/Disenos_estadisticos_V3/optimizada/"
   img_path  <- paste0(base_path, "session9/")
   
   bslib::nav_panel(
@@ -1001,7 +1001,7 @@ pestanna_extra_session9_v3UI <- function(ns) {
             class = "row mb-5 align-items-center",
             tags$div(
               class = "col-md-7",
-              tags$img(src = paste0(img_path, "ancova_evolution_concept.png"),
+              tags$img(src = paste0(img_path, "ancova_evolution_concept.webp"),
                        class = "img-fluid shadow-sm border rounded",
                        style = "width: 100%;",
                        alt = "Evolución visual: ANOVA + Regresión = ANCOVA")
@@ -1023,7 +1023,7 @@ pestanna_extra_session9_v3UI <- function(ns) {
             class = "row align-items-center",
             tags$div(
               class = "col-md-5 order-md-2",
-              tags$img(src = paste0(img_path, "ancova_covariate_timeline.png"),
+              tags$img(src = paste0(img_path, "ancova_covariate_timeline.webp"),
                        class = "img-fluid shadow-sm border rounded",
                        style = "width: 100%;",
                        alt = "Línea de tiempo: La covariable debe ser medida antes del tratamiento")
@@ -1049,7 +1049,7 @@ pestanna_extra_session9_v3UI <- function(ns) {
             class = "row mb-5 align-items-center",
             tags$div(
               class = "col-md-8 mx-auto text-center",
-              tags$img(src = paste0(img_path, "ancova_geometric_adjustment.png"),
+              tags$img(src = paste0(img_path, "ancova_geometric_adjustment.webp"),
                        class = "img-fluid shadow border rounded",
                        style = "max-height: 450px;",
                        alt = "Geometría del ajuste de medias hacia la media global de X")
@@ -1067,7 +1067,7 @@ pestanna_extra_session9_v3UI <- function(ns) {
             class = "row align-items-center",
             tags$div(
               class = "col-md-6",
-              tags$img(src = paste0(img_path, "ancova_noise_reduction.png"),
+              tags$img(src = paste0(img_path, "ancova_noise_reduction.webp"),
                        class = "img-fluid shadow-sm border rounded",
                        style = "width: 100%;",
                        alt = "Visualización de la reducción de la varianza del error")
@@ -1092,7 +1092,7 @@ pestanna_extra_session9_v3UI <- function(ns) {
               class = "col-md-12",
               tags$h5("5. Pipeline de Decisión"),
               tags$div(class = "d-flex justify-content-center",
-                       tags$img(src = paste0(img_path, "ancova_decision_tree.png"),
+                       tags$img(src = paste0(img_path, "ancova_decision_tree.webp"),
                                 class = "img-fluid border rounded mb-2",
                                 style = "max-height: 400px;",
                                 alt = "Árbol de decisión: Test de homogeneidad de pendientes")
@@ -1113,7 +1113,7 @@ pestanna_extra_session9_v3UI <- function(ns) {
             ),
             tags$div(
               class = "col-md-7",
-              tags$img(src = paste0(img_path, "ancova_precision_target.png"),
+              tags$img(src = paste0(img_path, "ancova_precision_target.webp"),
                        class = "img-fluid shadow-lg border rounded",
                        style = "width: 100%;",
                        alt = "Metáfora de diana mostrando mayor precisión con ANCOVA")
