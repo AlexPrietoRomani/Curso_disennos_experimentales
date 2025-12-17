@@ -1250,7 +1250,8 @@ pestanna6_session4_v3UI <- function(ns) {
 # Pestaña Extra: Conceptos Visuales
 pestanna_extra_session4_v3UI <- function(ns) {
   # Definir la ruta base para las imágenes de esta sesión
-  img_path <- "images/sesiones/Diseños_estadisticos_V3/session4/"
+  base_path <- "images/sesiones/Diseños_estadisticos_V3/optimizada/"
+  img_path  <- paste0(base_path, "session4/")
   
   bslib::nav_panel(
     title = "Extra: Conceptos Visuales",
