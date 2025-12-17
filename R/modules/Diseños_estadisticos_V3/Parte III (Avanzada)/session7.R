@@ -842,7 +842,7 @@ pestanna6_session7_v3UI <- function(ns) {
 pestanna_extra_session7_v3UI <- function(ns) {
 
   # Base común por proyecto (tu estándar)
-  base_path <- "images/sesiones/Diseños_estadisticos_V3/optimizada/"
+  base_path <- "images/sesiones/Disenos_estadisticos_V3/optimizada/"
   # Carpeta específica de la sesión
   img_path  <- paste0(base_path, "session7/")
 
@@ -877,14 +877,14 @@ pestanna_extra_session7_v3UI <- function(ns) {
             tags$div(
               class = "col-md-8",
               tags$img(
-                src   = paste0(img_path, "spatial_gradient_comparison.png"),
+                src   = paste0(img_path, "spatial_gradient_comparison.webp"),
                 class = "img-fluid shadow-sm border rounded",
                 alt   = "Comparación de RCBD versus Row-Column bajo un gradiente espacial diagonal",
                 style = "width: 100%; object-fit: contain;"
               ),
               tags$div(
                 class = "mt-2 text-muted small",
-                "Archivo: spatial_gradient_comparison.png"
+                "Archivo: spatial_gradient_comparison.webp"
               )
             ),
 
@@ -920,7 +920,7 @@ pestanna_extra_session7_v3UI <- function(ns) {
             tags$div(
               class = "col-md-10",
               tags$img(
-                src   = paste0(img_path, "lmm_formula_breakdown.png"),
+                src   = paste0(img_path, "lmm_formula_breakdown.webp"),
                 class = "img-fluid shadow border rounded mx-auto d-block",
                 alt   = "Desglose visual de la ecuación del modelo mixto para diseño fila–columna",
                 style = "width: 100%;"
@@ -954,14 +954,14 @@ pestanna_extra_session7_v3UI <- function(ns) {
             tags$div(
               class = "col-md-8",
               tags$img(
-                src   = paste0(img_path, "row_col_analysis_pipeline.png"),
+                src   = paste0(img_path, "row_col_analysis_pipeline.webp"),
                 class = "img-fluid shadow-sm border rounded",
                 alt   = "Pipeline de análisis en R para diseño fila–columna: de la tabla al reporte",
                 style = "width: 100%; object-fit: contain;"
               ),
               tags$div(
                 class = "mt-2 text-muted small",
-                "Archivo: row_col_analysis_pipeline.png"
+                "Archivo: row_col_analysis_pipeline.webp"
               )
             ),
 
