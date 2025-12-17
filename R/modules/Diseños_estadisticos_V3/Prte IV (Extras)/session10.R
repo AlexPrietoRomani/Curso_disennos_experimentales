@@ -820,6 +820,175 @@ pestanna6_session10_v3UI <- function(ns) {
   )
 }
 
+# Pestaña Extra: Diagramas & Conceptos Visuales MANOVA
+pestanna_extra_session10_v3UI <- function(ns) {
+  
+  # Definición de rutas (tal como solicitaste)
+  base_path <- "images/sesiones/Diseños_estadisticos_V3/"
+  img_path  <- paste0(base_path, "session10/")
+  
+  bslib::nav_panel(
+    title = "Extra: Diagramas & Conceptos Visuales",
+    icon = icon("project-diagram"), # Icono opcional para la pestaña
+    
+    div(
+      class = "container-fluid",
+      style = "padding-top: 15px;",
+      
+      h4(class = "section-header", "Galería Visual: Entendiendo la MANOVA"),
+      p(class = "text-muted", 
+        "Esta sección desglosa la complejidad matemática y conceptual de la MANOVA a través de diagramas explicativos. Navega por las pestañas para visualizar cada componente."),
+      
+      br(),
+      
+      bslib::navset_card_pill(
+        
+        # -----------------------------------------------------------------
+        # 1. El Concepto Vectorial
+        # -----------------------------------------------------------------
+        bslib::nav_panel(
+          title = "1. El Enfoque Vectorial",
+          div(
+            class = "row",
+            div(class = "col-md-8 offset-md-2 text-center",
+                # Imagen
+                img(src = paste0(img_path, "manova_concept_vector.png"), 
+                    class = "img-fluid rounded shadow-lg", 
+                    style = "max-height: 500px; border: 1px solid #ddd; padding: 5px;"),
+                br(), br(),
+                # Explicación
+                div(class = "alert alert-light text-start",
+                    h5("Univariado vs. Multivariado"),
+                    p("En el enfoque clásico (izquierda), tratamos el rendimiento, los grados Brix y la firmeza como entes separados. Esto ignora la biología de la planta: un fruto más grande (rendimiento) suele tener menos azúcar (dilución)."),
+                    p(strong("La visión MANOVA (derecha):"), " Vemos la planta como un sistema. El 'resultado' no es un número, es un vector. Analizamos cómo el tratamiento mueve todo el vector simultáneamente en el espacio.")
+                )
+            )
+          )
+        ),
+        
+        # -----------------------------------------------------------------
+        # 2. Geometría (Elipses)
+        # -----------------------------------------------------------------
+        bslib::nav_panel(
+          title = "2. Geometría de Grupos",
+          div(
+            class = "row",
+            div(class = "col-md-8 offset-md-2 text-center",
+                img(src = paste0(img_path, "manova_geometry_ellipses.png"), 
+                    class = "img-fluid rounded shadow-lg", 
+                    style = "max-height: 500px; border: 1px solid #ddd; padding: 5px;"),
+                br(), br(),
+                div(class = "alert alert-light text-start",
+                    h5("La Paradoja de la Separación"),
+                    p("Observa cómo las curvas en los ejes (marginales) se solapan: si hicieras una ANOVA solo en X o solo en Y, quizás no encontrarías diferencias significativas."),
+                    p(strong("El poder de la correlación:"), " Al considerar X e Y juntas, los grupos forman elipses separadas. MANOVA detecta esta separación diagonal que los análisis univariados pierden.")
+                )
+            )
+          )
+        ),
+        
+        # -----------------------------------------------------------------
+        # 3. La Pizarra Matemática
+        # -----------------------------------------------------------------
+        bslib::nav_panel(
+          title = "3. Modelo Matricial",
+          div(
+            class = "row",
+            div(class = "col-md-8 offset-md-2 text-center",
+                img(src = paste0(img_path, "manova_matrix_formula.png"), 
+                    class = "img-fluid rounded shadow-lg", 
+                    style = "max-height: 500px; border: 1px solid #333; padding: 2px; background-color: #222;"),
+                br(), br(),
+                div(class = "alert alert-light text-start",
+                    h5("El Modelo Lineal General Multivariante"),
+                    withMathJax(), # Asegura renderizado de ecuaciones si se necesita
+                    p("La ecuación fundamental es idéntica a la ANOVA, pero en mayúsculas (Matrices):"),
+                    tags$ul(
+                      tags$li(strong("Y (n x p):"), " Ya no es un vector columna, es una matriz con 'p' columnas (respuestas)."),
+                      tags$li(strong("E (n x p):"), " Los errores ahora tienen una estructura de covarianza interna (Sigma) que conecta las columnas."),
+                      tags$li("El objetivo es estimar B para minimizar el 'volumen' de E.")
+                    )
+                )
+            )
+          )
+        ),
+        
+        # -----------------------------------------------------------------
+        # 4. Estadísticos de Prueba
+        # -----------------------------------------------------------------
+        bslib::nav_panel(
+          title = "4. Estadísticos (H vs E)",
+          div(
+            class = "row",
+            div(class = "col-md-8 offset-md-2 text-center",
+                img(src = paste0(img_path, "manova_he_matrices.png"), 
+                    class = "img-fluid rounded shadow-lg", 
+                    style = "max-height: 500px; border: 1px solid #ddd; padding: 5px;"),
+                br(), br(),
+                div(class = "alert alert-light text-start",
+                    h5("¿Cómo medimos la significancia?"),
+                    p("En ANOVA simple dividimos Varianzas (F = MS_trat / MS_error). En MANOVA, dividimos 'volúmenes' de matrices."),
+                    tags$ul(
+                      tags$li(strong("Wilks' Lambda:"), " Es el ratio de volumen de error sobre volumen total. Valores pequeños = Alta significancia (el error es pequeño comparado al efecto)."),
+                      tags$li(strong("Pillai Trace:"), " Suma de la varianza explicada. Es el más robusto a violaciones de supuestos."),
+                      tags$li(strong("Roy's Root:"), " Se enfoca solo en la dimensión (autovalor) más fuerte. Muy potente si el efecto se concentra en una sola dirección.")
+                    )
+                )
+            )
+          )
+        ),
+        
+        # -----------------------------------------------------------------
+        # 5. Checklist de Supuestos
+        # -----------------------------------------------------------------
+        bslib::nav_panel(
+          title = "5. Supuestos Críticos",
+          div(
+            class = "row",
+            div(class = "col-md-8 offset-md-2 text-center",
+                img(src = paste0(img_path, "manova_assumptions_checklist.png"), 
+                    class = "img-fluid rounded shadow-lg", 
+                    style = "max-height: 500px; border: 1px solid #ddd; padding: 5px;"),
+                br(), br(),
+                div(class = "alert alert-light text-start",
+                    h5("Validación del Modelo"),
+                    p("Antes de confiar en los p-valores, debemos pasar esta lista de verificación:"),
+                    tags$ol(
+                      tags$li(strong("Normalidad Multivariante:"), " Más estricta que la univariada. Se revisa con test de Mardia o distancias de Mahalanobis (QQ-plot multivariante)."),
+                      tags$li(strong("Homogeneidad de Matrices (Box's M):"), " La forma de las nubes de dispersión debe ser similar entre tratamientos, no solo su varianza."),
+                      tags$li(strong("Multicolinealidad:"), " Si dos respuestas tienen correlación perfecta (r=1), MANOVA falla matemáticamente. Deben estar correlacionadas, pero no ser redundantes.")
+                    )
+                )
+            )
+          )
+        ),
+        
+        # -----------------------------------------------------------------
+        # 6. Flujo de Trabajo
+        # -----------------------------------------------------------------
+        bslib::nav_panel(
+          title = "6. Flujo de Decisión",
+          div(
+            class = "row",
+            div(class = "col-md-8 offset-md-2 text-center",
+                img(src = paste0(img_path, "manova_decision_tree.png"), 
+                    class = "img-fluid rounded shadow-lg", 
+                    style = "max-height: 500px; border: 1px solid #ddd; padding: 5px;"),
+                br(), br(),
+                div(class = "alert alert-light text-start",
+                    h5("Ruta de Análisis Sugerida"),
+                    p("Este diagrama muestra el procedimiento estándar en investigación agronómica:"),
+                    p("1. Primero demostramos que existe un efecto global (Protección del Error Tipo I)."),
+                    p("2. Solo si el paso 1 es positivo, procedemos a 'disecar' el resultado con ANOVAs univariadas o Análisis Discriminante para entender ", em("qué"), " variables son responsables de la diferencia.")
+                )
+            )
+          )
+        )
+      ) # Fin navset_card_pill
+    )
+  )
+}
+
 # Pestaña 7: Referencias (MANOVA)
 pestanna7_session10_v3UI <- function(ns) {
   bslib::nav_panel(
@@ -993,6 +1162,7 @@ session10_v3UI <- function(id) {
       pestanna4_session10_v3UI(ns),
       pestanna5_session10_v3UI(ns),
       pestanna6_session10_v3UI(ns),
+      pestanna_extra_session10_v3UI(ns),
       pestanna7_session10_v3UI(ns)
     )
   )
