@@ -982,7 +982,7 @@ pestanna6_session8_v3UI <- function(ns) {
 pestanna_extra_session8_v3UI <- function(ns) {
 
   # Base común por proyecto
-  base_path <- "images/sesiones/Diseños_estadisticos_V3/optimizada/"
+  base_path <- "images/sesiones/Disenos_estadisticos_V3/optimizada/"
   # Carpeta específica de la sesión 8
   img_path  <- paste0(base_path, "session8/")
 
@@ -1015,7 +1015,7 @@ pestanna_extra_session8_v3UI <- function(ns) {
             class = "row mb-5 align-items-center",
             tags$div(
               class = "col-md-7",
-              tags$img(src = paste0(img_path, "dba_seed_constraint.png"),
+              tags$img(src = paste0(img_path, "dba_seed_constraint.webp"),
                        class = "img-fluid shadow-sm border rounded",
                        style = "width: 100%;",
                        alt = "Escasez de semilla en nuevos vs abundancia en testigos")
@@ -1034,7 +1034,7 @@ pestanna_extra_session8_v3UI <- function(ns) {
             class = "row align-items-center",
             tags$div(
               class = "col-md-5 order-md-2", # Imagen a la derecha en desktop
-              tags$img(src = paste0(img_path, "dba_matrix_layout.png"),
+              tags$img(src = paste0(img_path, "dba_matrix_layout.webp"),
                        class = "img-fluid shadow-sm border rounded",
                        style = "width: 100%;",
                        alt = "Layout del DBA mostrando patrones de testigos y nuevos")
@@ -1058,7 +1058,7 @@ pestanna_extra_session8_v3UI <- function(ns) {
             class = "row mb-5 align-items-center",
             tags$div(
               class = "col-md-8 mx-auto text-center",
-              tags$img(src = paste0(img_path, "dba_statistical_anchor.png"),
+              tags$img(src = paste0(img_path, "dba_statistical_anchor.webp"),
                        class = "img-fluid shadow border rounded",
                        style = "max-height: 400px;",
                        alt = "Los testigos actúan como anclas estadísticas para nivelar bloques")
@@ -1075,7 +1075,7 @@ pestanna_extra_session8_v3UI <- function(ns) {
             class = "row align-items-center",
             tags$div(
               class = "col-md-6",
-              tags$img(src = paste0(img_path, "dba_blup_shrinkage.png"),
+              tags$img(src = paste0(img_path, "dba_blup_shrinkage.webp"),
                        class = "img-fluid shadow-sm border rounded",
                        style = "width: 100%;",
                        alt = "Efecto de encojimiento (shrinkage) de los BLUPs")
@@ -1103,7 +1103,7 @@ pestanna_extra_session8_v3UI <- function(ns) {
             tags$div(
               class = "col-md-12",
               tags$h5("5. El Pipeline de Análisis"),
-              tags$img(src = paste0(img_path, "dba_analysis_pipeline.png"),
+              tags$img(src = paste0(img_path, "dba_analysis_pipeline.webp"),
                        class = "img-fluid border rounded mb-2",
                        style = "width: 100%;",
                        alt = "Diagrama de flujo de datos en DBA"),
@@ -1122,7 +1122,7 @@ pestanna_extra_session8_v3UI <- function(ns) {
             ),
             tags$div(
               class = "col-md-8",
-              tags$img(src = paste0(img_path, "dba_selection_funnel.png"),
+              tags$img(src = paste0(img_path, "dba_selection_funnel.webp"),
                        class = "img-fluid shadow-lg border rounded",
                        style = "width: 100%;",
                        alt = "Embudo de selección filtrando genotipos")
