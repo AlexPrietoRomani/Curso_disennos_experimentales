@@ -1705,7 +1705,7 @@ pestanna1_session1_v3_server <- function(input, output, session) {
   observeEvent(input$ia_btn_llm,      { selected_domain("ia_llm")      })
 
   # ---- Lógica para alternancia de imágenes LLM ----
-  # Estado de la imagen actual (TRUE = IA_LLM.png, FALSE = Dendograma_LLM.png)
+  # Estado de la imagen actual (TRUE = IA_LLM.webp, FALSE = Dendograma_LLM.webp)
   current_image <- reactiveVal(TRUE)
   
   # Alternar entre imágenes al hacer clic
@@ -1718,14 +1718,14 @@ pestanna1_session1_v3_server <- function(input, output, session) {
     if (current_image()) {
       # Primera imagen: Ubicación de LLMs
       img(
-        src = "images/sesiones/Diseños_estadisticos_V3/session1/IA_LLM.png",
+        src = "images/sesiones/Disenos_estadisticos_V3/optimizada/session1/IA_LLM.webp",
         alt = "Diagrama mostrando la ubicación de los LLM en la jerarquía de IA",
         style = "max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);"
       )
     } else {
       # Segunda imagen: Dendograma LLM
       img(
-        src = "images/sesiones/Diseños_estadisticos_V3/session1/Dendograma_LLM.png",
+        src = "images/sesiones/Disenos_estadisticos_V3/optimizada/session1/Dendograma_LLM.webp",
         alt = "Dendograma mostrando la evolución y clasificación de LLMs",
         style = "max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);"
       )
