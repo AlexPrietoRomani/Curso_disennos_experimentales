@@ -561,9 +561,8 @@ pestanna4_session3_v3UI <- function(ns) {
 # Pestaña Extra: Esquemas Visuales y Conceptuales
 pestanna_extra_session3_v3UI <- function(ns) {
   # Definir la ruta base para facilitar cambios futuros
-  # Nota: En Shiny, la ruta relativa empieza en 'www', por lo que en el src
-  # ponemos lo que sigue después de www/
-  img_path <- "images/sesiones/Diseños_estadisticos_V3/session3/"
+  base_path <- "images/sesiones/Diseños_estadisticos_V3/optimizada/"
+  img_path  <- paste0(base_path, "session3/")
   
   bslib::nav_panel(
     title = "Extra: Esquemas Visuales",
