@@ -824,7 +824,7 @@ pestanna6_session10_v3UI <- function(ns) {
 pestanna_extra_session10_v3UI <- function(ns) {
   
   # Definición de rutas (tal como solicitaste)
-  base_path <- "images/sesiones/Diseños_estadisticos_V3/optimizada/"
+  base_path <- "images/sesiones/Disenos_estadisticos_V3/optimizada/"
   img_path  <- paste0(base_path, "session10/")
   
   bslib::nav_panel(
@@ -852,7 +852,7 @@ pestanna_extra_session10_v3UI <- function(ns) {
             class = "row",
             div(class = "col-md-8 offset-md-2 text-center",
                 # Imagen
-                img(src = paste0(img_path, "manova_concept_vector.png"), 
+                img(src = paste0(img_path, "manova_concept_vector.webp"), 
                     class = "img-fluid rounded shadow-lg", 
                     style = "max-height: 500px; border: 1px solid #ddd; padding: 5px;"),
                 br(), br(),
@@ -874,7 +874,7 @@ pestanna_extra_session10_v3UI <- function(ns) {
           div(
             class = "row",
             div(class = "col-md-8 offset-md-2 text-center",
-                img(src = paste0(img_path, "manova_geometry_ellipses.png"), 
+                img(src = paste0(img_path, "manova_geometry_ellipses.webp"), 
                     class = "img-fluid rounded shadow-lg", 
                     style = "max-height: 500px; border: 1px solid #ddd; padding: 5px;"),
                 br(), br(),
@@ -895,7 +895,7 @@ pestanna_extra_session10_v3UI <- function(ns) {
           div(
             class = "row",
             div(class = "col-md-8 offset-md-2 text-center",
-                img(src = paste0(img_path, "manova_matrix_formula.png"), 
+                img(src = paste0(img_path, "manova_matrix_formula.webp"), 
                     class = "img-fluid rounded shadow-lg", 
                     style = "max-height: 500px; border: 1px solid #333; padding: 2px; background-color: #222;"),
                 br(), br(),
@@ -921,7 +921,7 @@ pestanna_extra_session10_v3UI <- function(ns) {
           div(
             class = "row",
             div(class = "col-md-8 offset-md-2 text-center",
-                img(src = paste0(img_path, "manova_he_matrices.png"), 
+                img(src = paste0(img_path, "manova_he_matrices.webp"), 
                     class = "img-fluid rounded shadow-lg", 
                     style = "max-height: 500px; border: 1px solid #ddd; padding: 5px;"),
                 br(), br(),
@@ -946,7 +946,7 @@ pestanna_extra_session10_v3UI <- function(ns) {
           div(
             class = "row",
             div(class = "col-md-8 offset-md-2 text-center",
-                img(src = paste0(img_path, "manova_assumptions_checklist.png"), 
+                img(src = paste0(img_path, "manova_assumptions_checklist.webp"), 
                     class = "img-fluid rounded shadow-lg", 
                     style = "max-height: 500px; border: 1px solid #ddd; padding: 5px;"),
                 br(), br(),
@@ -971,7 +971,7 @@ pestanna_extra_session10_v3UI <- function(ns) {
           div(
             class = "row",
             div(class = "col-md-8 offset-md-2 text-center",
-                img(src = paste0(img_path, "manova_decision_tree.png"), 
+                img(src = paste0(img_path, "manova_decision_tree.webp"), 
                     class = "img-fluid rounded shadow-lg", 
                     style = "max-height: 500px; border: 1px solid #ddd; padding: 5px;"),
                 br(), br(),
