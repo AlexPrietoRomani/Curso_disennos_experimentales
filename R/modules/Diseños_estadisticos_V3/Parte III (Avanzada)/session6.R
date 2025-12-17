@@ -1000,7 +1000,7 @@ Y_{ijk} = \\mu + A_i + B_j + (AB)_{ij} + u_k + u_{ik}^{(A)} + u_{jk}^{(B)} + \\v
 # Pestaña extra: Esquemas visuales y galería conceptual
 pestanna_extra_session6_v3UI <- function(ns) {
   # Definir la ruta base para las imágenes de esta sesión
-  base_path <- "images/sesiones/Diseños_estadisticos_V3/optimizada/"
+  base_path <- "images/sesiones/Disenos_estadisticos_V3/optimizada/"
   img_path  <- paste0(base_path, "session6/")
   
   bslib::nav_panel(
@@ -1028,7 +1028,7 @@ pestanna_extra_session6_v3UI <- function(ns) {
             tags$div(
               class = "col-md-8",
               tags$img(
-                src = paste0(img_path, "strip_plot_mental_map.png"),
+                src = paste0(img_path, "strip_plot_mental_map.webp"),
                 class = "img-fluid shadow-sm border rounded",
                 alt = "Croquis mental de un diseño strip-plot por bloque",
                 style = "width: 100%; object-fit: contain;"
@@ -1059,7 +1059,7 @@ pestanna_extra_session6_v3UI <- function(ns) {
             tags$div(
               class = "col-md-10",
               tags$img(
-                src = paste0(img_path, "strip_plot_equation_anatomy.png"),
+                src = paste0(img_path, "strip_plot_equation_anatomy.webp"),
                 class = "img-fluid shadow border rounded mx-auto d-block",
                 alt = "Desglose de la ecuación del modelo strip-plot",
                 style = "width: 100%;"
@@ -1084,7 +1084,7 @@ pestanna_extra_session6_v3UI <- function(ns) {
             tags$div(
               class = "col-md-12 mb-3",
               tags$img(
-                src = paste0(img_path, "fieldbook_structure_strip.png"),
+                src = paste0(img_path, "fieldbook_structure_strip.webp"),
                 class = "img-fluid shadow-sm border rounded",
                 alt = "Relación entre diseño físico y fieldbook",
                 style = "width: 100%;"
@@ -1101,7 +1101,7 @@ pestanna_extra_session6_v3UI <- function(ns) {
             tags$div(
               class = "col-md-8",
               tags$img(
-                src = paste0(img_path, "anova_error_matrix_strip.png"),
+                src = paste0(img_path, "anova_error_matrix_strip.webp"),
                 class = "img-fluid shadow border rounded",
                 alt = "Tabla de errores y precisión por efecto",
                 style = "width: 100%;"
@@ -1130,7 +1130,7 @@ pestanna_extra_session6_v3UI <- function(ns) {
           tags$div(
             class = "text-center",
             tags$img(
-              src = paste0(img_path, "agricolae_workflow_strip.png"),
+              src = paste0(img_path, "agricolae_workflow_strip.webp"),
               class = "img-fluid shadow-sm rounded",
               alt = "Flujo de trabajo con agricolae::strip.plot",
               style = "max-height: 500px;"
@@ -1146,7 +1146,7 @@ pestanna_extra_session6_v3UI <- function(ns) {
             tags$div(
               class = "col-md-12",
               tags$img(
-                src = paste0(img_path, "design_comparison_factorial_split_strip.png"),
+                src = paste0(img_path, "design_comparison_factorial_split_strip.webp"),
                 class = "img-fluid shadow border rounded",
                 alt = "Comparación visual: Factorial vs Split-Plot vs Strip-Plot",
                 style = "width: 100%;"
