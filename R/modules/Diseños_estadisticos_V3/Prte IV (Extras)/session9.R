@@ -964,6 +964,167 @@ pestanna6_session9_v3UI <- function(ns) {
   )
 }
 
+# Pestaña Extra: Esquemas Visuales y Galería Conceptual (ANCOVA)
+pestanna_extra_session9_v3UI <- function(ns) {
+  
+  # Definición de rutas (estándar del proyecto)
+  base_path <- "images/sesiones/Diseños_estadisticos_V3/"
+  img_path  <- paste0(base_path, "session9/")
+  
+  bslib::nav_panel(
+    title = "Extra: Esquemas Visuales",
+    icon  = icon("images"),
+    
+    tags$div(
+      class = "container-fluid py-3",
+      
+      tags$h4(class = "text-primary mb-3", 
+              "Galería Visual: Entendiendo la ANCOVA"),
+      
+      tags$p(
+        class = "lead",
+        "La ANCOVA es una técnica que combina la lógica de comparación de grupos (ANOVA) ",
+        "con la predicción lineal (Regresión). Esta galería desglosa los conceptos mecánicos, ",
+        "geométricos y de flujo de decisión."
+      ),
+      
+      tags$hr(),
+      
+      bslib::navset_card_underline(
+        
+        # --- SUB-PESTAÑA A: Conceptos Fundamentales ---
+        bslib::nav_panel(
+          title = "A. Conceptos Fundamentales",
+          
+          # Fila 1: Evolución del Modelo (Tab 1)
+          tags$div(
+            class = "row mb-5 align-items-center",
+            tags$div(
+              class = "col-md-7",
+              tags$img(src = paste0(img_path, "ancova_evolution_concept.png"),
+                       class = "img-fluid shadow-sm border rounded",
+                       style = "width: 100%;",
+                       alt = "Evolución visual: ANOVA + Regresión = ANCOVA")
+            ),
+            tags$div(
+              class = "col-md-5",
+              tags$h5("1. La Fusión de Dos Mundos"),
+              tags$p("Muchas veces enseñamos ANOVA y Regresión por separado. La ANCOVA es la intersección exacta."),
+              tags$ul(
+                tags$li(strong("ANOVA:"), " Mira diferencias entre grupos (medias)."),
+                tags$li(strong("Regresión:"), " Mira tendencias continuas (pendientes)."),
+                tags$li(strong("ANCOVA:"), " Mira diferencias entre grupos, asumiendo que comparten una tendencia común.")
+              )
+            )
+          ),
+          
+          # Fila 2: La Línea de Tiempo (Tab 3)
+          tags$div(
+            class = "row align-items-center",
+            tags$div(
+              class = "col-md-5 order-md-2",
+              tags$img(src = paste0(img_path, "ancova_covariate_timeline.png"),
+                       class = "img-fluid shadow-sm border rounded",
+                       style = "width: 100%;",
+                       alt = "Línea de tiempo: La covariable debe ser medida antes del tratamiento")
+            ),
+            tags$div(
+              class = "col-md-7 order-md-1",
+              tags$h5("2. La Regla de Oro: 'Pre-Tratamiento'"),
+              tags$p("Para que una ANCOVA sea válida, la covariable (X) no puede ser afectada por el tratamiento."),
+              tags$div(class = "alert alert-warning",
+                       strong("¡Cuidado!"), 
+                       " Si mides X al final del experimento (junto con Y), corres el riesgo de ajustar por un efecto del tratamiento mismo, anulando tus resultados."
+              )
+            )
+          )
+        ),
+        
+        # --- SUB-PESTAÑA B: Mecánica Matemática ---
+        bslib::nav_panel(
+          title = "B. Mecánica Matemática",
+          
+          # Fila 3: Ajuste Geométrico (Tab 2)
+          tags$div(
+            class = "row mb-5 align-items-center",
+            tags$div(
+              class = "col-md-8 mx-auto text-center",
+              tags$img(src = paste0(img_path, "ancova_geometric_adjustment.png"),
+                       class = "img-fluid shadow border rounded",
+                       style = "max-height: 450px;",
+                       alt = "Geometría del ajuste de medias hacia la media global de X")
+            ),
+            tags$div(
+              class = "col-md-12 mt-3",
+              tags$h5("3. El Ajuste Geométrico de Medias"),
+              tags$p("Esta es la esencia de la ANCOVA. No comparamos los promedios brutos (círculos vacíos)."),
+              tags$p("Proyectamos cada grupo a lo largo de su pendiente común hasta la ", strong("Media Global de X"), ". Esas proyecciones (círculos llenos) son las 'Medias Ajustadas' o 'Medias Marginales Estimadas (EMMs)'. Así comparamos peras con peras.")
+            )
+          ),
+          
+          # Fila 4: Reducción de Ruido (Tab 4)
+          tags$div(
+            class = "row align-items-center",
+            tags$div(
+              class = "col-md-6",
+              tags$img(src = paste0(img_path, "ancova_noise_reduction.png"),
+                       class = "img-fluid shadow-sm border rounded",
+                       style = "width: 100%;",
+                       alt = "Visualización de la reducción de la varianza del error")
+            ),
+            tags$div(
+              class = "col-md-6",
+              tags$h5("4. El Filtro de Ruido"),
+              tags$p("¿Por qué molestarse en medir una covariable?"),
+              tags$p("Observa la reducción de la campana de error. Todo ese 'ancho' extra en la curva gris era variabilidad explicable por el vigor inicial. Al quitarla (curva azul), es mucho más fácil detectar diferencias pequeñas entre tratamientos significativos.")
+            )
+          )
+        ),
+        
+        # --- SUB-PESTAÑA C: Protocolo y Práctica ---
+        bslib::nav_panel(
+          title = "C. Protocolo y Práctica",
+          
+          # Fila 5: Árbol de Decisión (Tab 5)
+          tags$div(
+            class = "row mb-5 align-items-center",
+            tags$div(
+              class = "col-md-12",
+              tags$h5("5. Pipeline de Decisión"),
+              tags$div(class = "d-flex justify-content-center",
+                       tags$img(src = paste0(img_path, "ancova_decision_tree.png"),
+                                class = "img-fluid border rounded mb-2",
+                                style = "max-height: 400px;",
+                                alt = "Árbol de decisión: Test de homogeneidad de pendientes")
+              ),
+              tags$p(class = "text-muted small text-center", 
+                     "El paso crítico que a menudo se olvida: verificar la interacción Tratamiento x Covariable.")
+            )
+          ),
+          
+          # Fila 6: Precisión (Tab 6)
+          tags$div(
+            class = "row align-items-center",
+            tags$div(
+              class = "col-md-5",
+              tags$h5("6. El Objetivo Final: Precisión"),
+              tags$p("Al final del día, usamos ANCOVA para mejorar nuestra puntería."),
+              tags$p("En experimentos agrícolas donde el suelo o el material vegetal es heterogéneo, la ANCOVA actúa como un estabilizador, permitiéndonos ver el efecto puro del tratamiento.")
+            ),
+            tags$div(
+              class = "col-md-7",
+              tags$img(src = paste0(img_path, "ancova_precision_target.png"),
+                       class = "img-fluid shadow-lg border rounded",
+                       style = "width: 100%;",
+                       alt = "Metáfora de diana mostrando mayor precisión con ANCOVA")
+            )
+          )
+        )
+      )
+    )
+  )
+}
+
 # Pestaña 7: Referencias (ANCOVA)
 pestanna7_session9_v3UI <- function(ns) {
   bslib::nav_panel(
@@ -1133,6 +1294,7 @@ session9_v3UI <- function(id) {
       pestanna4_session9_v3UI(ns),
       pestanna5_session9_v3UI(ns),
       pestanna6_session9_v3UI(ns),
+      pestanna_extra_session9_v3UI(ns),
       pestanna7_session9_v3UI(ns)
     )
   )
