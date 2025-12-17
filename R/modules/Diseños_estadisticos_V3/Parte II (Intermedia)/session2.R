@@ -809,7 +809,7 @@ pestanna5_session2_v3UI <- function(ns) {
 pestanna_extra_session2_v3UI <- function(ns) {
   
   # Definir la ruta base para facilitar cambios futuros
-  base_path <- "images/sesiones/Diseños_estadisticos_V3/optimizada/"
+  base_path <- "images/sesiones/Disenos_estadisticos_V3/optimizada/"
   img_path  <- paste0(base_path, "session2/")
   
   nav_panel(
@@ -833,7 +833,7 @@ pestanna_extra_session2_v3UI <- function(ns) {
               # Asegúrate de tener el archivo en la carpeta www/images/
               # Si no tienes la imagen aún, esto mostrará un placeholder
               tags$img(
-                src = paste0(img_path, "whiteboard_models_anova.png"), , 
+                src = paste0(img_path, "whiteboard_models_anova.webp"), 
                 class = "img-fluid shadow-sm border rounded",
                 alt = "Pizarra comparativa de modelos lineales DCA vs RCBD",
                 style = "width: 100%; min-height: 300px; background-color: #f0f0f0;" 
@@ -869,7 +869,7 @@ pestanna_extra_session2_v3UI <- function(ns) {
                 div(class = "card-header", strong("DCA: Homogeneidad")),
                 div(class = "card-body text-center",
                     tags$img(
-                      src = paste0(img_path, "layout_crd_visual.png"), 
+                      src = paste0(img_path, "layout_crd_visual.webp"), 
                       class = "img-fluid mb-2",
                       alt = "Esquema de campo DCA",
                       style = "max-height: 300px;"
@@ -883,7 +883,7 @@ pestanna_extra_session2_v3UI <- function(ns) {
                 div(class = "card-header", strong("RCBD: Gradientes")),
                 div(class = "card-body text-center",
                     tags$img(
-                      src = paste0(img_path, "layout_rcbd_visual.png"), 
+                      src = paste0(img_path, "layout_rcbd_visual.webp"), 
                       class = "img-fluid mb-2",
                       alt = "Esquema de campo RCBD con gradiente",
                       style = "max-height: 300px;"
@@ -900,7 +900,7 @@ pestanna_extra_session2_v3UI <- function(ns) {
           title = "Infografía Resumen",
           div(class = "text-center",
             tags$img(
-              src = paste0(img_path, "infographic_decision_tree.png"), 
+              src = paste0(img_path, "infographic_decision_tree.webp"), 
               class = "img-fluid shadow",
               style = "max-width: 80%; border: 1px solid #ddd; padding: 10px;",
               alt = "Árbol de decisión para diseño experimental"
