@@ -1584,7 +1584,8 @@ m_ssp <- lmer(y ~ A*B*C +
 # Pestaña Extra: Esquemas Visuales
 pestanna_extra_session5_v3UI <- function(ns) {
   # Definir la ruta base para las imágenes de esta sesión
-  img_path <- "images/sesiones/Diseños_estadisticos_V3/session5/"
+  base_path <- "images/sesiones/Diseños_estadisticos_V3/optimizada/"
+  img_path  <- paste0(base_path, "session5/")
   
   bslib::nav_panel(
     title = "Extra: Esquemas Visuales",
